@@ -29,9 +29,9 @@ Este repositorio reúne conceptos, prácticas y ejemplos de código para entende
  
 ## Ejemplo Visual de Grafo de Petersen y el Límite de Ramanujan
 
-Este ejemplo visual muestra una animación del Grafo de Petersen en combinación con conceptos del límite de Ramanujan. La animación ayuda a ilustrar cómo estos conceptos interactúan en el contexto de la teoría de grafos y matemáticas avanzadas, proporcionando una visión intuitiva de su comportamiento y estructura.
+Este ejemplo visual muestra una animación del Grafo de Petersen en combinación con conceptos del límite de Ramanujan.
 
-![Ejemplo Visual de Grafo de Petersen y Ramanujan](imagenes/petersen_ramanujan_animation.gif)
+![Ejemplo Visual de Grafo de Petersen y Ramanujan](https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/petersen_ramanujan_animation%20(3).gif?raw=true)
 
 
 
