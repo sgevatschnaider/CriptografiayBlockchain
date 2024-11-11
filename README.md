@@ -27,9 +27,11 @@ Este repositorio reúne conceptos, prácticas y ejemplos de código para entende
   - Testeo y despliegue de contratos inteligentes.
   - Ejemplos de pruebas automatizadas con frameworks de JavaScript y TypeScript.
  
--** Ejemplos Visuales
-Animación de un Grafo de Petersen dinámico  
-Esta animación muestra el Grafo de Petersen y el límite de Ramanujan
+## Ejemplo Visual de Grafo de Petersen y el Límite de Ramanujan
+
+Este ejemplo visual muestra una animación del Grafo de Petersen en combinación con conceptos del límite de Ramanujan. La animación ayuda a ilustrar cómo estos conceptos interactúan en el contexto de la teoría de grafos y matemáticas avanzadas, proporcionando una visión intuitiva de su comportamiento y estructura.
+
+![Ejemplo Visual de Grafo de Petersen y Ramanujan](imagenes/petersen_ramanujan_animation.gif)
 
 
 
