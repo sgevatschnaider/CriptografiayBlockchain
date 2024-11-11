@@ -26,6 +26,12 @@ Este repositorio reúne conceptos, prácticas y ejemplos de código para entende
   - Configuración de entornos para desarrollo blockchain con herramientas como Hardhat, Remix, Truffle y Ganache.
   - Testeo y despliegue de contratos inteligentes.
   - Ejemplos de pruebas automatizadas con frameworks de JavaScript y TypeScript.
+ 
+-** Ejemplos Visuales
+Animación de un Grafo de Petersen dinámico  
+Esta animación muestra el Grafo de Petersen y el límite de Ramanujan
+
+
 
 ## Ejemplos y Código
 
