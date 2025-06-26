@@ -38,15 +38,24 @@ Navega directamente a la sección que más te interese:
 
 ---
 
+¡Perfecto! Aquí tienes únicamente la sección actualizada, lista para copiar y pegar en tu `README.md`.
+
+He usado el texto que proporcionaste y he formateado el enlace del GIF para que se muestre correctamente como una imagen centrada.
+
+---
+
 ### ✨ Más Allá del Código: La Belleza Matemática de la Criptografía
 
-La seguridad de Blockchain se apoya en profundos y elegantes conceptos matemáticos. La siguiente animación del **Grafo de Petersen**, un ejemplo de Grafo de Ramanujan, es una representación visual de la complejidad y belleza estructural que subyace en muchos algoritmos criptográficos modernos, especialmente en áreas de vanguardia como las pruebas de conocimiento cero (Zero-Knowledge Proofs) y las funciones hash basadas en grafos expansores.
+La siguiente animación, "Laboratorio Esteganográfico V3", simula una batalla cinemática entre un defensor y un atacante en el espacio complejo. Utiliza el conjunto de Julia como canal esteganográfico, ocultando bits de un mensaje en las regiones de alta entropía (caos) del fractal. Cada bit es una partícula que viaja a una posición determinada por una clave maestra.
+
+La simulación es una "ciberguerra" dinámica en tiempo real. Un mensaje secreto (partículas de colores) se oculta en el terreno digital (el fractal azul). Un atacante intenta encontrar esos datos, mientras las defensas resisten. Las partículas amarillas (en tránsito), cian/magenta (ocultas) y rojas (comprometidas) muestran el estado de la batalla, mientras que las barras de estado reflejan la integridad de la defensa y la presión del ataque.
 
 <p align="center">
-  <img src="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/assets/petersen_ramanujan_animation.gif?raw=true" alt="Animación del Grafo de Petersen" width="600"/>
+  <img src="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/41ff2c3aef64a71d61b1a9a4d99200c5ad3022f3/assets/ataque%20y%20defensa%20julia%20.gif?raw=true" alt="Animación de ciberguerra esteganográfica en un fractal de Julia" width="600"/>
 </p>
 
 ---
+
 
 ##  Puesta en Marcha: Tu Entorno de Desarrollo en Minutos
 
