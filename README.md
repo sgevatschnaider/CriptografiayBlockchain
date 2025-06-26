@@ -20,7 +20,7 @@ Aquí desmitificaremos conceptos como las firmas digitales, exploraremos la eleg
 La seguridad de Blockchain se apoya en profundos y elegantes conceptos matemáticos. La siguiente animación del Grafo de Petersen, relacionado con los límites de Ramanujan, es una representación visual de la complejidad y belleza estructural que subyace en muchos algoritmos criptográficos modernos, como los que se exploran en las pruebas de conocimiento cero (Zero-Knowledge Proofs).
 
 <p align="center">
-  <img src="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/petersen_ramanujan_animation%20(3).gif?raw=true" alt="Animación del Grafo de Petersen" width="600"/>
+  <img src="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/assets/petersen_ramanujan_animation.gif?raw=true" alt="Animación del Grafo de Petersen" width="600"/>
 </p>
 
 ---
