@@ -124,7 +124,7 @@ Este proyecto se construye sobre el estándar de la industria para el desarrollo
 
 Esta sección se inspira directamente en el paper seminal de Gerault, Ronen y Shamir. La investigación expone una brecha de seguridad fundamental cuando la criptografía, diseñada para el **dominio digital (bits)**, se implementa en redes neuronales, que operan en el **dominio analógico (números reales)**.
 
-> 📄 **Paper de Referencia:** [**How to Securely Implement Cryptography in Deep Neural Networks**](https://eprint.iacr.org/2023/288) (Gerault, D. et al., IACR ePrint Archive).
+> 📄 **Paper de Referencia:** [**How to Securely Implement Cryptography in Deep Neural Networks**](https://eprint.iacr.org/2023/288](https://eprint.iacr.org/2025/288)(https://eprint.iacr.org/2025/288)) (Gerault, D. et al., IACR ePrint Archive).
 
 A través de estas visualizaciones, podrás explorar este campo de batalla, simular el ataque de "extensión de dominio" y aplicar las defensas propuestas para neutralizar la amenaza.
 
