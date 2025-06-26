@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Análisis Criptográfico Avanzado - Funciones Complejas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0f1c 0%, #1a1f2e 50%, #0f1419 100%);
+            color: #e8f4f8;
+            font-family: 'Courier New', 'Monaco', monospace;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 380px 1fr 300px;
+            grid-template-rows: 1fr;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .panel {
+            background: rgba(10, 15, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        
+        #controls { grid-column: 1; }
+        #canvas-area { grid-column: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        #stats { grid-column: 3; }
+        
+        canvas {
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            background: #000;
+        }
+        
+        h1, h2, h3 {
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            margin-top: 0;
+        }
+        
+        h1 { font-size: 18px; text-align: center; margin-bottom: 25px; }
+        h2 { font-size: 16px; margin-bottom: 15px; }
+        h3 { font-size: 14px; margin-bottom: 10px; }
+        
+        .control-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 20, 40, 0.4);
+            border-radius: 8px;
+            border-left: 3px solid #00ffff;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ffff;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin: 8px 0;
+        }
+        
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 8px;
+        }
+        
+        select {
+            width: 100%;
+            background: rgba(0, 50, 100, 0.8);
+            color: #fff;
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        
+        .value-display {
+            color: #ff0080;
+            font-weight: bold;
+            float: right;
+        }
+        
+        .mode-indicator {
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 5px 0;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .mode-normal { background: rgba(0, 255, 255, 0.2); }
+        .mode-attack { background: rgba(255, 0, 128, 0.2); }
+        .mode-defense { background: rgba(255, 165, 0, 0.2); }
+        .mode-noise { background: rgba(128, 255, 0, 0.2); }
+        
+        #tooltip {
+            position: absolute;
+            z-index: 100;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #00ffff;
+            font-size: 12px;
+            max-width: 200px;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+            display: none;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .stat-box {
+            background: rgba(0, 30, 60, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ffff;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+        
+        .robustness-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(50, 50, 50, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .robustness-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0080 0%, #ffff00 50%, #00ff80 100%);
+            transition: width 0.3s ease;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            width: calc(50% - 10px);
+            font-size: 12px;
+        }
+        
+        button:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .formula {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #00ffff;
+            margin: 15px 0;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(100, 100, 100, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #00ffff;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 1400px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                height: auto;
+            }
+            #controls { grid-column: 1; grid-row: 1; }
+            #canvas-area { grid-column: 1; grid-row: 2; }
+            #stats { grid-column: 1; grid-row: 3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Panel de Controles -->
+        <div id="controls" class="panel">
+            <h1>🔬 Análisis Criptográfico<br>Funciones Complejas</h1>
+            
+            <div class="control-group">
+                <label>Función de Análisis (Primitiva Criptográfica):</label>
+                <select id="function-type">
+                    <option value="polynomial">Polinomio Complejo</option>
+                    <option value="sbox">S-Box Simulada</option>
+                    <option value="hash">Hash Fractal</option>
+                    <option value="mandelbrot">Conjunto de Mandelbrot</option>
+                    <option value="julia">Conjunto de Julia</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Parámetro Principal (n/grado):
+                    <span class="value-display" id="degree-value">7</span>
+                </label>
+                <input id="degree" type="range" min="3" max="12" step="1" value="7">
+            </div>
+            
+            <div class="control-group">
+                <label>Parámetro Temporal (t):
+                    <span class="value-display" id="t-value">0.00</span>
+                </label>
+                <input id="param-t" type="range" min="0" max="6.283" step="0.05" value="0">
+            </div>
+            
+            <div class="control-group">
+                <label>Resolución de Análisis:
+                    <span class="value-display" id="resolution-value">250</span>
+                </label>
+                <input id="resolution" type="range" min="150" max="400" step="25" value="250">
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="diff-attack" checked>
+                    🔍 Análisis Diferencial Activo
+                </label>
+                <div class="mode-indicator mode-attack" id="attack-indicator">
+                    Detección de vulnerabilidades: ON
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Umbral de Sensibilidad:
+                    <span class="value-display" id="thresh-value">0.15</span>
+                </label>
+                <input id="thresh" type="range" min="0.05" max="0.5" step="0.01" value="0.15">
+            </div>
+            
+            <div class="control-group">
+                <label>Método de Defensa (Contramedida):</label>
+                <select id="defense-method">
+                    <option value="none">Sin Protección</option>
+                    <option value="masking">Enmascaramiento Binario</option>
+                    <option value="noise">Filtrado con Ruido</option>
+                    <option value="adaptive">Defensa Adaptativa</option>
+                </select>
+                <div class="mode-indicator mode-defense" id="defense-indicator" style="display:none">
+                    Sistema de protección activo
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Intensidad de Ruido (Defensa):
+                    <span class="value-display" id="noise-value">0.3</span>
+                </label>
+                <input id="noise-level" type="range" min="0.1" max="1.0" step="0.1" value="0.3">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                <button onclick="toggleAnimation()">▶️ Animar</button>
+                <button onclick="resetAnalysis()">🔄 Reset</button>
+                <button onclick="exportFrame()">📸 Captura</button>
+                <button onclick="generateReport()">📊 Reporte</button>
+            </div>
+            
+            <div class="formula">
+                <strong>Función Actual:</strong><br>
+                <span id="current-formula">f(z,t) = ((z^n - 1)(z - e^{it})) / (z² + e^{it})</span>
+            </div>
+        </div>
+        
+        <!-- Área del Canvas: Visualización del plano complejo -->
+        <div id="canvas-area">
+            <canvas id="plot" width="500" height="500"></canvas>
+        </div>
+        
+        <!-- Panel de Estadísticas y Métricas en Tiempo Real -->
+        <div id="stats" class="panel">
+            <h2>📈 Métricas en Tiempo Real</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-value" id="vulnerable-percent">0%</span>
+                    <div class="stat-label">Área Vulnerable</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-value" id="protected-percent">0%</span>
+                    <div class="stat-label">Área Protegida</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-value" id="entropy-value">0.0</span>
+                    <div class="stat-label">Entropía Visual</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-value" id="complexity-value">0.0</span>
+                    <div class="stat-label">Complejidad</div>
+                </div>
+            </div>
+            
+            <h3>🛡️ Índice de Robustez Cuantitativo</h3>
+            <div class="robustness-bar">
+                <div class="robustness-fill" id="robustness-fill" style="width: 0%"></div>
+            </div>
+            <div style="text-align: center; margin: 10px 0;">
+                <strong id="robustness-text">Evaluando...</strong>
+            </div>
+            
+            <h3>🎯 Análisis de Amenazas</h3>
+            <div class="method-option">
+                <strong>Ataque Diferencial:</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="diff-threat" style="width: 0%"></div>
+                </div>
+                <small id="diff-status">Evaluando resistencia...</small>
+            </div>
+            
+            <div class="method-option">
+                <strong>Resist. Fuerza Bruta (Complejidad):</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="brute-threat" style="width: 0%"></div>
+                </div>
+                <small id="brute-status">Calculando complejidad...</small>
+            </div>
+            
+            <div class="method-option">
+                <strong>Análisis de Correlación (Entropía):</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="corr-threat" style="width: 0%"></div>
+                </div>
+                <small id="corr-status">Midiendo patrones...</small>
+            </div>
+            
+            <h3>📊 Log de Eventos</h3>
+            <div id="event-log" style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 6px; max-height: 150px; overflow-y: auto; font-size: 11px;">
+            </div>
+            
+            <h3>🎨 Leyenda de Colores</h3>
+            <div style="font-size: 12px;">
+                <div style="margin: 5px 0;"><span style="color:#00ffff">■</span> Función base (fase+módulo)</div>
+                <div style="margin: 5px 0;"><span style="color:#ff0080">■</span> Zonas vulnerables detectadas</div>
+                <div style="margin: 5px 0;"><span style="color:#333333; background: #FFF;">■</span> Áreas enmascaradas (Negro)</div>
+                <div style="margin: 5px 0;"><span style="color:#80ff00">■</span> Ruido de protección</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="tooltip"></div>
+
+    <script>
+        // =========================================================================
+        //  LABORATORIO DE CRIPTOANÁLISIS AVANZADO - SIMULADOR INTERACTIVO
+        // =========================================================================
+        // Este script unifica el análisis de funciones, la simulación de ataques
+        // diferenciales, la implementación de contramedidas y la visualización
+        // de métricas de seguridad en tiempo real.
+        // =========================================================================
+
+        // =============== VARIABLES GLOBALES Y DE ESTADO ===============
+        const canvas = document.getElementById("plot");
+        const ctx = canvas.getContext("2d");
+        let currentResolution = 250;
+        let plotRange = 2.0;
+        let degree = 7;
+        let t = 0;
+        let showDiff = true;
+        let diffThresh = 0.15;
+        let defenseMethod = 'none';
+        let noiseLevel = 0.3;
+        let isAnimating = false;
+        let animationId = null;
+        let currentFunction = 'polynomial';
+        
+        // Objeto para estadísticas en tiempo real.
+        let stats = {
+            vulnerablePixels: 0,
+            protectedPixels: 0,
+            totalPixels: 0,
+            entropy: 0,
+            complexity: 0,
+            robustness: 0
+        };
+
+        // =============== LIBRERÍA DE ARITMÉTICA COMPLEJA ===============
+        function expi(x) { return [Math.cos(x), Math.sin(x)]; }
+        function cadd(a, b) { return [a[0] + b[0], a[1] + b[1]]; }
+        function csub(a, b) { return [a[0] - b[0], a[1] - b[1]]; }
+        function cmul(a, b) { return [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]]; }
+        function cdiv(a, b) {
+            let den = b[0]*b[0] + b[1]*b[1];
+            if (den < 1e-12) return [0, 0];
+            return [(a[0]*b[0] + a[1]*b[1])/den, (a[1]*b[0] - a[0]*b[1])/den];
+        }
+        function cpow(a, n) {
+            if (n === 0) return [1, 0];
+            let [r, phi] = [Math.hypot(a[0], a[1]), Math.atan2(a[1], a[0])];
+            if (r < 1e-12) return [0, 0];
+            r = Math.pow(r, n);
+            phi = phi * n;
+            return [r*Math.cos(phi), r*Math.sin(phi)];
+        }
+        function cabs(a) { return Math.hypot(a[0], a[1]); }
+        function carg(a) { return Math.atan2(a[1], a[0]); }
+        function pseudoRandom(x, y, seed = 12345) {
+            let hash = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453;
+            return hash - Math.floor(hash);
+        }
+
+        // =============== BANCO DE FUNCIONES (ARQUITECTURA MODULAR) ===============
+        // Permite probar diferentes primitivas criptográficas o funciones matemáticas.
+        function evaluateFunction(z, t, functionType, params) {
+            switch(functionType) {
+                case 'polynomial':
+                    return polynomialFunction(z, t, params.degree);
+                case 'sbox':
+                    return sboxFunction(z, t, params.degree);
+                case 'hash':
+                    return hashFunction(z, t, params.degree);
+                case 'mandelbrot':
+                    return mandelbrotFunction(z, t, params.degree);
+                case 'julia':
+                    return juliaFunction(z, t, params.degree);
+                default:
+                    return polynomialFunction(z, t, params.degree);
+            }
+        }
+        
+        function polynomialFunction(z, t, deg) {
+            let z_n = cpow(z, deg);
+            let num1 = csub(z_n, [1, 0]);
+            let num2 = csub(z, expi(t));
+            let numerator = cmul(num1, num2);
+            let z_squared = cmul(z, z);
+            let denominator = cadd(z_squared, expi(t));
+            return cdiv(numerator, denominator);
+        }
+        
+        function sboxFunction(z, t, deg) { // Simula una S-Box como transformación no lineal
+            let z_mod = [(z[0] + Math.sin(t)) % 2 - 1, (z[1] + Math.cos(t)) % 2 - 1];
+            let result = cpow(z_mod, deg);
+            return [result[0] * Math.sin(deg * t), result[1] * Math.cos(deg * t)];
+        }
+        
+        function hashFunction(z, t, deg) { // Simula una función de compresión de hash con comportamiento caótico
+            let x = z[0] + t * 0.1; let y = z[1] + t * 0.1;
+            for(let i = 0; i < deg; i++) {
+                let newX = Math.sin(x * y) + Math.cos(y * t);
+                let newY = Math.sin(y * x) + Math.cos(x * t);
+                x = newX; y = newY;
+            }
+            return [x, y];
+        }
+        
+        function mandelbrotFunction(z, t, iterations) {
+            let c = [z[0] + 0.1 * Math.cos(t), z[1] + 0.1 * Math.sin(t)]; let w = [0, 0];
+            for(let i = 0; i < iterations; i++) { if(cabs(w) > 2) break; w = cadd(cmul(w, w), c); }
+            return w;
+        }
+        
+        function juliaFunction(z, t, iterations) {
+            let c = [Math.cos(t) * 0.7, Math.sin(t) * 0.7]; let w = z;
+            for(let i = 0; i < iterations; i++) { if(cabs(w) > 2) break; w = cadd(cmul(w, w), c); }
+            return w;
+        }
+
+        // =============== SISTEMA DE COLORES (Domain Coloring) ===============
+        function advancedColorMapping(F, logMagPeriod = Math.log(10), gridPeriod = 2.0) {
+            let phase = carg(F);
+            let hue = ((phase + Math.PI) / (2 * Math.PI)) % 1;
+            let saturation = 0.9;
+            let logMag = Math.log(cabs(F) + 1e-12);
+            let lightContour = 0.5 + 0.5 * Math.sin(2 * Math.PI * logMag / logMagPeriod);
+            let realGrid = 0.5 + 0.5 * Math.sin(Math.PI * F[0] / gridPeriod);
+            let imagGrid = 0.5 + 0.5 * Math.sin(Math.PI * F[1] / gridPeriod);
+            let gridEffect = Math.pow(realGrid * imagGrid, 0.3);
+            let value = Math.max(0.1, Math.min(1, lightContour * gridEffect));
+            return hsv2rgb(hue, saturation, value);
+        }
+
+        function hsv2rgb(h, s, v) {
+            let c = v * s, x = c * (1 - Math.abs(((h * 6) % 2) - 1)), m = v - c, r, g, b;
+            if (h < 1/6) { r = c; g = x; b = 0; } else if (h < 2/6) { r = x; g = c; b = 0; }
+            else if (h < 3/6) { r = 0; g = c; b = x; } else if (h < 4/6) { r = 0; g = x; b = c; }
+            else if (h < 5/6) { r = x; g = 0; b = c; } else { r = c; g = 0; b = x; }
+            return [(r + m) * 255, (g + m) * 255, (b + m) * 255];
+        }
+
+        // =============== MÓDULO DE CONTRAMEDIDAS (DEFENSAS) ===============
+        // Implementa diferentes estrategias para mitigar las vulnerabilidades detectadas.
+        function applyDefenseStrategy(z, F, isVulnerable, method) {
+            switch(method) {
+                case 'none': // Sin defensa, se muestra la vulnerabilidad
+                    return { color: advancedColorMapping(F), protected: false };
+                case 'masking': // Defensa por enmascaramiento: oculta la salida en zonas vulnerables.
+                    if (isVulnerable) return { color: [25, 25, 25], protected: true };
+                    return { color: advancedColorMapping(F), protected: false };
+                case 'noise': // Defensa por ruido: ofusca la salida con valores aleatorizados.
+                    if (isVulnerable) {
+                        let noise = pseudoRandom(z[0] * 100, z[1] * 100, t * 1000);
+                        let baseColor = advancedColorMapping(F);
+                        let noiseColor = [128 + 127 * Math.sin(noise * Math.PI * 2), 255 * noise, 128 + 127 * Math.cos(noise * Math.PI * 2)];
+                        return { color: [baseColor[0] * (1 - noiseLevel) + noiseColor[0] * noiseLevel, baseColor[1] * (1 - noiseLevel) + noiseColor[1] * noiseLevel, baseColor[2] * (1 - noiseLevel) + noiseColor[2] * noiseLevel], protected: true };
+                    }
+                    return { color: advancedColorMapping(F), protected: false };
+                case 'adaptive': // Defensa adaptativa: cambia de estrategia dinámicamente.
+                    if (isVulnerable) {
+                        let adaptFactor = Math.sin(t * 2 + z[0] + z[1]) * 0.5 + 0.5;
+                        if (adaptFactor > 0.6) return { color: [20, 20, 20], protected: true }; // Masking
+                        else { let noise = pseudoRandom(z[0] * 50, z[1] * 50, t * 500); return { color: [100 + 155 * noise, 200 * noise, 100 + 155 * (1-noise)], protected: true }; } // Noise
+                    }
+                    return { color: advancedColorMapping(F), protected: false };
+                default:
+                    return { color: advancedColorMapping(F), protected: false };
+            }
+        }
+
+        // =============== MOTOR DE RENDERIZADO Y ANÁLISIS PRINCIPAL ===============
+        function render() {
+            const w = canvas.width = currentResolution;
+            const h = canvas.height = currentResolution;
+            let imgData = ctx.createImageData(w, h);
+            const dt = 0.01; // Pequeña delta para el análisis diferencial
+            
+            stats.vulnerablePixels = 0; stats.protectedPixels = 0; stats.totalPixels = w * h;
+            let colorValues = [];
+
+            for (let ix = 0; ix < w; ix++) {
+                for (let iy = 0; iy < h; iy++) {
+                    let zx = (ix / w) * (2 * plotRange) - plotRange;
+                    let zy = (iy / h) * (2 * plotRange) - plotRange;
+                    let z = [zx, zy];
+                    
+                    let F0 = evaluateFunction(z, t, currentFunction, { degree });
+                    let isVulnerable = false;
+                    
+                    // NÚCLEO DEL ANÁLISIS DIFERENCIAL: Compara la salida en t y t+dt.
+                    if (showDiff) {
+                        let F1 = evaluateFunction(z, t + dt, currentFunction, { degree });
+                        let diff = cabs(csub(F1, F0));
+                        isVulnerable = diff > diffThresh;
+                        if (isVulnerable) stats.vulnerablePixels++;
+                    }
+                    
+                    // Aplicar contramedida seleccionada
+                    let defenseResult = applyDefenseStrategy(z, F0, isVulnerable, defenseMethod);
+                    if (defenseResult.protected) stats.protectedPixels++;
+                    
+                    // Visualización final: Magenta si es vulnerable y no hay defensa.
+                    let finalColor = (isVulnerable && defenseMethod === 'none' && showDiff) ? [255, 0, 128] : defenseResult.color;
+                    
+                    let idx = (iy * w + ix) * 4;
+                    imgData.data[idx] = Math.round(finalColor[0]);
+                    imgData.data[idx+1] = Math.round(finalColor[1]);
+                    imgData.data[idx+2] = Math.round(finalColor[2]);
+                    imgData.data[idx+3] = 255;
+                    
+                    colorValues.push((finalColor[0] + finalColor[1] + finalColor[2]) / 3);
+                }
+            }
+            
+            ctx.putImageData(imgData, 0, 0);
+            
+            calculateAdvancedMetrics(colorValues);
+            updateUI();
+        }
+
+        // =============== CÁLCULO DE MÉTRICAS AVANZADAS DE SEGURIDAD ===============
+        function calculateAdvancedMetrics(colorValues) {
+            // Entropía de Shannon: Mide la impredictibilidad visual de la salida.
+            let histogram = new Array(256).fill(0);
+            colorValues.forEach(val => { let bin = Math.floor(val); if (bin >= 0 && bin < 256) histogram[bin]++; });
+            let entropy = 0; let total = colorValues.length;
+            histogram.forEach(count => { if (count > 0) { let p = count / total; entropy -= p * Math.log2(p); } });
+            stats.entropy = entropy;
+            
+            // Complejidad Visual: Mide la varianza de la imagen (más estructura = menos complejo).
+            let mean = colorValues.reduce((a, b) => a + b, 0) / colorValues.length;
+            let variance = colorValues.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / colorValues.length;
+            stats.complexity = Math.sqrt(variance) / 128; // Normalizado
+            
+            // Índice de Robustez: Métrica agregada que combina resistencia, protección y entropía.
+            let vulnerabilityRatio = stats.vulnerablePixels / stats.totalPixels;
+            let protectionRatio = stats.protectedPixels / stats.totalPixels;
+            let entropyNorm = stats.entropy / 8; // Normalizado a 8 bits de entropía máxima
+            stats.robustness = Math.max(0, Math.min(1, (1 - vulnerabilityRatio) * 0.5 + protectionRatio * 0.2 + entropyNorm * 0.3));
+        }
+
+        // =============== ACTUALIZACIÓN DE LA INTERFAZ DE USUARIO (UI) ===============
+        function updateUI() {
+            document.getElementById('vulnerable-percent').textContent = ((stats.vulnerablePixels / stats.totalPixels) * 100).toFixed(1) + '%';
+            document.getElementById('protected-percent').textContent = ((stats.protectedPixels / stats.totalPixels) * 100).toFixed(1) + '%';
+            document.getElementById('entropy-value').textContent = stats.entropy.toFixed(2);
+            document.getElementById('complexity-value').textContent = stats.complexity.toFixed(2);
+            
+            let robustnessPercent = (stats.robustness * 100);
+            document.getElementById('robustness-fill').style.width = robustnessPercent + '%';
+            
+            let robustnessText = 'CRÍTICO';
+            if (robustnessPercent > 85) robustnessText = 'ROBUSTO';
+            else if (robustnessPercent > 70) robustnessText = 'SEGURO';
+            else if (robustnessPercent > 50) robustnessText = 'MODERADO';
+            else if (robustnessPercent > 30) robustnessText = 'DÉBIL';
+            document.getElementById('robustness-text').textContent = robustnessText;
+            
+            updateThreatAnalysis();
+        }
+
+        function updateThreatAnalysis() {
+            let diffThreat = Math.min(100, (stats.vulnerablePixels / stats.totalPixels) / diffThresh * 50);
+            document.getElementById('diff-threat').style.width = diffThreat + '%';
+            document.getElementById('diff-status').textContent = diffThreat > 70 ? 'ALTO RIESGO' : diffThreat > 40 ? 'Riesgo moderado' : 'Resistencia adecuada';
+            
+            let bruteThreat = Math.max(0, (1 - stats.complexity) * 100);
+            document.getElementById('brute-threat').style.width = bruteThreat + '%';
+            document.getElementById('brute-status').textContent = bruteThreat > 60 ? 'Baja complejidad - Vulnerable' : bruteThreat > 30 ? 'Complejidad media' : 'Alta complejidad - Seguro';
+            
+            let corrThreat = Math.max(0, (1 - (stats.entropy / 8)) * 100);
+            document.getElementById('corr-threat').style.width = corrThreat + '%';
+            document.getElementById('corr-status').textContent = corrThreat > 60 ? 'Patrones detectables' : corrThreat > 30 ? 'Algunos patrones' : 'Distribución ideal';
+        }
+
+        // =============== FUNCIONES DE CONTROL Y ANIMACIÓN DINÁMICA ===============
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            let button = document.querySelector('button[onclick="toggleAnimation()"]');
+            if (isAnimating) { button.textContent = '⏸️ Pausar'; animate(); }
+            else { button.textContent = '▶️ Animar'; if (animationId) cancelAnimationFrame(animationId); }
+        }
+
+        function animate() {
+            if (!isAnimating) return;
+            t = (t + 0.02) % (2 * Math.PI);
+            document.getElementById('t-value').textContent = t.toFixed(2);
+            document.getElementById('param-t').value = t;
+            render();
+            // No loguear en cada frame para no saturar el log
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function resetAnalysis() {
+            isAnimating = false; if (animationId) cancelAnimationFrame(animationId);
+            document.querySelector('button[onclick="toggleAnimation()"]').textContent = '▶️ Animar';
+            t = 0; document.getElementById('param-t').value = 0; document.getElementById('t-value').textContent = '0.00';
+            logEvent('Sistema reiniciado a parámetros por defecto.');
+            render();
+        }
+
+        function exportFrame() {
+            let link = document.createElement('a');
+            link.download = `crypto_analysis_${currentFunction}_t${t.toFixed(2)}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            logEvent(`Captura de frame exportada.`);
+        }
+
+        function generateReport() {
+            const report = { timestamp: new Date().toISOString(), function: currentFunction, parameters: { degree, t, resolution: currentResolution, diffThreshold: diffThresh, defenseMethod, noiseLevel }, security_metrics: { vulnerability_percentage: ((stats.vulnerablePixels / stats.totalPixels) * 100).toFixed(2), protection_percentage: ((stats.protectedPixels / stats.totalPixels) * 100).toFixed(2), entropy: stats.entropy.toFixed(3), complexity: stats.complexity.toFixed(3), robustness_index: stats.robustness.toFixed(3) } };
+            let blob = new Blob([JSON.stringify(report, null, 2)], {type: 'application/json'});
+            let link = document.createElement('a');
+            link.download = `crypto_security_report_${Date.now()}.json`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            logEvent('Reporte de seguridad en JSON generado.');
+        }
+
+        function logEvent(message) {
+            let log = document.getElementById('event-log');
+            let timestamp = new Date().toLocaleTimeString();
+            let entry = document.createElement('div');
+            entry.innerHTML = `<span style="color:#666">[${timestamp}]</span> ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            if (log.children.length > 20) log.removeChild(log.firstChild);
+        }
+
+        function updateFormula() {
+            let formula = '';
+            switch(currentFunction) {
+                case 'polynomial': formula = `f(z,t) = ((z^${degree} - 1)(z - e^{it})) / (z² + e^{it})`; break;
+                case 'sbox': formula = `S(z,t) = ((z + sin(t))^${degree}) ⊗ (sin, cos)`; break;
+                case 'hash': formula = `H(z,t) = Iterate[sin(xy) + cos(yt), ${degree}]`; break;
+                case 'mandelbrot': formula = `M(z,t) = z_{n+1} = z_n² + c(t), |z| ≤ 2`; break;
+                case 'julia': formula = `J(z,t) = z_{n+1} = z_n² + (0.7cos(t) + 0.7isin(t))`; break;
+            }
+            document.getElementById('current-formula').textContent = formula;
+        }
+
+        // =============== EVENT LISTENERS (MANEJO DE INTERACCIÓN) ===============
+        document.getElementById('function-type').addEventListener('change', (e) => { currentFunction = e.target.value; updateFormula(); logEvent(`Función cambiada a: ${currentFunction}`); render(); });
+        document.getElementById('degree').addEventListener('input', (e) => { degree = parseInt(e.target.value); document.getElementById('degree-value').textContent = degree; updateFormula(); render(); });
+        document.getElementById('param-t').addEventListener('input', (e) => { t = parseFloat(e.target.value); document.getElementById('t-value').textContent = t.toFixed(2); render(); });
+        document.getElementById('resolution').addEventListener('input', (e) => { currentResolution = parseInt(e.target.value); document.getElementById('resolution-value').textContent = currentResolution; render(); });
+        document.getElementById('diff-attack').addEventListener('change', (e) => { showDiff = e.target.checked; logEvent(`Análisis diferencial: ${showDiff ? 'ACTIVADO' : 'DESACTIVADO'}`); render(); });
+        document.getElementById('thresh').addEventListener('input', (e) => { diffThresh = parseFloat(e.target.value); document.getElementById('thresh-value').textContent = diffThresh; render(); });
+        document.getElementById('defense-method').addEventListener('change', (e) => { defenseMethod = e.target.value; document.getElementById('defense-indicator').style.display = (defenseMethod !== 'none') ? 'block' : 'none'; logEvent(`Defensa activada: ${defenseMethod}`); render(); });
+        document.getElementById('noise-level').addEventListener('input', (e) => { noiseLevel = parseFloat(e.target.value); document.getElementById('noise-value').textContent = noiseLevel; if (defenseMethod === 'noise') render(); });
+
+        // =============== INICIALIZACIÓN DEL SISTEMA ===============
+        function init() {
+            updateFormula();
+            logEvent('Sistema de análisis criptográfico inicializado.');
+            render();
+        }
+
+        window.addEventListener('load', init);
+
+        canvas.addEventListener('mousemove', (e) => {
+            let rect = canvas.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
+            let zx = (x / canvas.width) * (2 * plotRange) - plotRange, zy = (y / canvas.height) * (2 * plotRange) - plotRange;
+            let F = evaluateFunction([zx, zy], t, currentFunction, { degree });
+            let tooltip = document.getElementById('tooltip');
+            tooltip.style.display = 'block';
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+            tooltip.innerHTML = `z = ${zx.toFixed(3)} + ${zy.toFixed(3)}i<br>|f(z)| = ${cabs(F).toExponential(2)}<br>arg(f(z)) = ${(carg(F) * 180 / Math.PI).toFixed(1)}°`;
+        });
+        canvas.addEventListener('mouseleave', () => { document.getElementById('tooltip').style.display = 'none'; });
+    </script>
+</body>
+</html>
