@@ -40,15 +40,13 @@ Navigate directly to the section that interests you most:
 
 ---
 
-### ✨ Beyond the Code: The Mathematical Beauty of Cryptography
+✨ Beyond the Code: The Mathematical Beauty of Cryptography
 
-Blockchain security relies on deep and elegant mathematical concepts. The following animation of the **Petersen Graph**, an example of a Ramanujan Graph, is a visual representation of the complexity and structural beauty underlying many modern cryptographic algorithms, especially in cutting-edge areas like Zero-Knowledge Proofs and hash functions based on expander graphs.
-
+The following animation, "Steganographic Laboratory V3," simulates a cinematic battle between a defender and an attacker in the complex plane. It uses the Julia set as a steganographic channel, hiding bits of a message in the high-entropy (chaotic) regions of the fractal. Each bit is a particle that travels to a position determined by a master key.
+The simulation is a dynamic, real-time 'cyberwar.' A secret message (colored particles) is hidden in the digital terrain (the blue fractal). An attacker attempts to find this data, while the defenses resist. The yellow (in transit), cyan/magenta (hidden), and red (compromised) particles show the state of the battle, while the status bars reflect the defense's integrity and the attacker's pressure.
 <p align="center">
-  <img src="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/assets/petersen_ramanujan_animation.gif?raw=true" alt="Petersen Graph Animation" width="600"/>
+<img src="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/41ff2c3aef64a71d61b1a9a4d99200c5ad3022f3/assets/ataque%20y%20defensa%20julia%20.gif?raw=true" alt="Animation of steganographic cyberwar on a Julia set fractal" width="600"/>
 </p>
-
----
 
 ##  Getting Started: Your Development Environment in Minutes
 
