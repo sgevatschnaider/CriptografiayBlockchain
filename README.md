@@ -124,19 +124,9 @@ Crea una nueva rama descriptiva: git checkout -b feature/mi-increible-mejora.
 Haz tus cambios y realiza commits claros y concisos.
 Envía un Pull Request a la rama main explicando qué problema solucionas o qué funcionalidad añades.
 Para más detalles, consulta nuestras DIRECTRICES DE CONTRIBUCIÓN (próximamente).
+
 📄 Licencia
 Este proyecto se distribuye bajo la Licencia MIT. Consulta el archivo LICENSE en la raíz del repositorio para más detalles.
-4.  **Pequeños Refinamientos:**
-    *   Añadí `pnpm` como una opción recomendada en la sección de instalación, ya que es muy común en el ecosistema de desarrollo web y blockchain por su eficiencia.
-    *   Ajusté los nombres de los encabezados para que fueran más descriptivos y atractivos (ej. "Hoja de Ruta Temática" en lugar de "Hoja de Ruta Temática").
 
-### **Recomendaciones Adicionales como Experto**
 
-Para llevar tu repositorio al siguiente nivel (al igual que el de IA):
 
-1.  **Crea `README.md` por Módulo:** Dentro de cada carpeta principal (`1-cryptography/`, `2-blockchain-fundamentals/`, etc.), crea un archivo `README.md`. En él, puedes detallar los objetivos de ese módulo, listar los scripts o contratos específicos y enlazarlos directamente.
-2.  **Badges de Interacción:** Así como el repo de IA tiene "Open in Colab", podrías considerar añadir badges "Open in Remix" para tus contratos `.sol`. Esto permitiría a los usuarios jugar con el contrato en un IDE web con un solo clic.
-    *   La URL se construye así: `https://remix.ethereum.org/?url=URL_RAW_DEL_CONTRATO_EN_GITHUB`
-3.  **Completa las Directrices de Contribución:** Crea el archivo `CONTRIBUTING.md` que mencionas. Un buen archivo de contribución es una señal de un proyecto maduro y bien mantenido.
-
-Con estos cambios, tu repositorio no solo será funcional y conceptualmente sólido, sino que también ofrecerá una experiencia de usuario y desarrollador de primer nivel, invitando a la exploración y la contribución.
