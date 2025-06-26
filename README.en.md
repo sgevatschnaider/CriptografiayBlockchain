@@ -126,7 +126,7 @@ This project is built on the industry standard for development in the EVM ecosys
 
 This section is directly inspired by the seminal paper by Gerault, Ronen and Shamir. The research exposes a fundamental security gap when cryptography, designed for the **digital domain (bits)**, is implemented in neural networks, which operate in the **analog domain (real numbers)**.
 
-> 📄 **Reference Paper:** [**How to Securely Implement Cryptography in Deep Neural Networks**](https://eprint.iacr.org/2023/288) (Gerault, D. et al., IACR ePrint Archive).
+> 📄 **Reference Paper:** [**How to Securely Implement Cryptography in Deep Neural Networks**](https://eprint.iacr.org/2025/288) (Gerault, D. et al., IACR ePrint Archive).
 
 Through these visualizations, you can explore this battlefield, simulate the "domain extension" attack and apply the proposed defenses to neutralize the threat.
 
