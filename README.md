@@ -11,13 +11,27 @@
 
 Este repositorio no es solo una colección de código; es una **hoja de ruta estructurada y práctica** para adentrarse en el universo de la confianza digital. Ha sido diseñado para desarrolladores, estudiantes e innovadores que buscan dominar los pilares de la Criptografía y la tecnología Blockchain, desde los fundamentos matemáticos hasta el despliegue de su primera Aplicación Descentralizada (dApp).
 
-Aquí desmitificaremos conceptos como las firmas digitales, exploraremos la elegancia de los algoritmos de consenso y escribiremos contratos inteligentes seguros y eficientes. **Nuestra misión: empoderarte con las herramientas para que no solo uses la tecnología, sino que la entiendas y la crees.**
+**Nuestra misión:** empoderarte con las herramientas para que no solo uses la tecnología, sino que la entiendas y la crees.
+
+---
+
+## 🗺️ Hoja de Ruta del Conocimiento (Índice)
+
+Navega directamente a la sección que más te interese:
+
+*   [Visión Conceptual: La Belleza Matemática](#-más-allá-del-código-la-belleza-matemática-de-la-criptografía)
+*   [Puesta en Marcha: Tu Entorno en Minutos](#-puesta-en-marcha-tu-entorno-de-desarrollo-en-minutos)
+*   [Estructura Temática: Tu Viaje de Aprendizaje](#-estructura-temática-tu-viaje-de-aprendizaje)
+*   [Arquitectura del Repositorio](#-arquitectura-del-repositorio)
+*   [Herramientas y Tecnologías](#️-herramientas-y-tecnologías-utilizadas)
+*   [Cómo Contribuir](#-cómo-contribuir)
+*   [Licencia](#-licencia)
 
 ---
 
 ### ✨ Más Allá del Código: La Belleza Matemática de la Criptografía
 
-La seguridad de Blockchain se apoya en profundos y elegantes conceptos matemáticos. La siguiente animación del Grafo de Petersen, relacionado con los límites de Ramanujan, es una representación visual de la complejidad y belleza estructural que subyace en muchos algoritmos criptográficos modernos, como los que se exploran en las pruebas de conocimiento cero (Zero-Knowledge Proofs).
+La seguridad de Blockchain se apoya en profundos y elegantes conceptos matemáticos. La siguiente animación del **Grafo de Petersen**, un ejemplo de Grafo de Ramanujan, es una representación visual de la complejidad y belleza estructural que subyace en muchos algoritmos criptográficos modernos, especialmente en áreas de vanguardia como las pruebas de conocimiento cero (Zero-Knowledge Proofs) y las funciones hash basadas en grafos expansores.
 
 <p align="center">
   <img src="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/assets/petersen_ramanujan_animation.gif?raw=true" alt="Animación del Grafo de Petersen" width="600"/>
@@ -35,8 +49,12 @@ Para empezar a experimentar con los ejemplos y proyectos, sigue estos sencillos 
     cd CriptografiayBlockchain
     ```
 2.  **Instala las Dependencias:**
-    Asegúrate de tener [Node.js](https://nodejs.org/) (v16 o superior) instalado.
+    Asegúrate de tener [Node.js](https://nodejs.org/) (v16 o superior) y [pnpm](https://pnpm.io/) (recomendado) instalado.
     ```bash
+    # Usando pnpm (recomendado)
+    pnpm install
+    
+    # O con npm
     npm install
     ```
 3.  **Ejecuta las Pruebas (Recomendado):**
@@ -49,17 +67,17 @@ Para empezar a experimentar con los ejemplos y proyectos, sigue estos sencillos 
 
 ---
 
-## 🗺️ Hoja de Ruta Temática: Tu Viaje de Aprendizaje
+## 📚 Estructura Temática: Tu Viaje de Aprendizaje
 
 Este repositorio está organizado en módulos progresivos. Te recomendamos seguir el orden para construir una base sólida.
 
-| Módulo                                          | Descripción                                                                                                                                                                                                           | Tecnologías Clave          |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| 🔐 **1. Criptografía: Los Pilares de la Confianza** | Comprende los fundamentos que hacen posible la seguridad en blockchain. Aprenderás sobre hashing para garantizar la integridad, cifrado asimétrico para la propiedad y firmas digitales para la autenticidad. | `JavaScript`, `ethers.js`  |
-| 🔗 **2. Fundamentos de Blockchain**               | Descubre la anatomía de una blockchain. Ensamblarás la estructura de un bloque, implementarás una prueba de trabajo (Proof-of-Work) básica y analizarás los mecanismos de consenso que dan vida a la red.    | `TypeScript`, `Hardhat`    |
-| 📝 **3. Contratos Inteligentes (Smart Contracts)** | Adéntrate en la lógica programable de la blockchain. Escribirás, probarás y desplegarás tus primeros contratos inteligentes, aprendiendo las mejores prácticas de seguridad para evitar vulnerabilidades.     | `Solidity`, `Hardhat`, `Chai` |
-| 🏦 **4. Protocolos DeFi Descentralizados**      | Explora el ecosistema financiero del futuro. Analizaremos los mecanismos detrás de los intercambios descentralizados (DEX), los protocolos de préstamos y las soluciones de escalabilidad como los Rollups. | `Solidity`, `TypeScript`   |
-| ⚙️ **5. Herramientas del Ecosistema**           | Domina el arsenal del desarrollador blockchain. Te guiaremos en la configuración y uso de herramientas profesionales como Hardhat, Remix, Truffle y Ganache para un flujo de trabajo eficiente.           | `Hardhat`, `Remix`, `Truffle`|
+| Módulo                                          | Descripción                                                                                                                                                                                                                                                                         | Tecnologías Clave          |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 🔐 **1. Criptografía: Los Pilares**             | <details><summary>Comprende los fundamentos que hacen posible la seguridad en blockchain. Aprenderás sobre hashing para garantizar la integridad, cifrado asimétrico para la propiedad y firmas digitales para la autenticidad.</summary><p>Exploraremos implementaciones prácticas para solidificar estos conceptos.</p></details> | `JavaScript`, `ethers.js`  |
+| 🔗 **2. Fundamentos de Blockchain**               | <details><summary>Descubre la anatomía de una blockchain. Ensamblarás la estructura de un bloque, implementarás una prueba de trabajo (Proof-of-Work) básica y analizarás los mecanismos de consenso que dan vida a la red.</summary><p>Este módulo te dará un modelo mental claro de cómo funciona una cadena de bloques por dentro.</p></details>    | `TypeScript`, `Hardhat`    |
+| 📝 **3. Contratos Inteligentes** | <details><summary>Adéntrate en la lógica programable de la blockchain. Escribirás, probarás y desplegarás tus primeros contratos inteligentes, aprendiendo las mejores prácticas de seguridad para evitar vulnerabilidades comunes.</summary><p>Nos enfocaremos en el ciclo de vida completo del desarrollo de un Smart Contract.</p></details>     | `Solidity`, `Hardhat`, `Chai` |
+| 🏦 **4. Protocolos DeFi**      | <details><summary>Explora el ecosistema financiero del futuro. Analizaremos los mecanismos detrás de los intercambios descentralizados (DEX), los protocolos de préstamos y las soluciones de escalabilidad como los Rollups.</summary><p>Se estudiarán casos de uso reales y patrones de diseño de DeFi.</p></details> | `Solidity`, `TypeScript`   |
+| ⚙️ **5. Herramientas del Ecosistema**           | <details><summary>Domina el arsenal del desarrollador blockchain. Te guiaremos en la configuración y uso de herramientas profesionales como Hardhat, Remix, Truffle y Ganache para un flujo de trabajo eficiente.</summary><p>El objetivo es que te sientas cómodo en un entorno de desarrollo profesional.</p></details>           | `Hardhat`, `Remix`, `Truffle`|
 
 ---
 
@@ -77,53 +95,53 @@ Para facilitar la navegación, el proyecto se estructura de la siguiente manera:
 │   ├── block-structure/
 │   └── consensus/
 ├── 3-smart-contracts/
-│   ├── contracts/        # Ejemplos en Solidity
-│   ├── scripts/          # Scripts de despliegue y interacción
-│   └── test/             # Pruebas automatizadas
+│   ├── contracts/        # Ejemplos en Solidity (.sol)
+│   ├── scripts/          # Scripts de despliegue y interacción (.ts)
+│   └── test/             # Pruebas automatizadas (.ts)
 ├── 4-defi-protocols/
 │   ├── dex/
 │   ├── lending/
 │   └── scalability/
-├── hardhat.config.js     # Configuración del entorno de desarrollo
+├── 5-ecosystem-tools/      # Guías y configuraciones
+├── assets/                 # Imágenes y GIFs para la documentación
+├── hardhat.config.ts       # Configuración del entorno de desarrollo
 ├── package.json
 └── README.md
-```
-
----
-
-## 🛠️ Herramientas y Tecnologías Utilizadas
-
+Use code with caution.
+Markdown
+🛠️ Herramientas y Tecnologías Utilizadas
 Este proyecto se construye sobre el estándar de la industria para el desarrollo en el ecosistema EVM:
+![alt text](https://img.shields.io/badge/Solidity-E6E6E6?style=for-the-badge&logo=solidity&logoColor=black)
 
-![Solidity](https://img.shields.io/badge/Solidity-E6E6E6?style=for-the-badge&logo=solidity&logoColor=black)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![Hardhat](https://img.shields.io/badge/Hardhat-FFF670?style=for-the-badge&logo=hardhat&logoColor=black)
-![Ethers.js](https://img.shields.io/badge/Ethers.js-2535A0?style=for-the-badge&logo=ethereum&logoColor=white)
+![alt text](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
+![alt text](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 
----
+![alt text](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
-## 🤝 Cómo Contribuir
+![alt text](https://img.shields.io/badge/Hardhat-FFF670?style=for-the-badge&logo=hardhat&logoColor=black)
 
+![alt text](https://img.shields.io/badge/Ethers.js-2535A0?style=for-the-badge&logo=ethereum&logoColor=white)
+🤝 Cómo Contribuir
 ¡Este es un proyecto vivo y tu ayuda es clave para hacerlo aún mejor! Las contribuciones son bienvenidas, ya sea corrigiendo errores, añadiendo ejemplos o mejorando la documentación.
+Haz un Fork del proyecto.
+Crea una nueva rama descriptiva: git checkout -b feature/mi-increible-mejora.
+Haz tus cambios y realiza commits claros y concisos.
+Envía un Pull Request a la rama main explicando qué problema solucionas o qué funcionalidad añades.
+Para más detalles, consulta nuestras DIRECTRICES DE CONTRIBUCIÓN (próximamente).
+📄 Licencia
+Este proyecto se distribuye bajo la Licencia MIT. Consulta el archivo LICENSE en la raíz del repositorio para más detalles.
+4.  **Pequeños Refinamientos:**
+    *   Añadí `pnpm` como una opción recomendada en la sección de instalación, ya que es muy común en el ecosistema de desarrollo web y blockchain por su eficiencia.
+    *   Ajusté los nombres de los encabezados para que fueran más descriptivos y atractivos (ej. "Hoja de Ruta Temática" en lugar de "Hoja de Ruta Temática").
 
-1.  **Haz un Fork** del proyecto.
-2.  Crea una nueva rama descriptiva: `git checkout -b feature/mi-increible-mejora`.
-3.  Haz tus cambios y realiza commits claros y concisos.
-4.  Envía un **Pull Request** a la rama `main` explicando qué problema solucionas o qué funcionalidad añades.
+### **Recomendaciones Adicionales como Experto**
 
-Para más detalles, consulta nuestras `DIRECTRICES DE CONTRIBUCIÓN` (próximamente).
+Para llevar tu repositorio al siguiente nivel (al igual que el de IA):
 
-## 📄 Licencia
+1.  **Crea `README.md` por Módulo:** Dentro de cada carpeta principal (`1-cryptography/`, `2-blockchain-fundamentals/`, etc.), crea un archivo `README.md`. En él, puedes detallar los objetivos de ese módulo, listar los scripts o contratos específicos y enlazarlos directamente.
+2.  **Badges de Interacción:** Así como el repo de IA tiene "Open in Colab", podrías considerar añadir badges "Open in Remix" para tus contratos `.sol`. Esto permitiría a los usuarios jugar con el contrato en un IDE web con un solo clic.
+    *   La URL se construye así: `https://remix.ethereum.org/?url=URL_RAW_DEL_CONTRATO_EN_GITHUB`
+3.  **Completa las Directrices de Contribución:** Crea el archivo `CONTRIBUTING.md` que mencionas. Un buen archivo de contribución es una señal de un proyecto maduro y bien mantenido.
 
-Este proyecto se distribuye bajo la **Licencia MIT**. Consulta el archivo `LICENSE` en la raíz del repositorio para más detalles.
-
----
-
-<p align="center">
-  Creado con 💻 y pasión por la descentralización. Si te ha sido útil, ¡considera darle una ⭐️ al repositorio!
-</p>
-```
-
+Con estos cambios, tu repositorio no solo será funcional y conceptualmente sólido, sino que también ofrecerá una experiencia de usuario y desarrollador de primer nivel, invitando a la exploración y la contribución.
