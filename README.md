@@ -111,15 +111,46 @@ Use code with caution.
 Markdown
 🛠️ Herramientas y Tecnologías Utilizadas
 
+¡Entendido! He revisado el fragmento. El problema es que cada imagen está en una línea separada en el código Markdown. Esto hace que el renderizador las trate como bloques individuales, apilándolas verticalmente una encima de la otra.
+
+Como especialista en GitHub Markdown, la solución es simple y mejora mucho la estética.
+
+---
+
+### **Diagnóstico y Corrección**
+
+**Problema:** Las imágenes de los badges se muestran verticalmente.
+**Causa:** Cada `![alt text](...)` está en su propia línea, separado por saltos de línea.
+**Solución:** Colocar todas las imágenes en una sola línea en el código fuente, y opcionalmente, centrarlas para una mejor presentación visual.
+
+### **Código Corregido**
+
+Para que los badges aparezcan en una sola fila, horizontal y centrada (lo cual es estéticamente superior), debes envolverlos en una etiqueta `<p align="center">` y ponerlos todos en la misma línea, separados por un espacio.
+
+Además, he corregido el `alt text` para que sea descriptivo, lo cual es una **buena práctica para la accesibilidad**.
+
+**Copia y pega este bloque para reemplazar el tuyo:**
+
+```markdown
 Este proyecto se construye sobre el estándar de la industria para el desarrollo en el ecosistema EVM:
 
-![Solidity](https://img.shields.io/badge/Solidity-E6E6E6?style=for-the-badge&logo=solidity&logoColor=black)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![Hardhat](https://img.shields.io/badge/Hardhat-FFF670?style=for-the-badge&logo=hardhat&logoColor=black)
-![Ethers.js](https://img.shields.io/badge/Ethers.js-2535A0?style=for-the-badge&logo=ethereum&logoColor=white)
+<p align="center">
+  <img src="https://img.shields.io/badge/Solidity-E6E6E6?style=for-the-badge&logo=solidity&logoColor=black" alt="Solidity">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/Hardhat-FFF670?style=for-the-badge&logo=hardhat&logoColor=black" alt="Hardhat">
+  <img src="https://img.shields.io/badge/Ethers.js-2535A0?style=for-the-badge&logo=ethereum&logoColor=white" alt="Ethers.js">
+</p>
+```
 
+### **Resumen de los Cambios**
+
+1.  **Alineación Horizontal:** Todas las etiquetas `<img>` (o `![...]` en Markdown puro) se han colocado en la misma línea. Esto le dice al renderizador que las muestre una al lado de la otra.
+2.  **Centrado:** Se ha añadido `<p align="center"> ... </p>` para centrar el grupo completo de badges, creando una presentación más limpia y profesional.
+3.  **Texto Alternativo (`alt`) Corregido:** Se ha reemplazado el genérico "alt text" con el nombre de la tecnología correspondiente (`Solidity`, `JavaScript`, etc.).
+
+El resultado final será una única fila de badges, perfectamente centrada en tu `README.md`, que se ve mucho más profesional.
 🤝 Cómo Contribuir
 ¡Este es un proyecto vivo y tu ayuda es clave para hacerlo aún mejor! Las contribuciones son bienvenidas, ya sea corrigiendo errores, añadiendo ejemplos o mejorando la documentación.
 Haz un Fork del proyecto.
