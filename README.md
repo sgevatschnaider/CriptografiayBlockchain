@@ -39,7 +39,7 @@ La seguridad de Blockchain se apoya en profundos y elegantes conceptos matemáti
 
 ---
 
-## 🚀 Puesta en Marcha: Tu Entorno de Desarrollo en Minutos
+##  Puesta en Marcha: Tu Entorno de Desarrollo en Minutos
 
 Para empezar a experimentar con los ejemplos y proyectos, sigue estos sencillos pasos:
 
@@ -49,16 +49,10 @@ Para empezar a experimentar con los ejemplos y proyectos, sigue estos sencillos 
     cd CriptografiayBlockchain
     ```
 2.  **Instala las Dependencias:**
-    Asegúrate de tener [Node.js](https://nodejs.org/) (v16 o superior) y [pnpm](https://pnpm.io/) (recomendado) instalado.
     ```bash
-    # Usando pnpm (recomendado)
-    pnpm install
-    
-    # O con npm
     npm install
     ```
 3.  **Ejecuta las Pruebas (Recomendado):**
-    Verifica que todo está configurado correctamente ejecutando el set de pruebas de ejemplo.
     ```bash
     npx hardhat test
     ```
@@ -73,11 +67,11 @@ Este repositorio está organizado en módulos progresivos. Te recomendamos segui
 
 | Módulo                                          | Descripción                                                                                                                                                                                                                                                                         | Tecnologías Clave          |
 | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| 🔐 **1. Criptografía: Los Pilares**             | <details><summary>Comprende los fundamentos que hacen posible la seguridad en blockchain. Aprenderás sobre hashing para garantizar la integridad, cifrado asimétrico para la propiedad y firmas digitales para la autenticidad.</summary><p>Exploraremos implementaciones prácticas para solidificar estos conceptos.</p></details> | `JavaScript`, `ethers.js`  |
-| 🔗 **2. Fundamentos de Blockchain**               | <details><summary>Descubre la anatomía de una blockchain. Ensamblarás la estructura de un bloque, implementarás una prueba de trabajo (Proof-of-Work) básica y analizarás los mecanismos de consenso que dan vida a la red.</summary><p>Este módulo te dará un modelo mental claro de cómo funciona una cadena de bloques por dentro.</p></details>    | `TypeScript`, `Hardhat`    |
-| 📝 **3. Contratos Inteligentes** | <details><summary>Adéntrate en la lógica programable de la blockchain. Escribirás, probarás y desplegarás tus primeros contratos inteligentes, aprendiendo las mejores prácticas de seguridad para evitar vulnerabilidades comunes.</summary><p>Nos enfocaremos en el ciclo de vida completo del desarrollo de un Smart Contract.</p></details>     | `Solidity`, `Hardhat`, `Chai` |
-| 🏦 **4. Protocolos DeFi**      | <details><summary>Explora el ecosistema financiero del futuro. Analizaremos los mecanismos detrás de los intercambios descentralizados (DEX), los protocolos de préstamos y las soluciones de escalabilidad como los Rollups.</summary><p>Se estudiarán casos de uso reales y patrones de diseño de DeFi.</p></details> | `Solidity`, `TypeScript`   |
-| ⚙️ **5. Herramientas del Ecosistema**           | <details><summary>Domina el arsenal del desarrollador blockchain. Te guiaremos en la configuración y uso de herramientas profesionales como Hardhat, Remix, Truffle y Ganache para un flujo de trabajo eficiente.</summary><p>El objetivo es que te sientas cómodo en un entorno de desarrollo profesional.</p></details>           | `Hardhat`, `Remix`, `Truffle`|
+| 🔐 **1. Criptografía: Los Pilares**             | <details><summary>Comprende los fundamentos que hacen posible la seguridad en blockchain. Aprenderás sobre hashing, cifrado asimétrico y firmas digitales.</summary><p>Exploraremos implementaciones prácticas para solidificar estos conceptos.</p></details> | `JavaScript`, `ethers.js`  |
+| 🔗 **2. Fundamentos de Blockchain**               | <details><summary>Descubre la anatomía de una blockchain. Ensamblarás la estructura de un bloque, implementarás una prueba de trabajo (Proof-of-Work) básica y analizarás los mecanismos de consenso.</summary><p>Este módulo te dará un modelo mental claro de cómo funciona una cadena de bloques por dentro.</p></details>    | `TypeScript`, `Hardhat`    |
+| 📝 **3. Contratos Inteligentes** | <details><summary>Adéntrate en la lógica programable de la blockchain. Escribirás, probarás y desplegarás tus primeros contratos inteligentes, aprendiendo las mejores prácticas de seguridad.</summary><p>Nos enfocaremos en el ciclo de vida completo del desarrollo de un Smart Contract.</p></details>     | `Solidity`, `Hardhat`, `Chai` |
+| 🏦 **4. Protocolos DeFi**      | <details><summary>Explora el ecosistema financiero del futuro. Analizaremos los mecanismos detrás de los intercambios descentralizados (DEX), los protocolos de préstamos y las soluciones de escalabilidad.</summary><p>Se estudiarán casos de uso reales y patrones de diseño de DeFi.</p></details> | `Solidity`, `TypeScript`   |
+| ⚙️ **5. Herramientas del Ecosistema**           | <details><summary>Domina el arsenal del desarrollador blockchain. Te guiaremos en el uso de herramientas profesionales como Hardhat, Remix, Truffle y Ganache.</summary><p>El objetivo es que te sientas cómodo en un entorno de desarrollo profesional.</p></details>           | `Hardhat`, `Remix`, `Truffle`|
 
 ---
 
@@ -88,29 +82,19 @@ Para facilitar la navegación, el proyecto se estructura de la siguiente manera:
 ```plaintext
 .
 ├── 1-cryptography/
-│   ├── hashing/
-│   ├── encryption/
-│   └── signatures/
 ├── 2-blockchain-fundamentals/
-│   ├── block-structure/
-│   └── consensus/
 ├── 3-smart-contracts/
-│   ├── contracts/        # Ejemplos en Solidity (.sol)
-│   ├── scripts/          # Scripts de despliegue y interacción (.ts)
-│   └── test/             # Pruebas automatizadas (.ts)
 ├── 4-defi-protocols/
-│   ├── dex/
-│   ├── lending/
-│   └── scalability/
-├── 5-ecosystem-tools/      # Guías y configuraciones
-├── assets/                 # Imágenes y GIFs para la documentación
-├── hardhat.config.ts       # Configuración del entorno de desarrollo
+├── 5-ecosystem-tools/
+├── assets/
+├── hardhat.config.ts
 ├── package.json
 └── README.md
-Use code with caution.
+```
 
-🛠️ Herramientas y Tecnologías Utilizadas
+---
 
+## 🛠️ Herramientas y Tecnologías Utilizadas
 
 Este proyecto se construye sobre el estándar de la industria para el desarrollo en el ecosistema EVM:
 
@@ -122,18 +106,21 @@ Este proyecto se construye sobre el estándar de la industria para el desarrollo
   ![Hardhat](https://img.shields.io/badge/Hardhat-FFF670?style=for-the-badge&logo=hardhat&logoColor=black)
   ![Ethers.js](https://img.shields.io/badge/Ethers.js-2535A0?style=for-the-badge&logo=ethereum&logoColor=white)
 </p>
+
+---
+
+## 🤝 Cómo Contribuir
+
+¡Este es un proyecto vivo y tu ayuda es clave para hacerlo aún mejor!
+
+1.  **Haz un Fork** del proyecto.
+2.  Crea una nueva rama: `git checkout -b feature/mi-mejora`.
+3.  Haz tus cambios y commits.
+4.  Envía un **Pull Request** a la rama `main`.
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la **Licencia MIT**. Consulta el archivo `LICENSE` para más detalles.
+
 ```
-
-🤝 Cómo Contribuir
-¡Este es un proyecto vivo y tu ayuda es clave para hacerlo aún mejor! Las contribuciones son bienvenidas, ya sea corrigiendo errores, añadiendo ejemplos o mejorando la documentación.
-Haz un Fork del proyecto.
-Crea una nueva rama descriptiva: git checkout -b feature/mi-increible-mejora.
-Haz tus cambios y realiza commits claros y concisos.
-Envía un Pull Request a la rama main explicando qué problema solucionas o qué funcionalidad añades.
-Para más detalles, consulta nuestras DIRECTRICES DE CONTRIBUCIÓN (próximamente).
-
-📄 Licencia
-Este proyecto se distribuye bajo la Licencia MIT. Consulta el archivo LICENSE en la raíz del repositorio para más detalles.
-
-
 
