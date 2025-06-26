@@ -1,3 +1,7 @@
+<div align="right">
+<a href="./README.md">🇪🇸 Castellano</a> | <a href="./README.en.md">🇬🇧 English</a>
+</div>
+
 # ⛓️ Dominando Criptografía y Blockchain: De Cero a dApp
 
 <p align="center">
