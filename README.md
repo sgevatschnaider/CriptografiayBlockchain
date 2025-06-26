@@ -111,27 +111,7 @@ Use code with caution.
 Markdown
 🛠️ Herramientas y Tecnologías Utilizadas
 
-¡Entendido! He revisado el fragmento. El problema es que cada imagen está en una línea separada en el código Markdown. Esto hace que el renderizador las trate como bloques individuales, apilándolas verticalmente una encima de la otra.
 
-Como especialista en GitHub Markdown, la solución es simple y mejora mucho la estética.
-
----
-
-### **Diagnóstico y Corrección**
-
-**Problema:** Las imágenes de los badges se muestran verticalmente.
-**Causa:** Cada `![alt text](...)` está en su propia línea, separado por saltos de línea.
-**Solución:** Colocar todas las imágenes en una sola línea en el código fuente, y opcionalmente, centrarlas para una mejor presentación visual.
-
-### **Código Corregido**
-
-Para que los badges aparezcan en una sola fila, horizontal y centrada (lo cual es estéticamente superior), debes envolverlos en una etiqueta `<p align="center">` y ponerlos todos en la misma línea, separados por un espacio.
-
-Además, he corregido el `alt text` para que sea descriptivo, lo cual es una **buena práctica para la accesibilidad**.
-
-**Copia y pega este bloque para reemplazar el tuyo:**
-
-```markdown
 Este proyecto se construye sobre el estándar de la industria para el desarrollo en el ecosistema EVM:
 
 <p align="center">
