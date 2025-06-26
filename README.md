@@ -108,33 +108,19 @@ Para facilitar la navegación, el proyecto se estructura de la siguiente manera:
 ├── package.json
 └── README.md
 Use code with caution.
-Markdown
+
 🛠️ Herramientas y Tecnologías Utilizadas
 
 
 Este proyecto se construye sobre el estándar de la industria para el desarrollo en el ecosistema EVM:
 
-Este proyecto se construye sobre el estándar de la industria para el desarrollo en el ecosistema EVM:
-
 <p align="center">
-  <a href="https://soliditylang.org/" target="_blank" rel="noreferrer">
-    <img src="https://img.shields.io/badge/Solidity-E6E6E6?style=for-the-badge&logo=solidity&logoColor=black" alt="Solidity">
-  </a>
-  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
-    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
-  </a>
-  <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
-    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
-  </a>
-  <a href="https://nodejs.org" target="_blank" rel="noreferrer">
-    <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js">
-  </a>
-  <a href="https://hardhat.org/" target="_blank" rel="noreferrer">
-    <img src="https://img.shields.io/badge/Hardhat-FFF670?style=for-the-badge&logo=hardhat&logoColor=black" alt="Hardhat">
-  </a>
-  <a href="https://ethers.io/" target="_blank" rel="noreferrer">
-    <img src="https://img.shields.io/badge/Ethers.js-2535A0?style=for-the-badge&logo=ethereum&logoColor=white" alt="Ethers.js">
-  </a>
+  ![Solidity](https://img.shields.io/badge/Solidity-E6E6E6?style=for-the-badge&logo=solidity&logoColor=black)
+  ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+  ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+  ![Hardhat](https://img.shields.io/badge/Hardhat-FFF670?style=for-the-badge&logo=hardhat&logoColor=black)
+  ![Ethers.js](https://img.shields.io/badge/Ethers.js-2535A0?style=for-the-badge&logo=ethereum&logoColor=white)
 </p>
 ```
 
