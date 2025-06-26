@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Laboratorio Esteganográfico V3 - Simulación Cinemática en Tiempo Real</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --bg-dark: #05080d; --bg-panel: rgba(10, 15, 28, 0.9); --accent-cyan: #00ffff;
+            --accent-magenta: #ff0080; --accent-yellow: #ffff00; --text-light: #e8f4f8;
+            --border-color: rgba(0, 255, 255, 0.2); --alert-color: #ff4d4d; --success-color: #4dff4d;
+            --accent-orange: #ff6600; --accent-green: #00ff66;
+        }
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-light); 
+            font-family: 'Courier New', monospace; 
+            margin: 0; padding: 15px; 
+            overflow: hidden;
+        }
+        .main-container { 
+            display: grid; 
+            grid-template-columns: 1fr 420px; 
+            gap: 15px; 
+            height: calc(100vh - 30px);
+        }
+        .panel { 
+            background: var(--bg-panel); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid var(--border-color); 
+            border-radius: 16px; 
+            padding: 20px; 
+            box-shadow: 0 4px 30px rgba(0, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        h1, h2, h3 { 
+            color: var(--accent-cyan); 
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8); 
+            text-align: center; 
+            margin-top: 0; margin-bottom: 15px;
+            animation: glow-pulse 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow-pulse {
+            from { text-shadow: 0 0 10px rgba(0, 255, 255, 0.7); }
+            to { text-shadow: 0 0 20px rgba(0, 255, 255, 1), 0 0 30px rgba(0, 255, 255, 0.5); }
+        }
+        .control-group { margin-bottom: 15px; }
+        .control-group label { 
+            display: flex; justify-content: space-between; margin-bottom: 8px; 
+            color: var(--accent-cyan); font-weight: bold; font-size: 13px; 
+        }
+        .value-display { color: var(--accent-magenta); }
+        input[type="text"], input[type="password"], textarea { 
+            width: 100%; background: rgba(0, 50, 100, 0.8); color: white; 
+            border: 1px solid var(--accent-cyan); border-radius: 4px; padding: 8px; box-sizing: border-box; 
+        }
+        input[type="range"] { width: 100%; }
+        button { 
+            width: 100%; background: linear-gradient(45deg, var(--accent-cyan), #0080ff, var(--accent-magenta)); 
+            color: black; border: none; padding: 12px; border-radius: 8px; font-weight: bold; 
+            cursor: pointer; transition: all 0.3s ease; margin-top: 10px; position: relative; overflow: hidden;
+        }
+        button:hover:not(:disabled) { 
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.7); transform: translateY(-3px) scale(1.02); 
+        }
+        button:disabled { background: #555; color: #999; cursor: not-allowed; }
+        
+        #log { 
+            background: rgba(0,0,0,0.7); padding: 10px; border-radius: 6px; 
+            height: 120px; overflow-y: auto; font-size: 11px; margin-top: 15px; 
+            border: 1px solid var(--border-color);
+        }
+        .section-divider { border-top: 2px solid var(--border-color); margin: 20px 0; }
+
+        /* --- VISUALIZATION PANEL --- */
+        .visualization-panel {
+            position: relative;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        #main-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .ui-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+        }
+        .warfare-stats {
+            position: absolute; top: 15px; left: 15px; right: 15px;
+            display: flex; gap: 10px;
+        }
+        .health-bar { flex-grow: 1; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.2); transition: width 0.5s ease; }
+        #defender-health { background: linear-gradient(90deg, #00ff66, #00ffaa); }
+        #attacker-strength { background: linear-gradient(90deg, #ff6600, #ff4d4d); }
+        .bar-label { font-size: 10px; color: white; text-shadow: 1px 1px 2px black; margin-bottom: 3px; }
+
+        /* --- TUTORIAL & FORENSICS --- */
+        .tutorial-overlay, .forensic-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+        }
+        .tutorial-box, .forensic-box {
+            background: var(--bg-panel); border: 2px solid var(--accent-yellow);
+            padding: 25px; border-radius: 16px; max-width: 450px;
+            text-align: center;
+        }
+        .highlight-glow {
+            box-shadow: 0 0 25px 10px var(--accent-yellow);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1001;
+        }
+        #forensic-slider { width: 80%; margin: 15px auto; }
+        
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="visualization-panel">
+            <canvas id="main-canvas"></canvas>
+            <div class="ui-overlay">
+                <div class="warfare-stats">
+                    <div style="flex-grow: 1;">
+                        <div class="bar-label">🛡️ INTEGRIDAD DEFENSIVA</div>
+                        <div class="health-bar"><div id="defender-health" class="health-bar" style="width: 100%;"></div></div>
+                    </div>
+                    <div style="flex-grow: 1;">
+                        <div class="bar-label">⚔️ PRESIÓN DEL ATACANTE</div>
+                        <div class="health-bar"><div id="attacker-strength" class="health-bar" style="width: 0%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" id="control-panel">
+            <h1>Laboratorio Esteganográfico V3</h1>
+            <button id="tutorial-btn">🎓 Iniciar Tutorial</button>
+            <button id="generate-btn">🚀 Iniciar Simulación Dinámica</button>
+            
+            <div class="section-divider"></div>
+            <h3>⚙️ Configuración de Señal</h3>
+            <div class="control-group" id="message-group">
+                <label for="message">Mensaje a Ocultar</label>
+                <textarea id="message" rows="2">La entropía es el refugio de la información.</textarea>
+            </div>
+            <div class="control-group" id="password-group">
+                <label for="password">Clave Maestra</label>
+                <input type="password" id="password" value="chaos_is_a_ladder">
+            </div>
+
+            <div class="section-divider"></div>
+            <h3>🛡️ Estrategias de Defensa</h3>
+            <div class="control-group" id="defense-group">
+                <label for="defense-strength">Nivel de Perturbación Defensiva <span id="defense-value" class="value-display">25</span></label>
+                <input type="range" id="defense-strength" min="0" max="100" value="25" step="1">
+            </div>
+            
+            <div id="log-container">
+                <div class="section-divider"></div>
+                <h3>📜 Registro de Eventos</h3>
+                <div id="log"></div>
+            </div>
+
+            <div id="forensic-controls" style="display:none;">
+                 <div class="section-divider"></div>
+                 <h3>🔍 Análisis Forense</h3>
+                 <button id="forensic-btn">Reproducir Ataque</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorial-overlay" class="tutorial-overlay">
+        <div id="tutorial-box" class="tutorial-box">
+            <h2 id="tutorial-title"></h2>
+            <p id="tutorial-text"></p>
+            <button id="tutorial-next-btn">Siguiente</button>
+        </div>
+    </div>
+    
+    <!-- Forensic Playback Overlay -->
+    <div id="forensic-overlay" class="forensic-overlay">
+        <div id="forensic-box" class="forensic-box">
+            <h2>Análisis de Simulación</h2>
+            <p id="forensic-text">Usa el slider para ver los eventos clave.</p>
+            <input type="range" id="forensic-slider" min="0" max="100" value="0">
+            <p><strong id="forensic-event-time"></strong>: <span id="forensic-event-desc"></span></p>
+            <button id="forensic-close-btn">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+    class AdvancedSteganographyLabV3 {
+        constructor() {
+            this.canvas = document.getElementById('main-canvas');
+            this.ctx = this.canvas.getContext('2d');
+            
+            // --- UI Elements ---
+            this.generateBtn = document.getElementById('generate-btn');
+            this.tutorialBtn = document.getElementById('tutorial-btn');
+            this.logEl = document.getElementById('log');
+            this.messageInput = document.getElementById('message');
+            this.passwordInput = document.getElementById('password');
+            this.defenseSlider = document.getElementById('defense-strength');
+            this.defenseDisplay = document.getElementById('defense-value');
+            this.defenderHealthBar = document.getElementById('defender-health');
+            this.attackerStrengthBar = document.getElementById('attacker-strength');
+
+            // --- State ---
+            this.appState = 'IDLE'; // IDLE, SIMULATING, TUTORIAL, FORENSIC
+            this.resolution = 512;
+            this.particles = [];
+            this.shockwaves = [];
+            this.simulationLog = [];
+            this.lastFrameTime = 0;
+            
+            // --- Fractal & Crypto Params ---
+            this.maxIter = 60;
+            this.c_real = -0.7;
+            this.c_imag = 0.27015;
+            this.c_real_velocity = 0.0001;
+            this.c_imag_velocity = 0.0002;
+            this.baseFractal = null;
+            this.entropyMap = null;
+            
+            // --- Warfare Metrics ---
+            this.defenderHealth = 1.0;
+            this.attackerStrength = 0.0;
+
+            this.bindEvents();
+            this.resizeCanvas();
+            this.mainLoop(0);
+        }
+
+        bindEvents() {
+            window.addEventListener('resize', () => this.resizeCanvas());
+            this.generateBtn.addEventListener('click', () => this.startSimulation());
+            this.defenseSlider.addEventListener('input', () => {
+                this.defenseDisplay.textContent = this.defenseSlider.value;
+            });
+            
+            // Tutorial & Forensic Buttons
+            this.tutorialBtn.addEventListener('click', () => this.startTutorial());
+            document.getElementById('forensic-btn')?.addEventListener('click', () => this.startForensicPlayback());
+            document.getElementById('forensic-close-btn').addEventListener('click', () => this.setState('IDLE'));
+        }
+
+        // --- MAIN LOOP & STATE MANAGEMENT ---
+        mainLoop(currentTime) {
+            const deltaTime = currentTime - this.lastFrameTime;
+            this.lastFrameTime = currentTime;
+
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            if (this.appState === 'SIMULATING' || this.appState === 'FORENSIC') {
+                this.updateFractalParameters();
+                this.drawFractal();
+                this.updateAndDrawParticles(deltaTime);
+                this.updateAndDrawWarfare(deltaTime);
+                this.updateAndDrawShockwaves(deltaTime);
+            } else if (this.appState === 'IDLE' && this.baseFractal) {
+                this.drawFractal(); // Draw last state
+            } else {
+                this.drawIdleScreen();
+            }
+            
+            this.drawHealthBars();
+            requestAnimationFrame(this.mainLoop.bind(this));
+        }
+
+        setState(newState) {
+            this.appState = newState;
+            document.getElementById('tutorial-overlay').style.display = 'none';
+            document.getElementById('forensic-overlay').style.display = 'none';
+            document.querySelectorAll('.highlight-glow').forEach(el => el.classList.remove('highlight-glow'));
+
+            if (newState === 'TUTORIAL') document.getElementById('tutorial-overlay').style.display = 'flex';
+            if (newState === 'FORENSIC') document.getElementById('forensic-overlay').style.display = 'flex';
+            if (newState === 'IDLE' && this.simulationLog.length > 0) {
+                 document.getElementById('forensic-controls').style.display = 'block';
+            } else {
+                 document.getElementById('forensic-controls').style.display = 'none';
+            }
+        }
+        
+        async startSimulation() {
+            this.log('🚀 Iniciando simulación...');
+            this.setState('SIMULATING');
+            this.particles = [];
+            this.simulationLog = [];
+            this.defenderHealth = 1.0;
+            this.attackerStrength = 0.0;
+
+            // 1. Generate fractal data
+            this.log('🧮 Calculando fractal base y mapa de entropía...');
+            await this.calculateFractalData();
+            
+            // 2. Encode message and get positions
+            this.log('🔐 Codificando mensaje y generando posiciones seguras...');
+            const binaryMessage = this.messageToBinary(this.messageInput.value);
+            const positions = await this.generateChaoticLeapPositions(this.passwordInput.value, binaryMessage.length);
+            
+            // 3. Create particles
+            this.log('✨ Creando partículas de datos...');
+            const originX = this.canvas.width / 2;
+            const originY = this.canvas.height / 10;
+
+            for (let i = 0; i < binaryMessage.length; i++) {
+                const targetPos = this.fractalToCanvasCoords(positions[i].x, positions[i].y);
+                this.particles.push({
+                    x: originX, y: originY,
+                    tx: targetPos.x, ty: targetPos.y,
+                    vx: 0, vy: 0,
+                    bit: binaryMessage[i],
+                    state: 'TRAVELING', // TRAVELING, HIDDEN, ATTACKED
+                    life: 1.0,
+                    arrivalDelay: i * 50 // Stagger particle creation
+                });
+            }
+        }
+
+        // --- FRACTAL & CRYPTO LOGIC ---
+        async calculateFractalData() {
+            this.baseFractal = new Float32Array(this.resolution * this.resolution);
+            this.entropyMap = new Float32Array(this.resolution * this.resolution);
+            
+            return new Promise(resolve => {
+                for (let i = 0; i < this.resolution * this.resolution; i++) {
+                    const x = i % this.resolution;
+                    const y = Math.floor(i / this.resolution);
+                    const zx = 1.5 * (2 * x / this.resolution - 1);
+                    const zy = 1.5 * (2 * y / this.resolution - 1);
+
+                    const {iterations, entropy} = this.juliaIteration({real: zx, imag: zy});
+                    this.baseFractal[i] = iterations;
+                    this.entropyMap[i] = entropy;
+                }
+                resolve();
+            });
+        }
+        
+        juliaIteration(z) {
+            let zr = z.real, zi = z.imag;
+            let entropy = 0;
+            for (let i = 0; i < this.maxIter; i++) {
+                const zr2 = zr * zr, zi2 = zi * zi;
+                if (zr2 + zi2 > 4) return {iterations: i, entropy};
+                entropy += Math.abs(zr - zi);
+                const newZr = zr2 - zi2 + this.c_real;
+                zi = 2 * zr * zi + this.c_imag;
+                zr = newZr;
+            }
+            return {iterations: this.maxIter, entropy};
+        }
+
+        updateFractalParameters() {
+            // Morph the fractal
+            this.c_real += Math.sin(this.lastFrameTime * 0.0001) * this.c_real_velocity;
+            this.c_imag += Math.cos(this.lastFrameTime * 0.0001) * this.c_imag_velocity;
+            if (Math.abs(this.c_real) > 0.8) this.c_real_velocity *= -1;
+            if (Math.abs(this.c_imag) > 0.8) this.c_imag_velocity *= -1;
+        }
+        
+        async generateChaoticLeapPositions(password, length) {
+            const seed = await this.simpleHash(password);
+            const positions = [];
+            const highEntropyZones = [];
+            
+            // Find zones with high entropy
+            for (let i = 0; i < this.entropyMap.length; i++) {
+                if (this.entropyMap[i] > 15) { // Threshold for "high entropy"
+                    highEntropyZones.push({x: i % this.resolution, y: Math.floor(i / this.resolution)});
+                }
+            }
+            if (highEntropyZones.length === 0) {
+                 this.log("⚠️ No hay zonas de alta entropía. Usando posiciones aleatorias.");
+                 // Fallback to random positions
+                 for(let i=0; i<this.resolution*this.resolution;i++) highEntropyZones.push({x: i % this.resolution, y: Math.floor(i / this.resolution)});
+            }
+
+            for (let i = 0; i < length; i++) {
+                const index = (seed[i % seed.length] * i * 31) % highEntropyZones.length;
+                positions.push(highEntropyZones[index]);
+            }
+            return positions;
+        }
+
+
+        // --- DRAWING & VISUALS ---
+        drawFractal() {
+            const imageData = this.ctx.createImageData(this.resolution, this.resolution);
+            const data = imageData.data;
+            for (let i = 0; i < this.baseFractal.length; i++) {
+                const iter = this.baseFractal[i];
+                const entropy = this.entropyMap[i];
+                const idx = i * 4;
+                
+                const hue = 200 + (iter / this.maxIter) * 100;
+                const saturation = 0.5 + Math.min(0.5, entropy / 30);
+                const lightness = 0.1 + (iter / this.maxIter) * 0.4;
+                const [r,g,b] = this.hslToRgb(hue, saturation, lightness);
+                
+                data[idx] = r; data[idx + 1] = g; data[idx + 2] = b; data[idx + 3] = 255;
+            }
+            
+            // Create a temporary canvas to draw the scaled-up fractal
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = this.resolution;
+            tempCanvas.height = this.resolution;
+            tempCanvas.getContext('2d').putImageData(imageData, 0, 0);
+            
+            this.ctx.drawImage(tempCanvas, 0, 0, this.canvas.width, this.canvas.height);
+        }
+
+        updateAndDrawParticles(deltaTime) {
+            this.particles.forEach(p => {
+                if (p.arrivalDelay > 0) {
+                    p.arrivalDelay -= deltaTime;
+                    return;
+                }
+                
+                if (p.state === 'TRAVELING') {
+                    const dx = p.tx - p.x;
+                    const dy = p.ty - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 2) {
+                        p.state = 'HIDDEN';
+                        this.defenderHealth = Math.min(1.0, this.defenderHealth + 0.01);
+                        this.logEvent(`Bit ${p.bit} ocultado en (${Math.round(p.tx)}, ${Math.round(p.ty)})`, 'defense');
+                    } else {
+                        const angle = Math.atan2(dy, dx);
+                        p.x += Math.cos(angle) * 5;
+                        p.y += Math.sin(angle) * 5;
+                    }
+                } else if (p.state === 'ATTACKED') {
+                    p.life -= 0.05;
+                }
+                
+                // Drawing
+                if (p.life > 0) {
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = this.getParticleColor(p);
+                    this.ctx.globalAlpha = p.life;
+                    if (p.state === 'ATTACKED') {
+                        this.ctx.arc(p.x, p.y, (1 - p.life) * 20, 0, Math.PI * 2);
+                    } else if (p.state === 'HIDDEN') {
+                        this.ctx.arc(p.x, p.y, 2 + Math.sin(this.lastFrameTime * 0.005) * 1.5, 0, Math.PI * 2);
+                    } else {
+                        this.ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    }
+                    this.ctx.fill();
+                    this.ctx.globalAlpha = 1.0;
+                }
+            });
+            this.particles = this.particles.filter(p => p.life > 0);
+        }
+        
+        getParticleColor(p) {
+            if (p.state === 'ATTACKED') return `rgba(255, 100, 100, ${p.life})`;
+            if (p.state === 'HIDDEN') return p.bit === '1' ? 'rgba(0, 255, 255, 0.8)' : 'rgba(255, 0, 128, 0.8)';
+            return '#ffff00';
+        }
+
+        updateAndDrawWarfare(deltaTime) {
+            // Attacker logic
+            this.attackerStrength = Math.min(1.0, this.attackerStrength + 0.0001); // Constant pressure
+            
+            if (Math.random() < 0.02) { // Randomly attempt an attack
+                const hiddenParticles = this.particles.filter(p => p.state === 'HIDDEN');
+                if (hiddenParticles.length > 0) {
+                    const targetParticle = hiddenParticles[Math.floor(Math.random() * hiddenParticles.length)];
+                    
+                    const defensePower = parseInt(this.defenseSlider.value) / 100;
+                    if (Math.random() > defensePower) {
+                        // Attack successful
+                        targetParticle.state = 'ATTACKED';
+                        this.defenderHealth = Math.max(0, this.defenderHealth - 0.1);
+                        this.attackerStrength = Math.min(1.0, this.attackerStrength + 0.15);
+                        this.shockwaves.push({x: targetParticle.x, y: targetParticle.y, radius: 0, life: 1});
+                        this.logEvent(`¡ATAQUE! Bit en (${Math.round(targetParticle.tx)}, ${Math.round(targetParticle.ty)}) detectado.`, 'attack');
+                    } else {
+                        // Attack deflected
+                        this.defenderHealth = Math.min(1.0, this.defenderHealth + 0.005);
+                    }
+                }
+            }
+             if (this.particles.length > 0 && this.particles.every(p => p.state !== 'TRAVELING')) {
+                if (this.defenderHealth > this.attackerStrength) {
+                    this.log("✅ SIMULACIÓN FINALIZADA: Defensa exitosa.");
+                } else {
+                    this.log("❌ SIMULACIÓN FINALIZADA: Brecha de seguridad crítica.");
+                }
+                this.setState('IDLE');
+            }
+        }
+
+        drawHealthBars() {
+            this.defenderHealthBar.style.width = `${this.defenderHealth * 100}%`;
+            this.attackerStrengthBar.style.width = `${this.attackerStrength * 100}%`;
+        }
+        
+        updateAndDrawShockwaves(deltaTime) {
+            this.shockwaves.forEach(sw => {
+                sw.radius += 5;
+                sw.life -= 0.02;
+                if (sw.life > 0) {
+                    this.ctx.beginPath();
+                    this.ctx.strokeStyle = `rgba(255, 100, 0, ${sw.life})`;
+                    this.ctx.lineWidth = 3;
+                    this.ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+            });
+            this.shockwaves = this.shockwaves.filter(sw => sw.life > 0);
+        }
+
+        drawIdleScreen() {
+            this.ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.fillStyle = 'white';
+            this.ctx.font = '24px Courier New';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText("Laboratorio Esteganográfico V3", this.canvas.width / 2, this.canvas.height / 2 - 20);
+            this.ctx.font = '16px Courier New';
+            this.ctx.fillText("Listo para iniciar simulación o tutorial.", this.canvas.width / 2, this.canvas.height / 2 + 20);
+        }
+
+        // --- TUTORIAL & FORENSICS ---
+        startTutorial() {
+            this.tutorialSteps = [
+                { el: '#message-group', title: 'Paso 1: El Mensaje', text: 'Aquí introduces el mensaje secreto que quieres ocultar en el fractal.' },
+                { el: '#password-group', title: 'Paso 2: La Clave', text: 'La clave maestra se usa para generar un patrón único y caótico donde se esconderán los bits de tu mensaje.' },
+                { el: '#defense-group', title: 'Paso 3: La Defensa', text: 'Ajusta este slider para simular contramedidas. Un valor más alto hace más difícil para un atacante encontrar los datos.' },
+                { el: '#generate-btn', title: 'Paso 4: Iniciar', text: 'Cuando estés listo, pulsa este botón para comenzar la simulación dinámica en tiempo real.' },
+                { el: '.visualization-panel', title: 'Paso 5: El Campo de Batalla', text: 'Aquí verás todo en acción: el fractal, las partículas de datos viajando, y la lucha entre la defensa y el ataque.' },
+            ];
+            this.currentTutorialStep = 0;
+            this.setState('TUTORIAL');
+            this.showTutorialStep();
+        }
+
+        showTutorialStep() {
+            if (this.currentTutorialStep >= this.tutorialSteps.length) {
+                this.setState('IDLE');
+                return;
+            }
+            const step = this.tutorialSteps[this.currentTutorialStep];
+            document.querySelectorAll('.highlight-glow').forEach(el => el.classList.remove('highlight-glow'));
+            document.querySelector(step.el).classList.add('highlight-glow');
+            document.getElementById('tutorial-title').textContent = step.title;
+            document.getElementById('tutorial-text').textContent = step.text;
+            
+            const nextBtn = document.getElementById('tutorial-next-btn');
+            nextBtn.onclick = () => {
+                this.currentTutorialStep++;
+                this.showTutorialStep();
+            };
+        }
+
+        startForensicPlayback() {
+            if (this.simulationLog.length === 0) return;
+            this.setState('FORENSIC');
+            const slider = document.getElementById('forensic-slider');
+            slider.max = this.simulationLog.length - 1;
+            slider.value = 0;
+            slider.oninput = () => this.updateForensicView(slider.value);
+            this.updateForensicView(0);
+        }
+
+        updateForensicView(logIndex) {
+            const event = this.simulationLog[logIndex];
+            document.getElementById('forensic-event-time').textContent = `T+${event.time.toFixed(2)}s`;
+            document.getElementById('forensic-event-desc').textContent = event.desc;
+            
+            // Redraw particles up to this point in time
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.drawFractal();
+            this.simulationLog.forEach((logEvent, i) => {
+                 if (i <= logIndex && logEvent.pos) {
+                     this.ctx.beginPath();
+                     this.ctx.fillStyle = logEvent.type === 'attack' ? 'red' : 'cyan';
+                     if (i == logIndex) { // Highlight current event
+                         this.ctx.shadowColor = 'yellow';
+                         this.ctx.shadowBlur = 15;
+                     }
+                     this.ctx.arc(logEvent.pos.x, logEvent.pos.y, 5, 0, Math.PI * 2);
+                     this.ctx.fill();
+                     this.ctx.shadowBlur = 0;
+                 }
+            });
+        }
+
+
+        // --- UTILITIES ---
+        resizeCanvas() {
+            const visPanel = document.querySelector('.visualization-panel');
+            this.canvas.width = visPanel.clientWidth;
+            this.canvas.height = visPanel.clientHeight;
+            this.resolution = Math.min(512, this.canvas.width, this.canvas.height);
+        }
+        
+        log(message) {
+            const entry = document.createElement('div');
+            entry.innerHTML = `[${(this.lastFrameTime / 1000).toFixed(2)}s] ${message}`;
+            this.logEl.prepend(entry);
+        }
+        
+        logEvent(desc, type) {
+            const lastParticle = this.particles[this.particles.length-1];
+            this.simulationLog.push({
+                time: this.lastFrameTime / 1000,
+                desc: desc,
+                type: type,
+                pos: lastParticle ? this.fractalToCanvasCoords(lastParticle.tx, lastParticle.ty) : null
+            });
+        }
+
+        fractalToCanvasCoords(fx, fy) {
+            return {
+                x: (fx / this.resolution) * this.canvas.width,
+                y: (fy / this.resolution) * this.canvas.height
+            };
+        }
+
+        messageToBinary = (msg) => msg.split('').map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join('');
+        async simpleHash(str) {
+            const buffer = new TextEncoder().encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+            return Array.from(new Uint8Array(hashBuffer));
+        }
+        hslToRgb(h, s, l) {
+            let r, g, b;
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h / 360 + 1 / 3);
+                g = hue2rgb(p, q, h / 360);
+                b = hue2rgb(p, q, h / 360 - 1 / 3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+    }
+
+    window.onload = () => new AdvancedSteganographyLabV3();
+    </script>
+</body>
+</html>
