@@ -124,13 +124,6 @@ Este proyecto se construye sobre el estándar de la industria para el desarrollo
 </p>
 ```
 
-### **Resumen de los Cambios**
-
-1.  **Alineación Horizontal:** Todas las etiquetas `<img>` (o `![...]` en Markdown puro) se han colocado en la misma línea. Esto le dice al renderizador que las muestre una al lado de la otra.
-2.  **Centrado:** Se ha añadido `<p align="center"> ... </p>` para centrar el grupo completo de badges, creando una presentación más limpia y profesional.
-3.  **Texto Alternativo (`alt`) Corregido:** Se ha reemplazado el genérico "alt text" con el nombre de la tecnología correspondiente (`Solidity`, `JavaScript`, etc.).
-
-El resultado final será una única fila de badges, perfectamente centrada en tu `README.md`, que se ve mucho más profesional.
 🤝 Cómo Contribuir
 ¡Este es un proyecto vivo y tu ayuda es clave para hacerlo aún mejor! Las contribuciones son bienvenidas, ya sea corrigiendo errores, añadiendo ejemplos o mejorando la documentación.
 Haz un Fork del proyecto.
