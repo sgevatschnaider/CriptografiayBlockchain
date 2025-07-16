@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Espectral Avanzado del Grafo de Petersen</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.0/plotly.min.js"></script>
+    <style>
+        /* --------- RESET BÁSICO Y TEMA --------- */
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0a0a14;color:#fff;overflow:hidden}
+
+        /* --------- GRID PRINCIPAL --------- */
+        .main-container{display:grid;grid-template-columns:minmax(0,1.8fr)minmax(0,1fr);grid-template-rows:1fr auto;gap:6px;height:100vh;padding:6px}
+        @media(max-width:1024px){.main-container{grid-template-columns:1fr;grid-template-rows:55vh auto auto}}
+        @media(max-width:768px){.main-container{grid-template-rows:45vh 55vh auto}}
+
+        /* --------- SECCIÓN GRAFO --------- */
+        .graph-section{display:flex;flex-direction:column;background:rgba(0,0,0,.25);border:1px solid rgba(100,255,218,.12);border-radius:10px;overflow:hidden;min-width:0}
+        #graph-container{flex:1 1 auto;position:relative;background:radial-gradient(circle at 50% 50%,rgba(100,255,218,.05)0%,transparent 60%)}
+
+        /* --------- SECCIÓN ANÁLISIS --------- */
+        .analysis-section{display:flex;flex-direction:column;gap:6px;min-width:0;min-height:0}
+        .panel-header{padding:10px 14px;border-bottom:1px solid rgba(100,255,218,.18)}
+        .panel-header h2{font-size:1.1em;color:#64ffda;text-shadow:0 0 10px #64ffda}
+        .panel-header p{font-size:.8em;color:rgba(255,255,255,.75);margin-top:4px}
+        .spectrum-panel,.matrix-panel{flex:1 1 0px;display:flex;flex-direction:column;background:rgba(0,0,0,.25);border:1px solid rgba(100,255,218,.2);border-radius:10px;overflow:hidden;min-height:0}
+        #spectrum-container,#matrix-container{flex:1 1 0px;position:relative;min-height:0}
+        #matrix-container{display:flex;flex-direction:column}
+        #matrix-display{flex:1 1 auto;overflow:auto;padding:8px}
+        .stats-panel{flex:0 0 auto;padding:10px;border-top:1px solid rgba(100,255,218,.18)}
+
+        /* --------- MATRIZ CELDAS --------- */
+        .matrix-row{display:flex;gap:2px;margin-bottom:2px}
+        .matrix-cell{flex:1 1 0;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:.8em;font-weight:bold;cursor:pointer;transition:transform .2s}
+        .matrix-cell.zero{background:rgba(100,100,100,.15);color:#666}
+        .matrix-cell.one {background:rgba(100,255,218,.75);color:#000}
+        .matrix-cell:hover,.matrix-cell.highlight{transform:scale(1.2);z-index:5;box-shadow:0 0 15px #64ffda}
+
+        /* --------- CONTROLES --------- */
+        .controls-section{grid-column:1/-1;background:rgba(0,0,0,.4);border-top:2px solid rgba(100,255,218,.25);border-radius:10px;padding:12px;backdrop-filter:blur(10px)}
+        .controls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;align-items:center}
+        .control-group{display:flex;align-items:center;gap:12px}
+        .control-group label{min-width:110px;font-size:.9em;color:#64ffda;font-weight:500}
+        .control-group input[type="range"]{flex:1;-webkit-appearance:none;height:6px;background:rgba(100,255,218,.25);border-radius:3px}
+        .control-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:#64ffda;border-radius:50%;cursor:grab;box-shadow:0 0 10px #64ffda}
+        .control-group select{flex:1;background:#1a1a2e;color:#64ffda;border:1px solid #64ffda;border-radius:6px;padding:6px 8px;font-size:.9em}
+        .control-group input[type="checkbox"]{width:20px;height:20px;accent-color:#64ffda;cursor:pointer}
+
+        /* --------- FLOTANTES / LOADINGS --------- */
+        .loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#64ffda;font-size:1.2em;text-shadow:0 0 12px #64ffda;animation:pulse 2s infinite;z-index:2}
+        @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+        .floating-info{position:absolute;background:rgba(0,0,0,.8);padding:10px;border-radius:8px;border:1px solid rgba(100,255,218,.25);font-size:.85em;pointer-events:none;backdrop-filter:blur(5px)}
+        #graph-info{top:15px;right:15px}
+        #eigenvalue-info{bottom:15px;right:15px}
+        .floating-info h4{margin-bottom:6px;color:#64ffda}
+        .error-message{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,107,107,.15);padding:20px;border-radius:8px;color:#ff6b6b;text-align:center}
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- ---------- GRAFO 3D ---------- -->
+        <div class="graph-section">
+            <div id="graph-container">
+                <div class="loading">Inicializando Renderizador 3D…</div>
+                <div id="graph-info" class="floating-info"><h4>Propiedades</h4><div><strong>Tipo:</strong> Cúbico</div><div><strong>Girth:</strong> 5</div><div><strong>Diámetro:</strong> 2</div></div>
+                <div id="eigenvalue-info" class="floating-info"><h4>Autovalores</h4><div id="eigenvalue-list"></div></div>
+            </div>
+        </div>
+
+        <!-- ---------- ANÁLISIS ---------- -->
+        <div class="analysis-section">
+            <div class="spectrum-panel">
+                <div class="panel-header"><h2>Espectro</h2><p>Distribución y multiplicidad de autovalores.</p></div>
+                <div id="spectrum-container"><div class="loading">Calculando Espectro…</div></div>
+            </div>
+            <div class="matrix-panel">
+                <div class="panel-header"><h2>Matriz de Adyacencia</h2><p>Pasa el cursor sobre la matriz para resaltar nodos y aristas.</p></div>
+                <div id="matrix-container">
+                    <div id="matrix-display"></div>
+                    <div class="stats-panel"><div id="stats-grid" class="stats-grid"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ---------- CONTROLES ---------- -->
+        <div class="controls-section">
+            <div class="controls-grid">
+                <div class="control-group"><label>Rotación:</label><input type="range" id="rotation-speed" min="0" max="0.02" step="0.0005" value="0.002"></div>
+                <div class="control-group"><label>Tamaño Nodos:</label><input type="range" id="node-size" min="0.1" max="0.5" step="0.01" value="0.2"></div>
+                <div class="control-group"><label>Modo Visual:</label><select id="visual-mode"><option value="default">Estándar</option><option value="spectral">Coloreado Espectral</option><option value="eigenmode">Modo Autovalor</option><option value="animation">Animación</option></select></div>
+                <div class="control-group"><label>Cámara:</label><select id="camera-preset"><option value="default">Perspectiva</option><option value="top">Superior</option><option value="side">Lateral</option></select></div>
+                <div class="control-group"><label>Animación:</label><input type="checkbox" id="animation-toggle" checked></div>
+                <div class="control-group"><label>Mostrar Aristas:</label><input type="checkbox" id="edges-toggle" checked></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ---------- SCRIPT ---------- -->
+    <script>
+    /* =========  Datos básicos  ========= */
+    const GRAPH={
+        nodes:[{x:2,y:0,z:0},{x:0.618,y:1.902,z:0},{x:-1.618,y:1.176,z:0},{x:-1.618,y:-1.176,z:0},{x:0.618,y:-1.902,z:0},{x:1,y:0,z:1.5},{x:0.309,y:0.951,z:1.5},{x:-0.809,y:0.588,z:1.5},{x:-0.809,y:-0.588,z:1.5},{x:0.309,y:-0.951,z:1.5}],
+        edges:[[0,1],[1,2],[2,3],[3,4],[4,0],[5,7],[7,9],[9,6],[6,8],[8,5],[0,5],[1,6],[2,7],[3,8],[4,9]],
+        eigenvalues:[3,1,1,1,1,1,-2,-2,-2,-2],
+        degree:3,
+        properties:{vertices:10,edges:15,girth:5,diameter:2,isRamanujan:true,chromaticNumber:3}
+    };
+    const MATRIX=Array(10).fill(0).map(()=>Array(10).fill(0));
+    GRAPH.edges.forEach(([i,j])=>{MATRIX[i][j]=1;MATRIX[j][i]=1});
+    const ECOUNT=GRAPH.eigenvalues.reduce((a,v)=>(a[v]=(a[v]||0)+1,a),{});
+
+    /* =========  THREE.js scene  ========= */
+    let scene,camera,renderer,graphG,edgeG,animId;
+    const nodes=[],edges=[];
+    const state={rot:0.002,size:0.2,mode:'default',animate:true};
+    const COLORS={outer:0x64ffda,inner:0xff6b6b,edge:0xffffff,highlight:0xfffaaa};
+    const PRESETS={default:{pos:[6,4,6],look:[0,0.5,0]},top:{pos:[0,8,0],look:[0,0,0]},side:{pos:[8,0.5,0],look:[0,0.5,0]}};
+
+    window.addEventListener('load',()=>{try{init3D();initSpectrum();initMatrix();setupUI();}catch(e){console.error(e);showError(e.message);}});
+
+    function init3D(){
+        const cont=document.getElementById('graph-container');
+        scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x0a0a14,0.08);
+        camera=new THREE.PerspectiveCamera(60,cont.clientWidth/cont.clientHeight,0.1,100);
+        renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+        renderer.setSize(cont.clientWidth,cont.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+        cont.appendChild(renderer.domElement);
+
+        graphG=new THREE.Group(); edgeG=new THREE.Group(); scene.add(graphG,edgeG);
+        buildGraph(); addLights(); setCamera('default');
+        cont.querySelector('.loading').style.display='none';
+        window.addEventListener('resize',()=>resize(cont));
+        mouseOrbit(cont);
+        animate();
+    }
+
+    function buildGraph(){
+        const sphereGeo=new THREE.SphereGeometry(1,32,32);
+        GRAPH.nodes.forEach((p,i)=>{
+            const mat=new THREE.MeshPhongMaterial({color:i<5?COLORS.outer:COLORS.inner,shininess:80});
+            const s=new THREE.Mesh(sphereGeo,mat);
+            s.position.copy(p); s.scale.setScalar(state.size);
+            s.userData={origColor:mat.color.getHex(),idx:i};
+            graphG.add(s); nodes.push(s);
+        });
+        const cylGeo=new THREE.CylinderGeometry(0.025,0.025,1,8);
+        GRAPH.edges.forEach(([i,j])=>{
+            const a=nodes[i].position,b=nodes[j].position;
+            const cyl=new THREE.Mesh(cylGeo,new THREE.MeshPhongMaterial({color:COLORS.edge,shininess:50}));
+            cyl.scale.y=a.distanceTo(b);
+            cyl.position.copy(a).lerp(b,0.5);
+            cyl.lookAt(b); cyl.rotateX(Math.PI/2);
+            cyl.userData={pair:[i,j]};
+            edgeG.add(cyl); edges.push(cyl);
+        });
+    }
+
+    function addLights(){
+        scene.add(new THREE.AmbientLight(0xffffff,0.3));
+        const key=new THREE.DirectionalLight(0x64ffda,0.9); key.position.set(8,8,4); key.castShadow=true; scene.add(key);
+        const fill=new THREE.DirectionalLight(0xff6b6b,0.45); fill.position.set(-8,-4,-4); scene.add(fill);
+    }
+
+    function setCamera(preset){const cfg=PRESETS[preset]; camera.position.set(...cfg.pos); camera.lookAt(...cfg.look);}
+    function resize(c){camera.aspect=c.clientWidth/c.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(c.clientWidth,c.clientHeight);}
+
+    function mouseOrbit(c){let down=false,px,py; c.style.cursor='grab';
+        c.addEventListener('mousedown',e=>{down=true;px=e.clientX;py=e.clientY;c.style.cursor='grabbing'});
+        const stop=()=>{down=false;c.style.cursor='grab'};
+        c.addEventListener('mouseup',stop); c.addEventListener('mouseleave',stop);
+        c.addEventListener('mousemove',e=>{if(!down)return;const dx=e.clientX-px,dy=e.clientY-py;graphG.rotation.y+=dx*0.01;edgeG.rotation.y+=dx*0.01;graphG.rotation.x+=dy*0.01;edgeG.rotation.x+=dy*0.01;px=e.clientX;py=e.clientY});
+        c.addEventListener('wheel',e=>{camera.position.multiplyScalar(1+e.deltaY*0.001);camera.position.clampLength(4,25)},{passive:true});
+    }
+
+    function animate(){animId=requestAnimationFrame(animate); if(state.animate){graphG.rotation.y+=state.rot;edgeG.rotation.y+=state.rot;} renderer.render(scene,camera)}
+
+    /* =========  Plotly ========= */
+    function initSpectrum(){document.querySelector('.spectrum-panel .loading').style.display='none';
+        const data=[{x:Object.keys(ECOUNT).map(Number),y:Object.values(ECOUNT),type:'bar',marker:{color:Object.keys(ECOUNT).map(v=>v==3?'rgba(255,107,107,.85)':'rgba(100,255,218,.85)')}}];
+        Plotly.newPlot('spectrum-container',data,{plot_bgcolor:'transparent',paper_bgcolor:'transparent',font:{color:'#fff'},margin:{l:45,r:20,t:35,b:45},xaxis:{title:'Autovalor (λ)'},yaxis:{title:'Multiplicidad'}},{responsive:true,displayModeBar:false});
+        document.getElementById('eigenvalue-list').innerHTML=Object.entries(ECOUNT).map(([v,c])=>`λ=${v} (x${c})`).join('<br>');
+    }
+
+    /* =========  Matriz ========= */
+    function initMatrix(){const disp=document.getElementById('matrix-display');
+        disp.innerHTML=MATRIX.map((row,i)=>`<div class='matrix-row'>${row.map((v,j)=>`<div class='matrix-cell ${v?'one':'zero'}' data-i='${i}' data-j='${j}'>${v}</div>`).join('')}</div>`).join('');
+        disp.querySelectorAll('.matrix-cell').forEach(cell=>{cell.addEventListener('mouseenter',e=>highlight([+e.target.dataset.i,+e.target.dataset.j],e.target));cell.addEventListener('mouseleave',()=>highlight([],null))});
+        const stats=document.getElementById('stats-grid'); stats.innerHTML="";
+        Object.entries(GRAPH.properties).forEach(([k,v])=>stats.insertAdjacentHTML('beforeend',`<div class='stat-item'><span class='stat-label'>${k.charAt(0).toUpperCase()+k.slice(1)}:</span><span class='stat-value ${k==='isRamanujan'?(v?'ramanujan-yes':'ramanujan-no'):''}'>${v===true?'SÍ':v}</span></div>`));
+    }
+
+    function highlight(nodesIdx,cell){
+        /* 1) efecto en la celda */
+        document.querySelectorAll('.matrix-cell.highlight').forEach(el=>el.classList.remove('highlight'));
+        if(cell) cell.classList.add('highlight');
+        /* 2) efecto en nodos */
+        nodes.forEach((n,i)=>{
+            const isHi=nodesIdx.includes(i);
+            n.material.emissive.setHex(isHi?COLORS.highlight:0x000000);
+        });
+        /* 3) efecto en aristas */
+        edges.forEach(ed=>{
+            const [a,b]=ed.userData.pair;
+            const on=nodesIdx.length===2 && nodesIdx.includes(a)&&nodesIdx.includes(b);
+            ed.material.color.setHex(on?0xffff00:COLORS.edge);
+        });
+    }
+
+    /* =========  Controles UI ========= */
+    function setupUI(){
+        const $=id=>document.getElementById(id);
+        $('rotation-speed').addEventListener('input',e=>state.rot=parseFloat(e.target.value));
+        $('node-size').addEventListener('input',e=>{state.size=parseFloat(e.target.value);nodes.forEach(n=>n.scale.setScalar(state.size))});
+        $('visual-mode').addEventListener('change',e=>state.mode=e.target.value);
+        $('camera-preset').addEventListener('change',e=>setCamera(e.target.value));
+        $('animation-toggle').addEventListener('change',e=>state.animate=e.target.checked);
+        $('edges-toggle').addEventListener('change',e=>edgeG.visible=e.target.checked);
+    }
+
+    /* =========  Error helper ========= */
+    function showError(msg){const g=document.getElementById('graph-container');g.innerHTML=`<div class='error-message'><h4>Error</h4><p>${msg}</p></div>`}
+    </script>
+</body>
+</html>
