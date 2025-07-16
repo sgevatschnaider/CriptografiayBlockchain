@@ -38,12 +38,6 @@ Navega directamente a la sección que más te interese:
 
 ---
 
-¡Perfecto! Aquí tienes únicamente la sección actualizada, lista para copiar y pegar en tu `README.md`.
-
-He usado el texto que proporcionaste y he formateado el enlace del GIF para que se muestre correctamente como una imagen centrada.
-
----
-
 ### ✨ Más Allá del Código: La Belleza Matemática de la Criptografía
 
 La siguiente animación, "Laboratorio Esteganográfico V3", simula una batalla cinemática entre un defensor y un atacante en el espacio complejo. Utiliza el conjunto de Julia como canal esteganográfico, ocultando bits de un mensaje en las regiones de alta entropía (caos) del fractal. Cada bit es una partícula que viaja a una posición determinada por una clave maestra.
@@ -92,6 +86,7 @@ Este repositorio está organizado en módulos progresivos. Te recomendamos segui
 | ⚙️ **5. Herramientas del Ecosistema**           | <details><summary>Domina el arsenal del desarrollador blockchain. Te guiaremos en el uso de herramientas profesionales como Hardhat, Remix, Truffle y Ganache.</summary><p>El objetivo es que te sientas cómodo en un entorno de desarrollo profesional.</p></details>           | `Hardhat`, `Remix`, `Truffle`|
 | ⚛️ **6. Anatomía Visual de un Hash**   | <details><summary>Sumérgete en una experiencia interactiva que traduce conceptos abstractos como la distribución uniforme y la entropía en una visualización de datos dinámica.</summary><p>A través de un hipercubo 4D, observarás en tiempo real cómo cada byte de un hash SHA-256 contribuye al caos determinista. Este módulo conecta la teoría criptográfica con el arte del código creativo.</p></details> | `HTML`, `CSS`, `JavaScript`, `three.js` |
 ---
+| 📈 **7. Teoría Espectral de Grafos** | <details><summary>Explora la conexión profunda entre la estructura de una red y sus propiedades algebraicas a través de la teoría espectral.</summary><p>Se analiza interactivamente el Grafo de Petersen, un famoso ejemplo de un 'grafo de Ramanujan' —redes con conectividad casi óptima. Estos conceptos son fundamentales para el diseño de redes P2P robustas y algoritmos criptográficos avanzados.</p></details> | `HTML`, `CSS`, `JavaScript`, `three.js`, `Plotly.js` |
 
 ## 📂 Arquitectura del Repositorio
 
@@ -144,6 +139,8 @@ A través de estas visualizaciones, podrás explorar este campo de batalla, simu
 | **Galería Artística: Fractales de Julia** <br><br> <details><summary><strong>Resumen:</strong> <em>(haz clic para expandir)</em></summary><p>Una propiedad fundamental de las primitivas criptográficas es la alta no linealidad y la sensibilidad a las condiciones iniciales (efecto avalancha). Los fractales de Julia son una bella analogía visual de este concepto. Demuestran cómo funciones iterativas simples en el plano complejo pueden generar una complejidad infinita, un principio que, en espíritu, protege a los algoritmos que el paper busca implementar de forma segura.</p></details>  | [![Ver Página Web](https://img.shields.io/badge/Ver-Galer%C3%ADa-blueviolet?style=for-the-badge&logo=html5)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizaci%C3%B3n_%20art%C3%ADstica_julia.html) |
 | **Galería Artística: Campos de Polinomios Finitos** <br><br> <details><summary><strong>Resumen:</strong> <em>(haz clic para expandir)</em></summary><p>El paper ataca una implementación de AES, cuyas operaciones (como el S-Box) se definen sobre campos finitos (Campos de Galois). Esta visualización artística explora la estructura de estos campos polinomiales. Sirve como un recordatorio de que los algoritmos que implementamos en DNNs no son cajas negras, sino que se basan en estructuras matemáticas profundas cuya integridad debemos preservar al cambiar de dominio computacional.</p></details> | [![Ver Página Web](https://img.shields.io/badge/Ver-Galer%C3%ADa-blueviolet?style=for-the-badge&logo=html5)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizacion_%20artistica_polinomio%20.html) |
 | **Laboratorio Interactivo: Anatomía de SHA-256** <br><br> <details><summary><strong>Resumen:</strong> <em>(haz clic para expandir)</em></summary><p>Esta herramienta traduce los conceptos criptográficos abstractos de un hash SHA-256 en una experiencia visual e interactiva. Mediante un hipercubo 4D renderizado en tiempo real, se puede observar la uniformidad, entropía y el efecto avalancha de los datos. Sirve como una poderosa demostración de por qué SHA-256 es seguro, convirtiendo la matemática pura en una escultura de datos dinámica.</p></details> | [![Ver Laboratorio](https://img.shields.io/badge/Ver-Laboratorio-blue?style=for-the-badge&logo=html5)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/cryptocube.html) |
+
+| **Explorador Espectral del Grafo de Petersen** <br><br> <details><summary><strong>Resumen:</strong> <em>(haz clic para expandir)</em></summary><p>Esta herramienta descompone el Grafo de Petersen, un objeto matemático fundamental. Permite explorar la relación directa entre su matriz de adyacencia, la visualización 3D interactiva y su espectro de autovalores. Se demuestra visualmente por qué es un 'grafo de Ramanujan', un concepto clave en el diseño de redes de comunicación óptimas y algoritmos criptográficos.</p></details> | [![Explorar Grafo](https://img.shields.io/badge/Explorar-Grafo-darkgreen?style=for-the-badge&logo=html5)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/spectral-graph-visualizer.html) |
 
 ## 🤝 Cómo Contribuir
 
