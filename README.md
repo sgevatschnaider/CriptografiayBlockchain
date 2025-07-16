@@ -90,7 +90,7 @@ Este repositorio está organizado en módulos progresivos. Te recomendamos segui
 | 📝 **3. Contratos Inteligentes** | <details><summary>Adéntrate en la lógica programable de la blockchain. Escribirás, probarás y desplegarás tus primeros contratos inteligentes, aprendiendo las mejores prácticas de seguridad.</summary><p>Nos enfocaremos en el ciclo de vida completo del desarrollo de un Smart Contract.</p></details>     | `Solidity`, `Hardhat`, `Chai` |
 | 🏦 **4. Protocolos DeFi**      | <details><summary>Explora el ecosistema financiero del futuro. Analizaremos los mecanismos detrás de los intercambios descentralizados (DEX), los protocolos de préstamos y las soluciones de escalabilidad.</summary><p>Se estudiarán casos de uso reales y patrones de diseño de DeFi.</p></details> | `Solidity`, `TypeScript`   |
 | ⚙️ **5. Herramientas del Ecosistema**           | <details><summary>Domina el arsenal del desarrollador blockchain. Te guiaremos en el uso de herramientas profesionales como Hardhat, Remix, Truffle y Ganache.</summary><p>El objetivo es que te sientas cómodo en un entorno de desarrollo profesional.</p></details>           | `Hardhat`, `Remix`, `Truffle`|
-
+| ⚛️ **6. Anatomía Visual de un Hash**   | <details><summary>Sumérgete en una experiencia interactiva que traduce conceptos abstractos como la distribución uniforme y la entropía en una visualización de datos dinámica.</summary><p>A través de un hipercubo 4D, observarás en tiempo real cómo cada byte de un hash SHA-256 contribuye al caos determinista. Este módulo conecta la teoría criptográfica con el arte del código creativo.</p></details> | `HTML`, `CSS`, `JavaScript`, `three.js` |
 ---
 
 ## 📂 Arquitectura del Repositorio
