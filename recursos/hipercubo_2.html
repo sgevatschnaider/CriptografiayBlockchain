@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador SHA-256 con Hipercubo 4D - Versión Mejorada</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+            background: radial-gradient(ellipse at center, #0f0f23 0%, #000000 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 25px;
+            height: calc(100vh - 40px);
+        }
+
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, rgba(13, 13, 33, 0.9) 0%, rgba(30, 30, 60, 0.9) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+        }
+
+        .visualization-container {
+            background: linear-gradient(135deg, rgba(13, 13, 33, 0.9) 0%, rgba(30, 30, 60, 0.9) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 0, 255, 0.2);
+            min-height: 450px;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.1);
+        }
+
+        #visual3d {
+            width: 100%;
+            flex-grow: 1;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            min-height: 350px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .charts-container {
+            background: linear-gradient(135deg, rgba(13, 13, 33, 0.9) 0%, rgba(30, 30, 60, 0.9) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 0, 0.2);
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.1);
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 20px;
+            height: 350px;
+        }
+
+        .chart-container {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .chart-title {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 12px;
+            color: #00ffff;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group input, .control-group select {
+            padding: 12px 16px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00ff00, #00ffff);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff0080, #8000ff);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ffff00, #ff8000);
+            color: #000;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            color: #b0b0b0;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: #00ffff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .stat-value.critical {
+            color: #ff0080;
+        }
+
+        .stat-value.good {
+            color: #00ff00;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #00ffff, #ff0080);
+            transition: width 0.3s ease;
+            width: 0%;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .hash-display {
+            max-height: 250px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hash-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid #00ffff;
+            transition: all 0.3s ease;
+        }
+
+        .hash-item:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .hash-input {
+            color: #ffff00;
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .hash-output {
+            color: #00ffff;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+
+        .first-byte {
+            color: #ff0080;
+            font-weight: bold;
+            background: rgba(255, 0, 128, 0.1);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00ffff;
+            font-size: 2.5em;
+            font-weight: 300;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        h2 {
+            color: #00ffff;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Indicador de convergencia */
+        .convergence-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            font-size: 12px;
+            color: #00ffff;
+            z-index: 10;
+        }
+
+        /* Animaciones */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.6); }
+            100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+        }
+
+        .pulsing {
+            animation: pulse 2s infinite;
+        }
+
+        /* Efectos de partículas */
+        .particle {
+            position: absolute;
+            background: #00ffff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 1400px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                height: auto;
+            }
+            
+            .chart-grid {
+                grid-template-columns: 1fr 1fr;
+                height: auto;
+                grid-auto-rows: 300px;
+            }
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #00ffff, #ff0080);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #ff0080, #00ffff);
+        }
+    </style>
+</head>
+<body>
+    <h1>🔮 Analizador SHA-256 con Hipercubo 4D</h1>
+    
+    <div class="container">
+        <div class="main-panel">
+            <div class="visualization-container">
+                <h2>🌐 Visualización 4D del Hipercubo</h2>
+                <div id="visual3d">
+                    <div class="convergence-indicator" id="convergenceIndicator">
+                        Convergencia: 0.0%
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-container">
+                <h2>📊 Análisis Estadístico Avanzado</h2>
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">Distribución de Bytes</div>
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Convergencia a 50%</div>
+                        <canvas id="bitChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Entropía Temporal</div>
+                        <canvas id="entropyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <h2>⚙️ Controles</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label>Tamaño de muestra:</label>
+                    <input type="number" id="sampleSize" value="5000" min="100" max="1000000">
+                </div>
+                
+                <div class="control-group">
+                    <label>Velocidad: <span id="speedValue">50</span></label>
+                    <input type="range" id="speed" min="1" max="100" value="50">
+                </div>
+                
+                <div class="control-group">
+                    <label>Tamaño de lote:</label>
+                    <input type="number" id="batchSize" value="50" min="1" max="1000">
+                </div>
+                
+                <div class="control-group">
+                    <label>Modo de visualización:</label>
+                    <select id="colorMode">
+                        <option value="entropy"> Por Entropía</option>
+                        <option value="byte"> Por Bytes</option>
+                        <option value="firstByte"> Por Primer Byte</option>
+                        <option value="avalanche"> Efecto Avalancha</option>
+                    </select>
+                </div>
+                
+                <div class="buttons">
+                    <button id="startBtn" class="btn btn-primary">▶️ Iniciar</button>
+                    <button id="stopBtn" class="btn btn-warning" disabled>⏸️ Detener</button>
+                    <button id="resetBtn" class="btn btn-secondary">🔄 Reiniciar</button>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+            
+            <h2>📈 Estadísticas</h2>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Procesados:</span>
+                    <span class="stat-value" id="processedCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Bits "1":</span>
+                    <span class="stat-value" id="bitProportion">0.0000</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Desv. del 50%:</span>
+                    <span class="stat-value" id="deviation">0.0000</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Entropía:</span>
+                    <span class="stat-value" id="entropy">0.0000</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Chi-cuadrado:</span>
+                    <span class="stat-value" id="chiSquared">0.00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Calidad:</span>
+                    <span class="stat-value" id="quality">Iniciando...</span>
+                </div>
+            </div>
+            
+            <h2> Hashes Recientes</h2>
+            <div id="hashList" class="hash-display"></div>
+        </div>
+    </div>
+
+    <script>
+        // Visualizador de Hipercubo 4D Mejorado
+        class HypercubeVisualizer {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                this.renderer.setClearColor(0x000000, 0);
+                this.container.appendChild(this.renderer.domElement);
+
+                this.angleWX = 0;
+                this.angleWY = 0;
+                this.angleWZ = 0;
+                this.angleXY = 0;
+                
+                this.particles = [];
+                this.particleSystem = null;
+                
+                this.initHypercube();
+                this.initParticles();
+                this.addLights();
+                this.camera.position.set(0, 0, 8);
+                
+                this.mouse = new THREE.Vector2();
+                this.targetRotation = new THREE.Vector2();
+                this.setupMouseInteraction();
+                
+                window.addEventListener('resize', () => this.onResize());
+                this.animate();
+            }
+
+            initHypercube() {
+                this.hypercube = new THREE.Group();
+                this.cubes = [];
+                this.edges = [];
+                this.glowEffects = [];
+                
+                this.vertices4D = [
+                    [-1,-1,-1,-1], [1,-1,-1,-1], [-1,1,-1,-1], [1,1,-1,-1],
+                    [-1,-1,1,-1], [1,-1,1,-1], [-1,1,1,-1], [1,1,1,-1],
+                    [-1,-1,-1,1], [1,-1,-1,1], [-1,1,-1,1], [1,1,-1,1],
+                    [-1,-1,1,1], [1,-1,1,1], [-1,1,1,1], [1,1,1,1]
+                ];
+                
+                this.edgePairs = [
+                    [0,1],[1,3],[3,2],[2,0],[4,5],[5,7],[7,6],[6,4],[0,4],[1,5],[2,6],[3,7],
+                    [8,9],[9,11],[11,10],[10,8],[12,13],[13,15],[15,14],[14,12],[8,12],[9,13],[10,14],[11,15],
+                    [0,8],[1,9],[2,10],[3,11],[4,12],[5,13],[6,14],[7,15]
+                ];
+                
+                this.project4Dto3D();
+                
+                for (let i = 0; i < this.vertices3D.length; i++) {
+                    const geometry = new THREE.SphereGeometry(0.12, 16, 16);
+                    const material = new THREE.MeshPhongMaterial({ 
+                        color: 0x00ffff,
+                        emissive: 0x004444,
+                        shininess: 100
+                    });
+                    const cube = new THREE.Mesh(geometry, material);
+                    cube.position.copy(this.vertices3D[i]);
+                    
+                    const glowGeometry = new THREE.SphereGeometry(0.18, 16, 16);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: 0x00ffff,
+                        transparent: true,
+                        opacity: 0.2
+                    });
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    glow.position.copy(this.vertices3D[i]);
+                    
+                    this.cubes.push(cube);
+                    this.glowEffects.push(glow);
+                    this.hypercube.add(cube);
+                    this.hypercube.add(glow);
+                }
+                
+                this.createEdges();
+                this.scene.add(this.hypercube);
+            }
+
+            initParticles() {
+                const particleCount = 100;
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                
+                for (let i = 0; i < particleCount; i++) {
+                    positions[i * 3] = (Math.random() - 0.5) * 10;
+                    positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+                    positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+                    
+                    colors[i * 3] = Math.random();
+                    colors[i * 3 + 1] = Math.random();
+                    colors[i * 3 + 2] = Math.random();
+                }
+                
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const material = new THREE.PointsMaterial({
+                    size: 0.05,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                
+                this.particleSystem = new THREE.Points(geometry, material);
+                this.scene.add(this.particleSystem);
+            }
+
+            rotate4D(vertex, angleWX, angleWY, angleWZ, angleXY) {
+                let [x, y, z, w] = vertex;
+                
+                const cosWX = Math.cos(angleWX);
+                const sinWX = Math.sin(angleWX);
+                [w, x] = [w * cosWX - x * sinWX, w * sinWX + x * cosWX];
+                
+                const cosWY = Math.cos(angleWY);
+                const sinWY = Math.sin(angleWY);
+                [w, y] = [w * cosWY - y * sinWY, w * sinWY + y * cosWY];
+                
+                const cosWZ = Math.cos(angleWZ);
+                const sinWZ = Math.sin(angleWZ);
+                [w, z] = [w * cosWZ - z * sinWZ, w * sinWZ + z * cosWZ];
+                
+                const cosXY = Math.cos(angleXY);
+                const sinXY = Math.sin(angleXY);
+                [x, y] = [x * cosXY - y * sinXY, x * sinXY + y * cosXY];
+                
+                return [x, y, z, w];
+            }
+
+            project4Dto3D() {
+                this.vertices3D = [];
+                
+                for (const vertex of this.vertices4D) {
+                    const rotated = this.rotate4D(vertex, this.angleWX, this.angleWY, this.angleWZ, this.angleXY);
+                    const [x, y, z, w] = rotated;
+                    const d = 4;
+                    const factor = d / (d - w);
+                    
+                    this.vertices3D.push(new THREE.Vector3(
+                        x * factor * 1.8, 
+                        y * factor * 1.8, 
+                        z * factor * 1.8
+                    ));
+                }
+            }
+
+            createEdges() {
+                this.edgePairs.forEach(([i, j]) => {
+                    const geometry = new THREE.BufferGeometry().setFromPoints([
+                        this.vertices3D[i], 
+                        this.vertices3D[j]
+                    ]);
+                    const material = new THREE.LineBasicMaterial({ 
+                        color: 0xff0080, 
+                        transparent: true, 
+                        opacity: 0.7,
+                        linewidth: 2
+                    });
+                    const line = new THREE.Line(geometry, material);
+                    this.edges.push(line);
+                    this.hypercube.add(line);
+                });
+            }
+
+            updateGeometry() {
+                for (let i = 0; i < this.cubes.length; i++) {
+                    this.cubes[i].position.copy(this.vertices3D[i]);
+                    this.glowEffects[i].position.copy(this.vertices3D[i]);
+                }
+                
+                for (let i = 0; i < this.edges.length; i++) {
+                    const [a, b] = this.edgePairs[i];
+                    this.edges[i].geometry.setFromPoints([
+                        this.vertices3D[a], 
+                        this.vertices3D[b]
+                    ]);
+                    this.edges[i].geometry.attributes.position.needsUpdate = true;
+                }
+            }
+
+            addLights() {
+                this.scene.add(new THREE.AmbientLight(0x404040, 0.6));
+                
+                const light1 = new THREE.DirectionalLight(0x00ffff, 1);
+                light1.position.set(5, 5, 10);
+                this.scene.add(light1);
+                
+                const light2 = new THREE.DirectionalLight(0xff0080, 0.8);
+                light2.position.set(-5, -5, -10);
+                this.scene.add(light2);
+            }
+
+            setupMouseInteraction() {
+                this.container.addEventListener('mousemove', (event) => {
+                    if (event.buttons !== 1) return;
+                    const rect = this.container.getBoundingClientRect();
+                    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                }, false);
+            }
+
+            updateColors(hashBytes, mode = 'entropy') {
+                if (!hashBytes || hashBytes.length === 0) return;
+                
+                for (let i = 0; i < this.cubes.length; i++) {
+                    let hue, saturation = 0.9, lightness = 0.6;
+                    
+                    switch (mode) {
+                        case 'entropy':
+                            const localEntropy = hashBytes[i % hashBytes.length] / 255;
+                            hue = 0.5 + 0.5 * localEntropy;
+                            break;
+                        case 'firstByte':
+                            hue = (hashBytes[0] / 255) * 0.8;
+                            break;
+                        case 'avalanche':
+                            const avalanche = hashBytes[i % hashBytes.length] ^ hashBytes[(i + 1) % hashBytes.length];
+                            hue = (avalanche / 255) * 0.7 + 0.1;
+                            break;
+                        default: // 'byte'
+                            hue = (hashBytes[i % hashBytes.length] / 255) * 0.9;
+                    }
+                    
+                    const targetColor = new THREE.Color().setHSL(hue, saturation, lightness);
+                    this.cubes[i].material.color.lerp(targetColor, 0.2);
+                    this.cubes[i].material.emissive.copy(targetColor).multiplyScalar(0.3);
+                    
+                    this.glowEffects[i].material.color.copy(targetColor);
+                    this.glowEffects[i].material.opacity = 0.1 + (hashBytes[i % hashBytes.length] / 255) * 0.3;
+                }
+                
+                for (let i = 0; i < this.edges.length; i++) {
+                    const [a, b] = this.edgePairs[i];
+                    const colorA = this.cubes[a].material.color;
+                    const colorB = this.cubes[b].material.color;
+                    const avgColor = new THREE.Color().lerpColors(colorA, colorB, 0.5);
+                    this.edges[i].material.color.copy(avgColor);
+                    this.edges[i].material.opacity = 0.5 + (hashBytes[i % hashBytes.length] / 255) * 0.5;
+                }
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                this.angleWX += 0.005;
+                this.angleWY += 0.003;
+                this.angleWZ += 0.007;
+                this.angleXY += 0.002;
+                
+                if (this.mouse.x !== 0 || this.mouse.y !== 0) {
+                    this.targetRotation.x = this.mouse.y * 0.5;
+                    this.targetRotation.y = this.mouse.x * 0.5;
+                }
+                
+                this.hypercube.rotation.x += (this.targetRotation.x - this.hypercube.rotation.x) * 0.05;
+                this.hypercube.rotation.y += (this.targetRotation.y - this.hypercube.rotation.y) * 0.05;
+                
+                this.project4Dto3D();
+                this.updateGeometry();
+                
+                if (this.particleSystem) {
+                    this.particleSystem.rotation.x += 0.001;
+                    this.particleSystem.rotation.y += 0.002;
+                }
+                
+                const time = Date.now() * 0.001;
+                for (let i = 0; i < this.cubes.length; i++) {
+                    const scale = 1 + Math.sin(time + i * 0.5) * 0.1;
+                    this.cubes[i].scale.setScalar(scale);
+                }
+                
+                this.renderer.render(this.scene, this.camera);
+            }
+
+            onResize() {
+                const width = this.container.clientWidth;
+                const height = this.container.clientHeight;
+                
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(width, height);
+            }
+        }
+
+        // Analizador SHA-256
+        class SHA256Analyzer {
+            constructor() {
+                this.processedCount = 0;
+                this.totalBits = 0;
+                this.oneBits = 0;
+                this.byteDistribution = new Array(256).fill(0);
+                this.entropyHistory = [];
+                this.convergenceHistory = [];
+                this.recentHashes = [];
+                this.isRunning = false;
+                this.currentBatch = 0;
+                this.totalSamples = 0;
+                
+                this.initCharts();
+                this.initEventListeners();
+            }
+
+            initCharts() {
+                const chartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                };
+
+                this.distributionChart = new Chart(document.getElementById('distributionChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({length: 256}, (_, i) => i),
+                        datasets: [{
+                            data: this.byteDistribution,
+                            backgroundColor: 'rgba(0, 255, 255, 0.6)',
+                            borderColor: 'rgba(0, 255, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: chartOptions
+                });
+
+                this.bitChart = new Chart(document.getElementById('bitChart'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            borderColor: '#ff0080',
+                            backgroundColor: 'rgba(255, 0, 128, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: chartOptions
+                });
+
+                this.entropyChart = new Chart(document.getElementById('entropyChart'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            borderColor: '#00ff00',
+                            backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            initEventListeners() {
+                const speedSlider = document.getElementById('speed');
+                const speedValue = document.getElementById('speedValue');
+                
+                speedSlider.addEventListener('input', (e) => {
+                    speedValue.textContent = e.target.value;
+                });
+
+                document.getElementById('startBtn').addEventListener('click', () => this.start());
+                document.getElementById('stopBtn').addEventListener('click', () => this.stop());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+            }
+
+            async sha256(message) {
+                const msgBuffer = new TextEncoder().encode(message);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                return Array.from(new Uint8Array(hashBuffer));
+            }
+
+            generateRandomInput() {
+                const length = Math.floor(Math.random() * 100) + 10;
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result + Date.now() + Math.random();
+            }
+
+            calculateEntropy(bytes) {
+                const frequency = new Array(256).fill(0);
+                bytes.forEach(byte => frequency[byte]++);
+                
+                let entropy = 0;
+                const length = bytes.length;
+                if (length === 0) return 0;
+
+                for (let i = 0; i < 256; i++) {
+                    if (frequency[i] > 0) {
+                        const p = frequency[i] / length;
+                        entropy -= p * Math.log2(p);
+                    }
+                }
+                return entropy;
+            }
+
+            calculateChiSquared(bytes) {
+                const totalBytes = bytes.reduce((sum, val) => sum + val, 0);
+                if (totalBytes === 0) return 0;
+                const expected = totalBytes / 256;
+                let chiSquared = 0;
+                
+                for (let i = 0; i < 256; i++) {
+                    const observed = this.byteDistribution[i];
+                    chiSquared += Math.pow(observed - expected, 2) / expected;
+                }
+                
+                return chiSquared;
+            }
+
+            updateStats() {
+                const bitProportion = this.totalBits > 0 ? this.oneBits / this.totalBits : 0;
+                const deviation = Math.abs(bitProportion - 0.5);
+                const entropy = this.calculateEntropy(this.byteDistribution);
+                const chiSquared = this.calculateChiSquared(this.byteDistribution);
+                
+                document.getElementById('processedCount').textContent = this.processedCount.toLocaleString();
+                document.getElementById('bitProportion').textContent = bitProportion.toFixed(6);
+                document.getElementById('deviation').textContent = deviation.toFixed(6);
+                document.getElementById('entropy').textContent = entropy.toFixed(4);
+                document.getElementById('chiSquared').textContent = chiSquared.toFixed(2);
+                
+                const qualityElement = document.getElementById('quality');
+                if (deviation < 0.001 && this.processedCount > 1000) {
+                    qualityElement.textContent = 'Excelente';
+                    qualityElement.className = 'stat-value good';
+                } else if (deviation < 0.01) {
+                    qualityElement.textContent = 'Buena';
+                    qualityElement.className = 'stat-value';
+                } else {
+                    qualityElement.textContent = 'Convergiendo...';
+                    qualityElement.className = 'stat-value critical';
+                }
+                
+                const progress = Math.min((this.processedCount / this.totalSamples) * 100, 100);
+                document.getElementById('progressFill').style.width = progress + '%';
+                
+                const convergence = Math.max(0, 100 - (deviation * 20000));
+                document.getElementById('convergenceIndicator').textContent = 
+                    `Convergencia: ${convergence.toFixed(1)}%`;
+                
+                this.convergenceHistory.push(bitProportion);
+                this.entropyHistory.push(entropy);
+                
+                if (this.convergenceHistory.length > 100) {
+                    this.convergenceHistory.shift();
+                    this.entropyHistory.shift();
+                }
+                
+                this.updateCharts();
+            }
+
+            updateCharts() {
+                this.distributionChart.data.datasets[0].data = this.byteDistribution;
+                this.distributionChart.update('none');
+                
+                this.bitChart.data.labels = Array.from({length: this.convergenceHistory.length}, (_, i) => i);
+                this.bitChart.data.datasets[0].data = this.convergenceHistory;
+                this.bitChart.update('none');
+                
+                this.entropyChart.data.labels = Array.from({length: this.entropyHistory.length}, (_, i) => i);
+                this.entropyChart.data.datasets[0].data = this.entropyHistory;
+                this.entropyChart.update('none');
+            }
+
+            addToHashList(input, hash) {
+                const hashHex = hash.map(b => b.toString(16).padStart(2, '0')).join('');
+                const firstByte = hash[0];
+                
+                const hashItem = document.createElement('div');
+                hashItem.className = 'hash-item';
+                hashItem.innerHTML = `
+                    <div class="hash-input">Input: ${input.substring(0, 50)}${input.length > 50 ? '...' : ''}</div>
+                    <div class="hash-output">
+                        <span class="first-byte">${firstByte.toString(16).padStart(2, '0')}</span>${hashHex.substring(2)}
+                    </div>
+                `;
+                
+                const hashList = document.getElementById('hashList');
+                hashList.insertBefore(hashItem, hashList.firstChild);
+                
+                while (hashList.children.length > 20) {
+                    hashList.removeChild(hashList.lastChild);
+                }
+                
+                this.recentHashes.unshift(hash);
+                if (this.recentHashes.length > 10) {
+                    this.recentHashes.pop();
+                }
+            }
+
+            async processBatch() {
+                if (!this.isRunning) return;
+                
+                const batchSize = parseInt(document.getElementById('batchSize').value);
+                const colorMode = document.getElementById('colorMode').value;
+                
+                for (let i = 0; i < batchSize && this.isRunning; i++) {
+                    if (this.processedCount >= this.totalSamples) {
+                        this.stop();
+                        return;
+                    }
+
+                    const input = this.generateRandomInput();
+                    const hash = await this.sha256(input);
+                    
+                    this.processedCount++;
+                    hash.forEach(byte => {
+                        this.byteDistribution[byte]++;
+                        for (let bit = 0; bit < 8; bit++) {
+                            if (byte & (1 << bit)) this.oneBits++;
+                            this.totalBits++;
+                        }
+                    });
+                    
+                    if (i === 0) {
+                        this.addToHashList(input, hash);
+                    }
+                    
+                    if (window.visualizer) {
+                        window.visualizer.updateColors(hash, colorMode);
+                    }
+                }
+                
+                this.updateStats();
+                
+                const speed = parseInt(document.getElementById('speed').value);
+                const delay = Math.max(10, 110 - speed);
+                
+                if (this.isRunning) {
+                    setTimeout(() => this.processBatch(), delay);
+                }
+            }
+
+            start() {
+                if (this.isRunning) return;
+                
+                this.isRunning = true;
+                this.totalSamples = parseInt(document.getElementById('sampleSize').value);
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('resetBtn').disabled = true;
+                
+                this.processBatch();
+            }
+
+            stop() {
+                this.isRunning = false;
+                
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('resetBtn').disabled = false;
+            }
+
+            reset() {
+                this.stop();
+                
+                this.processedCount = 0;
+                this.totalBits = 0;
+                this.oneBits = 0;
+                this.byteDistribution.fill(0);
+                this.entropyHistory = [];
+                this.convergenceHistory = [];
+                this.recentHashes = [];
+                
+                document.getElementById('hashList').innerHTML = '';
+                document.getElementById('progressFill').style.width = '0%';
+                
+                this.updateStats();
+                this.updateCharts();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.visualizer = new HypercubeVisualizer('visual3d');
+            window.analyzer = new SHA256Analyzer();
+            
+            function createBackgroundParticles() {
+                const body = document.body;
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.width = Math.random() * 4 + 2 + 'px';
+                    particle.style.height = particle.style.width;
+                    particle.style.left = Math.random() * 100 + 'vw';
+                    particle.style.top = Math.random() * 100 + 'vh';
+                    particle.style.animationDelay = Math.random() * 3 + 's';
+                    body.appendChild(particle);
+                }
+            }
+            
+            createBackgroundParticles();
+            
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('mouseenter', () => btn.classList.add('pulsing'));
+                btn.addEventListener('mouseleave', () => btn.classList.remove('pulsing'));
+            });
+        });
+    </script>
+</body>
+</html>
