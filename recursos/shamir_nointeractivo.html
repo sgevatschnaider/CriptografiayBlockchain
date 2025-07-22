@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocolo Fiat-Shamir: Interactivo y No Interactivo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px; margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em; margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .mode-switch {
+            margin: 20px auto 0 auto; text-align: center;
+        }
+        .mode-switch label {
+            font-size: 1.1em; font-weight: bold; margin: 0 15px; color: #1976d2;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            padding: 30px;
+        }
+        .protocol-area {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+        }
+        .participants {
+            display: flex; justify-content: space-between; margin-bottom: 30px;
+        }
+        .participant {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 15px; padding: 20px; width: 45%;
+            text-align: center; color: white; font-weight: bold;
+            transform: scale(1); transition: all 0.3s;
+        }
+        .participant.active { transform: scale(1.05); box-shadow: 0 10px 25px #ff9a9e44;}
+        .participant.prover {background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);}
+        .participant.verifier {background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);}
+        .step-indicator { display: flex; justify-content: center; margin: 20px 0;}
+        .step {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #e0e0e0; display: flex; align-items: center; justify-content: center;
+            margin: 0 10px; font-weight: bold; color: white; transition: all 0.3s;
+        }
+        .step.active {background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); transform: scale(1.2);}
+        .step.completed {background: #4caf50;}
+        .communication {
+            background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0;
+            border-left: 4px solid #4facfe;
+        }
+        .message {
+            background: white; border-radius: 8px; padding: 15px; margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); opacity: 0; transform: translateX(-20px);
+            transition: all 0.5s;
+        }
+        .message.show {opacity: 1; transform: translateX(0);}
+        .message.from-prover {border-left: 4px solid #667eea;}
+        .message.from-verifier {border-left: 4px solid #f5576c;}
+        .controls {background: white; border-radius: 15px; padding: 25px; box-shadow: 0 8px 20px #0001;}
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; padding: 15px 25px; border-radius: 8px;
+            cursor: pointer; font-size: 16px; font-weight: bold; margin: 5px;
+            transition: all 0.3s; width: 100%;
+        }
+        .button:hover {transform: translateY(-2px); box-shadow: 0 5px 15px #667eea33;}
+        .button:disabled {background: #ccc; cursor: not-allowed; transform: none;}
+        .parameters {
+            background: #f8f9fa; border-radius: 10px; padding: 15px; margin: 15px 0;
+            font-family: monospace; font-size: 14px;
+        }
+        .parameter {margin: 8px 0; padding: 5px; background: white; border-radius: 5px; border-left: 3px solid #4facfe;}
+        .verification {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white; padding: 15px; border-radius: 10px; margin: 10px 0; text-align: center;
+            font-weight: bold; opacity: 0; transform: scale(0.9); transition: all 0.5s;
+        }
+        .verification.show {opacity: 1; transform: scale(1);}
+        .verification.failed {background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);}
+        .round-info {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white; padding: 15px; border-radius: 10px;
+            text-align: center; margin-bottom: 20px; font-weight: bold;
+        }
+        .math-formula {
+            background: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px;
+            padding: 10px; margin: 10px 0; font-family: 'Courier New', monospace; text-align: center; color: #1976d2;
+        }
+        .highlight {background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 3px 6px; border-radius: 4px; font-weight: bold;}
+        .explanation {
+            background: #fffbe6; border-left: 5px solid #ffb300; margin: 12px 0 0 0; padding: 14px 22px;
+            border-radius: 8px; color: #7c5300; font-size: 1em; font-style: italic;
+            box-shadow: 0 1px 6px #ffd95c22;
+        }
+        .proof-block {
+            background: #f2ffea;
+            border: 2px solid #8ad274;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-family: 'Consolas', monospace;
+            color: #215a32;
+            margin: 20px 0 0 0;
+        }
+        @media (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; padding: 10px;}
+            .controls {margin-top: 30px;}
+            .protocol-area {padding: 14px;}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Protocolo Fiat-Shamir</h1>
+            <p>Demostración Interactiva y No Interactiva (Heurística Fiat-Shamir)</p>
+        </div>
+        <div class="mode-switch">
+            <label><input type="radio" name="mode" id="mode-interactive" checked> Interactivo</label>
+            <label><input type="radio" name="mode" id="mode-noninteractive"> No interactivo (Fiat-Shamir Heurística)</label>
+        </div>
+        <div class="main-content">
+            <div class="protocol-area">
+                <div class="round-info" id="roundInfoBlock">
+                    <div>Ronda <span id="currentRound">1</span> de <span id="totalRounds">3</span></div>
+                    <div>Probabilidad de engaño: <span id="cheatProbability">50%</span></div>
+                </div>
+                <div class="participants" id="participantsBlock">
+                    <div class="participant prover" id="prover">
+                        <h3>👤 Probador (A)</h3>
+                        <p>Conoce el secreto s</p>
+                    </div>
+                    <div class="participant verifier" id="verifier">
+                        <h3>🔍 Verificador (B)</h3>
+                        <p>Verifica la identidad</p>
+                    </div>
+                </div>
+                <div class="step-indicator" id="stepIndicatorBlock">
+                    <div class="step active" id="step0">0</div>
+                    <div class="step" id="step1">1</div>
+                    <div class="step" id="step2">2</div>
+                    <div class="step" id="step3">3</div>
+                    <div class="step" id="step4">4</div>
+                </div>
+                <div class="communication" id="communication">
+                    <div id="stepDescription"></div>
+                    <div id="messages"></div>
+                </div>
+                <div class="parameters" id="parameters">
+                    <h4>📊 Parámetros del Sistema:</h4>
+                    <div class="parameter">n = <span id="paramN"></span></div>
+                    <div class="parameter">s = <span id="paramS"></span> (secreto)</div>
+                    <div class="parameter">v = s² mod n = <span id="paramV"></span> (público)</div>
+                </div>
+                <div id="currentStepDetails"></div>
+                <div id="proofBlock"></div>
+            </div>
+            <div class="controls">
+                <h3>🎮 Controles</h3>
+                <div id="controlsInteractive">
+                    <button class="button" id="nextStepBtn" onclick="nextStep()">▶️ Siguiente Paso</button>
+                    <button class="button" id="resetBtn" onclick="resetProtocol()">🔄 Reiniciar Protocolo</button>
+                    <button class="button" id="autoRunBtn" onclick="autoRun()">⚡ Ejecutar Automáticamente</button>
+                    <div style="margin: 20px 0;">
+                        <label for="roundsInput">Número de rondas:</label>
+                        <input type="number" id="roundsInput" min="1" max="10" value="3"
+                            style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+                <div id="controlsNonInteractive" style="display:none;">
+                    <button class="button" onclick="generateNonInteractiveProof()">🪄 Generar Prueba No Interactiva</button>
+                </div>
+                <div id="securityInfo">
+                    <h4>🛡️ Información de Seguridad</h4>
+                    <p>Con <span id="currentRounds">3</span> rondas:</p>
+                    <p>Probabilidad de engaño: <span id="finalCheatProbability">12.5%</span></p>
+                    <p>Nivel de seguridad: <span id="securityBits">3 bits</span></p>
+                </div>
+                <div id="historyPanel">
+                    <h4>📋 Historial de Rondas</h4>
+                    <div id="roundHistory"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+let currentStep = 0, currentRound = 1, totalRounds = 3, isAutoRunning = false, roundHistory = [];
+let mode = 'interactive';
+const protocol = {
+    n: 132378621248546567918476696463494466009n,
+    s: 36273604721273703216984570897182345646n,
+    v: 31750360186690740968580083914114391506n,
+    r: 0n, x: 0n, e: 0, y: 0n, isValid: false
+};
+function modPow(base, exponent, modulus) {
+    if (modulus === 1n) return 0n;
+    let result = 1n; base = base % modulus;
+    while (exponent > 0n) {
+        if (exponent % 2n === 1n) result = (result * base) % modulus;
+        exponent = exponent >> 1n; base = (base * base) % modulus;
+    } return result;
+}
+function generateRandomBigInt(bits = 128) {
+    let result = 0n;
+    for (let i = 0; i < bits; i++) if (Math.random() > 0.5) result |= (1n << BigInt(i));
+    return result % protocol.n;
+}
+function truncateNumber(num, length = 20) {
+    const str = num.toString();
+    if (str.length <= length) return str;
+    return str.substring(0, length) + '...' + str.substring(str.length - 6);
+}
+function updateUI() {
+    document.getElementById('currentRound').textContent = currentRound;
+    document.getElementById('totalRounds').textContent = totalRounds;
+    document.getElementById('currentRounds').textContent = totalRounds;
+    const cheatProb = Math.pow(0.5, currentRound);
+    document.getElementById('cheatProbability').textContent = (cheatProb * 100).toFixed(1) + '%';
+    const finalCheatProb = Math.pow(0.5, totalRounds);
+    document.getElementById('finalCheatProbability').textContent = (finalCheatProb * 100).toFixed(1) + '%';
+    document.getElementById('securityBits').textContent = totalRounds + ' bits';
+    document.getElementById('paramN').textContent = truncateNumber(protocol.n);
+    document.getElementById('paramS').textContent = truncateNumber(protocol.s);
+    document.getElementById('paramV').textContent = truncateNumber(protocol.v);
+    document.getElementById('historyPanel').style.display = mode === "interactive" ? "" : "none";
+    document.getElementById('roundInfoBlock').style.display = mode === "interactive" ? "" : "none";
+    document.getElementById('participantsBlock').style.display = mode === "interactive" ? "" : "none";
+    document.getElementById('stepIndicatorBlock').style.display = mode === "interactive" ? "" : "none";
+    document.getElementById('controlsInteractive').style.display = mode === "interactive" ? "" : "none";
+    document.getElementById('controlsNonInteractive').style.display = mode === "noninteractive" ? "" : "none";
+    document.getElementById('proofBlock').style.display = mode === "noninteractive" ? "" : "none";
+}
+function addMessage(text, sender = '', formula = '') {
+    const messagesDiv = document.getElementById('messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    let content = `<strong>${text}</strong>`;
+    if (formula) content += `<div class="math-formula">${formula}</div>`;
+    messageDiv.innerHTML = content;
+    messagesDiv.appendChild(messageDiv);
+    setTimeout(() => { messageDiv.classList.add('show'); }, 100);
+}
+function clearMessages() { document.getElementById('messages').innerHTML = ''; }
+function updateStepDescription(title, description) {
+    document.getElementById('stepDescription').innerHTML = `<h3>${title}</h3><p>${description}</p>`;
+}
+function updateStepDetails(content) { document.getElementById('currentStepDetails').innerHTML = content; }
+function updateStepIndicators() {
+    for (let i = 0; i <= 4; i++) {
+        const stepEl = document.getElementById(`step${i}`);
+        if (!stepEl) continue;
+        if (i < currentStep) stepEl.className = 'step completed';
+        else if (i === currentStep) stepEl.className = 'step active';
+        else stepEl.className = 'step';
+    }
+}
+function updateParticipants(activeParticipant) {
+    document.getElementById('prover').classList.remove('active');
+    document.getElementById('verifier').classList.remove('active');
+    if (activeParticipant) document.getElementById(activeParticipant).classList.add('active');
+}
+const stepExplanations = [
+    `<b>¿Qué ocurre?</b> Se generan los parámetros principales del sistema.<br>
+     <b>¿Por qué?</b> Solo A conoce el secreto <span class="highlight">s</span>, pero todos pueden verificar gracias al valor público <span class="highlight">v = s² mod n</span>.`,
+    `<b>¿Qué ocurre?</b> A elige un número aleatorio <span class="highlight">r</span> y calcula el compromiso <span class="highlight">x = r² mod n</span>.<br>
+     <b>¿Por qué?</b> Así, A no puede anticipar el desafío y evita la reutilización de respuestas.`,
+    `<b>¿Qué ocurre?</b> B envía un desafío aleatorio <span class="highlight">e</span> (0 o 1) a A.<br>
+     <b>¿Por qué?</b> Este desafío fuerza a A a demostrar su conocimiento del secreto sin revelarlo.`,
+    `<b>¿Qué ocurre?</b> A responde según el valor de <span class="highlight">e</span>:<br>
+     Si <span class="highlight">e = 0</span>, A revela <span class="highlight">r</span>.<br>
+     Si <span class="highlight">e = 1</span>, A responde <span class="highlight">y = r·s mod n</span>.<br>
+     <b>¿Por qué?</b> Sólo quien conoce <span class="highlight">s</span> puede responder correctamente cuando <span class="highlight">e = 1</span>.`,
+    `<b>¿Qué ocurre?</b> B verifica:<br>
+     Si <span class="highlight">e = 0</span>: ¿<span class="highlight">y² ≡ x (mod n)</span>?<br>
+     Si <span class="highlight">e = 1</span>: ¿<span class="highlight">y² ≡ x·v (mod n)</span>?<br>
+     <b>¿Por qué?</b> Estas comprobaciones solo se cumplen si A actuó honestamente y conoce el secreto.`
+];
+
+// --- PROTOCOLO INTERACTIVO ---
+function executeStep() {
+    updateStepIndicators();
+    switch (currentStep) {
+        case 0: // Configuración inicial
+            updateStepDescription('🔑 Paso 0: Configuración Inicial',
+                'El sistema ya tiene configurados los parámetros públicos (n, v) y el probador conoce su secreto (s).');
+            updateParticipants('');
+            clearMessages();
+            addMessage('Sistema configurado correctamente');
+            updateStepDetails(`
+                <div class="math-formula">
+                    <strong>Parámetros establecidos:</strong><br>
+                    n = p × q (módulo público)<br>
+                    s = secreto privado del probador<br>
+                    v = s² mod n (valor público de verificación)
+                </div>
+                <div class="explanation">${stepExplanations[0]}</div>
+            `); break;
+        case 1: // Compromiso del probador
+            updateStepDescription('🟡 Paso 1: Compromiso del Probador',
+                'El probador A genera un número aleatorio r y calcula x = r² mod n, luego envía x al verificador.');
+            updateParticipants('prover');
+            protocol.r = generateRandomBigInt(64);
+            protocol.x = modPow(protocol.r, 2n, protocol.n);
+            addMessage(`A genera r aleatoriamente: ${truncateNumber(protocol.r)}`, 'from-prover');
+            addMessage(`A calcula x = r² mod n: ${truncateNumber(protocol.x)}`, 'from-prover', `x = ${truncateNumber(protocol.r)}² mod n`);
+            addMessage(`A envía x al verificador B →`, 'from-prover');
+            updateStepDetails(`
+                <div class="math-formula">
+                    <strong>Cálculo del compromiso:</strong><br>
+                    r = ${truncateNumber(protocol.r)}<br>
+                    x = r² mod n = ${truncateNumber(protocol.x)}
+                </div>
+                <div class="explanation">${stepExplanations[1]}</div>
+            `); break;
+        case 2: // Desafío del verificador
+            updateStepDescription('⚫ Paso 2: Desafío del Verificador',
+                'El verificador B genera un bit aleatorio e ∈ {0,1} como desafío para el probador.');
+            updateParticipants('verifier');
+            protocol.e = Math.random() > 0.5 ? 1 : 0;
+            addMessage(`B recibe x = ${truncateNumber(protocol.x)}`, 'from-verifier');
+            addMessage(`B genera desafío aleatorio: e = ${protocol.e}`, 'from-verifier');
+            addMessage(`B envía e al probador A ←`, 'from-verifier');
+            updateStepDetails(`
+                <div class="math-formula">
+                    <strong>Desafío generado:</strong><br>
+                    e = ${protocol.e} ${protocol.e === 0 ? '(A debe probar conocimiento de r)' : '(A debe probar conocimiento de r y s)'}
+                </div>
+                <div class="explanation">${stepExplanations[2]}</div>
+            `); break;
+        case 3: // Respuesta del probador
+            updateStepDescription('🟢 Paso 3: Respuesta del Probador',
+                'El probador A responde según el desafío: si e=0 envía y=r, si e=1 envía y=r×s mod n.');
+            updateParticipants('prover');
+            if (protocol.e === 0) {
+                protocol.y = protocol.r % protocol.n;
+                addMessage(`A recibe desafío e = 0`, 'from-prover');
+                addMessage(`A responde con y = r: ${truncateNumber(protocol.y)}`, 'from-prover', `y = r = ${truncateNumber(protocol.r)}`);
+            } else {
+                protocol.y = (protocol.r * protocol.s) % protocol.n;
+                addMessage(`A recibe desafío e = 1`, 'from-prover');
+                addMessage(`A responde con y = r × s mod n: ${truncateNumber(protocol.y)}`, 'from-prover', `y = ${truncateNumber(protocol.r)} × s mod n`);
+            }
+            addMessage(`A envía y al verificador B →`, 'from-prover');
+            updateStepDetails(`
+                <div class="math-formula">
+                    <strong>Cálculo de la respuesta:</strong><br>
+                    e = ${protocol.e}<br>
+                    ${protocol.e === 0 ?
+                        `y = r = ${truncateNumber(protocol.y)}` :
+                        `y = r × s mod n = ${truncateNumber(protocol.y)}`
+                    }
+                </div>
+                <div class="explanation">${stepExplanations[3]}</div>
+            `); break;
+        case 4: // Verificación
+            updateStepDescription('🔵 Paso 4: Verificación',
+                'El verificador B comprueba la validez de la respuesta según el desafío enviado.');
+            updateParticipants('verifier');
+            let leftSide = modPow(protocol.y, 2n, protocol.n), rightSide, verification;
+            if (protocol.e === 0) {
+                rightSide = protocol.x;
+                verification = leftSide === rightSide;
+                addMessage(`B verifica: ¿y² ≡ x (mod n)?`, 'from-verifier');
+                addMessage(`${truncateNumber(leftSide)} ≟ ${truncateNumber(rightSide)}`, 'from-verifier', `${truncateNumber(protocol.y)}² mod n ≟ ${truncateNumber(protocol.x)}`);
+            } else {
+                rightSide = (protocol.x * protocol.v) % protocol.n;
+                verification = leftSide === rightSide;
+                addMessage(`B verifica: ¿y² ≡ x × v (mod n)?`, 'from-verifier');
+                addMessage(`${truncateNumber(leftSide)} ≟ ${truncateNumber(rightSide)}`, 'from-verifier', `${truncateNumber(protocol.y)}² mod n ≟ x × v mod n`);
+            }
+            protocol.isValid = verification;
+            setTimeout(() => {
+                const verificationDiv = document.createElement('div');
+                verificationDiv.className = `verification ${verification ? '' : 'failed'} show`;
+                verificationDiv.innerHTML = verification ?
+                    '✅ VERIFICACIÓN EXITOSA - Identidad probada' :
+                    '❌ VERIFICACIÓN FALLIDA - Identidad rechazada';
+                document.getElementById('currentStepDetails').appendChild(verificationDiv);
+            }, 1000);
+            updateStepDetails(`
+                <div class="math-formula">
+                    <strong>Verificación:</strong><br>
+                    y² mod n = ${truncateNumber(leftSide)}<br>
+                    ${protocol.e === 0 ?
+                        `x = ${truncateNumber(rightSide)}` :
+                        `x × v mod n = ${truncateNumber(rightSide)}`
+                    }<br>
+                    <strong>Resultado: ${verification ? 'VÁLIDO ✅' : 'INVÁLIDO ❌'}</strong>
+                </div>
+                <div class="explanation">${stepExplanations[4]}</div>
+            `);
+            roundHistory.push({
+                round: currentRound, r: protocol.r, x: protocol.x, e: protocol.e, y: protocol.y, valid: verification
+            });
+            updateRoundHistory();
+            if (currentRound < totalRounds) {
+                setTimeout(() => { currentRound++; currentStep = 0; nextStep(); }, 3000);
+            }
+            break;
+    }
+}
+function updateRoundHistory() {
+    const historyDiv = document.getElementById('roundHistory');
+    historyDiv.innerHTML = '';
+    roundHistory.forEach(round => {
+        const roundDiv = document.createElement('div');
+        roundDiv.style.cssText = `
+            background: ${round.valid ? '#e8f5e8' : '#ffeaea'};
+            border: 1px solid ${round.valid ? '#4caf50' : '#f44336'};
+            border-radius: 5px; padding: 8px; margin: 5px 0; font-size: 12px;`;
+        roundDiv.innerHTML = `<strong>Ronda ${round.round}:</strong> e=${round.e} ${round.valid ? '✅' : '❌'}`;
+        historyDiv.appendChild(roundDiv);
+    });
+}
+function nextStep() {
+    if (isAutoRunning || mode !== "interactive") return;
+    executeStep();
+    if (currentStep < 4) { currentStep++; }
+    else if (currentRound < totalRounds) { currentRound++; currentStep = 1;}
+    else { showProtocolSummary(); }
+    updateUI();
+}
+function showProtocolSummary() {
+    const validRounds = roundHistory.filter(r => r.valid).length;
+    const successRate = (validRounds / totalRounds * 100).toFixed(1);
+    updateStepDescription('🎉 Protocolo Completado',
+        `Se han completado ${totalRounds} rondas. Rondas válidas: ${validRounds}/${totalRounds} (${successRate}%)`);
+    updateStepDetails(`
+        <div class="verification show">
+            <h3>📊 Resumen del Protocolo</h3>
+            <p><strong>Rondas completadas:</strong> ${totalRounds}</p>
+            <p><strong>Verificaciones exitosas:</strong> ${validRounds}</p>
+            <p><strong>Tasa de éxito:</strong> ${successRate}%</p>
+            <p><strong>Probabilidad teórica de engaño:</strong> ${(Math.pow(0.5, totalRounds) * 100).toFixed(3)}%</p>
+        </div>
+    `);
+}
+// Autoplay
+function autoRun() {
+    if (isAutoRunning || mode !== "interactive") return;
+    isAutoRunning = true;
+    document.getElementById('autoRunBtn').disabled = true;
+    document.getElementById('nextStepBtn').disabled = true;
+    const runStep = () => {
+        if (currentStep <= 4 && currentRound <= totalRounds) {
+            nextStep(); setTimeout(runStep, 1700);
+        } else {
+            isAutoRunning = false;
+            document.getElementById('autoRunBtn').disabled = false;
+            document.getElementById('nextStepBtn').disabled = false;
+        }
+    }; runStep();
+}
+function resetProtocol() {
+    currentStep = 0; currentRound = 1;
+    totalRounds = parseInt(document.getElementById('roundsInput').value) || 3;
+    roundHistory = []; updateRoundHistory(); updateUI(); clearMessages();
+    updateStepDescription('🔑 Paso 0: Configuración Inicial', 'El sistema genera los parámetros públicos y privados necesarios para el protocolo.');
+    updateStepDetails('');
+    document.getElementById('autoRunBtn').disabled = false;
+    document.getElementById('nextStepBtn').disabled = false;
+    executeStep();
+}
+document.getElementById('roundsInput').addEventListener('change', function() {
+    totalRounds = parseInt(this.value) || 3; resetProtocol();
+});
+
+// --- MODO NO INTERACTIVO (Fiat-Shamir Heurística) ---
+// Hash simple para demo (NO CRIPTOGRAFÍA REAL)
+function simpleHash(x, n, v) {
+    // Suma chars y saca mod 2 para obtener 0 o 1. (Para demo, NO para seguridad)
+    let str = x.toString() + n.toString() + v.toString();
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) hash = (hash + str.charCodeAt(i)) % 2;
+    return hash; // 0 o 1
+}
+function generateNonInteractiveProof() {
+    // 1. Probador elige r y calcula x
+    let r = generateRandomBigInt(64);
+    let x = modPow(r, 2n, protocol.n);
+    // 2. Calcula e = Hash(x, n, v)
+    let e = simpleHash(x, protocol.n, protocol.v);
+    // 3. Calcula y según e
+    let y;
+    if (e === 0) y = r % protocol.n;
+    else y = (r * protocol.s) % protocol.n;
+    // 4. Presenta la prueba
+    let prueba = { x: x.toString(), e: e, y: y.toString() };
+    document.getElementById('proofBlock').innerHTML = `
+        <div class="proof-block">
+            <b>Prueba generada (No Interactiva):</b><br>
+            <b>x</b> (compromiso): <span>${truncateNumber(x)}</span><br>
+            <b>e</b> (desafío, hash): <span>${e}</span><br>
+            <b>y</b> (respuesta): <span>${truncateNumber(y)}</span><br>
+            <hr>
+            <b>¿Cómo se verifica?</b><br>
+            Si e = 0: verificar que y² ≡ x (mod n)<br>
+            Si e = 1: verificar que y² ≡ x·v (mod n)<br>
+            <button class="button" onclick="verifyNonInteractiveProof('${prueba.x}',${prueba.e},'${prueba.y}')">Verificar Prueba</button>
+        </div>
+        <div class="explanation">
+            <b>¿Por qué funciona?</b> <br>
+            El desafío ya no lo genera un verificador externo, sino que es el resultado de aplicar una función hash sobre el compromiso y los datos públicos. Así, cualquier verificador puede, sin interactuar, comprobar la validez de la prueba.
+        </div>
+    `;
+}
+function verifyNonInteractiveProof(x, e, y) {
+    let n = protocol.n, v = protocol.v;
+    let y2 = modPow(BigInt(y), 2n, n), xInt = BigInt(x);
+    let check;
+    if (e === 0) check = (y2 === xInt);
+    else check = (y2 === (xInt * v) % n);
+    let msg = check ? "✅ Prueba VÁLIDA (se cumple la ecuación)" : "❌ Prueba INVÁLIDA";
+    document.getElementById('proofBlock').innerHTML +=
+        `<div class="verification show" style="margin-top:10px">${msg}</div>`;
+}
+
+// -- Cambio de modo --
+function setMode(newMode) {
+    mode = newMode;
+    if (mode === "interactive") {
+        document.getElementById('proofBlock').innerHTML = "";
+        resetProtocol();
+    } else {
+        clearMessages();
+        document.getElementById('stepDescription').innerHTML = `
+            <h3>🪄 Modo No Interactivo (Fiat-Shamir Heurística)</h3>
+            <p>En este modo, el desafío <b>e</b> se calcula automáticamente usando un hash del compromiso y los parámetros públicos. No hay interacción directa: cualquiera puede verificar la prueba en cualquier momento.</p>
+        `;
+        document.getElementById('currentStepDetails').innerHTML = `
+            <div class="explanation">
+                <b>Resumen del flujo:</b><br>
+                1. Probador elige r y calcula x = r² mod n.<br>
+                2. Calcula e = Hash(x, n, v).<br>
+                3. Calcula y según e.<br>
+                4. Publica el trío (x, e, y).<br>
+                5. El verificador recalcula e y verifica la ecuación según e.<br>
+            </div>
+        `;
+        document.getElementById('proofBlock').innerHTML = "";
+    }
+    updateUI();
+}
+// Listeners de modo
+document.getElementById('mode-interactive').addEventListener('change', function () { if (this.checked) setMode("interactive"); });
+document.getElementById('mode-noninteractive').addEventListener('change', function () { if (this.checked) setMode("noninteractive"); });
+
+updateUI();
+executeStep();
+</script>
+</body>
+</html>
