@@ -142,9 +142,10 @@ A través de estas visualizaciones, podrás explorar este campo de batalla, simu
 | **Explorador Espectral del Grafo de Petersen** <br><br> <details><summary><strong>Resumen:</strong> <em>(haz clic para expandir)</em></summary><p>Esta herramienta descompone el Grafo de Petersen, un objeto matemático fundamental. Permite explorar la relación directa entre su matriz de adyacencia, la visualización 3D interactiva y su espectro de autovalores. Se demuestra visualmente por qué es un 'grafo de Ramanujan', un concepto clave en el diseño de redes de comunicación óptimas y algoritmos criptográficos.</p></details> | [![Explorar Grafo](https://img.shields.io/badge/Explorar-Grafo-darkgreen?style=for-the-badge&logo=html5)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/spectral-graph-visualizer.html) |
 | **Explorador Interactivo del Protocolo Fiat-Shamir** <br><br>
 <details><summary><strong>Resumen:</strong> <em>(haz clic para expandir)</em></summary><p>
-Esta herramienta ilustra, paso a paso, el protocolo de conocimiento cero de Fiat-Shamir, esencial en la criptografía moderna. Permite explorar la secuencia entre probador y verificador, comprender visualmente cómo se asegura el secreto y experimentar tanto con el modelo interactivo como con la heurística no interactiva (funciones hash). Se resalta su importancia en autenticación, firmas digitales y privacidad en blockchain.
+Esta herramienta ilustra, paso a paso, el protocolo de conocimiento cero de Fiat-Shamir, esencial en la criptografía moderna. Permite explorar la secuencia entre probador y verificador, comprender visualmente cómo se protege el secreto y experimentar tanto con el modelo interactivo como con la heurística no interactiva (funciones hash). Destaca su relevancia en autenticación, firmas digitales y privacidad en blockchain.
 </p></details>
-| [![Explorar Fiat-Shamir](https://img.shields.io/badge/Explorar-Fiats_Shamir-blueviolet?style=for-the-badge&logo=html5)](https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/08b5710abe6964e737fd24ee1e9f8d6bf4ac44d8/recursos/protocolo_fiat-shamir.html) |
+| [![Explorar Fiat-Shamir](https://img.shields.io/badge/Explorar-Fiats_Shamir-blueviolet?style=for-the-badge&logo=html5)](https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/ef9d7a25d381df3e83308e0d8b4ecb6a817c4ed9/recursos/protocolo_fiat-shamir.html) |
+
 
 
 ## 🤝 Cómo Contribuir
