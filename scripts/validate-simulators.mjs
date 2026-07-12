@@ -19,9 +19,21 @@ const requiredFiles = [
 
 const errors = [];
 
+function fail(message) {
+  errors.push(message);
+}
+
 for (const relative of requiredFiles) {
   const absolute = path.join(simulatorDir, relative);
-  if (!fs.existsSync(absolute)) errors.push(`Falta el archivo: simuladores/${relative}`);
+  if (!fs.existsSync(absolute)) fail(`Falta el archivo: simuladores/${relative}`);
+}
+
+if (!fs.existsSync(path.join(root, 'index.html'))) {
+  fail('Falta index.html en la raíz para abrir el sitio directamente desde GitHub Pages.');
+}
+
+if (!fs.existsSync(path.join(root, '.nojekyll'))) {
+  fail('Falta .nojekyll para servir el repositorio como sitio estático sin transformaciones.');
 }
 
 const htmlFiles = requiredFiles.filter((file) => file.endsWith('.html'));
@@ -38,24 +50,27 @@ for (const relative of htmlFiles) {
     ['atributo lang="es"', /<html[^>]+lang=["']es["']/i],
     ['meta charset UTF-8', /<meta[^>]+charset=["']?utf-8/i],
     ['meta viewport', /<meta[^>]+name=["']viewport["']/i],
-    ['título', /<title>[^<]+<\/title>/i]
+    ['título descriptivo', /<title>[^<]{8,}<\/title>/i],
+    ['elemento main', /<main\b/i]
   ];
 
   for (const [description, pattern] of requiredPatterns) {
-    if (!pattern.test(html)) errors.push(`${label}: falta ${description}`);
+    if (!pattern.test(html)) fail(`${label}: falta ${description}`);
   }
 
   if (relative !== 'index.html') {
-    if (!/assets\/lab\.css/.test(html)) errors.push(`${label}: no carga assets/lab.css`);
-    if (!/assets\/lab\.js/.test(html)) errors.push(`${label}: no carga assets/lab.js`);
-    if (!/<noscript>/i.test(html)) errors.push(`${label}: falta mensaje <noscript>`);
-    if (!/aria-live=["']polite["']/i.test(html)) errors.push(`${label}: falta una región aria-live para resultados`);
+    if (!/assets\/lab\.css/.test(html)) fail(`${label}: no carga assets/lab.css`);
+    if (!/assets\/lab\.js/.test(html)) fail(`${label}: no carga assets/lab.js`);
+    if (!/id=["']app["']/.test(html)) fail(`${label}: falta el contenedor #app`);
+    if (!/class=["'][^"']*hero/.test(html)) fail(`${label}: falta una introducción pedagógica .hero`);
+    if (!/class=["'][^"']*status/.test(html)) fail(`${label}: falta retroalimentación visible de estado`);
+    if (!/Desaf[ií]o/i.test(html)) fail(`${label}: falta una actividad o desafío de transferencia`);
   }
 
   const ids = [...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]);
   const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
   if (duplicateIds.length) {
-    errors.push(`${label}: identificadores duplicados: ${[...new Set(duplicateIds)].join(', ')}`);
+    fail(`${label}: identificadores duplicados: ${[...new Set(duplicateIds)].join(', ')}`);
   }
 
   const inlineScripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)]
@@ -66,9 +81,13 @@ for (const relative of htmlFiles) {
     try {
       new Function(script);
     } catch (error) {
-      errors.push(`${label}: error de sintaxis JavaScript en script ${index + 1}: ${error.message}`);
+      fail(`${label}: error de sintaxis JavaScript en script ${index + 1}: ${error.message}`);
     }
   });
+
+  if (/\$\$\s*\(/.test(html) && !/const\s*\{[^}]*\$\$[^}]*\}\s*=\s*Lab/.test(html)) {
+    fail(`${label}: usa $$ sin importarlo desde Lab`);
+  }
 
   const localReferences = [...html.matchAll(/(?:href|src)=["']([^"']+)["']/gi)]
     .map((match) => match[1])
@@ -85,7 +104,7 @@ for (const relative of htmlFiles) {
     const cleanReference = decodeURIComponent(reference.split('#')[0].split('?')[0]);
     if (!cleanReference) continue;
     const target = path.resolve(path.dirname(absolute), cleanReference);
-    if (!fs.existsSync(target)) errors.push(`${label}: enlace local inexistente: ${reference}`);
+    if (!fs.existsSync(target)) fail(`${label}: enlace local inexistente: ${reference}`);
   }
 }
 
@@ -95,16 +114,19 @@ if (fs.existsSync(commonJsPath)) {
   try {
     new Function(commonJs);
   } catch (error) {
-    errors.push(`simuladores/assets/lab.js: error de sintaxis: ${error.message}`);
+    fail(`simuladores/assets/lab.js: error de sintaxis: ${error.message}`);
   }
-}
 
-for (const relative of ['06-protocolos-privacidad.html', '07-poscuantica-cuantica.html']) {
-  const absolute = path.join(simulatorDir, relative);
-  if (!fs.existsSync(absolute)) continue;
-  const html = fs.readFileSync(absolute, 'utf8');
-  if (/\$\$\s*\(/.test(html) && !/const\s*\{[^}]*\$\$[^}]*\}\s*=\s*Lab/.test(html)) {
-    errors.push(`simuladores/${relative}: usa $$ sin importarlo desde Lab`);
+  const sharedRequirements = [
+    ['encapsulación estricta', /\(\(\)\s*=>\s*\{[\s\S]*['"]use strict['"]/],
+    ['mejora de accesibilidad', /function\s+enhanceAccessibility/],
+    ['manejo de errores de ejecución', /unhandledrejection/],
+    ['regiones de estado accesibles', /aria-live/],
+    ['exportación inmutable de Lab', /Object\.freeze/]
+  ];
+
+  for (const [description, pattern] of sharedRequirements) {
+    if (!pattern.test(commonJs)) fail(`simuladores/assets/lab.js: falta ${description}`);
   }
 }
 
@@ -114,4 +136,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Validación correcta: ${htmlFiles.length} páginas HTML y recursos compartidos.`);
+console.log(`Validación correcta: ${htmlFiles.length} páginas HTML, recursos compartidos y publicación estática.`);
