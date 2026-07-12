@@ -13,7 +13,7 @@
 
   <script src="assets/lab.js"></script>
   <script>
-    const { nav, footer, $, te, td, sha256, setStatus } = Lab;
+    const { nav, footer, $, te, td, randomInt, setStatus } = Lab;
 
     $('#app').innerHTML = nav() + `
       <section class="hero">
@@ -173,8 +173,9 @@
     }
 
     async function checksum32(bytes) {
-      const digestHex = await sha256(td.decode(bytes));
-      return Number.parseInt(digestHex.slice(0, 8), 16) >>> 0;
+      if (!crypto?.subtle) throw new Error('Web Crypto no está disponible.');
+      const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
+      return new DataView(digest.buffer, digest.byteOffset, digest.byteLength).getUint32(0, false);
     }
 
     function buildHeader(depth, length, checksum) {
@@ -411,8 +412,9 @@
       );
       const indexes = rgbChannelIndexes(image.data.length);
       const changes = Math.min(80, indexes.length);
+      const attackWindow = Math.min(indexes.length, HEADER_BITS + 1200);
       for (let count = 0; count < changes; count += 1) {
-        const position = indexes[Math.floor(Math.random() * Math.min(indexes.length, HEADER_BITS + 1200))];
+        const position = indexes[randomInt(0, attackWindow - 1)];
         image.data[position] ^= 1;
       }
       stegoContext.putImageData(image, 0, 0);
