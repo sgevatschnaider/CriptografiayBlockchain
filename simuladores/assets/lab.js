@@ -17,6 +17,6 @@ function downloadText(name,text,type='text/plain'){const a=document.createElemen
 function xorBytes(a,b){const n=Math.min(a.length,b.length),o=new Uint8Array(n);for(let i=0;i<n;i++)o[i]=a[i]^b[i];return o}
 function entropyOfText(text){if(!text.length)return 0;const f={};for(const c of text)f[c]=(f[c]||0)+1;return Object.values(f).reduce((h,n)=>{const p=n/text.length;return h-p*Math.log2(p)},0)}
 function isProbablePrime(n){n=Number(n);if(n<2)return false;if(n%2===0)return n===2;for(let i=3;i*i<=n;i+=2)if(n%i===0)return false;return true}
-function nav(){return `<div class="topbar"><div class="brand"><a href="index.html">🔐 Laboratorios de Criptografía</a></div><nav class="nav"><a href="../README.md">Repositorio</a><a href="index.html">Todos los módulos</a></nav></div>`}
+function nav(){return `<div class="topbar"><div class="brand"><a href="index.html">🔐 Laboratorios de Criptografía</a></div><nav class="nav"><a href="https://github.com/sgevatschnaider/CriptografiayBlockchain" target="_blank" rel="noreferrer">Repositorio</a><a href="index.html">Todos los módulos</a></nav></div>`}
 function footer(){return `<footer class="footer">Material educativo. Los algoritmos simplificados no deben utilizarse para proteger información real.</footer>`}
 window.Lab={$, $$,te,td,mod,gcd,egcd,powMod,randomInt,bytesToHex,hexToBytes,bytesToB64,b64ToBytes,sha256,bitDifference,setStatus,escapeHtml,downloadText,xorBytes,entropyOfText,isProbablePrime,nav,footer};
