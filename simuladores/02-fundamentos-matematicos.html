@@ -1,8 +1,445 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fundamentos matemáticos de la criptografía</title><link rel="stylesheet" href="assets/lab.css"></head><body><main class="shell" id="app"></main><script src="assets/lab.js"></script><script>
-const {nav,footer,$,mod,gcd,egcd,powMod,entropyOfText,isProbablePrime,setStatus}=Lab;$('#app').innerHTML=nav()+`<section class="hero"><div class="eyebrow">Módulo 2</div><h1>Fundamentos matemáticos</h1><p>Explorá las estructuras que convierten operaciones simples en problemas útiles para la seguridad: congruencias, inversos, exponenciación modular, intercambio de claves y entropía.</p></section><section class="grid"><article class="card"><h2>Aritmética modular</h2><div class="controls"><div class="control"><label>a</label><input id="a" type="number" value="37"></div><div class="control"><label>b</label><input id="b" type="number" value="12"></div><div class="control"><label>Módulo n</label><input id="n" type="number" min="2" value="26"></div><div class="control"><label>Operación</label><select id="op"><option value="add">a + b</option><option value="sub">a − b</option><option value="mul">a × b</option><option value="pow">a^b</option></select></div></div><div class="actions"><button id="calcMod">Calcular</button></div><div class="output mono" id="modOut"></div><div class="status" id="modStatus">Dos enteros son congruentes módulo n cuando dejan el mismo resto.</div></article><article class="card"><h2>Máximo común divisor e inverso</h2><div class="controls"><div class="control"><label>Número a</label><input id="invA" type="number" value="7"></div><div class="control"><label>Módulo n</label><input id="invN" type="number" value="26"></div></div><div class="actions"><button id="runInv">Ejecutar Euclides extendido</button></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="gcdVal">—</strong><span>mcd(a,n)</span></div><div class="metric"><strong id="xVal">—</strong><span>Coeficiente x</span></div><div class="metric"><strong id="yVal">—</strong><span>Coeficiente y</span></div><div class="metric"><strong id="inverseVal">—</strong><span>Inverso modular</span></div></div><div class="status" id="invStatus">El inverso existe únicamente cuando mcd(a,n)=1.</div></article><article class="card full"><h2>Intercambio Diffie–Hellman didáctico</h2><p class="muted">Alice y Bob publican valores derivados de secretos privados. Ambos llegan a la misma clave compartida sin transmitirla directamente.</p><div class="controls"><div class="control"><label>Primo p</label><input id="p" type="number" value="23"></div><div class="control"><label>Generador g</label><input id="g" type="number" value="5"></div><div class="control"><label>Secreto de Alice a</label><input id="privA" type="number" value="6"></div><div class="control"><label>Secreto de Bob b</label><input id="privB" type="number" value="15"></div></div><div class="actions"><button id="runDH">Simular intercambio</button><button class="secondary" id="randomDH">Generar secretos</button></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="pubA">—</strong><span>A = gᵃ mod p</span></div><div class="metric"><strong id="pubB">—</strong><span>B = gᵇ mod p</span></div><div class="metric"><strong id="sharedA">—</strong><span>Bᵃ mod p</span></div><div class="metric"><strong id="sharedB">—</strong><span>Aᵇ mod p</span></div></div><div class="output mono" id="dhTrace"></div><div class="status" id="dhStatus">Los números pequeños son inseguros; sirven solo para visualizar el protocolo.</div></article><article class="card"><h2>Entropía de Shannon</h2><div class="control"><label>Secuencia</label><textarea id="entropyText">ABRACADABRA</textarea></div><div class="actions"><button id="runEntropy">Medir entropía</button></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="hSymbol">—</strong><span>bits por símbolo</span></div><div class="metric"><strong id="hTotal">—</strong><span>bits estimados</span></div><div class="metric"><strong id="alphabetSize">—</strong><span>símbolos distintos</span></div><div class="metric"><strong id="hMax">—</strong><span>máximo posible</span></div></div><div class="status" id="entropyStatus">La entropía estadística no equivale automáticamente a seguridad criptográfica.</div></article><article class="card"><h2>Mapa conceptual</h2><div class="table-wrap"><table><thead><tr><th>Estructura</th><th>Uso</th></tr></thead><tbody><tr><td>Grupos finitos</td><td>Diffie–Hellman, firmas, curvas elípticas</td></tr><tr><td>Cuerpos finitos</td><td>AES, códigos y operaciones algebraicas</td></tr><tr><td>Problemas difíciles</td><td>Factorización, logaritmo discreto, retículas</td></tr><tr><td>Probabilidad</td><td>Seguridad semántica, aleatoriedad y pruebas</td></tr><tr><td>Entropía</td><td>Fuentes de claves, nonces y secretos</td></tr></tbody></table></div></article><article class="card full"><h2>Desafío integrador</h2><ol class="steps"><li>Encontrá todos los números entre 1 y 25 que tienen inverso módulo 26.</li><li>Explicá por qué un cifrado afín exige que su multiplicador sea coprimo con 26.</li><li>Cambiá p por un número compuesto en Diffie–Hellman y analizá qué supuesto se rompe.</li><li>Compará la entropía de una secuencia uniforme con otra altamente repetitiva.</li></ol></article></section>`+footer();
-$('#calcMod').onclick=()=>{const a=+$('#a').value,b=+$('#b').value,n=+$('#n').value;if(n<2){setStatus($('#modStatus'),'El módulo debe ser al menos 2.','bad');return}let raw,label;switch($('#op').value){case'add':raw=a+b;label=`${a}+${b}`;break;case'sub':raw=a-b;label=`${a}-${b}`;break;case'mul':raw=a*b;label=`${a}×${b}`;break;default:raw=powMod(a,b,n);label=`${a}^${b}`;$('#modOut').textContent=`${label} mod ${n} = ${raw}`;setStatus($('#modStatus'),'La exponenciación modular evita construir números gigantes.','good');return}$('#modOut').textContent=`${label} = ${raw}\n${raw} mod ${n} = ${mod(raw,n)}`;setStatus($('#modStatus'),`${raw} y ${mod(raw,n)} pertenecen a la misma clase de congruencia módulo ${n}.`,'good')};
-$('#runInv').onclick=()=>{const a=+$('#invA').value,n=+$('#invN').value;const r=egcd(a,n);$('#gcdVal').textContent=r.g;$('#xVal').textContent=r.x;$('#yVal').textContent=r.y;$('#inverseVal').textContent=r.g===1?mod(r.x,n):'No existe';setStatus($('#invStatus'),r.g===1?`${a}·${mod(r.x,n)} ≡ 1 (mod ${n}).`:`Como mcd(${a},${n})=${r.g}, no existe inverso.`,r.g===1?'good':'warn')};
-function runDH(){const p=+$('#p').value,g=+$('#g').value,a=+$('#privA').value,b=+$('#privB').value;if(p<3||a<1||b<1){setStatus($('#dhStatus'),'Revisá los parámetros.','bad');return}const A=powMod(g,a,p),B=powMod(g,b,p),sA=powMod(B,a,p),sB=powMod(A,b,p);$('#pubA').textContent=A;$('#pubB').textContent=B;$('#sharedA').textContent=sA;$('#sharedB').textContent=sB;$('#dhTrace').textContent=`Datos públicos: p=${p}, g=${g}, A=${A}, B=${B}\nSecretos privados: a=${a}, b=${b}\nAlice calcula B^a mod p = ${sA}\nBob calcula A^b mod p = ${sB}`;setStatus($('#dhStatus'),`${isProbablePrime(p)?'p parece primo para este rango.':'Advertencia: p no es primo.'} Las claves compartidas ${sA===sB?'coinciden':'no coinciden'}.`,sA===sB&&isProbablePrime(p)?'good':'warn')}
-$('#runDH').onclick=runDH;$('#randomDH').onclick=()=>{const p=+$('#p').value;$('#privA').value=Lab.randomInt(2,Math.max(2,p-2));$('#privB').value=Lab.randomInt(2,Math.max(2,p-2));runDH()};
-$('#runEntropy').onclick=()=>{const text=$('#entropyText').value,h=entropyOfText(text),k=new Set(text).size,hmax=k?Math.log2(k):0;$('#hSymbol').textContent=h.toFixed(3);$('#hTotal').textContent=(h*text.length).toFixed(2);$('#alphabetSize').textContent=k;$('#hMax').textContent=hmax.toFixed(3);setStatus($('#entropyStatus'),hmax&&h/hmax>.9?'La distribución es relativamente uniforme.':'La repetición reduce la incertidumbre estadística.',hmax&&h/hmax>.9?'good':'warn')};$('#calcMod').click();$('#runInv').click();runDH();$('#runEntropy').click();
-</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo de aritmética modular, Euclides extendido, grupos finitos, Diffie-Hellman, logaritmo discreto y entropía.">
+  <title>Fundamentos matemáticos de la criptografía | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="assets/lab.css">
+</head>
+<body>
+  <main class="shell" id="app"></main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar las simulaciones.</div></noscript>
+
+  <script src="assets/lab.js"></script>
+  <script>
+    const {
+      nav,
+      footer,
+      $,
+      mod,
+      gcd,
+      egcd,
+      powMod,
+      randomInt,
+      entropyOfText,
+      isProbablePrime,
+      setStatus,
+      escapeHtml
+    } = Lab;
+
+    $('#app').innerHTML = nav() + `
+      <section class="hero">
+        <div class="eyebrow">Módulo 2</div>
+        <h1>Fundamentos matemáticos</h1>
+        <p>Explorá las estructuras que convierten operaciones elementales en primitivas criptográficas: clases de congruencia, inversos, grupos finitos, exponenciación modular, logaritmo discreto y entropía.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Aritmética modular</h2>
+          <div class="controls">
+            <div class="control"><label>Operando a</label><input id="modA" type="number" value="37"></div>
+            <div class="control"><label>Operando b</label><input id="modB" type="number" value="12"></div>
+            <div class="control"><label>Módulo n</label><input id="modN" type="number" min="2" value="26"></div>
+            <div class="control">
+              <label>Operación</label>
+              <select id="modOperation">
+                <option value="add">a + b</option>
+                <option value="subtract">a − b</option>
+                <option value="multiply">a × b</option>
+                <option value="power">aᵇ</option>
+              </select>
+            </div>
+          </div>
+          <div class="actions"><button id="calculateMod">Calcular</button></div>
+          <div class="output mono" id="modOutput"></div>
+          <div class="status" id="modStatus">Dos enteros son congruentes módulo n cuando pertenecen a la misma clase de resto.</div>
+        </article>
+
+        <article class="card">
+          <h2>Euclides extendido e inverso</h2>
+          <div class="controls">
+            <div class="control"><label>Número a</label><input id="inverseA" type="number" value="7"></div>
+            <div class="control"><label>Módulo n</label><input id="inverseN" type="number" min="2" value="26"></div>
+          </div>
+          <div class="actions"><button id="runEuclid">Ejecutar algoritmo</button></div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="gcdValue">—</strong><span>mcd(a,n)</span></div>
+            <div class="metric"><strong id="bezoutX">—</strong><span>coeficiente x</span></div>
+            <div class="metric"><strong id="bezoutY">—</strong><span>coeficiente y</span></div>
+            <div class="metric"><strong id="inverseValue">—</strong><span>inverso modular</span></div>
+          </div>
+          <div class="output mono" id="euclidTrace"></div>
+          <div class="status" id="inverseStatus">El inverso existe si y solo si mcd(a,n)=1.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Unidades módulo n</h2>
+          <p class="muted">Los elementos invertibles forman el grupo multiplicativo (ℤ/nℤ)×. Su cantidad es la función φ(n) de Euler.</p>
+          <div class="controls">
+            <div class="control"><label>Módulo n</label><input id="unitModulus" type="number" min="2" max="200" value="26"></div>
+          </div>
+          <div class="actions"><button id="listUnits">Calcular unidades</button></div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="phiValue">—</strong><span>φ(n)</span></div>
+            <div class="metric"><strong id="unitRatio">—</strong><span>fracción invertible</span></div>
+            <div class="metric"><strong id="firstUnit">—</strong><span>primera unidad</span></div>
+            <div class="metric"><strong id="lastUnit">—</strong><span>última unidad</span></div>
+          </div>
+          <div class="output mono" id="unitOutput"></div>
+          <div class="status" id="unitStatus">En el cifrado afín, el multiplicador debe pertenecer a este grupo.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Intercambio Diffie–Hellman didáctico</h2>
+          <p class="muted">Alice y Bob publican potencias de un generador. El protocolo deriva el mismo secreto compartido sin transmitirlo; la seguridad real exige grupos enormes y parámetros validados.</p>
+          <div class="controls">
+            <div class="control"><label>Primo p</label><input id="dhP" type="number" min="3" max="997" value="23"></div>
+            <div class="control"><label>Base g</label><input id="dhG" type="number" min="2" value="5"></div>
+            <div class="control"><label>Secreto de Alice a</label><input id="aliceSecret" type="number" min="1" value="6"></div>
+            <div class="control"><label>Secreto de Bob b</label><input id="bobSecret" type="number" min="1" value="15"></div>
+          </div>
+          <div class="actions">
+            <button id="runDh">Simular intercambio</button>
+            <button class="secondary" id="randomDh">Generar secretos</button>
+            <button class="danger" id="attackDh">Atacar logaritmo discreto</button>
+          </div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="alicePublic">—</strong><span>A=gᵃ mod p</span></div>
+            <div class="metric"><strong id="bobPublic">—</strong><span>B=gᵇ mod p</span></div>
+            <div class="metric"><strong id="sharedAlice">—</strong><span>Bᵃ mod p</span></div>
+            <div class="metric"><strong id="generatorOrder">—</strong><span>orden de g</span></div>
+          </div>
+          <div class="two-col" style="margin-top:14px">
+            <div>
+              <label>Traza del protocolo</label>
+              <div class="output mono" id="dhTrace"></div>
+            </div>
+            <div>
+              <label>Traza del atacante</label>
+              <div class="output mono" id="attackTrace"></div>
+            </div>
+          </div>
+          <div class="status" id="dhStatus">Los parámetros pequeños permiten observar el protocolo y también romperlo por enumeración.</div>
+        </article>
+
+        <article class="card">
+          <h2>Subgrupo generado por g</h2>
+          <p class="muted">El orden de g determina cuántos valores públicos distintos puede producir. Una base de orden pequeño reduce el espacio efectivo de secretos.</p>
+          <div class="actions"><button id="showSubgroup">Enumerar subgrupo</button></div>
+          <div class="output mono" id="subgroupOutput"></div>
+          <div class="status" id="subgroupStatus">En grupos reales se valida la pertenencia y el orden para evitar ataques de subgrupos pequeños.</div>
+        </article>
+
+        <article class="card">
+          <h2>Entropía de Shannon</h2>
+          <div class="control"><label>Secuencia</label><textarea id="entropyText">ABRACADABRA</textarea></div>
+          <div class="actions"><button id="measureEntropy">Medir entropía</button></div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="entropyPerSymbol">—</strong><span>bits por símbolo</span></div>
+            <div class="metric"><strong id="estimatedBits">—</strong><span>bits estadísticos</span></div>
+            <div class="metric"><strong id="alphabetSize">—</strong><span>símbolos distintos</span></div>
+            <div class="metric"><strong id="maximumEntropy">—</strong><span>máximo por símbolo</span></div>
+          </div>
+          <div class="output mono" id="distributionOutput"></div>
+          <div class="status" id="entropyStatus">La entropía empírica de una muestra no equivale a la min-entropía de una fuente de claves.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Mapa conceptual</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Estructura</th><th>Rol criptográfico</th><th>Riesgo de simplificación</th></tr></thead>
+              <tbody>
+                <tr><td>Grupos finitos</td><td>Diffie–Hellman, firmas y curvas elípticas</td><td>Orden pequeño o parámetros no validados</td></tr>
+                <tr><td>Cuerpos finitos</td><td>AES, códigos y operaciones polinomiales</td><td>Confundir aritmética entera con aritmética del cuerpo</td></tr>
+                <tr><td>Problemas difíciles</td><td>Factorización, logaritmo discreto y retículas</td><td>Usar tamaños donde el problema puede enumerarse</td></tr>
+                <tr><td>Probabilidad</td><td>Juegos de seguridad, aleatoriedad y pruebas</td><td>Interpretar frecuencia empírica como garantía absoluta</td></tr>
+                <tr><td>Entropía</td><td>Claves, nonces, semillas y extractores</td><td>Sobreestimar fuentes humanas o correlacionadas</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card full">
+          <h2>Desafío integrador</h2>
+          <ol class="steps">
+            <li>Calculá las unidades módulo 26 y explicá su relación con el cifrado afín.</li>
+            <li>Compará el orden de g=2 y g=5 módulo 23.</li>
+            <li>Ejecutá el ataque al logaritmo discreto para p=23 y luego para un primo mayor.</li>
+            <li>Explicá por qué aumentar el tamaño cambia el costo computacional pero no el flujo lógico del protocolo.</li>
+            <li>Compará entropía de Shannon, espacio teórico de claves y min-entropía.</li>
+          </ol>
+        </article>
+      </section>` + footer();
+
+    function extendedEuclidTrace(a, b) {
+      let oldR = a;
+      let r = b;
+      let oldS = 1;
+      let s = 0;
+      let oldT = 0;
+      let t = 1;
+      const rows = ['q | r_anterior | r | s | t'];
+
+      while (r !== 0) {
+        const quotient = Math.trunc(oldR / r);
+        rows.push(`${quotient} | ${oldR} | ${r} | ${oldS} | ${oldT}`);
+        [oldR, r] = [r, oldR - quotient * r];
+        [oldS, s] = [s, oldS - quotient * s];
+        [oldT, t] = [t, oldT - quotient * t];
+      }
+      rows.push(`— | ${oldR} | 0 | ${oldS} | ${oldT}`);
+      return { gcd: Math.abs(oldR), x: oldS, y: oldT, rows };
+    }
+
+    $('#calculateMod').onclick = () => {
+      const a = Number($('#modA').value);
+      const b = Number($('#modB').value);
+      const n = Number($('#modN').value);
+
+      if (!Number.isSafeInteger(n) || n < 2) {
+        setStatus($('#modStatus'), 'El módulo debe ser un entero mayor o igual que 2.', 'bad');
+        return;
+      }
+
+      let result;
+      let expression;
+      switch ($('#modOperation').value) {
+        case 'add':
+          result = a + b;
+          expression = `${a} + ${b}`;
+          break;
+        case 'subtract':
+          result = a - b;
+          expression = `${a} − ${b}`;
+          break;
+        case 'multiply':
+          result = a * b;
+          expression = `${a} × ${b}`;
+          break;
+        case 'power':
+          if (!Number.isSafeInteger(b) || b < 0) {
+            setStatus($('#modStatus'), 'El exponente debe ser un entero no negativo en este laboratorio.', 'bad');
+            return;
+          }
+          result = powMod(a, b, n);
+          $('#modOutput').textContent = `${a}^${b} mod ${n} = ${result}`;
+          setStatus($('#modStatus'), 'La exponenciación modular por cuadrados repetidos evita construir aᵇ completo.', 'good');
+          return;
+      }
+
+      $('#modOutput').textContent = `${expression} = ${result}\n${result} mod ${n} = ${mod(result, n)}`;
+      setStatus($('#modStatus'), `${result} ≡ ${mod(result, n)} (mod ${n}).`, 'good');
+    };
+
+    $('#runEuclid').onclick = () => {
+      const a = Number($('#inverseA').value);
+      const n = Number($('#inverseN').value);
+      if (!Number.isSafeInteger(a) || !Number.isSafeInteger(n) || n < 2) {
+        setStatus($('#inverseStatus'), 'Ingresá enteros válidos y un módulo mayor o igual que 2.', 'bad');
+        return;
+      }
+
+      const trace = extendedEuclidTrace(a, n);
+      const inverse = trace.gcd === 1 ? mod(trace.x, n) : null;
+      $('#gcdValue').textContent = trace.gcd;
+      $('#bezoutX').textContent = trace.x;
+      $('#bezoutY').textContent = trace.y;
+      $('#inverseValue').textContent = inverse ?? 'No existe';
+      $('#euclidTrace').textContent = `${trace.rows.join('\n')}\n\nIdentidad de Bézout:\n${a}·(${trace.x}) + ${n}·(${trace.y}) = ${a * trace.x + n * trace.y}`;
+
+      setStatus(
+        $('#inverseStatus'),
+        inverse !== null
+          ? `${a}·${inverse} ≡ 1 (mod ${n}).`
+          : `Como mcd(${a},${n})=${trace.gcd}, no existe inverso modular.`,
+        inverse !== null ? 'good' : 'warn'
+      );
+    };
+
+    $('#listUnits').onclick = () => {
+      const n = Number($('#unitModulus').value);
+      if (!Number.isSafeInteger(n) || n < 2 || n > 200) {
+        setStatus($('#unitStatus'), 'Utilizá un módulo entero entre 2 y 200.', 'bad');
+        return;
+      }
+
+      const units = [];
+      for (let value = 1; value < n; value += 1) {
+        if (gcd(value, n) === 1) units.push({ value, inverse: mod(egcd(value, n).x, n) });
+      }
+
+      $('#phiValue').textContent = units.length;
+      $('#unitRatio').textContent = `${(100 * units.length / n).toFixed(1)}%`;
+      $('#firstUnit').textContent = units[0]?.value ?? '—';
+      $('#lastUnit').textContent = units.at(-1)?.value ?? '—';
+      $('#unitOutput').textContent = units.map((unit) => `${unit.value}⁻¹ ≡ ${unit.inverse} (mod ${n})`).join(' · ');
+      setStatus($('#unitStatus'), `φ(${n})=${units.length}. Estos son exactamente los elementos invertibles módulo ${n}.`, 'good');
+    };
+
+    function multiplicativeOrder(base, prime) {
+      const normalized = mod(base, prime);
+      if (normalized === 0 || gcd(normalized, prime) !== 1) return null;
+      let value = 1;
+      for (let exponent = 1; exponent <= prime - 1; exponent += 1) {
+        value = mod(value * normalized, prime);
+        if (value === 1) return exponent;
+      }
+      return null;
+    }
+
+    function validateDhParameters() {
+      const p = Number($('#dhP').value);
+      const g = Number($('#dhG').value);
+      const alice = Number($('#aliceSecret').value);
+      const bob = Number($('#bobSecret').value);
+
+      if (![p, g, alice, bob].every(Number.isSafeInteger)) throw new Error('Todos los parámetros deben ser enteros.');
+      if (p < 3 || p > 997) throw new Error('Utilizá un primo entre 3 y 997 para mantener la simulación interactiva.');
+      if (!isProbablePrime(p)) throw new Error(`p=${p} no es primo.`);
+      if (g <= 1 || g >= p) throw new Error('g debe satisfacer 1 < g < p.');
+      if (alice < 1 || bob < 1) throw new Error('Los secretos deben ser positivos.');
+      return { p, g, alice, bob };
+    }
+
+    function runDiffieHellman() {
+      try {
+        const { p, g, alice, bob } = validateDhParameters();
+        const order = multiplicativeOrder(g, p);
+        const publicAlice = powMod(g, alice, p);
+        const publicBob = powMod(g, bob, p);
+        const secretAlice = powMod(publicBob, alice, p);
+        const secretBob = powMod(publicAlice, bob, p);
+
+        $('#alicePublic').textContent = publicAlice;
+        $('#bobPublic').textContent = publicBob;
+        $('#sharedAlice').textContent = secretAlice;
+        $('#generatorOrder').textContent = order ?? '—';
+        $('#dhTrace').textContent = [
+          `Parámetros públicos: p=${p}, g=${g}`,
+          `Alice: a=${alice} → A=g^a mod p=${publicAlice}`,
+          `Bob:   b=${bob} → B=g^b mod p=${publicBob}`,
+          `Alice calcula B^a mod p=${secretAlice}`,
+          `Bob calcula A^b mod p=${secretBob}`,
+          `Orden multiplicativo de g: ${order}`
+        ].join('\n');
+        $('#attackTrace').textContent = '';
+
+        const fullOrder = order === p - 1;
+        setStatus(
+          $('#dhStatus'),
+          `Las claves compartidas ${secretAlice === secretBob ? 'coinciden' : 'no coinciden'}. ` +
+          `${fullOrder ? 'g genera todo el grupo multiplicativo.' : `g genera un subgrupo de orden ${order}.`}`,
+          secretAlice === secretBob && fullOrder ? 'good' : 'warn'
+        );
+      } catch (error) {
+        setStatus($('#dhStatus'), error.message, 'bad');
+      }
+    }
+
+    $('#runDh').onclick = runDiffieHellman;
+
+    $('#randomDh').onclick = () => {
+      const p = Number($('#dhP').value);
+      if (!Number.isSafeInteger(p) || p < 5) {
+        setStatus($('#dhStatus'), 'Ingresá primero un primo válido.', 'bad');
+        return;
+      }
+      $('#aliceSecret').value = randomInt(2, p - 2);
+      $('#bobSecret').value = randomInt(2, p - 2);
+      runDiffieHellman();
+    };
+
+    function bruteForceDiscreteLog(base, target, prime) {
+      let value = 1;
+      for (let exponent = 0; exponent <= prime - 1; exponent += 1) {
+        if (value === target) return { exponent, attempts: exponent + 1 };
+        value = mod(value * base, prime);
+      }
+      return null;
+    }
+
+    $('#attackDh').onclick = () => {
+      try {
+        const { p, g } = validateDhParameters();
+        const publicAlice = Number($('#alicePublic').textContent);
+        const publicBob = Number($('#bobPublic').textContent);
+        if (!Number.isFinite(publicAlice) || !Number.isFinite(publicBob)) {
+          runDiffieHellman();
+        }
+
+        const start = performance.now();
+        const recoveredAlice = bruteForceDiscreteLog(g, Number($('#alicePublic').textContent), p);
+        const recoveredBob = bruteForceDiscreteLog(g, Number($('#bobPublic').textContent), p);
+        const elapsed = performance.now() - start;
+
+        if (!recoveredAlice || !recoveredBob) throw new Error('No se encontraron exponentes en el subgrupo generado por g.');
+        const recoveredSecret = powMod(Number($('#bobPublic').textContent), recoveredAlice.exponent, p);
+        $('#attackTrace').textContent = [
+          `Ataque por enumeración sobre p=${p}`,
+          `a recuperado=${recoveredAlice.exponent} en ${recoveredAlice.attempts} prueba(s)`,
+          `b recuperado=${recoveredBob.exponent} en ${recoveredBob.attempts} prueba(s)`,
+          `secreto compartido recuperado=${recoveredSecret}`,
+          `tiempo local=${elapsed.toFixed(3)} ms`
+        ].join('\n');
+        setStatus($('#dhStatus'), 'El logaritmo discreto fue recuperado porque el grupo es diminuto. La seguridad real proviene de tamaños donde esta búsqueda es inviable.', 'bad');
+      } catch (error) {
+        setStatus($('#dhStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#showSubgroup').onclick = () => {
+      try {
+        const { p, g } = validateDhParameters();
+        const order = multiplicativeOrder(g, p);
+        const values = [];
+        let current = 1;
+        for (let exponent = 0; exponent < order; exponent += 1) {
+          values.push({ exponent, current });
+          current = mod(current * g, p);
+        }
+        $('#subgroupOutput').textContent = values.map(({ exponent, current: value }) => `g^${exponent} ≡ ${value}`).join(' · ');
+        setStatus($('#subgroupStatus'), `El subgrupo contiene ${order} elementos de los ${p - 1} elementos no nulos módulo ${p}.`, order === p - 1 ? 'good' : 'warn');
+      } catch (error) {
+        setStatus($('#subgroupStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#measureEntropy').onclick = () => {
+      const text = $('#entropyText').value;
+      const entropy = entropyOfText(text);
+      const frequencies = new Map();
+      for (const character of text) frequencies.set(character, (frequencies.get(character) ?? 0) + 1);
+      const alphabet = frequencies.size;
+      const maximum = alphabet ? Math.log2(alphabet) : 0;
+
+      $('#entropyPerSymbol').textContent = entropy.toFixed(3);
+      $('#estimatedBits').textContent = (entropy * text.length).toFixed(2);
+      $('#alphabetSize').textContent = alphabet;
+      $('#maximumEntropy').textContent = maximum.toFixed(3);
+      $('#distributionOutput').textContent = [...frequencies.entries()]
+        .sort((left, right) => right[1] - left[1])
+        .map(([symbol, count]) => `${JSON.stringify(symbol)}: ${count} (${(100 * count / Math.max(1, text.length)).toFixed(1)}%)`)
+        .join('\n');
+
+      const ratio = maximum ? entropy / maximum : 0;
+      setStatus(
+        $('#entropyStatus'),
+        ratio > 0.9
+          ? 'La distribución empírica se aproxima al máximo para este alfabeto, pero eso no prueba impredecibilidad de la fuente.'
+          : 'La repetición y el sesgo reducen la incertidumbre estadística por símbolo.',
+        ratio > 0.9 ? 'good' : 'warn'
+      );
+    };
+
+    $('#calculateMod').click();
+    $('#runEuclid').click();
+    $('#listUnits').click();
+    runDiffieHellman();
+    $('#showSubgroup').click();
+    $('#measureEntropy').click();
+  </script>
+</body>
+</html>
