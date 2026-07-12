@@ -1,11 +1,368 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Protocolos y privacidad</title><link rel="stylesheet" href="assets/lab.css"></head><body><main class="shell" id="app"></main><script src="assets/lab.js"></script><script>
-const {nav,footer,$,mod,egcd,powMod,randomInt,sha256,setStatus,escapeHtml}=Lab;$('#app').innerHTML=nav()+`<section class="hero"><div class="eyebrow">Módulo 6</div><h1>Protocolos y privacidad</h1><p>Simulá mecanismos que permiten distribuir confianza, comprometer un valor sin revelarlo y demostrar conocimiento de un secreto sin transmitirlo.</p></section><section class="grid"><article class="card full"><h2>Secret sharing de Shamir</h2><p class="muted">Un secreto se representa como el término independiente de un polinomio aleatorio sobre un cuerpo finito. Cualquier conjunto de t puntos reconstruye el polinomio; menos puntos no bastan.</p><div class="controls"><div class="control"><label>Secreto entero (0–255)</label><input id="secret" type="number" min="0" max="255" value="123"></div><div class="control"><label>Número total n</label><input id="shareN" type="number" min="2" max="10" value="5"></div><div class="control"><label>Umbral t</label><input id="threshold" type="number" min="2" max="10" value="3"></div><div class="control"><label>Primo del campo</label><input value="257" disabled></div></div><div class="actions"><button id="split">Generar fragmentos</button><button class="secondary" id="recover">Reconstruir seleccionados</button></div><div id="shares" class="pill-row" style="margin-top:14px"></div><div class="output mono" id="poly"></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="selectedCount">0</strong><span>fragmentos seleccionados</span></div><div class="metric"><strong id="recoveredSecret">—</strong><span>secreto reconstruido</span></div><div class="metric"><strong id="needed">3</strong><span>umbral requerido</span></div><div class="metric"><strong>257</strong><span>módulo primo</span></div></div><div class="status" id="shareStatus">Seleccioná fragmentos haciendo clic sobre ellos.</div></article><article class="card"><h2>Compromiso hash</h2><p class="muted">Primero se publica un compromiso. Más tarde se revelan el valor y un nonce para que terceros verifiquen que no fue modificado.</p><div class="control"><label>Valor</label><input id="commitValue" value="Oferta: 150"></div><div class="control"><label>Nonce secreto</label><input id="commitNonce" value=""></div><div class="actions"><button id="commit">Comprometer</button><button class="secondary" id="verifyCommit">Verificar apertura</button><button class="secondary" id="newNonce">Nuevo nonce</button></div><div class="output mono" id="commitHash"></div><div class="status" id="commitStatus">El nonce impide probar fácilmente valores previsibles mediante diccionario.</div></article><article class="card"><h2>Identificación de Schnorr simplificada</h2><p class="muted">Grupo didáctico: p=23, q=11, g=2. El probador conoce x y publica y=gˣ mod p. En cada ronda responde a un desafío aleatorio.</p><div class="controls"><div class="control"><label>Secreto x (1–10)</label><input id="schnorrX" type="number" min="1" max="10" value="7"></div><div class="control"><label>Rondas</label><input id="rounds" type="number" min="1" max="20" value="8"></div></div><div class="actions"><button id="runSchnorr">Ejecutar protocolo</button><button class="danger" id="fakeSchnorr">Intentar sin secreto</button></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="publicY">—</strong><span>clave pública y</span></div><div class="metric"><strong id="accepted">0</strong><span>rondas aceptadas</span></div><div class="metric"><strong id="failed">0</strong><span>rondas fallidas</span></div><div class="metric"><strong id="cheatProb">—</strong><span>probabilidad teórica de engaño</span></div></div><div class="output mono" id="schnorrTrace"></div><div class="status" id="schnorrStatus">Repetir rondas reduce la probabilidad de que un impostor acierte los desafíos.</div></article><article class="card full"><h2>Mapa de protocolos</h2><div class="table-wrap"><table><thead><tr><th>Mecanismo</th><th>Problema que resuelve</th><th>Supuesto crítico</th></tr></thead><tbody><tr><td>Secret sharing</td><td>Evita concentrar un secreto en una sola parte.</td><td>Se necesitan suficientes participantes honestos.</td></tr><tr><td>Commitment</td><td>Permite comprometerse ahora y revelar después.</td><td>Hash resistente y nonce impredecible.</td></tr><tr><td>Zero knowledge</td><td>Demuestra conocimiento sin revelar el testigo.</td><td>Protocolo, desafíos y parámetros correctos.</td></tr><tr><td>MPC</td><td>Calcula sobre entradas privadas distribuidas.</td><td>Modelo de adversario y protocolo adecuado.</td></tr><tr><td>Cifrado homomórfico</td><td>Opera sobre datos cifrados.</td><td>Costos y esquema compatible con la operación.</td></tr></tbody></table></div></article><article class="card full"><h2>Desafío</h2><ol class="steps"><li>Generá un esquema 3 de 5 y probá reconstruir con dos y con tres fragmentos.</li><li>Cambiá el valor después de comprometerlo y verificá que la apertura falla.</li><li>Ejecutá Schnorr con y sin secreto durante 4, 8 y 12 rondas.</li><li>Explicá qué propiedad aporta cada protocolo y por qué no son sustitutos.</li></ol></article></section>`+footer();
-const P=257;let currentShares=[],selected=new Set(),coeffs=[];function inv(a,p=P){const r=egcd(mod(a,p),p);if(r.g!==1)throw new Error('No existe inverso');return mod(r.x,p)}function evalPoly(cs,x){return cs.reduce((sum,c,i)=>mod(sum+c*powMod(x,i,P),P),0)}
-function renderShares(){$('#shares').innerHTML=currentShares.map((s,i)=>`<button class="${selected.has(i)?'':'secondary'}" data-i="${i}">(${s.x}, ${s.y})</button>`).join('');$$('#shares button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;selected.has(i)?selected.delete(i):selected.add(i);renderShares();$('#selectedCount').textContent=selected.size})}
-$('#split').onclick=()=>{const secret=Math.max(0,Math.min(255,+$('#secret').value)),n=Math.max(2,Math.min(10,+$('#shareN').value)),t=Math.max(2,Math.min(n,+$('#threshold').value));$('#shareN').value=n;$('#threshold').value=t;coeffs=[secret,...Array.from({length:t-1},()=>randomInt(0,P-1))];currentShares=Array.from({length:n},(_,i)=>({x:i+1,y:evalPoly(coeffs,i+1)}));selected=new Set();$('#needed').textContent=t;$('#recoveredSecret').textContent='—';$('#poly').textContent='Polinomio privado: f(x) = '+coeffs.map((c,i)=>i?`${c}x^${i}`:`${c}`).join(' + ')+'  (mod 257)';renderShares();setStatus($('#shareStatus'),`Se generaron ${n} fragmentos con umbral ${t}. El polinomio se muestra solo con fines didácticos.`,'good')};
-function reconstruct(points){return mod(points.reduce((sum,pi,i)=>{let num=1,den=1;points.forEach((pj,j)=>{if(i!==j){num=mod(num*(-pj.x),P);den=mod(den*(pi.x-pj.x),P)}});return mod(sum+pi.y*num*inv(den),P)},0),P)}
-$('#recover').onclick=()=>{const pts=[...selected].map(i=>currentShares[i]),t=+$('#threshold').value;$('#selectedCount').textContent=pts.length;if(pts.length<t){$('#recoveredSecret').textContent='Insuficiente';setStatus($('#shareStatus'),`Se requieren al menos ${t} fragmentos. Con ${pts.length}, el secreto no queda determinado.`,'warn');return}const s=reconstruct(pts);$('#recoveredSecret').textContent=s;setStatus($('#shareStatus'),`Interpolación de Lagrange completada: f(0)=${s}.`,'good')};
-let storedCommit='';function nonce(){const a=new Uint32Array(4);crypto.getRandomValues(a);return [...a].map(x=>x.toString(16).padStart(8,'0')).join('')}$('#newNonce').onclick=()=>{$('#commitNonce').value=nonce()};$('#commit').onclick=async()=>{if(!$('#commitNonce').value)$('#newNonce').click();storedCommit=await sha256($('#commitValue').value+'|'+$('#commitNonce').value);$('#commitHash').textContent=storedCommit;setStatus($('#commitStatus'),'Compromiso publicado. Ahora puede ocultarse el valor hasta la apertura.','good')};$('#verifyCommit').onclick=async()=>{if(!storedCommit){setStatus($('#commitStatus'),'Primero generá un compromiso.','warn');return}const h=await sha256($('#commitValue').value+'|'+$('#commitNonce').value),ok=h===storedCommit;setStatus($('#commitStatus'),ok?'Apertura válida: valor y nonce coinciden con el compromiso.':'Apertura inválida: el valor o el nonce fueron modificados.',ok?'good':'bad')};
-function schnorr(fake=false){const p=23,q=11,g=2,x=mod(+$('#schnorrX').value,q)||1,y=powMod(g,x,p),rounds=Math.max(1,Math.min(20,+$('#rounds').value));let accepted=0,failed=0,trace=[];for(let i=1;i<=rounds;i++){const r=randomInt(1,q-1),t=powMod(g,r,p),c=randomInt(0,1);let s;if(fake){s=randomInt(0,q-1)}else{s=mod(r+c*x,q)}const left=powMod(g,s,p),right=mod(t*powMod(y,c,p),p),ok=left===right;ok?accepted++:failed++;trace.push(`R${i}: t=${t}, c=${c}, s=${s} → ${left} ${ok?'=':'≠'} ${right} ${ok?'✓':'✗'}`)}$('#publicY').textContent=y;$('#accepted').textContent=accepted;$('#failed').textContent=failed;$('#cheatProb').textContent=`1/${2**rounds}`;$('#schnorrTrace').textContent=trace.join('\n');setStatus($('#schnorrStatus'),fake?`El impostor superó ${accepted} de ${rounds} rondas por azar.`:`El probador legítimo superó ${accepted} de ${rounds} rondas.`,fake?(failed?'warn':'bad'):(failed?'bad':'good'))}
-$('#runSchnorr').onclick=()=>schnorr(false);$('#fakeSchnorr').onclick=()=>schnorr(true);$('#split').click();$('#newNonce').click();$('#commit').click();schnorr(false);
-</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo de secret sharing de Shamir, compromisos hash e identificación de Schnorr.">
+  <title>Protocolos y privacidad | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="assets/lab.css">
+</head>
+<body>
+  <main class="shell" id="app"></main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar las simulaciones.</div></noscript>
+
+  <script src="assets/lab.js"></script>
+  <script>
+    const {
+      nav,
+      footer,
+      $,
+      $$,
+      mod,
+      egcd,
+      powMod,
+      randomInt,
+      sha256,
+      setStatus
+    } = Lab;
+
+    $('#app').innerHTML = nav() + `
+      <section class="hero">
+        <div class="eyebrow">Módulo 6</div>
+        <h1>Protocolos y privacidad</h1>
+        <p>Experimentá con mecanismos que distribuyen confianza, permiten comprometer un valor sin revelarlo y demuestran conocimiento de un secreto sin transmitirlo.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card full">
+          <h2>Secret sharing de Shamir</h2>
+          <p class="muted">El secreto se representa como el término independiente de un polinomio aleatorio sobre un cuerpo finito. Cualquier conjunto de <em>t</em> puntos reconstruye el polinomio; menos fragmentos no determinan el secreto.</p>
+
+          <div class="controls">
+            <div class="control">
+              <label>Secreto entero (0–255)</label>
+              <input id="secret" type="number" min="0" max="255" value="123">
+            </div>
+            <div class="control">
+              <label>Número total de fragmentos n</label>
+              <input id="shareN" type="number" min="2" max="10" value="5">
+            </div>
+            <div class="control">
+              <label>Umbral t</label>
+              <input id="threshold" type="number" min="2" max="10" value="3">
+            </div>
+            <div class="control">
+              <label>Primo del campo</label>
+              <input value="257" disabled>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="split">Generar fragmentos</button>
+            <button class="secondary" id="recover">Reconstruir seleccionados</button>
+            <button class="secondary" id="clearSelection">Limpiar selección</button>
+          </div>
+
+          <div id="shares" class="pill-row" style="margin-top:14px"></div>
+          <div class="output mono" id="poly"></div>
+
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="selectedCount">0</strong><span>fragmentos seleccionados</span></div>
+            <div class="metric"><strong id="recoveredSecret">—</strong><span>secreto reconstruido</span></div>
+            <div class="metric"><strong id="needed">3</strong><span>umbral requerido</span></div>
+            <div class="metric"><strong>257</strong><span>módulo primo</span></div>
+          </div>
+
+          <div class="status" id="shareStatus">Seleccioná fragmentos haciendo clic sobre ellos.</div>
+        </article>
+
+        <article class="card">
+          <h2>Compromiso hash</h2>
+          <p class="muted">Primero se publica un compromiso. Más tarde se revelan el valor y un nonce para que terceros verifiquen que el valor no fue reemplazado.</p>
+
+          <div class="control">
+            <label>Valor</label>
+            <input id="commitValue" value="Oferta: 150">
+          </div>
+          <div class="control">
+            <label>Nonce secreto</label>
+            <input id="commitNonce" value="">
+          </div>
+
+          <div class="actions">
+            <button id="commit">Comprometer</button>
+            <button class="secondary" id="verifyCommit">Verificar apertura</button>
+            <button class="secondary" id="newNonce">Nuevo nonce</button>
+          </div>
+
+          <div class="output mono" id="commitHash"></div>
+          <div class="status" id="commitStatus">El nonce evita ataques triviales de diccionario sobre valores previsibles.</div>
+        </article>
+
+        <article class="card">
+          <h2>Identificación de Schnorr simplificada</h2>
+          <p class="muted">Grupo didáctico: p=23, q=11, g=2. El probador conoce x y publica y=gˣ mod p. Cada ronda contiene compromiso, desafío y respuesta.</p>
+
+          <div class="controls">
+            <div class="control">
+              <label>Secreto x (1–10)</label>
+              <input id="schnorrX" type="number" min="1" max="10" value="7">
+            </div>
+            <div class="control">
+              <label>Rondas</label>
+              <input id="rounds" type="number" min="1" max="20" value="8">
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="runSchnorr">Ejecutar probador legítimo</button>
+            <button class="danger" id="fakeSchnorr">Intentar sin conocer el secreto</button>
+          </div>
+
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="publicY">—</strong><span>clave pública y</span></div>
+            <div class="metric"><strong id="accepted">0</strong><span>rondas aceptadas</span></div>
+            <div class="metric"><strong id="failed">0</strong><span>rondas fallidas</span></div>
+            <div class="metric"><strong id="cheatProb">—</strong><span>éxito teórico del impostor</span></div>
+          </div>
+
+          <div class="output mono" id="schnorrTrace"></div>
+          <div class="status" id="schnorrStatus">Repetir rondas reduce exponencialmente la probabilidad de engaño.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Mapa de protocolos</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mecanismo</th><th>Problema que resuelve</th><th>Supuesto crítico</th></tr></thead>
+              <tbody>
+                <tr><td>Secret sharing</td><td>Evita concentrar un secreto en una sola parte.</td><td>Umbral y participantes administrados correctamente.</td></tr>
+                <tr><td>Commitment</td><td>Permite comprometerse ahora y revelar después.</td><td>Hash resistente, nonce impredecible y codificación no ambigua.</td></tr>
+                <tr><td>Zero knowledge</td><td>Demuestra una afirmación sin revelar el testigo.</td><td>Parámetros, desafíos y transformación del protocolo correctos.</td></tr>
+                <tr><td>MPC</td><td>Calcula sobre entradas privadas distribuidas.</td><td>Modelo de adversario y tolerancia a participantes deshonestos.</td></tr>
+                <tr><td>Cifrado homomórfico</td><td>Opera sobre datos cifrados.</td><td>Esquema compatible, parámetros seguros y costo computacional aceptable.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card full">
+          <h2>Desafío</h2>
+          <ol class="steps">
+            <li>Generá un esquema 3 de 5 y probá reconstruir con dos y con tres fragmentos.</li>
+            <li>Cambiá el valor después de comprometerlo y verificá que la apertura falla.</li>
+            <li>Ejecutá Schnorr con y sin secreto durante 4, 8 y 12 rondas.</li>
+            <li>Explicá qué propiedad aporta cada protocolo y por qué no son sustitutos entre sí.</li>
+          </ol>
+        </article>
+      </section>` + footer();
+
+    const P = 257;
+    let currentShares = [];
+    let selected = new Set();
+    let coefficients = [];
+
+    function inverse(value, prime = P) {
+      const result = egcd(mod(value, prime), prime);
+      if (result.g !== 1) throw new Error('No existe inverso modular.');
+      return mod(result.x, prime);
+    }
+
+    function evaluatePolynomial(coeffs, x) {
+      return coeffs.reduce((sum, coefficient, degree) => {
+        return mod(sum + coefficient * powMod(x, degree, P), P);
+      }, 0);
+    }
+
+    function renderShares() {
+      $('#shares').innerHTML = currentShares.map((share, index) => `
+        <button
+          class="${selected.has(index) ? '' : 'secondary'}"
+          data-index="${index}"
+          aria-pressed="${selected.has(index)}"
+          aria-label="Fragmento ${index + 1}: x ${share.x}, y ${share.y}">
+          (${share.x}, ${share.y})
+        </button>`).join('');
+
+      $$('#shares button').forEach((button) => {
+        button.onclick = () => {
+          const index = Number(button.dataset.index);
+          selected.has(index) ? selected.delete(index) : selected.add(index);
+          $('#selectedCount').textContent = selected.size;
+          renderShares();
+        };
+      });
+    }
+
+    $('#split').onclick = () => {
+      const secret = Math.max(0, Math.min(255, Number($('#secret').value)));
+      const n = Math.max(2, Math.min(10, Number($('#shareN').value)));
+      const threshold = Math.max(2, Math.min(n, Number($('#threshold').value)));
+
+      $('#shareN').value = n;
+      $('#threshold').value = threshold;
+      coefficients = [secret, ...Array.from({ length: threshold - 1 }, () => randomInt(0, P - 1))];
+      currentShares = Array.from({ length: n }, (_, index) => ({
+        x: index + 1,
+        y: evaluatePolynomial(coefficients, index + 1)
+      }));
+      selected = new Set();
+
+      $('#needed').textContent = threshold;
+      $('#selectedCount').textContent = 0;
+      $('#recoveredSecret').textContent = '—';
+      $('#poly').textContent = 'Polinomio privado: f(x) = ' + coefficients
+        .map((coefficient, degree) => degree ? `${coefficient}x^${degree}` : `${coefficient}`)
+        .join(' + ') + '  (mod 257)';
+
+      renderShares();
+      setStatus($('#shareStatus'), `Se generaron ${n} fragmentos con umbral ${threshold}. El polinomio se muestra únicamente con fines didácticos.`, 'good');
+    };
+
+    function reconstruct(points) {
+      return mod(points.reduce((sum, pointI, indexI) => {
+        let numerator = 1;
+        let denominator = 1;
+
+        points.forEach((pointJ, indexJ) => {
+          if (indexI !== indexJ) {
+            numerator = mod(numerator * (-pointJ.x), P);
+            denominator = mod(denominator * (pointI.x - pointJ.x), P);
+          }
+        });
+
+        return mod(sum + pointI.y * numerator * inverse(denominator), P);
+      }, 0), P);
+    }
+
+    $('#recover').onclick = () => {
+      const points = [...selected].map((index) => currentShares[index]);
+      const threshold = Number($('#threshold').value);
+      $('#selectedCount').textContent = points.length;
+
+      if (points.length < threshold) {
+        $('#recoveredSecret').textContent = 'Insuficiente';
+        setStatus($('#shareStatus'), `Se requieren al menos ${threshold} fragmentos. Con ${points.length}, el secreto no queda determinado.`, 'warn');
+        return;
+      }
+
+      const secret = reconstruct(points);
+      $('#recoveredSecret').textContent = secret;
+      setStatus($('#shareStatus'), `Interpolación de Lagrange completada: f(0) = ${secret}.`, 'good');
+    };
+
+    $('#clearSelection').onclick = () => {
+      selected.clear();
+      $('#selectedCount').textContent = 0;
+      $('#recoveredSecret').textContent = '—';
+      renderShares();
+      setStatus($('#shareStatus'), 'Selección limpiada. Elegí un nuevo subconjunto de fragmentos.');
+    };
+
+    let storedCommitment = '';
+
+    function generateNonce() {
+      const values = new Uint32Array(4);
+      crypto.getRandomValues(values);
+      return [...values].map((value) => value.toString(16).padStart(8, '0')).join('');
+    }
+
+    function commitmentPayload() {
+      return `commitment:v1|${$('#commitValue').value}|${$('#commitNonce').value}`;
+    }
+
+    $('#newNonce').onclick = () => {
+      $('#commitNonce').value = generateNonce();
+    };
+
+    $('#commit').onclick = async () => {
+      if (!$('#commitNonce').value) $('#newNonce').click();
+      storedCommitment = await sha256(commitmentPayload());
+      $('#commitHash').textContent = storedCommitment;
+      setStatus($('#commitStatus'), 'Compromiso publicado. El valor puede mantenerse oculto hasta la apertura.', 'good');
+    };
+
+    $('#verifyCommit').onclick = async () => {
+      if (!storedCommitment) {
+        setStatus($('#commitStatus'), 'Primero generá un compromiso.', 'warn');
+        return;
+      }
+
+      const candidate = await sha256(commitmentPayload());
+      const valid = candidate === storedCommitment;
+      setStatus(
+        $('#commitStatus'),
+        valid
+          ? 'Apertura válida: valor y nonce coinciden con el compromiso publicado.'
+          : 'Apertura inválida: el valor o el nonce fueron modificados.',
+        valid ? 'good' : 'bad'
+      );
+    };
+
+    function schnorr(impostor = false) {
+      const p = 23;
+      const q = 11;
+      const g = 2;
+      const x = mod(Number($('#schnorrX').value), q) || 1;
+      const y = powMod(g, x, p);
+      const rounds = Math.max(1, Math.min(20, Number($('#rounds').value)));
+      let accepted = 0;
+      let failed = 0;
+      const trace = [];
+
+      for (let round = 1; round <= rounds; round += 1) {
+        let commitment;
+        let response;
+        let guessedChallenge = null;
+
+        if (impostor) {
+          guessedChallenge = randomInt(0, 1);
+          response = randomInt(0, q - 1);
+          const yPower = powMod(y, guessedChallenge, p);
+          commitment = mod(powMod(g, response, p) * inverse(yPower, p), p);
+        } else {
+          const nonce = randomInt(1, q - 1);
+          commitment = powMod(g, nonce, p);
+          response = nonce;
+        }
+
+        const challenge = randomInt(0, 1);
+        if (!impostor) response = mod(response + challenge * x, q);
+
+        const left = powMod(g, response, p);
+        const right = mod(commitment * powMod(y, challenge, p), p);
+        const valid = left === right;
+        valid ? accepted += 1 : failed += 1;
+
+        trace.push(
+          `R${round}: t=${commitment}, c=${challenge}, s=${response} → ` +
+          `${left} ${valid ? '=' : '≠'} ${right} ${valid ? '✓' : '✗'}` +
+          (impostor ? ` · desafío previsto=${guessedChallenge}` : '')
+        );
+      }
+
+      $('#publicY').textContent = y;
+      $('#accepted').textContent = accepted;
+      $('#failed').textContent = failed;
+      $('#cheatProb').textContent = impostor ? `1/${2 ** rounds}` : '0 (modelo ideal)';
+      $('#schnorrTrace').textContent = trace.join('\n');
+
+      setStatus(
+        $('#schnorrStatus'),
+        impostor
+          ? `El impostor superó ${accepted} de ${rounds} rondas. Solo puede preparar una respuesta válida para uno de los dos desafíos.`
+          : `El probador legítimo superó ${accepted} de ${rounds} rondas.`,
+        impostor ? (failed ? 'warn' : 'bad') : (failed ? 'bad' : 'good')
+      );
+    }
+
+    $('#runSchnorr').onclick = () => schnorr(false);
+    $('#fakeSchnorr').onclick = () => schnorr(true);
+
+    $('#split').click();
+    $('#newNonce').click();
+    $('#commit').click();
+    schnorr(false);
+  </script>
+</body>
+</html>
