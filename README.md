@@ -31,15 +31,15 @@ Este repositorio es una ruta de aprendizaje teórica, matemática y práctica pa
 </p>
 
 <p align="center">
-  <a href="docs/criptografia/01-fundamentos-matematicos.md"><img src="https://img.shields.io/badge/01-Fundamentos%20Matemáticos-334155?style=for-the-badge" alt="Fundamentos matemáticos"></a>
-  <a href="docs/criptografia/02-criptografia-clasica.md"><img src="https://img.shields.io/badge/02-Criptografía%20Clásica-7c3aed?style=for-the-badge" alt="Criptografía clásica"></a>
+  <a href="docs/criptografia/01-criptografia-clasica.md"><img src="https://img.shields.io/badge/01-Criptografía%20Clásica-7c3aed?style=for-the-badge" alt="Criptografía clásica"></a>
+  <a href="docs/criptografia/02-fundamentos-matematicos.md"><img src="https://img.shields.io/badge/02-Fundamentos%20Matemáticos-334155?style=for-the-badge" alt="Fundamentos matemáticos"></a>
   <a href="docs/criptografia/03-criptografia-moderna.md"><img src="https://img.shields.io/badge/03-Criptografía%20Moderna-2563eb?style=for-the-badge" alt="Criptografía moderna"></a>
   <a href="docs/criptografia/04-esteganografia.md"><img src="https://img.shields.io/badge/04-Esteganografía-0891b2?style=for-the-badge" alt="Esteganografía"></a>
 </p>
 
 <p align="center">
-  <a href="docs/criptografia/05-protocolos-y-privacidad.md"><img src="https://img.shields.io/badge/05-Protocolos%20y%20Privacidad-059669?style=for-the-badge" alt="Protocolos y privacidad"></a>
-  <a href="docs/criptografia/06-criptografia-y-blockchain.md"><img src="https://img.shields.io/badge/06-Criptografía%20y%20Blockchain-f59e0b?style=for-the-badge" alt="Criptografía y blockchain"></a>
+  <a href="docs/criptografia/05-criptografia-blockchain.md"><img src="https://img.shields.io/badge/05-Criptografía%20y%20Blockchain-f59e0b?style=for-the-badge" alt="Criptografía y blockchain"></a>
+  <a href="docs/criptografia/06-protocolos-privacidad.md"><img src="https://img.shields.io/badge/06-Protocolos%20y%20Privacidad-059669?style=for-the-badge" alt="Protocolos y privacidad"></a>
   <a href="docs/criptografia/07-poscuantica-y-cuantica.md"><img src="https://img.shields.io/badge/07-Poscuántica%20y%20Cuántica-dc2626?style=for-the-badge" alt="Poscuántica y cuántica"></a>
   <a href="docs/criptografia/08-seguridad-aplicada.md"><img src="https://img.shields.io/badge/08-Seguridad%20Aplicada-111827?style=for-the-badge" alt="Seguridad aplicada"></a>
 </p>
@@ -50,12 +50,12 @@ Este repositorio es una ruta de aprendizaje teórica, matemática y práctica pa
 
 | Etapa | Núcleo conceptual | Contenidos principales | Resultado esperado |
 |---|---|---|---|
-| **1** | Fundamentos matemáticos | Aritmética modular, grupos, cuerpos finitos, probabilidad, entropía y complejidad | Comprender el lenguaje matemático de la criptografía |
-| **2** | Criptografía clásica | César, afín, Vigenère, transposición, análisis de frecuencia y Enigma | Entender sustitución, difusión, confusión y criptoanálisis histórico |
+| **1** | Criptografía clásica | César, afín, Vigenère, transposición, análisis de frecuencia y Enigma | Entender sustitución, difusión, confusión y criptoanálisis histórico |
+| **2** | Fundamentos matemáticos | Aritmética modular, grupos, cuerpos finitos, probabilidad, entropía y complejidad | Comprender el lenguaje matemático de la criptografía |
 | **3** | Criptografía moderna | AES, ChaCha20, hashes, MAC, AEAD, RSA, Diffie–Hellman, ECC y firmas | Diferenciar primitivas y combinarlas correctamente |
 | **4** | Esteganografía | LSB, imágenes, audio, texto, canales encubiertos y estegoanálisis | Separar ocultamiento de existencia y cifrado de contenido |
-| **5** | Protocolos y privacidad | TLS, intercambio de claves, PKI, certificados, commitments, ZKP, MPC y cifrado homomórfico | Analizar seguridad a nivel de protocolo |
-| **6** | Blockchain | Hashes, Merkle trees, firmas, wallets, consenso, smart contracts, DeFi y ZK-rollups | Comprender qué aporta realmente la criptografía a una blockchain |
+| **5** | Blockchain | Hashes, Merkle trees, firmas, wallets, consenso, smart contracts, DeFi y ZK-rollups | Comprender qué aporta realmente la criptografía a una blockchain |
+| **6** | Protocolos y privacidad | TLS, intercambio de claves, PKI, certificados, commitments, ZKP, MPC y cifrado homomórfico | Analizar seguridad a nivel de protocolo |
 | **7** | Poscuántica y cuántica | Shor, Grover, ML-KEM, ML-DSA, SLH-DSA, migración y QKD | Diseñar una estrategia de transición criptográfica |
 | **8** | Seguridad aplicada | Gestión de claves, HSM, side channels, nonces, CSPRNG, auditoría y threat modeling | Evitar fallas reales de implementación y operación |
 
@@ -124,12 +124,12 @@ Los materiales conceptuales pueden leerse directamente desde GitHub sin instalar
 ├── docs/
 │   └── criptografia/
 │       ├── README.md
-│       ├── 01-fundamentos-matematicos.md
-│       ├── 02-criptografia-clasica.md
+│       ├── 01-criptografia-clasica.md
+│       ├── 02-fundamentos-matematicos.md
 │       ├── 03-criptografia-moderna.md
 │       ├── 04-esteganografia.md
-│       ├── 05-protocolos-y-privacidad.md
-│       ├── 06-criptografia-y-blockchain.md
+│       ├── 05-criptografia-blockchain.md
+│       ├── 06-protocolos-privacidad.md
 │       ├── 07-poscuantica-y-cuantica.md
 │       └── 08-seguridad-aplicada.md
 ├── recursos/
