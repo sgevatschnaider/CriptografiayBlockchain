@@ -1,8 +1,255 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Seguridad criptográfica aplicada</title><link rel="stylesheet" href="assets/lab.css"></head><body><main class="shell" id="app"></main><script src="assets/lab.js"></script><script>
-const {nav,footer,$,te,td,bytesToHex,xorBytes,setStatus}=Lab;$('#app').innerHTML=nav()+`<section class="hero"><div class="eyebrow">Módulo 8</div><h1>Seguridad criptográfica aplicada</h1><p>Analizá fallas que aparecen aunque el algoritmo sea sólido: reutilización de nonces, secretos débiles, ausencia de modelo de amenazas y mala gestión del ciclo de vida de claves.</p></section><section class="grid"><article class="card full"><h2>Reutilización de flujo o nonce</h2><p class="muted">En un cifrado de flujo idealizado, C=P⊕K. Si dos mensajes usan el mismo flujo K, entonces C₁⊕C₂=P₁⊕P₂. Conocer un texto permite recuperar el otro.</p><div class="two-col"><div class="control"><label>Mensaje conocido P₁</label><input id="p1" value="TRANSFERIR 1000 A ALICE"></div><div class="control"><label>Mensaje secreto P₂</label><input id="p2" value="TRANSFERIR 9000 A BOB  "></div></div><div class="actions"><button id="reuse">Cifrar con el mismo flujo</button><button class="danger" id="recoverP2">Recuperar P₂ con P₁ conocido</button><button class="secondary" id="fresh">Usar flujos independientes</button></div><div class="controls" style="margin-top:14px"><div class="control full"><label>C₁ hexadecimal</label><div class="output mono" id="c1"></div></div><div class="control full"><label>C₂ hexadecimal</label><div class="output mono" id="c2"></div></div><div class="control full"><label>C₁⊕C₂</label><div class="output mono" id="cxor"></div></div><div class="control full"><label>Texto recuperado</label><div class="output" id="recoveredP2"></div></div></div><div class="status" id="reuseStatus">La unicidad de nonces es una propiedad operacional, no un detalle cosmético.</div></article><article class="card"><h2>Estimador de secreto</h2><div class="control"><label>Contraseña o frase</label><input id="password" value="correcto caballo bateria grapa 2026!"></div><div class="actions"><button id="estimate">Estimar espacio</button></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="length">0</strong><span>longitud</span></div><div class="metric"><strong id="pool">0</strong><span>alfabeto estimado</span></div><div class="metric"><strong id="entropy">0</strong><span>bits ingenuos</span></div><div class="metric"><strong id="class">—</strong><span>clasificación</span></div></div><div class="status" id="passwordStatus">La fórmula longitud × log₂(alfabeto) sobreestima frases humanas predecibles.</div></article><article class="card"><h2>Generador criptográfico</h2><p class="muted">Compará una fuente segura del navegador con patrones humanos. Las claves reales deben generarse con un CSPRNG adecuado.</p><div class="control"><label>Bytes</label><select id="keyBytes"><option>16</option><option selected>32</option><option>64</option></select></div><div class="actions"><button id="genKey">Generar bytes aleatorios</button></div><div class="output mono" id="keyOut"></div><div class="status" id="rngStatus">El navegador usa crypto.getRandomValues; no Math.random.</div></article><article class="card full"><h2>Modelo de amenazas</h2><div class="controls"><div class="control"><label>Activo</label><input id="asset" value="Claves de firma de contratos inteligentes"></div><div class="control"><label>Adversario</label><select id="adversary"><option value="1">Oportunista</option><option value="2">Criminal organizado</option><option value="3">Actor con altos recursos</option></select></div><div class="control"><label>Impacto</label><select id="impact"><option value="1">Bajo</option><option value="2">Medio</option><option value="3" selected>Alto</option></select></div><div class="control"><label>Exposición</label><select id="exposure"><option value="1">Aislado</option><option value="2">Red privada</option><option value="3" selected>Internet / público</option></select></div><div class="control"><label>Vida del secreto (años)</label><input id="lifetime" type="number" min="0" max="50" value="10"></div><div class="control"><label>Capacidad de rotación</label><select id="rotation"><option value="0">Inexistente</option><option value="1">Manual</option><option value="2" selected>Automatizada</option></select></div></div><div class="actions"><button id="model">Generar evaluación</button></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="risk">—</strong><span>riesgo relativo</span></div><div class="metric"><strong id="priority">—</strong><span>prioridad</span></div><div class="metric"><strong id="agility">—</strong><span>agilidad</span></div><div class="metric"><strong id="horizon">—</strong><span>horizonte</span></div></div><div class="output" id="recommendations"></div><div class="status" id="modelStatus">La elección de algoritmo debe seguir al modelo de amenaza.</div></article><article class="card full"><h2>Ciclo de vida de claves</h2><div class="table-wrap"><table><thead><tr><th>Etapa</th><th>Controles recomendados</th><th>Falla típica</th></tr></thead><tbody><tr><td>Generación</td><td>CSPRNG, parámetros aprobados, ceremonia si corresponde</td><td>Semilla débil o predecible</td></tr><tr><td>Almacenamiento</td><td>HSM/KMS, cifrado, separación de funciones</td><td>Clave en código, repositorio o logs</td></tr><tr><td>Uso</td><td>Políticas, límites, nonces únicos, auditoría</td><td>Reutilización o permisos excesivos</td></tr><tr><td>Rotación</td><td>Versionado, doble lectura, rollback probado</td><td>Sistemas rígidos y ventanas de indisponibilidad</td></tr><tr><td>Revocación</td><td>Distribución rápida del estado y respuesta</td><td>Credenciales comprometidas aún aceptadas</td></tr><tr><td>Destrucción</td><td>Borrado verificable y retención documentada</td><td>Copias residuales no inventariadas</td></tr></tbody></table></div></article><article class="card"><h2>Checklist de implementación</h2><ol class="steps"><li>Usar bibliotecas auditadas y modos autenticados.</li><li>Separar claves por propósito y ambiente.</li><li>Definir formato, versión y algoritmo dentro del mensaje.</li><li>Monitorear errores de autenticación y uso anómalo.</li><li>Probar rotación, revocación, respaldo y recuperación.</li></ol></article><article class="card"><h2>Desafío</h2><ol class="steps"><li>Recuperá P₂ cuando se reutiliza el flujo.</li><li>Repetí con flujos independientes y explicá la diferencia.</li><li>Evaluá un activo con secreto de veinte años.</li><li>Diseñá una política de rotación sin detener el servicio.</li></ol></article></section>`+footer();
-let state={};function randomBytes(n){const b=new Uint8Array(n);crypto.getRandomValues(b);return b}function prepare(shared=true){const a=te.encode($('#p1').value),b=te.encode($('#p2').value),n=Math.min(a.length,b.length),k1=randomBytes(n),k2=shared?k1:randomBytes(n),c1=xorBytes(a.slice(0,n),k1),c2=xorBytes(b.slice(0,n),k2);state={a:a.slice(0,n),b:b.slice(0,n),c1,c2,k1,k2,shared};$('#c1').textContent=bytesToHex(c1);$('#c2').textContent=bytesToHex(c2);$('#cxor').textContent=bytesToHex(xorBytes(c1,c2));$('#recoveredP2').textContent='';setStatus($('#reuseStatus'),shared?'Ambos mensajes usaron el mismo flujo. El XOR de criptogramas elimina la clave.':'Se utilizaron flujos independientes; el ataque algebraico directo deja de funcionar.',shared?'warn':'good')}
-$('#reuse').onclick=()=>prepare(true);$('#fresh').onclick=()=>prepare(false);$('#recoverP2').onclick=()=>{if(!state.c1){prepare(true)}const recovered=xorBytes(state.a,xorBytes(state.c1,state.c2));$('#recoveredP2').textContent=td.decode(recovered);setStatus($('#reuseStatus'),state.shared?'P₂ fue recuperado usando P₁ y ambos criptogramas.':'El resultado no corresponde a P₂ porque las claves son distintas.',state.shared?'bad':'good')};
-function estimate(){const s=$('#password').value;let pool=0;if(/[a-záéíóúñ]/.test(s))pool+=27;if(/[A-ZÁÉÍÓÚÑ]/.test(s))pool+=27;if(/[0-9]/.test(s))pool+=10;if(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9]/.test(s))pool+=33;const bits=s.length&&pool?s.length*Math.log2(pool):0;const cls=bits>=100?'Alta':bits>=70?'Media':bits>=45?'Baja':'Muy baja';$('#length').textContent=s.length;$('#pool').textContent=pool;$('#entropy').textContent=bits.toFixed(1);$('#class').textContent=cls;const repeated=/(.)\1{2,}/.test(s),common=/password|1234|qwerty|contrase|admin|sergio/i.test(s);setStatus($('#passwordStatus'),repeated||common?'La estimación formal es engañosa: se detectaron patrones previsibles.':'Estimación de espacio teórico. Un atacante usa diccionarios y modelos, no solo fuerza bruta uniforme.',repeated||common?'warn':'good')}$('#estimate').onclick=estimate;
-$('#genKey').onclick=()=>{const n=+$('#keyBytes').value,b=randomBytes(n);$('#keyOut').textContent=bytesToHex(b);setStatus($('#rngStatus'),`${n} bytes = ${n*8} bits generados por una fuente criptográfica del navegador.`,'good')};
-$('#model').onclick=()=>{const adv=+$('#adversary').value,impact=+$('#impact').value,exp=+$('#exposure').value,life=+$('#lifetime').value,rot=+$('#rotation').value,score=Math.min(100,Math.round(adv*18+impact*20+exp*14+Math.min(life,20)*1.5-rot*12)),priority=score>=80?'Crítica':score>=60?'Alta':score>=40?'Media':'Baja',agility=rot===2?'Buena':rot===1?'Parcial':'Deficiente';$('#risk').textContent=score+'/100';$('#priority').textContent=priority;$('#agility').textContent=agility;$('#horizon').textContent=life+' años';const rec=[];if(exp===3)rec.push('Reducir exposición directa y aplicar autenticación fuerte, segmentación y monitoreo.');if(impact===3)rec.push('Usar custodia reforzada, separación de funciones y aprobación múltiple para operaciones críticas.');if(rot<2)rec.push('Diseñar rotación automatizada con identificadores de versión, doble lectura y rollback.');if(life>=10)rec.push('Inventariar dependencia de criptografía asimétrica y preparar transición poscuántica o híbrida.');if(adv===3)rec.push('Incluir side channels, cadena de suministro, insiders y coerción en el análisis.');rec.push('Definir métricas: uso de claves, fallos de autenticación, edad, exposición y eventos de revocación.');$('#recommendations').innerHTML='<b>'+$('#asset').value+'</b><ul>'+rec.map(x=>'<li>'+x+'</li>').join('')+'</ul>';setStatus($('#modelStatus'),`Evaluación generada para un adversario de nivel ${adv}. El puntaje es comparativo, no una certificación.`,priority==='Crítica'||priority==='Alta'?'warn':'good')};prepare(true);estimate();$('#genKey').click();$('#model').click();
-</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo sobre nonces, CSPRNG, secretos, modelado de amenazas y ciclo de vida de claves.">
+  <title>Seguridad criptográfica aplicada | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="assets/lab.css">
+</head>
+<body>
+  <main class="shell" id="app"></main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar las simulaciones.</div></noscript>
+
+  <script src="assets/lab.js"></script>
+  <script>
+    const { nav, footer, $, te, td, bytesToHex, xorBytes, setStatus, escapeHtml } = Lab;
+
+    $('#app').innerHTML = nav() + `
+      <section class="hero">
+        <div class="eyebrow">Módulo 8</div>
+        <h1>Seguridad criptográfica aplicada</h1>
+        <p>Analizá fallas que aparecen aunque el algoritmo sea sólido: reutilización de nonces, secretos débiles, ausencia de modelo de amenazas y mala gestión del ciclo de vida de claves.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card full">
+          <h2>Reutilización de flujo o nonce</h2>
+          <p class="muted">En un cifrado de flujo idealizado, C=P⊕K. Si dos mensajes usan el mismo flujo K, entonces C₁⊕C₂=P₁⊕P₂. Conocer un texto permite recuperar el otro.</p>
+          <div class="two-col">
+            <div class="control"><label>Mensaje conocido P₁</label><input id="p1" value="TRANSFERIR 1000 A ALICE"></div>
+            <div class="control"><label>Mensaje secreto P₂</label><input id="p2" value="TRANSFERIR 9000 A BOB  "></div>
+          </div>
+          <div class="actions">
+            <button id="reuse">Cifrar con el mismo flujo</button>
+            <button class="danger" id="recoverP2">Recuperar P₂ con P₁ conocido</button>
+            <button class="secondary" id="fresh">Usar flujos independientes</button>
+          </div>
+          <div class="controls" style="margin-top:14px">
+            <div class="control full"><label>C₁ hexadecimal</label><div class="output mono" id="c1"></div></div>
+            <div class="control full"><label>C₂ hexadecimal</label><div class="output mono" id="c2"></div></div>
+            <div class="control full"><label>C₁⊕C₂</label><div class="output mono" id="cxor"></div></div>
+            <div class="control full"><label>Texto recuperado</label><div class="output" id="recoveredP2"></div></div>
+          </div>
+          <div class="status" id="reuseStatus">La unicidad de nonces es una propiedad operacional, no un detalle cosmético.</div>
+        </article>
+
+        <article class="card">
+          <h2>Estimador de secreto</h2>
+          <div class="control"><label>Contraseña o frase</label><input id="password" value="correcto caballo bateria grapa 2026!"></div>
+          <div class="actions"><button id="estimate">Estimar espacio</button></div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="length">0</strong><span>longitud</span></div>
+            <div class="metric"><strong id="pool">0</strong><span>alfabeto estimado</span></div>
+            <div class="metric"><strong id="entropy">0</strong><span>bits ingenuos</span></div>
+            <div class="metric"><strong id="class">—</strong><span>clasificación</span></div>
+          </div>
+          <div class="status" id="passwordStatus">La fórmula longitud × log₂(alfabeto) sobreestima frases humanas predecibles.</div>
+        </article>
+
+        <article class="card">
+          <h2>Generador criptográfico</h2>
+          <p class="muted">Compará una fuente segura del navegador con patrones humanos. Las claves reales deben generarse con un CSPRNG adecuado.</p>
+          <div class="control"><label>Bytes</label><select id="keyBytes"><option>16</option><option selected>32</option><option>64</option></select></div>
+          <div class="actions"><button id="genKey">Generar bytes aleatorios</button></div>
+          <div class="output mono" id="keyOut"></div>
+          <div class="status" id="rngStatus">El navegador usa crypto.getRandomValues; no Math.random.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Modelo de amenazas</h2>
+          <div class="controls">
+            <div class="control"><label>Activo</label><input id="asset" value="Claves de firma de contratos inteligentes"></div>
+            <div class="control"><label>Adversario</label><select id="adversary"><option value="1">Oportunista</option><option value="2">Criminal organizado</option><option value="3">Actor con altos recursos</option></select></div>
+            <div class="control"><label>Impacto</label><select id="impact"><option value="1">Bajo</option><option value="2">Medio</option><option value="3" selected>Alto</option></select></div>
+            <div class="control"><label>Exposición</label><select id="exposure"><option value="1">Aislado</option><option value="2">Red privada</option><option value="3" selected>Internet / público</option></select></div>
+            <div class="control"><label>Vida del secreto (años)</label><input id="lifetime" type="number" min="0" max="50" value="10"></div>
+            <div class="control"><label>Capacidad de rotación</label><select id="rotation"><option value="0">Inexistente</option><option value="1">Manual</option><option value="2" selected>Automatizada</option></select></div>
+          </div>
+          <div class="actions"><button id="model">Generar evaluación</button></div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="risk">—</strong><span>riesgo relativo</span></div>
+            <div class="metric"><strong id="priority">—</strong><span>prioridad</span></div>
+            <div class="metric"><strong id="agility">—</strong><span>agilidad</span></div>
+            <div class="metric"><strong id="horizon">—</strong><span>horizonte</span></div>
+          </div>
+          <div class="output" id="recommendations"></div>
+          <div class="status" id="modelStatus">La elección de algoritmo debe seguir al modelo de amenaza.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Ciclo de vida de claves</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Etapa</th><th>Controles recomendados</th><th>Falla típica</th></tr></thead>
+              <tbody>
+                <tr><td>Generación</td><td>CSPRNG, parámetros aprobados, ceremonia si corresponde</td><td>Semilla débil o predecible</td></tr>
+                <tr><td>Almacenamiento</td><td>HSM/KMS, cifrado, separación de funciones</td><td>Clave en código, repositorio o logs</td></tr>
+                <tr><td>Uso</td><td>Políticas, límites, nonces únicos, auditoría</td><td>Reutilización o permisos excesivos</td></tr>
+                <tr><td>Rotación</td><td>Versionado, doble lectura, rollback probado</td><td>Sistemas rígidos y ventanas de indisponibilidad</td></tr>
+                <tr><td>Revocación</td><td>Distribución rápida del estado y respuesta</td><td>Credenciales comprometidas aún aceptadas</td></tr>
+                <tr><td>Destrucción</td><td>Borrado verificable y retención documentada</td><td>Copias residuales no inventariadas</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Checklist de implementación</h2>
+          <ol class="steps">
+            <li>Usar bibliotecas auditadas y modos autenticados.</li>
+            <li>Separar claves por propósito y ambiente.</li>
+            <li>Definir formato, versión y algoritmo dentro del mensaje.</li>
+            <li>Monitorear errores de autenticación y uso anómalo.</li>
+            <li>Probar rotación, revocación, respaldo y recuperación.</li>
+          </ol>
+        </article>
+
+        <article class="card">
+          <h2>Desafío</h2>
+          <ol class="steps">
+            <li>Recuperá P₂ cuando se reutiliza el flujo.</li>
+            <li>Repetí con flujos independientes y explicá la diferencia.</li>
+            <li>Evaluá un activo con secreto de veinte años.</li>
+            <li>Diseñá una política de rotación sin detener el servicio.</li>
+          </ol>
+        </article>
+      </section>` + footer();
+
+    let state = {};
+
+    function randomBytes(length) {
+      const bytes = new Uint8Array(length);
+      crypto.getRandomValues(bytes);
+      return bytes;
+    }
+
+    function prepare(shared = true) {
+      const known = te.encode($('#p1').value);
+      const secret = te.encode($('#p2').value);
+      const length = Math.min(known.length, secret.length);
+      const key1 = randomBytes(length);
+      const key2 = shared ? key1 : randomBytes(length);
+      const cipher1 = xorBytes(known.slice(0, length), key1);
+      const cipher2 = xorBytes(secret.slice(0, length), key2);
+
+      state = {
+        known: known.slice(0, length),
+        secret: secret.slice(0, length),
+        cipher1,
+        cipher2,
+        shared
+      };
+
+      $('#c1').textContent = bytesToHex(cipher1);
+      $('#c2').textContent = bytesToHex(cipher2);
+      $('#cxor').textContent = bytesToHex(xorBytes(cipher1, cipher2));
+      $('#recoveredP2').textContent = '';
+
+      setStatus(
+        $('#reuseStatus'),
+        shared
+          ? 'Ambos mensajes usaron el mismo flujo. El XOR de criptogramas elimina la clave.'
+          : 'Se utilizaron flujos independientes; el ataque algebraico directo deja de funcionar.',
+        shared ? 'warn' : 'good'
+      );
+    }
+
+    $('#reuse').onclick = () => prepare(true);
+    $('#fresh').onclick = () => prepare(false);
+    $('#recoverP2').onclick = () => {
+      if (!state.cipher1) prepare(true);
+      const recovered = xorBytes(state.known, xorBytes(state.cipher1, state.cipher2));
+      $('#recoveredP2').textContent = td.decode(recovered);
+      setStatus(
+        $('#reuseStatus'),
+        state.shared
+          ? 'P₂ fue recuperado usando P₁ y ambos criptogramas.'
+          : 'El resultado no corresponde a P₂ porque las claves son distintas.',
+        state.shared ? 'bad' : 'good'
+      );
+    };
+
+    function estimate() {
+      const value = $('#password').value;
+      let pool = 0;
+      if (/[a-záéíóúñ]/.test(value)) pool += 27;
+      if (/[A-ZÁÉÍÓÚÑ]/.test(value)) pool += 27;
+      if (/[0-9]/.test(value)) pool += 10;
+      if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9]/.test(value)) pool += 33;
+
+      const bits = value.length && pool ? value.length * Math.log2(pool) : 0;
+      const classification = bits >= 100 ? 'Alta' : bits >= 70 ? 'Media' : bits >= 45 ? 'Baja' : 'Muy baja';
+      $('#length').textContent = value.length;
+      $('#pool').textContent = pool;
+      $('#entropy').textContent = bits.toFixed(1);
+      $('#class').textContent = classification;
+
+      const repeated = /(.)\1{2,}/.test(value);
+      const common = /password|1234|qwerty|contrase|admin|sergio/i.test(value);
+      setStatus(
+        $('#passwordStatus'),
+        repeated || common
+          ? 'La estimación formal es engañosa: se detectaron patrones previsibles.'
+          : 'Estimación de espacio teórico. Un atacante usa diccionarios y modelos, no solo fuerza bruta uniforme.',
+        repeated || common ? 'warn' : 'good'
+      );
+    }
+
+    $('#estimate').onclick = estimate;
+
+    $('#genKey').onclick = () => {
+      const length = Number($('#keyBytes').value);
+      const bytes = randomBytes(length);
+      $('#keyOut').textContent = bytesToHex(bytes);
+      setStatus($('#rngStatus'), `${length} bytes = ${length * 8} bits generados por una fuente criptográfica del navegador.`, 'good');
+    };
+
+    $('#model').onclick = () => {
+      const adversary = Number($('#adversary').value);
+      const impact = Number($('#impact').value);
+      const exposure = Number($('#exposure').value);
+      const lifetime = Number($('#lifetime').value);
+      const rotation = Number($('#rotation').value);
+      const score = Math.min(100, Math.round(adversary * 18 + impact * 20 + exposure * 14 + Math.min(lifetime, 20) * 1.5 - rotation * 12));
+      const priority = score >= 80 ? 'Crítica' : score >= 60 ? 'Alta' : score >= 40 ? 'Media' : 'Baja';
+      const agility = rotation === 2 ? 'Buena' : rotation === 1 ? 'Parcial' : 'Deficiente';
+
+      $('#risk').textContent = score + '/100';
+      $('#priority').textContent = priority;
+      $('#agility').textContent = agility;
+      $('#horizon').textContent = lifetime + ' años';
+
+      const recommendations = [];
+      if (exposure === 3) recommendations.push('Reducir exposición directa y aplicar autenticación fuerte, segmentación y monitoreo.');
+      if (impact === 3) recommendations.push('Usar custodia reforzada, separación de funciones y aprobación múltiple para operaciones críticas.');
+      if (rotation < 2) recommendations.push('Diseñar rotación automatizada con identificadores de versión, doble lectura y rollback.');
+      if (lifetime >= 10) recommendations.push('Inventariar dependencia de criptografía asimétrica y preparar transición poscuántica o híbrida.');
+      if (adversary === 3) recommendations.push('Incluir canales laterales, cadena de suministro, insiders y coerción en el análisis.');
+      recommendations.push('Definir métricas: uso de claves, fallos de autenticación, edad, exposición y eventos de revocación.');
+
+      $('#recommendations').innerHTML = `<b>${escapeHtml($('#asset').value)}</b><ul>${recommendations.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+      setStatus(
+        $('#modelStatus'),
+        `Evaluación generada para un adversario de nivel ${adversary}. El puntaje es comparativo, no una certificación.`,
+        priority === 'Crítica' || priority === 'Alta' ? 'warn' : 'good'
+      );
+    };
+
+    prepare(true);
+    estimate();
+    $('#genKey').click();
+    $('#model').click();
+  </script>
+</body>
+</html>
