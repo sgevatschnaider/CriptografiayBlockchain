@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Campus interactivo de criptografía y blockchain: ocho laboratorios HTML ejecutables directamente en el navegador.">
+  <meta name="theme-color" content="#071321">
+  <title>Criptografía y Blockchain | Laboratorios interactivos</title>
+  <link rel="stylesheet" href="simuladores/assets/lab.css">
+</head>
+<body>
+  <main class="shell">
+    <a class="skip-link" href="#laboratorios">Saltar a los laboratorios</a>
+
+    <header class="topbar">
+      <div class="brand"><a href="index.html">⛓️ Criptografía y Blockchain</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="simuladores/index.html">Campus interactivo</a>
+        <a href="https://github.com/sgevatschnaider/CriptografiayBlockchain" target="_blank" rel="noopener noreferrer">Código en GitHub ↗</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Aprendizaje experimental</div>
+      <h1>De los cifrados clásicos a la seguridad poscuántica</h1>
+      <p>Una ruta práctica para comprender cómo se construye, se ataca y se opera la confianza digital. Cada módulo combina explicación, simulación, métricas, interpretación y desafío.</p>
+      <div class="pill-row" style="margin-top:18px">
+        <span class="pill">8 laboratorios HTML</span>
+        <span class="pill">Sin instalación</span>
+        <span class="pill">Web Crypto</span>
+        <span class="pill">Blockchain y privacidad</span>
+        <span class="pill">Diseño accesible</span>
+      </div>
+    </section>
+
+    <section id="laboratorios" class="module-cards" aria-label="Laboratorios disponibles">
+      <a class="module-card" href="simuladores/01-criptografia-clasica.html">
+        <span class="tag">Módulo 1</span>
+        <b>Criptografía clásica y criptoanálisis</b>
+        <p>César, Vigenère, histogramas, índice de coincidencia y ataque por fuerza bruta.</p>
+      </a>
+      <a class="module-card" href="simuladores/02-fundamentos-matematicos.html">
+        <span class="tag">Módulo 2</span>
+        <b>Fundamentos matemáticos</b>
+        <p>Aritmética modular, Euclides extendido, Diffie–Hellman y entropía.</p>
+      </a>
+      <a class="module-card" href="simuladores/03-criptografia-moderna.html">
+        <span class="tag">Módulo 3</span>
+        <b>Criptografía moderna</b>
+        <p>SHA-256, efecto avalancha, PBKDF2, AES-GCM y firmas ECDSA con Web Crypto.</p>
+      </a>
+      <a class="module-card" href="simuladores/04-esteganografia.html">
+        <span class="tag">Módulo 4</span>
+        <b>Esteganografía digital</b>
+        <p>Ocultamiento LSB, extracción, capacidad, PSNR y estegoanálisis básico.</p>
+      </a>
+      <a class="module-card" href="simuladores/05-blockchain.html">
+        <span class="tag">Módulo 5</span>
+        <b>Criptografía y blockchain</b>
+        <p>Cadena de hashes, prueba de trabajo, manipulación y árboles de Merkle.</p>
+      </a>
+      <a class="module-card" href="simuladores/06-protocolos-privacidad.html">
+        <span class="tag">Módulo 6</span>
+        <b>Protocolos y privacidad</b>
+        <p>Shamir, compromisos hash e identificación de Schnorr con adversario simulado.</p>
+      </a>
+      <a class="module-card" href="simuladores/07-poscuantica-cuantica.html">
+        <span class="tag">Módulo 7</span>
+        <b>Poscuántica y cuántica</b>
+        <p>Grover, BB84, estándares NIST e inventario de migración criptográfica.</p>
+      </a>
+      <a class="module-card" href="simuladores/08-seguridad-aplicada.html">
+        <span class="tag">Módulo 8</span>
+        <b>Seguridad aplicada</b>
+        <p>Nonces, CSPRNG, secretos, modelado de amenazas y ciclo de vida de claves.</p>
+      </a>
+    </section>
+
+    <section class="grid">
+      <article class="card full">
+        <h2>Metodología de trabajo</h2>
+        <ol class="steps">
+          <li><strong>Predecir:</strong> formular qué debería ocurrir antes de ejecutar.</li>
+          <li><strong>Experimentar:</strong> modificar una variable y observar el resultado.</li>
+          <li><strong>Interpretar:</strong> relacionar la métrica con la propiedad de seguridad.</li>
+          <li><strong>Atacar:</strong> explorar el supuesto, error o límite que rompe el mecanismo.</li>
+          <li><strong>Transferir:</strong> vincular el hallazgo con un protocolo o sistema real.</li>
+        </ol>
+      </article>
+
+      <article class="card">
+        <h2>Alcance técnico</h2>
+        <p class="muted">Las primitivas modernas utilizan Web Crypto cuando corresponde. Los algoritmos históricos, parámetros pequeños y protocolos simplificados se presentan únicamente con fines educativos.</p>
+      </article>
+
+      <article class="card">
+        <h2>Material complementario</h2>
+        <div class="actions">
+          <a class="button secondary" href="https://github.com/sgevatschnaider/CriptografiayBlockchain/tree/main/docs/criptografia" target="_blank" rel="noopener noreferrer">Campus teórico ↗</a>
+          <a class="button secondary" href="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/docs/criptografia/guia-docente-simuladores.md" target="_blank" rel="noopener noreferrer">Guía docente ↗</a>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Material educativo de Criptografía y Blockchain.</strong></p>
+      <p>Los ejemplos no reemplazan bibliotecas auditadas, estándares vigentes ni una revisión profesional de seguridad.</p>
+    </footer>
+  </main>
+</body>
+</html>
