@@ -1,6 +1,13 @@
-name: Publicar simuladores en GitHub Pages
+name: Validar y publicar simuladores
 
 on:
+  pull_request:
+    paths:
+      - 'simuladores/**'
+      - 'scripts/validate-simulators.mjs'
+      - '.github/workflows/pages.yml'
+      - 'index.html'
+      - 'README.md'
   push:
     branches: [main]
   workflow_dispatch:
@@ -11,11 +18,12 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
+    name: Validar sitio estático
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,6 +38,8 @@ jobs:
         run: node scripts/validate-simulators.mjs
 
   deploy:
+    name: Publicar GitHub Pages
+    if: github.event_name != 'pull_request'
     needs: validate
     environment:
       name: github-pages
