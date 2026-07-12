@@ -1,16 +1,593 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Criptografía y blockchain</title><link rel="stylesheet" href="assets/lab.css"></head><body><main class="shell" id="app"></main><script src="assets/lab.js"></script><script>
-const {nav,footer,$,sha256,setStatus,escapeHtml}=Lab;$('#app').innerHTML=nav()+`<section class="hero"><div class="eyebrow">Módulo 5</div><h1>Criptografía y blockchain</h1><p>Construí una cadena de bloques, ejecutá una prueba de trabajo, manipulá datos y verificá cómo hashes y referencias enlazan el historial. Después calculá una raíz de Merkle.</p></section><section class="grid"><article class="card full"><h2>Cadena de bloques didáctica</h2><div class="controls"><div class="control full"><label>Datos del nuevo bloque</label><textarea id="blockData">Alice transfiere 3 unidades a Bob</textarea></div><div class="control"><label>Dificultad</label><select id="difficulty"><option value="1">1 cero</option><option value="2" selected>2 ceros</option><option value="3">3 ceros</option><option value="4">4 ceros</option></select></div><div class="control"><label>Estado</label><div class="output" id="mineProgress">Listo para minar.</div></div></div><div class="actions"><button id="addBlock">Minar y agregar</button><button class="secondary" id="validate">Validar cadena</button><button class="danger" id="tamper">Alterar bloque 1</button><button class="secondary" id="reset">Reiniciar</button></div><div id="chain" style="margin-top:16px"></div><div class="status" id="chainStatus">Cada bloque incorpora el hash del anterior.</div></article><article class="card full"><h2>Árbol de Merkle</h2><p class="muted">Cada línea se trata como una transacción. Los hashes se combinan por pares hasta obtener una raíz que compromete todo el conjunto.</p><div class="control"><label>Transacciones</label><textarea id="transactions">TX1: Alice → Bob 3
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio de blockchain con prueba de trabajo, validación, reminado, firmas ECDSA, árboles de Merkle y pruebas de inclusión.">
+  <title>Criptografía y blockchain | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="assets/lab.css">
+</head>
+<body>
+  <main class="shell" id="app"></main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar las simulaciones.</div></noscript>
+
+  <script src="assets/lab.js"></script>
+  <script>
+    const {
+      nav,
+      footer,
+      $,
+      te,
+      sha256,
+      bytesToB64,
+      setStatus,
+      escapeHtml
+    } = Lab;
+
+    $('#app').innerHTML = nav() + `
+      <section class="hero">
+        <div class="eyebrow">Módulo 5</div>
+        <h1>Criptografía y blockchain</h1>
+        <p>Construí y atacá una cadena didáctica. Separá integridad por hash, autorización por firma, ordenamiento por enlaces, costo de consenso por Proof-of-Work y compromiso de transacciones mediante árboles de Merkle.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card full">
+          <h2>Cadena de bloques con Proof-of-Work</h2>
+          <div class="controls">
+            <div class="control full"><label>Datos del nuevo bloque</label><textarea id="blockData">Alice transfiere 3 unidades a Bob</textarea></div>
+            <div class="control">
+              <label>Dificultad hexadecimal</label>
+              <select id="difficulty">
+                <option value="1">1 cero inicial</option>
+                <option value="2" selected>2 ceros iniciales</option>
+                <option value="3">3 ceros iniciales</option>
+                <option value="4">4 ceros iniciales</option>
+              </select>
+            </div>
+            <div class="control"><label>Estado de minería</label><div class="output" id="miningProgress">Listo para minar.</div></div>
+          </div>
+          <div class="actions">
+            <button id="addBlock">Minar y agregar</button>
+            <button class="danger" id="cancelMining">Cancelar minería</button>
+            <button class="secondary" id="validateChain">Validar cadena</button>
+            <button class="danger" id="tamperBlock">Alterar bloque 1</button>
+            <button class="warn" id="remineChain">Reminar desde bloque 1</button>
+            <button class="secondary" id="resetChain">Reiniciar</button>
+          </div>
+
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="blockCount">0</strong><span>bloques</span></div>
+            <div class="metric"><strong id="chainWork">0</strong><span>intentos acumulados</span></div>
+            <div class="metric"><strong id="chainState">—</strong><span>estado</span></div>
+            <div class="metric"><strong id="expectedWork">—</strong><span>trabajo esperado próximo</span></div>
+          </div>
+          <div id="chainView" style="margin-top:16px"></div>
+          <div class="status" id="chainStatus">Cada bloque compromete su cabecera y referencia el hash del anterior.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Autorización de una transacción</h2>
+          <p class="muted">La firma demuestra control de una clave privada. Esta simulación usa ECDSA P-256 porque está disponible en Web Crypto; Ethereum utiliza secp256k1 y formatos diferentes.</p>
+          <div class="controls">
+            <div class="control"><label>Destino</label><input id="txTo" value="Bob"></div>
+            <div class="control"><label>Monto</label><input id="txAmount" type="number" min="0" step="0.01" value="3"></div>
+            <div class="control"><label>Nonce de cuenta</label><input id="txNonce" type="number" min="0" value="1"></div>
+            <div class="control"><label>Dirección derivada</label><input id="walletAddress" readonly value="—"></div>
+          </div>
+          <div class="actions">
+            <button id="generateWallet">Generar cartera</button>
+            <button id="signTransaction">Firmar transacción</button>
+            <button class="secondary" id="verifyTransaction">Verificar firma</button>
+            <button class="secondary" id="addSignedTransaction">Agregar al conjunto Merkle</button>
+            <button class="danger" id="modifyTransaction">Modificar monto</button>
+          </div>
+          <div class="two-col" style="margin-top:14px">
+            <div><label>Transacción canónica</label><div class="output mono" id="canonicalTransaction"></div></div>
+            <div><label>Firma Base64</label><div class="output mono" id="transactionSignature"></div></div>
+          </div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="walletState">No</strong><span>cartera generada</span></div>
+            <div class="metric"><strong id="transactionHash">—</strong><span>hash abreviado</span></div>
+            <div class="metric"><strong id="signatureState">—</strong><span>firma</span></div>
+            <div class="metric"><strong id="signatureLength">0</strong><span>bytes de firma</span></div>
+          </div>
+          <div class="status" id="walletStatus">Una firma válida autoriza los bytes firmados; no garantiza saldo, reglas de negocio ni inclusión en consenso.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Árbol de Merkle y prueba de inclusión</h2>
+          <p class="muted">Las hojas y nodos internos se separan por dominio. Si un nivel tiene cantidad impar, el último hash se duplica. Una prueba contiene un hash hermano por nivel.</p>
+          <div class="controls">
+            <div class="control full">
+              <label>Transacciones, una por línea</label>
+              <textarea id="transactions">TX1: Alice → Bob 3
 TX2: Bob → Carol 1
 TX3: Carol → Dave 0.5
-TX4: Dave → Alice 0.2</textarea></div><div class="actions"><button id="buildMerkle">Construir árbol</button><button class="danger" id="changeTx">Modificar una transacción</button></div><div class="output mono" id="merkleOut"></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="leafCount">0</strong><span>hojas</span></div><div class="metric"><strong id="levelCount">0</strong><span>niveles</span></div><div class="metric"><strong id="rootShort">—</strong><span>raíz abreviada</span></div><div class="metric"><strong id="proofDepth">0</strong><span>profundidad de prueba</span></div></div><div class="status" id="merkleStatus">Una mínima modificación produce una raíz distinta.</div></article><article class="card"><h2>Qué aporta cada componente</h2><div class="table-wrap"><table><thead><tr><th>Componente</th><th>Función</th></tr></thead><tbody><tr><td>Hash</td><td>Identifica contenido y evidencia modificaciones.</td></tr><tr><td>Enlace previo</td><td>Ordena bloques y propaga cambios hacia adelante.</td></tr><tr><td>Proof‑of‑Work</td><td>Hace costosa la propuesta de historial.</td></tr><tr><td>Merkle tree</td><td>Permite comprometer muchas transacciones y probar inclusión.</td></tr><tr><td>Firma</td><td>Autoriza operaciones; no se simula como consenso.</td></tr></tbody></table></div></article><article class="card"><h2>Desafío</h2><ol class="steps"><li>Agregá tres bloques y validá la cadena.</li><li>Alterá el bloque 1 y explicá qué verificaciones fallan.</li><li>Compará la raíz de Merkle antes y después de cambiar una transacción.</li><li>Explicá por qué una blockchain no vuelve verdaderos los datos externos.</li></ol></article></section>`+footer();
-let chain=[];async function hashBlock(b){return sha256(`${b.index}|${b.timestamp}|${b.data}|${b.previousHash}|${b.nonce}`)}
-async function mineBlock(data,difficulty){const prev=chain.length?chain.at(-1).hash:'0'.repeat(64),b={index:chain.length,timestamp:new Date().toISOString(),data,previousHash:prev,nonce:0,hash:''},target='0'.repeat(difficulty);let start=performance.now();while(true){b.hash=await hashBlock(b);if(b.hash.startsWith(target))break;b.nonce++;if(b.nonce%250===0){$('#mineProgress').textContent=`Probando nonce ${b.nonce.toLocaleString()}…`;await new Promise(r=>setTimeout(r,0))}}$('#mineProgress').textContent=`Encontrado en ${b.nonce.toLocaleString()} intentos · ${(performance.now()-start).toFixed(0)} ms`;return b}
-function renderChain(){if(!chain.length){$('#chain').innerHTML='<div class="output">Cadena vacía.</div>';return}$('#chain').innerHTML=chain.map(b=>`<article class="output" style="margin-bottom:10px"><b>Bloque ${b.index}</b> · nonce ${b.nonce}<br><span class="muted">${escapeHtml(b.timestamp)}</span><br><b>Datos:</b> ${escapeHtml(b.data)}<br><b>Previo:</b> <span class="mono">${b.previousHash.slice(0,24)}…</span><br><b>Hash:</b> <span class="mono">${b.hash.slice(0,34)}…</span></article>`).join('')}
-async function init(){chain=[];chain.push(await mineBlock('Bloque génesis',1));renderChain();$('#mineProgress').textContent='Cadena inicializada.'}
-$('#addBlock').onclick=async()=>{const btn=$('#addBlock');btn.disabled=true;try{chain.push(await mineBlock($('#blockData').value,+$('#difficulty').value));renderChain();setStatus($('#chainStatus'),'Bloque agregado y enlazado con el hash anterior.','good')}finally{btn.disabled=false}};
-$('#validate').onclick=async()=>{let ok=true,reason='';for(let i=0;i<chain.length;i++){const expected=await hashBlock(chain[i]);if(expected!==chain[i].hash){ok=false;reason=`El hash del bloque ${i} no corresponde a su contenido.`;break}if(i>0&&chain[i].previousHash!==chain[i-1].hash){ok=false;reason=`El bloque ${i} no referencia correctamente al anterior.`;break}}setStatus($('#chainStatus'),ok?'Cadena válida: hashes y enlaces son consistentes.':`Cadena inválida: ${reason}`,ok?'good':'bad')};
-$('#tamper').onclick=()=>{if(chain.length<2){setStatus($('#chainStatus'),'Agregá al menos un bloque después del génesis.','warn');return}chain[1].data+=' [ALTERADO]';renderChain();setStatus($('#chainStatus'),'Se modificó el contenido sin recalcular hashes. Ejecutá la validación.','warn')};$('#reset').onclick=init;
-async function merkle(lines){let level=await Promise.all(lines.map(x=>sha256(x))),levels=[level];while(level.length>1){if(level.length%2)level.push(level.at(-1));const next=[];for(let i=0;i<level.length;i+=2)next.push(await sha256(level[i]+level[i+1]));level=next;levels.push(level)}return levels}
-async function buildMerkle(){const tx=$('#transactions').value.split(/\n+/).map(s=>s.trim()).filter(Boolean);if(!tx.length){setStatus($('#merkleStatus'),'Ingresá al menos una transacción.','bad');return}const levels=await merkle(tx),root=levels.at(-1)[0];$('#leafCount').textContent=tx.length;$('#levelCount').textContent=levels.length;$('#rootShort').textContent=root.slice(0,12)+'…';$('#proofDepth').textContent=Math.ceil(Math.log2(tx.length||1));$('#merkleOut').textContent=levels.map((l,i)=>`Nivel ${i}:\n${l.map(h=>'  '+h).join('\n')}`).join('\n\n');setStatus($('#merkleStatus'),`Raíz Merkle: ${root}`,'good')}
-$('#buildMerkle').onclick=buildMerkle;$('#changeTx').onclick=()=>{$('#transactions').value=$('#transactions').value.replace('3','3.01');setStatus($('#merkleStatus'),'Se modificó una transacción. Reconstruí el árbol y compará la raíz.','warn')};init();buildMerkle();
-</script></body></html>
+TX4: Dave → Alice 0.2</textarea>
+            </div>
+            <div class="control"><label>Índice a probar</label><input id="proofIndex" type="number" min="0" value="1"></div>
+          </div>
+          <div class="actions">
+            <button id="buildMerkle">Construir árbol y prueba</button>
+            <button class="secondary" id="verifyMerkleProof">Verificar prueba con línea actual</button>
+            <button class="danger" id="changeTransaction">Modificar transacción seleccionada</button>
+          </div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="leafCount">0</strong><span>hojas</span></div>
+            <div class="metric"><strong id="levelCount">0</strong><span>niveles</span></div>
+            <div class="metric"><strong id="merkleRootShort">—</strong><span>raíz abreviada</span></div>
+            <div class="metric"><strong id="proofLength">0</strong><span>hashes en prueba</span></div>
+          </div>
+          <div class="two-col" style="margin-top:14px">
+            <div><label>Niveles del árbol</label><div class="output mono" id="merkleTreeOutput"></div></div>
+            <div><label>Prueba de inclusión</label><div class="output mono" id="merkleProofOutput"></div></div>
+          </div>
+          <div class="status" id="merkleStatus">Una prueba permite verificar una hoja sin descargar todas las transacciones.</div>
+        </article>
+
+        <article class="card">
+          <h2>Qué aporta cada componente</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Componente</th><th>Función</th><th>Límite</th></tr></thead>
+              <tbody>
+                <tr><td>Hash</td><td>Compromete contenido y evidencia cambios</td><td>No prueba quién creó los datos</td></tr>
+                <tr><td>Firma</td><td>Autoriza bytes bajo una clave privada</td><td>No prueba saldo ni validez económica</td></tr>
+                <tr><td>Enlace previo</td><td>Propaga cambios hacia bloques posteriores</td><td>No impide reescribir sin una regla de consenso</td></tr>
+                <tr><td>Proof-of-Work</td><td>Introduce costo para proponer historial</td><td>No vuelve verdaderos los datos externos</td></tr>
+                <tr><td>Merkle tree</td><td>Compromete un conjunto y permite pruebas compactas</td><td>No ordena ni autoriza por sí solo</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Desafío</h2>
+          <ol class="steps">
+            <li>Agregá tres bloques con dificultades diferentes y validá la cadena.</li>
+            <li>Alterá el bloque 1, identificá todos los errores y reminá.</li>
+            <li>Firmá una transacción, cambiala y verificá la firma.</li>
+            <li>Construí una prueba Merkle, modificá la hoja y verificá el fallo.</li>
+            <li>Explicá por qué integridad, autorización y consenso son capas distintas.</li>
+          </ol>
+        </article>
+      </section>` + footer();
+
+    let chain = [];
+    let cancelRequested = false;
+    let walletKeys = null;
+    let transactionSignature = null;
+    let signedCanonicalTransaction = null;
+    let currentMerkle = null;
+
+    function canonicalBlockHeader(block) {
+      return JSON.stringify([
+        block.index,
+        block.timestamp,
+        block.data,
+        block.previousHash,
+        block.difficulty,
+        block.nonce
+      ]);
+    }
+
+    async function hashBlock(block) {
+      return sha256(canonicalBlockHeader(block));
+    }
+
+    function targetForDifficulty(difficulty) {
+      return '0'.repeat(difficulty);
+    }
+
+    async function mineBlock({ index, data, previousHash, difficulty, timestamp = new Date().toISOString() }) {
+      const block = {
+        index,
+        timestamp,
+        data,
+        previousHash,
+        difficulty,
+        nonce: 0,
+        attempts: 0,
+        elapsedMs: 0,
+        hash: ''
+      };
+      const target = targetForDifficulty(difficulty);
+      const start = performance.now();
+      cancelRequested = false;
+
+      while (!cancelRequested) {
+        block.hash = await hashBlock(block);
+        block.attempts += 1;
+        if (block.hash.startsWith(target)) {
+          block.elapsedMs = performance.now() - start;
+          return block;
+        }
+        block.nonce += 1;
+
+        if (block.nonce % 300 === 0) {
+          $('#miningProgress').textContent = `Bloque ${index}: nonce ${block.nonce.toLocaleString('es-AR')} · objetivo ${target}…`;
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+      }
+
+      throw new DOMException('Minería cancelada por el usuario.', 'AbortError');
+    }
+
+    function renderChain() {
+      $('#blockCount').textContent = chain.length;
+      $('#chainWork').textContent = chain.reduce((sum, block) => sum + (block.attempts ?? 0), 0).toLocaleString('es-AR');
+      $('#expectedWork').textContent = `≈16^${$('#difficulty').value}`;
+
+      if (!chain.length) {
+        $('#chainView').innerHTML = '<div class="output">Cadena vacía.</div>';
+        return;
+      }
+
+      $('#chainView').innerHTML = chain.map((block) => `
+        <article class="output" style="margin-bottom:12px">
+          <b>Bloque ${block.index}</b> · dificultad ${block.difficulty} · nonce ${block.nonce.toLocaleString('es-AR')}<br>
+          <span class="muted">${escapeHtml(block.timestamp)}</span><br>
+          <b>Datos:</b> ${escapeHtml(block.data)}<br>
+          <b>Previo:</b> <span class="mono">${escapeHtml(block.previousHash)}</span><br>
+          <b>Hash:</b> <span class="mono">${escapeHtml(block.hash)}</span><br>
+          <b>Trabajo observado:</b> ${(block.attempts ?? 0).toLocaleString('es-AR')} intento(s) · ${(block.elapsedMs ?? 0).toFixed(1)} ms
+        </article>`).join('');
+    }
+
+    async function initializeChain() {
+      const controls = [$('#addBlock'), $('#remineChain'), $('#resetChain')];
+      controls.forEach((button) => button.disabled = true);
+      try {
+        chain = [];
+        const genesis = await mineBlock({
+          index: 0,
+          data: 'Bloque génesis',
+          previousHash: '0'.repeat(64),
+          difficulty: 1,
+          timestamp: '2026-01-01T00:00:00.000Z'
+        });
+        chain.push(genesis);
+        $('#miningProgress').textContent = 'Cadena inicializada.';
+        $('#chainState').textContent = 'Válida';
+        renderChain();
+        setStatus($('#chainStatus'), 'Bloque génesis minado y cadena inicializada.', 'good');
+      } catch (error) {
+        setStatus($('#chainStatus'), error.message, error.name === 'AbortError' ? 'warn' : 'bad');
+      } finally {
+        controls.forEach((button) => button.disabled = false);
+      }
+    }
+
+    $('#addBlock').onclick = async () => {
+      const button = $('#addBlock');
+      button.disabled = true;
+      try {
+        const difficulty = Number($('#difficulty').value);
+        const block = await mineBlock({
+          index: chain.length,
+          data: $('#blockData').value,
+          previousHash: chain.at(-1)?.hash ?? '0'.repeat(64),
+          difficulty
+        });
+        chain.push(block);
+        $('#miningProgress').textContent = `Bloque encontrado en ${block.attempts.toLocaleString('es-AR')} intento(s) · ${block.elapsedMs.toFixed(1)} ms.`;
+        renderChain();
+        setStatus($('#chainStatus'), 'Bloque agregado con hash, enlace previo y objetivo de dificultad válidos.', 'good');
+      } catch (error) {
+        setStatus($('#chainStatus'), error.message, error.name === 'AbortError' ? 'warn' : 'bad');
+      } finally {
+        button.disabled = false;
+      }
+    };
+
+    $('#cancelMining').onclick = () => {
+      cancelRequested = true;
+      setStatus($('#chainStatus'), 'Se solicitó cancelar la minería en curso.', 'warn');
+    };
+
+    async function validateChain() {
+      const errors = [];
+      for (let index = 0; index < chain.length; index += 1) {
+        const block = chain[index];
+        const recalculated = await hashBlock(block);
+        if (block.index !== index) errors.push(`Bloque ${index}: índice almacenado ${block.index}.`);
+        if (recalculated !== block.hash) errors.push(`Bloque ${index}: el hash no corresponde a la cabecera.`);
+        if (!block.hash.startsWith(targetForDifficulty(block.difficulty))) {
+          errors.push(`Bloque ${index}: el hash no satisface dificultad ${block.difficulty}.`);
+        }
+        const expectedPrevious = index === 0 ? '0'.repeat(64) : chain[index - 1].hash;
+        if (block.previousHash !== expectedPrevious) errors.push(`Bloque ${index}: referencia previa incorrecta.`);
+      }
+
+      $('#chainState').textContent = errors.length ? 'Inválida' : 'Válida';
+      setStatus(
+        $('#chainStatus'),
+        errors.length ? `Cadena inválida:\n${errors.join('\n')}` : 'Cadena válida: índices, hashes, enlaces y objetivos de trabajo son consistentes.',
+        errors.length ? 'bad' : 'good'
+      );
+      return errors;
+    }
+
+    $('#validateChain').onclick = validateChain;
+
+    $('#tamperBlock').onclick = () => {
+      if (chain.length < 2) {
+        setStatus($('#chainStatus'), 'Agregá al menos un bloque después del génesis.', 'warn');
+        return;
+      }
+      chain[1].data += ' [ALTERADO]';
+      renderChain();
+      $('#chainState').textContent = 'No verificada';
+      setStatus($('#chainStatus'), 'El contenido cambió sin actualizar hash ni bloques posteriores. Ejecutá la validación.', 'warn');
+    };
+
+    $('#remineChain').onclick = async () => {
+      if (chain.length < 2) {
+        setStatus($('#chainStatus'), 'No hay bloques posteriores al génesis para reminear.', 'warn');
+        return;
+      }
+      const button = $('#remineChain');
+      button.disabled = true;
+      cancelRequested = false;
+
+      try {
+        for (let index = 1; index < chain.length; index += 1) {
+          const old = chain[index];
+          const remined = await mineBlock({
+            index,
+            data: old.data,
+            previousHash: chain[index - 1].hash,
+            difficulty: old.difficulty,
+            timestamp: old.timestamp
+          });
+          chain[index] = remined;
+          renderChain();
+        }
+        await validateChain();
+        setStatus($('#chainStatus'), 'Todos los bloques afectados fueron reminados. El ataque exige repetir el trabajo y superar al consenso honesto.', 'warn');
+      } catch (error) {
+        setStatus($('#chainStatus'), error.message, error.name === 'AbortError' ? 'warn' : 'bad');
+      } finally {
+        button.disabled = false;
+      }
+    };
+
+    $('#resetChain').onclick = initializeChain;
+    $('#difficulty').onchange = () => {
+      $('#expectedWork').textContent = `≈16^${$('#difficulty').value}`;
+    };
+
+    function canonicalTransaction() {
+      if (!walletKeys) throw new Error('Generá una cartera primero.');
+      const amount = Number($('#txAmount').value);
+      const nonce = Number($('#txNonce').value);
+      if (!Number.isFinite(amount) || amount <= 0) throw new Error('El monto debe ser positivo.');
+      if (!Number.isSafeInteger(nonce) || nonce < 0) throw new Error('El nonce debe ser un entero no negativo.');
+
+      return JSON.stringify({
+        v: 1,
+        curve: 'P-256-demo',
+        from: $('#walletAddress').value,
+        to: $('#txTo').value.trim(),
+        amount: amount.toFixed(2),
+        nonce
+      });
+    }
+
+    $('#generateWallet').onclick = async () => {
+      try {
+        if (!crypto?.subtle || !isSecureContext) throw new Error('Web Crypto requiere HTTPS o localhost.');
+        walletKeys = await crypto.subtle.generateKey(
+          { name: 'ECDSA', namedCurve: 'P-256' },
+          true,
+          ['sign', 'verify']
+        );
+        const publicJwk = await crypto.subtle.exportKey('jwk', walletKeys.publicKey);
+        const fingerprint = await sha256(JSON.stringify({ kty: publicJwk.kty, crv: publicJwk.crv, x: publicJwk.x, y: publicJwk.y }));
+        $('#walletAddress').value = `demo:${fingerprint.slice(0, 24)}`;
+        $('#walletState').textContent = 'Sí';
+        transactionSignature = null;
+        signedCanonicalTransaction = null;
+        $('#transactionSignature').textContent = '';
+        $('#signatureState').textContent = 'Pendiente';
+        setStatus($('#walletStatus'), 'Cartera generada. La dirección es una huella didáctica de la clave pública.', 'good');
+      } catch (error) {
+        setStatus($('#walletStatus'), error.message, 'bad');
+      }
+    };
+
+    async function refreshCanonicalTransaction() {
+      try {
+        const canonical = canonicalTransaction();
+        $('#canonicalTransaction').textContent = canonical;
+        $('#transactionHash').textContent = (await sha256(canonical)).slice(0, 16) + '…';
+        return canonical;
+      } catch (error) {
+        setStatus($('#walletStatus'), error.message, 'bad');
+        return null;
+      }
+    }
+
+    $('#signTransaction').onclick = async () => {
+      try {
+        if (!walletKeys) await $('#generateWallet').onclick();
+        const canonical = await refreshCanonicalTransaction();
+        if (!canonical) return;
+        transactionSignature = await crypto.subtle.sign(
+          { name: 'ECDSA', hash: 'SHA-256' },
+          walletKeys.privateKey,
+          te.encode(canonical)
+        );
+        signedCanonicalTransaction = canonical;
+        $('#transactionSignature').textContent = bytesToB64(transactionSignature);
+        $('#signatureLength').textContent = transactionSignature.byteLength;
+        $('#signatureState').textContent = 'Firmada';
+        setStatus($('#walletStatus'), 'Transacción firmada. Cualquier modificación posterior invalida la verificación.', 'good');
+      } catch (error) {
+        setStatus($('#walletStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#verifyTransaction').onclick = async () => {
+      try {
+        if (!walletKeys || !transactionSignature) throw new Error('Generá una cartera y firmá la transacción primero.');
+        const canonical = await refreshCanonicalTransaction();
+        if (!canonical) return;
+        const valid = await crypto.subtle.verify(
+          { name: 'ECDSA', hash: 'SHA-256' },
+          walletKeys.publicKey,
+          transactionSignature,
+          te.encode(canonical)
+        );
+        $('#signatureState').textContent = valid ? 'Válida' : 'Inválida';
+        setStatus(
+          $('#walletStatus'),
+          valid
+            ? 'Firma válida para la transacción canónica actual.'
+            : 'Firma inválida: algún campo cambió desde la firma.',
+          valid ? 'good' : 'bad'
+        );
+      } catch (error) {
+        setStatus($('#walletStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#modifyTransaction').onclick = () => {
+      $('#txAmount').value = (Number($('#txAmount').value) + 1).toFixed(2);
+      refreshCanonicalTransaction();
+      setStatus($('#walletStatus'), 'El monto fue modificado después de la firma. Verificá nuevamente.', 'warn');
+    };
+
+    $('#addSignedTransaction').onclick = async () => {
+      if (!signedCanonicalTransaction || !transactionSignature) {
+        setStatus($('#walletStatus'), 'Firmá una transacción antes de agregarla.', 'warn');
+        return;
+      }
+      const line = `${signedCanonicalTransaction}|sig=${bytesToB64(transactionSignature)}`;
+      const existing = $('#transactions').value.trim();
+      $('#transactions').value = existing ? `${existing}\n${line}` : line;
+      setStatus($('#walletStatus'), 'Transacción firmada agregada al conjunto de hojas. Reconstruí el árbol.', 'good');
+    };
+
+    async function hashLeaf(transaction) {
+      return sha256(`00|${transaction}`);
+    }
+
+    async function hashNode(left, right) {
+      return sha256(`01|${left}|${right}`);
+    }
+
+    async function buildMerkleTree(transactions) {
+      let level = await Promise.all(transactions.map(hashLeaf));
+      const levels = [[...level]];
+
+      while (level.length > 1) {
+        const padded = [...level];
+        if (padded.length % 2 === 1) padded.push(padded.at(-1));
+        const next = [];
+        for (let index = 0; index < padded.length; index += 2) {
+          next.push(await hashNode(padded[index], padded[index + 1]));
+        }
+        level = next;
+        levels.push([...level]);
+      }
+      return { levels, root: level[0] };
+    }
+
+    function merkleProof(levels, leafIndex) {
+      const proof = [];
+      let index = leafIndex;
+      for (let levelIndex = 0; levelIndex < levels.length - 1; levelIndex += 1) {
+        const level = levels[levelIndex];
+        let siblingIndex = index ^ 1;
+        if (siblingIndex >= level.length) siblingIndex = index;
+        proof.push({
+          position: siblingIndex < index ? 'left' : 'right',
+          hash: level[siblingIndex]
+        });
+        index = Math.floor(index / 2);
+      }
+      return proof;
+    }
+
+    async function verifyProof(transaction, proof, expectedRoot) {
+      let current = await hashLeaf(transaction);
+      for (const step of proof) {
+        current = step.position === 'left'
+          ? await hashNode(step.hash, current)
+          : await hashNode(current, step.hash);
+      }
+      return { valid: current === expectedRoot, calculatedRoot: current };
+    }
+
+    function transactionLines() {
+      return $('#transactions').value
+        .split(/\n+/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+    }
+
+    $('#buildMerkle').onclick = async () => {
+      try {
+        const transactions = transactionLines();
+        if (!transactions.length) throw new Error('Ingresá al menos una transacción.');
+        const index = Math.max(0, Math.min(transactions.length - 1, Number($('#proofIndex').value)));
+        $('#proofIndex').value = index;
+        const tree = await buildMerkleTree(transactions);
+        const proof = merkleProof(tree.levels, index);
+        currentMerkle = { transactions, index, proof, root: tree.root, levels: tree.levels };
+
+        $('#leafCount').textContent = transactions.length;
+        $('#levelCount').textContent = tree.levels.length;
+        $('#merkleRootShort').textContent = tree.root.slice(0, 16) + '…';
+        $('#proofLength').textContent = proof.length;
+        $('#merkleTreeOutput').textContent = tree.levels.map((level, levelIndex) => {
+          return `Nivel ${levelIndex}:\n${level.map((hash, hashIndex) => `  [${hashIndex}] ${hash}`).join('\n')}`;
+        }).join('\n\n');
+        $('#merkleProofOutput').textContent = [
+          `Índice de hoja: ${index}`,
+          `Transacción: ${transactions[index]}`,
+          `Raíz: ${tree.root}`,
+          ...proof.map((step, proofIndex) => `Paso ${proofIndex + 1}: hermano ${step.position} ${step.hash}`)
+        ].join('\n');
+        setStatus($('#merkleStatus'), `Árbol construido. La prueba contiene ${proof.length} hash(es) para ${transactions.length} hoja(s).`, 'good');
+      } catch (error) {
+        setStatus($('#merkleStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#verifyMerkleProof').onclick = async () => {
+      try {
+        if (!currentMerkle) throw new Error('Construí primero el árbol y la prueba.');
+        const currentTransactions = transactionLines();
+        const candidate = currentTransactions[currentMerkle.index];
+        if (candidate === undefined) throw new Error('La línea seleccionada ya no existe.');
+        const result = await verifyProof(candidate, currentMerkle.proof, currentMerkle.root);
+        setStatus(
+          $('#merkleStatus'),
+          result.valid
+            ? 'Prueba válida: la hoja actual conduce a la raíz almacenada.'
+            : `Prueba inválida. Raíz calculada ${result.calculatedRoot.slice(0, 16)}… no coincide con ${currentMerkle.root.slice(0, 16)}…`,
+          result.valid ? 'good' : 'bad'
+        );
+      } catch (error) {
+        setStatus($('#merkleStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#changeTransaction').onclick = () => {
+      const lines = transactionLines();
+      if (!lines.length) return;
+      const index = Math.max(0, Math.min(lines.length - 1, Number($('#proofIndex').value)));
+      lines[index] += ' [MODIFICADA]';
+      $('#transactions').value = lines.join('\n');
+      setStatus($('#merkleStatus'), `Se modificó la hoja ${index}. Verificá la prueba anterior antes de reconstruir el árbol.`, 'warn');
+    };
+
+    initializeChain();
+    $('#generateWallet').click();
+    $('#buildMerkle').click();
+  </script>
+</body>
+</html>

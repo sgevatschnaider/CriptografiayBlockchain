@@ -1,12 +1,515 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Criptografía moderna</title><link rel="stylesheet" href="assets/lab.css"></head><body><main class="shell" id="app"></main><script src="assets/lab.js"></script><script>
-const {nav,footer,$,sha256,bitDifference,bytesToB64,b64ToBytes,te,td,setStatus}=Lab;$('#app').innerHTML=nav()+`<section class="hero"><div class="eyebrow">Módulo 3</div><h1>Criptografía moderna</h1><p>Trabajá con primitivas reales disponibles en el navegador: SHA‑256, derivación de claves, cifrado autenticado AES‑GCM y firmas ECDSA. El laboratorio enfatiza objetivos de seguridad y composición correcta.</p></section><section class="grid"><article class="card full"><h2>Efecto avalancha en SHA‑256</h2><div class="two-col"><div class="control"><label>Mensaje A</label><textarea id="hashA">La criptografía protege información.</textarea></div><div class="control"><label>Mensaje B</label><textarea id="hashB">La criptografía protege informacion.</textarea></div></div><div class="actions"><button id="runHash">Comparar hashes</button></div><div class="two-col" style="margin-top:14px"><div><label>SHA‑256(A)</label><div class="output mono" id="hashAOut"></div></div><div><label>SHA‑256(B)</label><div class="output mono" id="hashBOut"></div></div></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="bitDiff">—</strong><span>bits diferentes de 256</span></div><div class="metric"><strong id="diffPct">—</strong><span>porcentaje diferente</span></div><div class="metric"><strong>256</strong><span>bits de salida</span></div><div class="metric"><strong>64</strong><span>dígitos hexadecimales</span></div></div><div class="status" id="hashStatus">Un cambio mínimo debería producir una salida sin relación visual evidente.</div></article><article class="card full"><h2>Cifrado autenticado AES‑GCM</h2><p class="muted">Se deriva una clave AES‑256 desde una contraseña mediante PBKDF2. El paquete incluye sal, vector de inicialización y criptograma. GCM protege confidencialidad e integridad.</p><div class="controls"><div class="control full"><label>Mensaje</label><textarea id="plain">Este mensaje será cifrado y autenticado.</textarea></div><div class="control"><label>Contraseña</label><input id="password" type="password" value="Clave educativa robusta 2026!"></div><div class="control"><label>Iteraciones PBKDF2</label><input id="iterations" type="number" min="1000" value="150000"></div></div><div class="actions"><button id="encrypt">Cifrar</button><button class="secondary" id="decrypt">Descifrar paquete</button><button class="danger" id="tamper">Alterar criptograma</button></div><div class="control" style="margin-top:14px"><label>Paquete JSON</label><textarea id="package" class="mono"></textarea></div><div class="output" id="decrypted"></div><div class="status" id="aesStatus">Cada cifrado genera una sal y un IV nuevos.</div></article><article class="card full"><h2>Firma digital ECDSA</h2><p class="muted">El navegador genera un par de claves P‑256. La clave privada firma; la pública verifica. Modificar el documento invalida la firma.</p><div class="control"><label>Documento</label><textarea id="document">Autorizo la operación identificada como TX-2026-001.</textarea></div><div class="actions"><button id="generateKeys">Generar par de claves</button><button id="sign">Firmar</button><button class="secondary" id="verify">Verificar</button><button class="danger" id="modifyDoc">Modificar documento</button></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="keyState">No</strong><span>par generado</span></div><div class="metric"><strong id="sigBytes">0</strong><span>bytes de firma</span></div><div class="metric"><strong id="verifyState">—</strong><span>verificación</span></div><div class="metric"><strong>P‑256</strong><span>curva didáctica</span></div></div><div class="output mono" id="signatureOut"></div><div class="status" id="signatureStatus">La firma no cifra el documento: autentica origen e integridad.</div></article><article class="card"><h2>Objetivos de seguridad</h2><div class="table-wrap"><table><thead><tr><th>Primitiva</th><th>Aporta</th><th>No aporta por sí sola</th></tr></thead><tbody><tr><td>Hash</td><td>Resumen e integridad comparativa</td><td>Secreto o identidad</td></tr><tr><td>AES‑GCM</td><td>Confidencialidad e integridad</td><td>Identidad pública del emisor</td></tr><tr><td>Firma digital</td><td>Autenticidad e integridad</td><td>Confidencialidad</td></tr><tr><td>KDF</td><td>Clave derivada y endurecimiento</td><td>Calidad de una contraseña débil</td></tr></tbody></table></div></article><article class="card"><h2>Desafío</h2><ol class="steps"><li>Cifrá dos veces el mismo mensaje y compará los paquetes.</li><li>Alterá un byte y observá el fallo de autenticación.</li><li>Firmá un documento, cambialo y verificá nuevamente.</li><li>Explicá por qué hash, cifrado y firma no son intercambiables.</li></ol></article></section>`+footer();
-async function runHash(){const a=await sha256($('#hashA').value),b=await sha256($('#hashB').value),d=bitDifference(a,b);$('#hashAOut').textContent=a;$('#hashBOut').textContent=b;$('#bitDiff').textContent=d;$('#diffPct').textContent=(d/256*100).toFixed(1)+'%';setStatus($('#hashStatus'),`Los mensajes difieren en ${Math.max($('#hashA').value.length,$('#hashB').value.length)-[...$('#hashA').value].filter((c,i)=>c===$('#hashB').value[i]).length} posiciones visibles y en ${d} bits del hash.`,'good')}
-async function derive(password,salt,iterations){const base=await crypto.subtle.importKey('raw',te.encode(password),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
-$('#encrypt').onclick=async()=>{try{const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),iterations=Math.max(1000,+$('#iterations').value),key=await derive($('#password').value,salt,iterations),cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,te.encode($('#plain').value));const pack={v:1,alg:'AES-256-GCM',kdf:'PBKDF2-SHA-256',iterations,salt:bytesToB64(salt),iv:bytesToB64(iv),ciphertext:bytesToB64(cipher)};$('#package').value=JSON.stringify(pack,null,2);$('#decrypted').textContent='';setStatus($('#aesStatus'),'Mensaje cifrado. El tag de autenticación está incluido en el criptograma.','good')}catch(e){setStatus($('#aesStatus'),e.message,'bad')}};
-$('#decrypt').onclick=async()=>{try{const p=JSON.parse($('#package').value),salt=b64ToBytes(p.salt),iv=b64ToBytes(p.iv),cipher=b64ToBytes(p.ciphertext),key=await derive($('#password').value,salt,p.iterations),plain=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,cipher);$('#decrypted').textContent=td.decode(plain);setStatus($('#aesStatus'),'Autenticación válida: el paquete no fue alterado y la contraseña es correcta.','good')}catch(e){$('#decrypted').textContent='';setStatus($('#aesStatus'),'No se pudo autenticar o descifrar. Contraseña incorrecta, paquete alterado o formato inválido.','bad')}};
-$('#tamper').onclick=()=>{try{const p=JSON.parse($('#package').value),b=b64ToBytes(p.ciphertext);b[Math.max(0,b.length-3)]^=1;p.ciphertext=bytesToB64(b);$('#package').value=JSON.stringify(p,null,2);setStatus($('#aesStatus'),'Se alteró un bit. Intentá descifrar para observar la detección.','warn')}catch(e){setStatus($('#aesStatus'),'Primero generá un paquete válido.','bad')}};
-let keys=null,signature=null;$('#generateKeys').onclick=async()=>{keys=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);signature=null;$('#keyState').textContent='Sí';$('#verifyState').textContent='—';$('#signatureOut').textContent='';setStatus($('#signatureStatus'),'Par de claves generado dentro del navegador.','good')};
-$('#sign').onclick=async()=>{if(!keys)await $('#generateKeys').onclick();signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},keys.privateKey,te.encode($('#document').value));$('#sigBytes').textContent=signature.byteLength;$('#signatureOut').textContent=bytesToB64(signature);$('#verifyState').textContent='Pendiente';setStatus($('#signatureStatus'),'Documento firmado. La firma depende exactamente de su contenido.','good')};
-$('#verify').onclick=async()=>{if(!keys||!signature){setStatus($('#signatureStatus'),'Generá claves y firma primero.','warn');return}const ok=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},keys.publicKey,signature,te.encode($('#document').value));$('#verifyState').textContent=ok?'Válida':'Inválida';setStatus($('#signatureStatus'),ok?'Firma válida: contenido y clave pública coinciden.':'Firma inválida: el contenido, la firma o la clave no coinciden.',ok?'good':'bad')};
-$('#modifyDoc').onclick=()=>{$('#document').value+=' [MODIFICADO]';setStatus($('#signatureStatus'),'Documento modificado después de la firma. Verificá nuevamente.','warn')};$('#runHash').onclick=runHash;runHash();$('#encrypt').click();
-</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio de SHA-256, PBKDF2, HKDF, AES-GCM con datos asociados y firmas ECDSA mediante Web Crypto.">
+  <title>Criptografía moderna | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="assets/lab.css">
+</head>
+<body>
+  <main class="shell" id="app"></main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar las simulaciones.</div></noscript>
+
+  <script src="assets/lab.js"></script>
+  <script>
+    const {
+      nav,
+      footer,
+      $,
+      te,
+      td,
+      sha256,
+      bitDifference,
+      bytesToHex,
+      bytesToB64,
+      b64ToBytes,
+      setStatus,
+      escapeHtml
+    } = Lab;
+
+    $('#app').innerHTML = nav() + `
+      <section class="hero">
+        <div class="eyebrow">Módulo 3</div>
+        <h1>Criptografía moderna</h1>
+        <p>Trabajá con primitivas reales del navegador: SHA-256, PBKDF2, HKDF, AES-GCM y ECDSA. El objetivo no es memorizar nombres, sino comprender propiedades, parámetros, formatos y composición segura.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card full">
+          <h2>Efecto avalancha en SHA-256</h2>
+          <div class="two-col">
+            <div class="control"><label>Mensaje A</label><textarea id="hashMessageA">La criptografía protege información.</textarea></div>
+            <div class="control"><label>Mensaje B</label><textarea id="hashMessageB">La criptografía protege informacion.</textarea></div>
+          </div>
+          <div class="actions">
+            <button id="compareHashes">Comparar hashes</button>
+            <button class="secondary" id="flipCharacter">Cambiar un carácter</button>
+          </div>
+          <div class="two-col" style="margin-top:14px">
+            <div><label>SHA-256(A)</label><div class="output mono" id="hashOutputA"></div></div>
+            <div><label>SHA-256(B)</label><div class="output mono" id="hashOutputB"></div></div>
+          </div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="hashBitDifference">—</strong><span>bits diferentes de 256</span></div>
+            <div class="metric"><strong id="hashDifferencePercent">—</strong><span>porcentaje diferente</span></div>
+            <div class="metric"><strong id="inputDifference">—</strong><span>posiciones distintas</span></div>
+            <div class="metric"><strong id="hashEquality">—</strong><span>hashes iguales</span></div>
+          </div>
+          <div class="status" id="hashStatus">Un cambio pequeño en la entrada debería producir una salida sin relación visual evidente.</div>
+        </article>
+
+        <article class="card full">
+          <h2>PBKDF2: derivación desde contraseña</h2>
+          <p class="muted">PBKDF2 no agrega entropía a una contraseña. Aumenta el costo de cada intento mediante una sal y múltiples iteraciones.</p>
+          <div class="controls">
+            <div class="control full"><label>Contraseña</label><input id="kdfPassword" type="password" value="Clave educativa robusta 2026!"></div>
+            <div class="control"><label>Iteraciones</label><input id="kdfIterations" type="number" min="10000" max="2000000" value="200000"></div>
+            <div class="control"><label>Sal hexadecimal (16 bytes)</label><input id="kdfSalt" class="mono"></div>
+          </div>
+          <div class="actions">
+            <button id="derivePbkdf2">Derivar 256 bits</button>
+            <button class="secondary" id="newKdfSalt">Nueva sal</button>
+          </div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="kdfTime">—</strong><span>tiempo local</span></div>
+            <div class="metric"><strong id="kdfBits">256</strong><span>bits derivados</span></div>
+            <div class="metric"><strong id="kdfIterationView">—</strong><span>iteraciones usadas</span></div>
+            <div class="metric"><strong id="kdfSaltBytes">16</strong><span>bytes de sal</span></div>
+          </div>
+          <div class="output mono" id="kdfOutput"></div>
+          <div class="status" id="kdfStatus">La sal no necesita ser secreta, pero debe ser única por contraseña.</div>
+        </article>
+
+        <article class="card full">
+          <h2>AES-GCM: cifrado autenticado y datos asociados</h2>
+          <p class="muted">AES-GCM protege el mensaje y autentica datos asociados (AAD) que permanecen visibles. El IV de 96 bits debe ser único para cada clave.</p>
+          <div class="controls">
+            <div class="control full"><label>Mensaje</label><textarea id="plaintext">Este mensaje será cifrado y autenticado.</textarea></div>
+            <div class="control full"><label>Datos asociados AAD</label><input id="aad" value="tipo=orden;version=1;usuario=sergio"></div>
+            <div class="control"><label>Contraseña</label><input id="aesPassword" type="password" value="Clave educativa robusta 2026!"></div>
+            <div class="control"><label>Iteraciones PBKDF2</label><input id="aesIterations" type="number" min="10000" max="2000000" value="200000"></div>
+          </div>
+          <div class="actions">
+            <button id="encryptAes">Cifrar</button>
+            <button class="secondary" id="decryptAes">Descifrar y autenticar</button>
+            <button class="danger" id="tamperCiphertext">Alterar criptograma</button>
+            <button class="danger" id="tamperAad">Alterar AAD</button>
+          </div>
+          <div class="control" style="margin-top:14px"><label>Paquete JSON interoperable</label><textarea id="aesPackage" class="mono"></textarea></div>
+          <div class="output" id="decryptedOutput"></div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="aesPlainBytes">0</strong><span>bytes de texto</span></div>
+            <div class="metric"><strong id="aesCipherBytes">0</strong><span>bytes cifrados + tag</span></div>
+            <div class="metric"><strong id="aesIvBytes">12</strong><span>bytes de IV</span></div>
+            <div class="metric"><strong id="aesState">—</strong><span>autenticación</span></div>
+          </div>
+          <div class="status" id="aesStatus">Cada cifrado genera una sal y un IV nuevos.</div>
+        </article>
+
+        <article class="card full">
+          <h2>HKDF: separación de claves por contexto</h2>
+          <p class="muted">A partir de un secreto maestro, HKDF deriva material independiente usando etiquetas de contexto. Las claves de cifrado y autenticación no deberían reutilizarse para propósitos distintos.</p>
+          <div class="controls">
+            <div class="control full"><label>Secreto maestro</label><input id="masterSecret" value="secreto compartido de una negociación"></div>
+            <div class="control"><label>Contexto 1</label><input id="hkdfInfoA" value="app:v1:encryption"></div>
+            <div class="control"><label>Contexto 2</label><input id="hkdfInfoB" value="app:v1:authentication"></div>
+          </div>
+          <div class="actions"><button id="deriveHkdf">Derivar claves</button></div>
+          <div class="two-col" style="margin-top:14px">
+            <div><label>Clave del contexto 1</label><div class="output mono" id="hkdfOutputA"></div></div>
+            <div><label>Clave del contexto 2</label><div class="output mono" id="hkdfOutputB"></div></div>
+          </div>
+          <div class="status" id="hkdfStatus">Cambiar la etiqueta de contexto debe producir material de clave independiente.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Firma digital ECDSA y huella de clave pública</h2>
+          <p class="muted">La clave privada firma; la pública verifica. La identidad no surge de la matemática por sí sola: debe vincularse la clave pública con una persona, organización o certificado.</p>
+          <div class="control"><label>Documento</label><textarea id="signedDocument">Autorizo la operación identificada como TX-2026-001.</textarea></div>
+          <div class="actions">
+            <button id="generateSigningKeys">Generar par P-256</button>
+            <button id="signDocument">Firmar</button>
+            <button class="secondary" id="verifySignature">Verificar</button>
+            <button class="danger" id="modifyDocument">Modificar documento</button>
+          </div>
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="keyState">No</strong><span>par generado</span></div>
+            <div class="metric"><strong id="signatureBytes">0</strong><span>bytes de firma</span></div>
+            <div class="metric"><strong id="verificationState">—</strong><span>verificación</span></div>
+            <div class="metric"><strong id="publicFingerprint">—</strong><span>huella abreviada</span></div>
+          </div>
+          <div class="two-col" style="margin-top:14px">
+            <div><label>Firma Base64</label><div class="output mono" id="signatureOutput"></div></div>
+            <div><label>Clave pública JWK</label><div class="output mono" id="publicKeyOutput"></div></div>
+          </div>
+          <div class="status" id="signatureStatus">La firma aporta autenticidad e integridad, no confidencialidad.</div>
+        </article>
+
+        <article class="card">
+          <h2>Objetivos de seguridad</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Primitiva</th><th>Aporta</th><th>No aporta sola</th></tr></thead>
+              <tbody>
+                <tr><td>Hash</td><td>Resumen, compromiso débil de contenido e integridad comparativa</td><td>Secreto, identidad o autenticación</td></tr>
+                <tr><td>KDF</td><td>Derivación y separación de material de clave</td><td>Entropía que la fuente no posee</td></tr>
+                <tr><td>AES-GCM</td><td>Confidencialidad, integridad y autenticación del AAD</td><td>Identidad pública del emisor</td></tr>
+                <tr><td>ECDSA</td><td>Autenticidad e integridad</td><td>Confidencialidad o vínculo de identidad</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Desafío</h2>
+          <ol class="steps">
+            <li>Cifrá dos veces el mismo mensaje y compará sal, IV y criptograma.</li>
+            <li>Alterá el AAD sin tocar el criptograma y observá la autenticación.</li>
+            <li>Derivá dos claves HKDF cambiando solo una etiqueta.</li>
+            <li>Firmá un documento, modificalo y verificá nuevamente.</li>
+            <li>Explicá por qué una clave pública válida todavía necesita una política de identidad.</li>
+          </ol>
+        </article>
+      </section>` + footer();
+
+    function assertWebCrypto() {
+      if (!globalThis.crypto?.subtle || !globalThis.isSecureContext) {
+        throw new Error('Web Crypto requiere HTTPS o localhost. Abrí este laboratorio mediante GitHub Pages.');
+      }
+    }
+
+    function randomBytes(length) {
+      const output = new Uint8Array(length);
+      crypto.getRandomValues(output);
+      return output;
+    }
+
+    function countVisibleDifferences(left, right) {
+      const maximum = Math.max(left.length, right.length);
+      let count = 0;
+      for (let index = 0; index < maximum; index += 1) {
+        if (left[index] !== right[index]) count += 1;
+      }
+      return count;
+    }
+
+    async function compareHashMessages() {
+      try {
+        assertWebCrypto();
+        const left = $('#hashMessageA').value;
+        const right = $('#hashMessageB').value;
+        const hashA = await sha256(left);
+        const hashB = await sha256(right);
+        const difference = bitDifference(hashA, hashB);
+
+        $('#hashOutputA').textContent = hashA;
+        $('#hashOutputB').textContent = hashB;
+        $('#hashBitDifference').textContent = difference;
+        $('#hashDifferencePercent').textContent = `${(100 * difference / 256).toFixed(1)}%`;
+        $('#inputDifference').textContent = countVisibleDifferences(left, right);
+        $('#hashEquality').textContent = hashA === hashB ? 'Sí' : 'No';
+        setStatus($('#hashStatus'), `Los mensajes difieren en ${countVisibleDifferences(left, right)} posición(es) visibles y sus hashes en ${difference} bits.`, 'good');
+      } catch (error) {
+        setStatus($('#hashStatus'), error.message, 'bad');
+      }
+    }
+
+    $('#compareHashes').onclick = compareHashMessages;
+    $('#flipCharacter').onclick = () => {
+      const value = $('#hashMessageA').value || 'A';
+      const last = value.at(-1);
+      $('#hashMessageB').value = value.slice(0, -1) + (last === 'A' ? 'B' : 'A');
+      compareHashMessages();
+    };
+
+    function parseHex(value, expectedLength = null) {
+      const normalized = String(value).trim();
+      if (!/^(?:[0-9a-fA-F]{2})+$/.test(normalized)) throw new Error('La sal debe ser hexadecimal válida.');
+      const bytes = new Uint8Array(normalized.length / 2);
+      for (let index = 0; index < bytes.length; index += 1) {
+        bytes[index] = Number.parseInt(normalized.slice(index * 2, index * 2 + 2), 16);
+      }
+      if (expectedLength !== null && bytes.length !== expectedLength) {
+        throw new Error(`Se esperaban ${expectedLength} bytes y se recibieron ${bytes.length}.`);
+      }
+      return bytes;
+    }
+
+    async function importPbkdf2Password(password) {
+      assertWebCrypto();
+      return crypto.subtle.importKey('raw', te.encode(password), 'PBKDF2', false, ['deriveBits', 'deriveKey']);
+    }
+
+    async function derivePbkdf2Bits(password, salt, iterations) {
+      const keyMaterial = await importPbkdf2Password(password);
+      return crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+        keyMaterial,
+        256
+      );
+    }
+
+    async function deriveAesKey(password, salt, iterations) {
+      const keyMaterial = await importPbkdf2Password(password);
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    $('#newKdfSalt').onclick = () => {
+      $('#kdfSalt').value = bytesToHex(randomBytes(16));
+    };
+
+    $('#derivePbkdf2').onclick = async () => {
+      try {
+        const salt = parseHex($('#kdfSalt').value, 16);
+        const iterations = Math.max(10000, Math.min(2000000, Number($('#kdfIterations').value)));
+        $('#kdfIterations').value = iterations;
+        const start = performance.now();
+        const bits = await derivePbkdf2Bits($('#kdfPassword').value, salt, iterations);
+        const elapsed = performance.now() - start;
+
+        $('#kdfOutput').textContent = bytesToHex(bits);
+        $('#kdfTime').textContent = `${elapsed.toFixed(1)} ms`;
+        $('#kdfIterationView').textContent = iterations.toLocaleString('es-AR');
+        setStatus($('#kdfStatus'), 'Clave derivada. El tiempo depende del dispositivo y debe calibrarse para el entorno real.', 'good');
+      } catch (error) {
+        setStatus($('#kdfStatus'), error.message, 'bad');
+      }
+    };
+
+    function validateAesPackage(value) {
+      const packet = JSON.parse(value);
+      const required = ['v', 'alg', 'kdf', 'iterations', 'salt', 'iv', 'aad', 'ciphertext'];
+      for (const field of required) {
+        if (!(field in packet)) throw new Error(`Falta el campo ${field}.`);
+      }
+      if (packet.v !== 1 || packet.alg !== 'AES-256-GCM' || packet.kdf !== 'PBKDF2-SHA-256') {
+        throw new Error('Versión o algoritmos no compatibles.');
+      }
+      if (!Number.isSafeInteger(packet.iterations) || packet.iterations < 10000 || packet.iterations > 2000000) {
+        throw new Error('Cantidad de iteraciones inválida.');
+      }
+      const salt = b64ToBytes(packet.salt);
+      const iv = b64ToBytes(packet.iv);
+      const ciphertext = b64ToBytes(packet.ciphertext);
+      if (salt.length !== 16) throw new Error('La sal debe tener 16 bytes.');
+      if (iv.length !== 12) throw new Error('El IV de este perfil debe tener 12 bytes.');
+      if (ciphertext.length < 16) throw new Error('El criptograma debe contener al menos el tag de autenticación.');
+      return { packet, salt, iv, ciphertext };
+    }
+
+    $('#encryptAes').onclick = async () => {
+      try {
+        assertWebCrypto();
+        const salt = randomBytes(16);
+        const iv = randomBytes(12);
+        const iterations = Math.max(10000, Math.min(2000000, Number($('#aesIterations').value)));
+        $('#aesIterations').value = iterations;
+        const aadBytes = te.encode($('#aad').value);
+        const plaintextBytes = te.encode($('#plaintext').value);
+        const key = await deriveAesKey($('#aesPassword').value, salt, iterations);
+        const encrypted = await crypto.subtle.encrypt(
+          { name: 'AES-GCM', iv, additionalData: aadBytes, tagLength: 128 },
+          key,
+          plaintextBytes
+        );
+
+        const packet = {
+          v: 1,
+          alg: 'AES-256-GCM',
+          kdf: 'PBKDF2-SHA-256',
+          iterations,
+          salt: bytesToB64(salt),
+          iv: bytesToB64(iv),
+          aad: bytesToB64(aadBytes),
+          ciphertext: bytesToB64(encrypted)
+        };
+
+        $('#aesPackage').value = JSON.stringify(packet, null, 2);
+        $('#decryptedOutput').textContent = '';
+        $('#aesPlainBytes').textContent = plaintextBytes.length;
+        $('#aesCipherBytes').textContent = encrypted.byteLength;
+        $('#aesState').textContent = 'Pendiente';
+        setStatus($('#aesStatus'), 'Mensaje cifrado. El tag de 128 bits está incorporado al final del criptograma.', 'good');
+      } catch (error) {
+        setStatus($('#aesStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#decryptAes').onclick = async () => {
+      try {
+        assertWebCrypto();
+        const { packet, salt, iv, ciphertext } = validateAesPackage($('#aesPackage').value);
+        const key = await deriveAesKey($('#aesPassword').value, salt, packet.iterations);
+        const plaintext = await crypto.subtle.decrypt(
+          {
+            name: 'AES-GCM',
+            iv,
+            additionalData: b64ToBytes(packet.aad),
+            tagLength: 128
+          },
+          key,
+          ciphertext
+        );
+        $('#decryptedOutput').textContent = td.decode(plaintext);
+        $('#aesState').textContent = 'Válida';
+        setStatus($('#aesStatus'), 'Autenticación válida: contraseña, AAD, IV y criptograma son coherentes.', 'good');
+      } catch (error) {
+        $('#decryptedOutput').textContent = '';
+        $('#aesState').textContent = 'Inválida';
+        setStatus($('#aesStatus'), 'No se pudo autenticar o descifrar. Algún componente o la contraseña no coincide.', 'bad');
+      }
+    };
+
+    $('#tamperCiphertext').onclick = () => {
+      try {
+        const packet = JSON.parse($('#aesPackage').value);
+        const bytes = b64ToBytes(packet.ciphertext);
+        bytes[Math.max(0, bytes.length - 3)] ^= 1;
+        packet.ciphertext = bytesToB64(bytes);
+        $('#aesPackage').value = JSON.stringify(packet, null, 2);
+        setStatus($('#aesStatus'), 'Se alteró un bit del criptograma. El descifrado debería rechazar el paquete.', 'warn');
+      } catch (error) {
+        setStatus($('#aesStatus'), 'Primero generá un paquete válido.', 'bad');
+      }
+    };
+
+    $('#tamperAad').onclick = () => {
+      try {
+        const packet = JSON.parse($('#aesPackage').value);
+        const aad = td.decode(b64ToBytes(packet.aad)) + ';alterado=1';
+        packet.aad = bytesToB64(te.encode(aad));
+        $('#aesPackage').value = JSON.stringify(packet, null, 2);
+        setStatus($('#aesStatus'), 'Se modificó el AAD. Aunque sea visible, está cubierto por la autenticación.', 'warn');
+      } catch (error) {
+        setStatus($('#aesStatus'), 'Primero generá un paquete válido.', 'bad');
+      }
+    };
+
+    async function deriveHkdf(info) {
+      assertWebCrypto();
+      const master = await crypto.subtle.importKey('raw', te.encode($('#masterSecret').value), 'HKDF', false, ['deriveBits']);
+      return crypto.subtle.deriveBits(
+        {
+          name: 'HKDF',
+          hash: 'SHA-256',
+          salt: te.encode('laboratorio-hkdf-v1'),
+          info: te.encode(info)
+        },
+        master,
+        256
+      );
+    }
+
+    $('#deriveHkdf').onclick = async () => {
+      try {
+        const infoA = $('#hkdfInfoA').value;
+        const infoB = $('#hkdfInfoB').value;
+        const [keyA, keyB] = await Promise.all([deriveHkdf(infoA), deriveHkdf(infoB)]);
+        const hexA = bytesToHex(keyA);
+        const hexB = bytesToHex(keyB);
+        $('#hkdfOutputA').textContent = hexA;
+        $('#hkdfOutputB').textContent = hexB;
+        setStatus(
+          $('#hkdfStatus'),
+          hexA === hexB
+            ? 'Las etiquetas son equivalentes y producen la misma clave. Usá contextos distintos.'
+            : 'Las etiquetas distintas produjeron claves distintas a partir del mismo secreto maestro.',
+          hexA === hexB ? 'warn' : 'good'
+        );
+      } catch (error) {
+        setStatus($('#hkdfStatus'), error.message, 'bad');
+      }
+    };
+
+    let signingKeys = null;
+    let signature = null;
+
+    async function exportPublicInformation() {
+      const jwk = await crypto.subtle.exportKey('jwk', signingKeys.publicKey);
+      const canonical = JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y });
+      const fingerprint = await sha256(canonical);
+      $('#publicKeyOutput').textContent = JSON.stringify(jwk, null, 2);
+      $('#publicFingerprint').textContent = fingerprint.slice(0, 16) + '…';
+      return fingerprint;
+    }
+
+    $('#generateSigningKeys').onclick = async () => {
+      try {
+        assertWebCrypto();
+        signingKeys = await crypto.subtle.generateKey(
+          { name: 'ECDSA', namedCurve: 'P-256' },
+          true,
+          ['sign', 'verify']
+        );
+        signature = null;
+        $('#keyState').textContent = 'Sí';
+        $('#verificationState').textContent = '—';
+        $('#signatureBytes').textContent = '0';
+        $('#signatureOutput').textContent = '';
+        await exportPublicInformation();
+        setStatus($('#signatureStatus'), 'Par generado. La clave privada permanece dentro de esta sesión del navegador.', 'good');
+      } catch (error) {
+        setStatus($('#signatureStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#signDocument').onclick = async () => {
+      try {
+        if (!signingKeys) await $('#generateSigningKeys').onclick();
+        signature = await crypto.subtle.sign(
+          { name: 'ECDSA', hash: 'SHA-256' },
+          signingKeys.privateKey,
+          te.encode($('#signedDocument').value)
+        );
+        $('#signatureBytes').textContent = signature.byteLength;
+        $('#signatureOutput').textContent = bytesToB64(signature);
+        $('#verificationState').textContent = 'Pendiente';
+        setStatus($('#signatureStatus'), 'Documento firmado. La firma queda vinculada exactamente a estos bytes.', 'good');
+      } catch (error) {
+        setStatus($('#signatureStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#verifySignature').onclick = async () => {
+      try {
+        if (!signingKeys || !signature) throw new Error('Generá el par y firmá el documento primero.');
+        const valid = await crypto.subtle.verify(
+          { name: 'ECDSA', hash: 'SHA-256' },
+          signingKeys.publicKey,
+          signature,
+          te.encode($('#signedDocument').value)
+        );
+        $('#verificationState').textContent = valid ? 'Válida' : 'Inválida';
+        setStatus(
+          $('#signatureStatus'),
+          valid
+            ? 'Firma válida: documento, firma y clave pública coinciden.'
+            : 'Firma inválida: el documento, la firma o la clave pública no coinciden.',
+          valid ? 'good' : 'bad'
+        );
+      } catch (error) {
+        setStatus($('#signatureStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#modifyDocument').onclick = () => {
+      $('#signedDocument').value += ' [MODIFICADO]';
+      setStatus($('#signatureStatus'), 'Documento modificado después de firmar. Ejecutá la verificación.', 'warn');
+    };
+
+    $('#newKdfSalt').click();
+    compareHashMessages();
+    $('#derivePbkdf2').click();
+    $('#encryptAes').click();
+    $('#deriveHkdf').click();
+    $('#generateSigningKeys').click();
+  </script>
+</body>
+</html>

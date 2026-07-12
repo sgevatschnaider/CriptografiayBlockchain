@@ -1,16 +1,515 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Criptografía clásica y criptoanálisis</title><link rel="stylesheet" href="assets/lab.css"></head><body><main class="shell" id="app"></main><script src="assets/lab.js"></script><script>
-const {nav,footer,$,setStatus,escapeHtml}=Lab;document.querySelector('#app').innerHTML=nav()+`<section class="hero"><div class="eyebrow">Módulo 1</div><h1>Criptografía clásica y criptoanálisis</h1><p>Experimentá con sustitución monoalfabética, claves repetidas y análisis estadístico. El objetivo no es proteger información real, sino comprender cómo nace la tensión entre diseño y ataque.</p></section><section class="grid"><article class="card"><h2>Cifrado César</h2><div class="controls"><div class="control full"><label>Texto</label><textarea id="caesarText">LA CRIPTOGRAFIA TRANSFORMA UN MENSAJE</textarea></div><div class="control"><label>Desplazamiento</label><input id="shift" type="number" min="0" max="25" value="3"></div><div class="control"><label>Operación</label><select id="caesarMode"><option value="enc">Cifrar</option><option value="dec">Descifrar</option></select></div></div><div class="actions"><button id="runCaesar">Ejecutar</button><button class="secondary" id="swapCaesar">Usar salida como entrada</button></div><div class="output mono" id="caesarOut"></div><div class="status" id="caesarStatus">Observá cómo una sola clave desplaza todo el alfabeto.</div></article><article class="card"><h2>Cifrado de Vigenère</h2><div class="controls"><div class="control full"><label>Texto</label><textarea id="vigText">LA SEGURIDAD DEPENDE TAMBIEN DE LA CLAVE</textarea></div><div class="control"><label>Clave alfabética</label><input id="vigKey" value="CLAVE"></div><div class="control"><label>Operación</label><select id="vigMode"><option value="enc">Cifrar</option><option value="dec">Descifrar</option></select></div></div><div class="actions"><button id="runVig">Ejecutar</button><button class="secondary" id="swapVig">Usar salida como entrada</button></div><div class="output mono" id="vigOut"></div><div class="status" id="vigStatus">La clave repetida genera varios alfabetos de sustitución.</div></article><article class="card full"><h2>Análisis de frecuencias</h2><p class="muted">Pegá un texto cifrado y compará la distribución de letras. En idiomas naturales, las frecuencias no son uniformes; esa estructura filtra información.</p><div class="control"><label>Texto para analizar</label><textarea id="freqText">HVWH HV XQ PHQVDMH GH SUXHED SDUD DQDOLVLV</textarea></div><div class="actions"><button id="analyze">Calcular frecuencias</button><button class="secondary" id="loadCaesar">Analizar salida César</button></div><div class="bars" id="bars"></div><div class="metric-grid" style="margin-top:34px"><div class="metric"><strong id="letters">0</strong><span>Letras analizadas</span></div><div class="metric"><strong id="ioc">0</strong><span>Índice de coincidencia</span></div><div class="metric"><strong id="topLetter">—</strong><span>Letra más frecuente</span></div><div class="metric"><strong id="topPct">0%</strong><span>Frecuencia máxima</span></div></div></article><article class="card full"><h2>Ataque por fuerza bruta a César</h2><p class="muted">Se prueban los 26 desplazamientos y se ordenan mediante una medida de distancia respecto de frecuencias aproximadas del español.</p><div class="control"><label>Criptograma</label><textarea id="attackText">OD FULSWRJUDILD QR HV PDJLD</textarea></div><div class="actions"><button id="attack">Probar todas las claves</button></div><div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>Posición</th><th>Clave</th><th>Puntaje</th><th>Texto candidato</th></tr></thead><tbody id="attackRows"></tbody></table></div></article><article class="card"><h2>Desafío</h2><ol class="steps"><li>Cifrá un párrafo de al menos 150 letras con César.</li><li>Compará su histograma con el texto original.</li><li>Ejecutá el ataque y justificá por qué el mejor candidato aparece arriba.</li><li>Repetí con Vigenère y explicá por qué el ataque simple deja de ser suficiente.</li></ol></article><article class="card"><h2>Lectura crítica</h2><div class="callout">La historia de la criptografía muestra una regularidad: ocultar el algoritmo no reemplaza una clave robusta, un espacio de claves suficiente ni un modelo de amenaza explícito.</div><p class="muted">El alfabeto didáctico utilizado es A–Z. Se preservan espacios y signos, pero se normalizan tildes.</p></article></section>`+footer();
-const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
-function caesar(text,k,dec=false){k=((+k%26)+26)%26;if(dec)k=26-k;return normalize(text).replace(/[A-Z]/g,c=>ABC[(ABC.indexOf(c)+k)%26])}
-function vigenere(text,key,dec=false){key=normalize(key).replace(/[^A-Z]/g,'');if(!key)return'';let j=0;return normalize(text).replace(/[A-Z]/g,c=>{const k=ABC.indexOf(key[j++%key.length]);return ABC[(ABC.indexOf(c)+(dec?-k:k)+26)%26]})}
-$('#runCaesar').onclick=()=>{const out=caesar($('#caesarText').value,$('#shift').value,$('#caesarMode').value==='dec');$('#caesarOut').textContent=out;setStatus($('#caesarStatus'),`Se aplicó un desplazamiento de ${$('#shift').value}. La longitud del mensaje no cambia.`,'good')};
-$('#swapCaesar').onclick=()=>{$('#caesarText').value=$('#caesarOut').textContent;$('#caesarMode').value=$('#caesarMode').value==='enc'?'dec':'enc'};
-$('#runVig').onclick=()=>{if(!normalize($('#vigKey').value).match(/[A-Z]/)){setStatus($('#vigStatus'),'Ingresá una clave alfabética.','bad');return}const out=vigenere($('#vigText').value,$('#vigKey').value,$('#vigMode').value==='dec');$('#vigOut').textContent=out;setStatus($('#vigStatus'),`La clave tiene ${normalize($('#vigKey').value).replace(/[^A-Z]/g,'').length} posiciones antes de repetirse.`,'good')};
-$('#swapVig').onclick=()=>{$('#vigText').value=$('#vigOut').textContent;$('#vigMode').value=$('#vigMode').value==='enc'?'dec':'enc'};
-function frequencies(text){const clean=normalize(text).replace(/[^A-Z]/g,''),f=Object.fromEntries([...ABC].map(c=>[c,0]));for(const c of clean)f[c]++;return{clean,f}}
-function renderFreq(){const {clean,f}=frequencies($('#freqText').value),n=clean.length,max=Math.max(1,...Object.values(f));$('#bars').innerHTML=[...ABC].map(c=>`<div class="bar" title="${c}: ${f[c]}" style="height:${Math.max(2,f[c]/max*100)}%"><span>${c}</span></div>`).join('');const top=[...ABC].sort((a,b)=>f[b]-f[a])[0];const ioc=n>1?Object.values(f).reduce((s,x)=>s+x*(x-1),0)/(n*(n-1)):0;$('#letters').textContent=n;$('#ioc').textContent=ioc.toFixed(4);$('#topLetter').textContent=top||'—';$('#topPct').textContent=n?`${(100*f[top]/n).toFixed(1)}%`:'0%'}
-$('#analyze').onclick=renderFreq;$('#loadCaesar').onclick=()=>{$('#freqText').value=$('#caesarOut').textContent;renderFreq()};
-const ES={A:12.53,B:1.42,C:4.68,D:5.86,E:13.68,F:.69,G:1.01,H:.70,I:6.25,J:.44,K:.02,L:4.97,M:3.15,N:6.71,O:8.68,P:2.51,Q:.88,R:6.87,S:7.98,T:4.63,U:3.93,V:.90,W:.01,X:.22,Y:.90,Z:.52};
-function score(text){const {clean,f}=frequencies(text),n=clean.length||1;return[...ABC].reduce((s,c)=>s+Math.pow(f[c]/n*100-ES[c],2)/(ES[c]||.01),0)}
-$('#attack').onclick=()=>{const rows=[...Array(26)].map((_,k)=>{const text=caesar($('#attackText').value,k,true);return{k,text,score:score(text)}}).sort((a,b)=>a.score-b.score);$('#attackRows').innerHTML=rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.k}</td><td>${r.score.toFixed(2)}</td><td class="mono">${escapeHtml(r.text)}</td></tr>`).join('')};renderFreq();$('#runCaesar').click();$('#runVig').click();
-</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo de César, cifrado afín, Vigenère, frecuencias, índice de coincidencia y análisis de Kasiski.">
+  <title>Criptografía clásica y criptoanálisis | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="assets/lab.css">
+</head>
+<body>
+  <main class="shell" id="app"></main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar las simulaciones.</div></noscript>
+
+  <script src="assets/lab.js"></script>
+  <script>
+    const { nav, footer, $, mod, gcd, egcd, setStatus, escapeHtml } = Lab;
+
+    $('#app').innerHTML = nav() + `
+      <section class="hero">
+        <div class="eyebrow">Módulo 1</div>
+        <h1>Criptografía clásica y criptoanálisis</h1>
+        <p>Explorá sustituciones monoalfabéticas, transformaciones afines, claves periódicas y ataques estadísticos. El objetivo es comprender por qué la complejidad visual de un criptograma no equivale a seguridad.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Cifrado César</h2>
+          <div class="controls">
+            <div class="control full">
+              <label>Texto</label>
+              <textarea id="caesarText">LA CRIPTOGRAFIA TRANSFORMA UN MENSAJE</textarea>
+            </div>
+            <div class="control">
+              <label>Desplazamiento k</label>
+              <input id="shift" type="number" min="0" max="25" value="3">
+            </div>
+            <div class="control">
+              <label>Operación</label>
+              <select id="caesarMode">
+                <option value="encrypt">Cifrar</option>
+                <option value="decrypt">Descifrar</option>
+              </select>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="runCaesar">Ejecutar</button>
+            <button class="secondary" id="swapCaesar">Usar salida como entrada</button>
+          </div>
+          <div class="output mono" id="caesarOut"></div>
+          <div class="status" id="caesarStatus">Cada letra se desplaza por la misma permutación del alfabeto.</div>
+        </article>
+
+        <article class="card">
+          <h2>Cifrado afín</h2>
+          <p class="muted">La transformación es E(x)=a·x+b mod 26. Solo existe descifrado cuando a es coprimo con 26.</p>
+          <div class="controls">
+            <div class="control full">
+              <label>Texto</label>
+              <textarea id="affineText">SEGURIDAD Y ESTRUCTURA ALGEBRAICA</textarea>
+            </div>
+            <div class="control">
+              <label>Multiplicador a</label>
+              <input id="affineA" type="number" value="5">
+            </div>
+            <div class="control">
+              <label>Desplazamiento b</label>
+              <input id="affineB" type="number" value="8">
+            </div>
+            <div class="control">
+              <label>Operación</label>
+              <select id="affineMode">
+                <option value="encrypt">Cifrar</option>
+                <option value="decrypt">Descifrar</option>
+              </select>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="runAffine">Ejecutar</button>
+            <button class="secondary" id="swapAffine">Usar salida como entrada</button>
+          </div>
+          <div class="output mono" id="affineOut"></div>
+          <div class="status" id="affineStatus">Los valores válidos de a forman el grupo multiplicativo módulo 26.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Cifrado de Vigenère</h2>
+          <p class="muted">Una clave periódica aplica desplazamientos diferentes según la posición. La periodicidad reduce la evidencia monoalfabética, pero puede dejar patrones repetidos.</p>
+          <div class="controls">
+            <div class="control full">
+              <label>Texto</label>
+              <textarea id="vigenereText">LA SEGURIDAD DEPENDE DEL ALGORITMO DE LA CLAVE Y DEL PROTOCOLO</textarea>
+            </div>
+            <div class="control">
+              <label>Clave alfabética</label>
+              <input id="vigenereKey" value="CLAVE">
+            </div>
+            <div class="control">
+              <label>Operación</label>
+              <select id="vigenereMode">
+                <option value="encrypt">Cifrar</option>
+                <option value="decrypt">Descifrar</option>
+              </select>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="runVigenere">Ejecutar</button>
+            <button class="secondary" id="swapVigenere">Usar salida como entrada</button>
+            <button class="secondary" id="analyzeVigenere">Enviar salida al criptoanálisis</button>
+          </div>
+          <div class="output mono" id="vigenereOut"></div>
+          <div class="status" id="vigenereStatus">La clave avanza únicamente sobre letras A–Z.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Análisis de frecuencias e índice de coincidencia</h2>
+          <p class="muted">En un texto natural las letras no aparecen uniformemente. El índice de coincidencia estima la probabilidad de seleccionar dos letras iguales y ayuda a distinguir distribuciones lingüísticas de secuencias más uniformes.</p>
+          <div class="control">
+            <label>Texto para analizar</label>
+            <textarea id="frequencyText">HVWH HV XQ PHQVDMH GH SUXHED SDUD DQDOLVLV</textarea>
+          </div>
+          <div class="actions">
+            <button id="analyzeFrequency">Calcular estadísticas</button>
+            <button class="secondary" id="loadCaesar">Cargar salida César</button>
+          </div>
+          <div class="bars" id="frequencyBars" aria-label="Histograma de frecuencias de letras"></div>
+          <div class="metric-grid" style="margin-top:36px">
+            <div class="metric"><strong id="letterCount">0</strong><span>letras analizadas</span></div>
+            <div class="metric"><strong id="coincidenceIndex">0</strong><span>índice de coincidencia</span></div>
+            <div class="metric"><strong id="topLetter">—</strong><span>letra más frecuente</span></div>
+            <div class="metric"><strong id="chiSquare">—</strong><span>χ² frente al español</span></div>
+          </div>
+          <div class="status" id="frequencyStatus">Los textos breves producen estimaciones inestables; repetí con párrafos más extensos.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Ataque estadístico a César</h2>
+          <p class="muted">Se prueban los 26 desplazamientos y se ordenan por distancia χ² respecto de frecuencias aproximadas del español. El menor puntaje indica mayor compatibilidad estadística, no una certeza semántica.</p>
+          <div class="control">
+            <label>Criptograma</label>
+            <textarea id="caesarAttackText">OD FULSWRJUDILD QR HV PDJLD VLQR PDWHPDWLFD DSOLFDGD</textarea>
+          </div>
+          <div class="actions"><button id="attackCaesar">Probar todas las claves</button></div>
+          <div class="table-wrap" style="margin-top:14px">
+            <table>
+              <thead><tr><th>Posición</th><th>Clave k</th><th>χ²</th><th>Texto candidato</th></tr></thead>
+              <tbody id="caesarAttackRows"></tbody>
+            </table>
+          </div>
+          <div class="status" id="attackStatus">La fuerza bruta es viable porque el espacio de claves de César contiene solo 26 posibilidades.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Kasiski e hipótesis de longitud de clave</h2>
+          <p class="muted">El examen de Kasiski busca secuencias repetidas y distancias entre sus apariciones. Los divisores frecuentes de esas distancias pueden sugerir el período de una clave de Vigenère.</p>
+          <div class="controls">
+            <div class="control full">
+              <label>Criptograma de Vigenère</label>
+              <textarea id="kasiskiText"></textarea>
+            </div>
+            <div class="control">
+              <label>Longitud del fragmento repetido</label>
+              <select id="ngramLength">
+                <option value="3" selected>3 letras</option>
+                <option value="4">4 letras</option>
+                <option value="5">5 letras</option>
+              </select>
+            </div>
+            <div class="control">
+              <label>Período para analizar por columnas</label>
+              <input id="periodCandidate" type="number" min="1" max="20" value="5">
+            </div>
+          </div>
+          <div class="actions">
+            <button id="runKasiski">Buscar repeticiones</button>
+            <button class="secondary" id="analyzeColumns">Calcular IC por columnas</button>
+          </div>
+          <div class="two-col" style="margin-top:14px">
+            <div>
+              <label>Repeticiones y distancias</label>
+              <div class="output mono" id="kasiskiOutput"></div>
+            </div>
+            <div>
+              <label>Hipótesis de factores</label>
+              <div class="output mono" id="factorOutput"></div>
+            </div>
+          </div>
+          <div class="output mono" id="columnOutput"></div>
+          <div class="status" id="kasiskiStatus">Kasiski necesita repeticiones suficientes y puede fallar con textos breves o claves largas.</div>
+        </article>
+
+        <article class="card">
+          <h2>Lectura crítica</h2>
+          <div class="callout">La seguridad moderna no depende de ocultar el algoritmo. Depende de un problema computacional bien definido, claves con entropía suficiente, protocolos correctos e implementaciones resistentes.</div>
+          <p class="muted">El alfabeto didáctico es A–Z. Las tildes se normalizan y los signos se preservan.</p>
+        </article>
+
+        <article class="card">
+          <h2>Desafío</h2>
+          <ol class="steps">
+            <li>Cifrá un párrafo extenso con César y recuperalo mediante χ².</li>
+            <li>Encontrá todos los multiplicadores válidos del cifrado afín módulo 26.</li>
+            <li>Cifrá un texto de al menos 300 letras con Vigenère y ejecutá Kasiski.</li>
+            <li>Explicá por qué una distribución menos visible no implica seguridad moderna.</li>
+          </ol>
+        </article>
+      </section>` + footer();
+
+    const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const SPANISH_FREQUENCIES = {
+      A: 12.53, B: 1.42, C: 4.68, D: 5.86, E: 13.68, F: 0.69, G: 1.01,
+      H: 0.70, I: 6.25, J: 0.44, K: 0.02, L: 4.97, M: 3.15, N: 6.71,
+      O: 8.68, P: 2.51, Q: 0.88, R: 6.87, S: 7.98, T: 4.63, U: 3.93,
+      V: 0.90, W: 0.01, X: 0.22, Y: 0.90, Z: 0.52
+    };
+
+    function normalizeText(value) {
+      return String(value)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase();
+    }
+
+    function lettersOnly(value) {
+      return normalizeText(value).replace(/[^A-Z]/g, '');
+    }
+
+    function caesar(value, key, decrypt = false) {
+      const normalizedKey = mod(Number(key), 26);
+      const effectiveKey = decrypt ? mod(-normalizedKey, 26) : normalizedKey;
+      return normalizeText(value).replace(/[A-Z]/g, (letter) => {
+        return ALPHABET[mod(ALPHABET.indexOf(letter) + effectiveKey, 26)];
+      });
+    }
+
+    function modularInverse(value, modulus) {
+      const result = egcd(mod(value, modulus), modulus);
+      return result.g === 1 ? mod(result.x, modulus) : null;
+    }
+
+    function affine(value, multiplier, displacement, decrypt = false) {
+      const a = mod(Number(multiplier), 26);
+      const b = mod(Number(displacement), 26);
+      const inverse = modularInverse(a, 26);
+      if (inverse === null) throw new Error(`a=${a} no tiene inverso módulo 26.`);
+
+      return normalizeText(value).replace(/[A-Z]/g, (letter) => {
+        const x = ALPHABET.indexOf(letter);
+        const transformed = decrypt
+          ? mod(inverse * (x - b), 26)
+          : mod(a * x + b, 26);
+        return ALPHABET[transformed];
+      });
+    }
+
+    function vigenere(value, key, decrypt = false) {
+      const cleanKey = lettersOnly(key);
+      if (!cleanKey) throw new Error('La clave debe contener al menos una letra.');
+      let keyIndex = 0;
+
+      return normalizeText(value).replace(/[A-Z]/g, (letter) => {
+        const shift = ALPHABET.indexOf(cleanKey[keyIndex % cleanKey.length]);
+        keyIndex += 1;
+        return ALPHABET[mod(ALPHABET.indexOf(letter) + (decrypt ? -shift : shift), 26)];
+      });
+    }
+
+    function countFrequencies(value) {
+      const clean = lettersOnly(value);
+      const counts = Object.fromEntries([...ALPHABET].map((letter) => [letter, 0]));
+      for (const letter of clean) counts[letter] += 1;
+      return { clean, counts };
+    }
+
+    function indexOfCoincidence(value) {
+      const { clean, counts } = countFrequencies(value);
+      const length = clean.length;
+      if (length < 2) return 0;
+      return Object.values(counts).reduce((sum, count) => sum + count * (count - 1), 0) /
+        (length * (length - 1));
+    }
+
+    function chiSquareScore(value) {
+      const { clean, counts } = countFrequencies(value);
+      const length = clean.length;
+      if (!length) return Number.POSITIVE_INFINITY;
+
+      return [...ALPHABET].reduce((sum, letter) => {
+        const expected = length * SPANISH_FREQUENCIES[letter] / 100;
+        const observed = counts[letter];
+        return sum + ((observed - expected) ** 2) / Math.max(expected, 0.0001);
+      }, 0);
+    }
+
+    $('#runCaesar').onclick = () => {
+      const key = mod(Number($('#shift').value), 26);
+      $('#shift').value = key;
+      const output = caesar($('#caesarText').value, key, $('#caesarMode').value === 'decrypt');
+      $('#caesarOut').textContent = output;
+      setStatus($('#caesarStatus'), `Se aplicó k=${key}. El espacio de claves contiene 26 transformaciones.`, 'good');
+    };
+
+    $('#swapCaesar').onclick = () => {
+      $('#caesarText').value = $('#caesarOut').textContent;
+      $('#caesarMode').value = $('#caesarMode').value === 'encrypt' ? 'decrypt' : 'encrypt';
+      $('#runCaesar').click();
+    };
+
+    $('#runAffine').onclick = () => {
+      try {
+        const a = mod(Number($('#affineA').value), 26);
+        const b = mod(Number($('#affineB').value), 26);
+        $('#affineA').value = a;
+        $('#affineB').value = b;
+        $('#affineOut').textContent = affine(
+          $('#affineText').value,
+          a,
+          b,
+          $('#affineMode').value === 'decrypt'
+        );
+        setStatus($('#affineStatus'), `mcd(${a},26)=${gcd(a, 26)}. La clave es algebraicamente invertible.`, 'good');
+      } catch (error) {
+        $('#affineOut').textContent = '';
+        setStatus($('#affineStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#swapAffine').onclick = () => {
+      $('#affineText').value = $('#affineOut').textContent;
+      $('#affineMode').value = $('#affineMode').value === 'encrypt' ? 'decrypt' : 'encrypt';
+      $('#runAffine').click();
+    };
+
+    $('#runVigenere').onclick = () => {
+      try {
+        const key = lettersOnly($('#vigenereKey').value);
+        const output = vigenere(
+          $('#vigenereText').value,
+          key,
+          $('#vigenereMode').value === 'decrypt'
+        );
+        $('#vigenereOut').textContent = output;
+        setStatus($('#vigenereStatus'), `Período de la clave: ${key.length}. Se aplicaron ${key.length} desplazamientos cíclicos.`, 'good');
+      } catch (error) {
+        $('#vigenereOut').textContent = '';
+        setStatus($('#vigenereStatus'), error.message, 'bad');
+      }
+    };
+
+    $('#swapVigenere').onclick = () => {
+      $('#vigenereText').value = $('#vigenereOut').textContent;
+      $('#vigenereMode').value = $('#vigenereMode').value === 'encrypt' ? 'decrypt' : 'encrypt';
+      $('#runVigenere').click();
+    };
+
+    $('#analyzeVigenere').onclick = () => {
+      $('#kasiskiText').value = $('#vigenereOut').textContent;
+      $('#frequencyText').value = $('#vigenereOut').textContent;
+      renderFrequencyAnalysis();
+      runKasiski();
+      $('#kasiskiText').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    function renderFrequencyAnalysis() {
+      const { clean, counts } = countFrequencies($('#frequencyText').value);
+      const length = clean.length;
+      const maximum = Math.max(1, ...Object.values(counts));
+      const top = [...ALPHABET].sort((left, right) => counts[right] - counts[left])[0];
+      const ic = indexOfCoincidence(clean);
+      const chi = chiSquareScore(clean);
+
+      $('#frequencyBars').innerHTML = [...ALPHABET].map((letter) => {
+        const percentage = length ? 100 * counts[letter] / length : 0;
+        return `<div class="bar" title="${letter}: ${counts[letter]} (${percentage.toFixed(2)}%)" style="height:${Math.max(2, counts[letter] / maximum * 100)}%"><span>${letter}</span></div>`;
+      }).join('');
+
+      $('#letterCount').textContent = length;
+      $('#coincidenceIndex').textContent = ic.toFixed(4);
+      $('#topLetter').textContent = length ? `${top} (${(100 * counts[top] / length).toFixed(1)}%)` : '—';
+      $('#chiSquare').textContent = Number.isFinite(chi) ? chi.toFixed(2) : '—';
+
+      const interpretation = length < 80
+        ? 'La muestra es corta: las métricas pueden variar mucho.'
+        : ic > 0.065
+          ? 'El IC se aproxima al de un texto monoalfabético en lengua natural.'
+          : ic > 0.045
+            ? 'El IC es intermedio: podría existir una clave periódica o una mezcla de distribuciones.'
+            : 'El IC es relativamente bajo: la distribución se aproxima más a una secuencia uniforme.';
+      setStatus($('#frequencyStatus'), interpretation, length < 80 ? 'warn' : 'good');
+    }
+
+    $('#analyzeFrequency').onclick = renderFrequencyAnalysis;
+    $('#loadCaesar').onclick = () => {
+      $('#frequencyText').value = $('#caesarOut').textContent;
+      renderFrequencyAnalysis();
+    };
+
+    $('#attackCaesar').onclick = () => {
+      const ciphertext = $('#caesarAttackText').value;
+      const candidates = Array.from({ length: 26 }, (_, key) => {
+        const plaintext = caesar(ciphertext, key, true);
+        return { key, plaintext, score: chiSquareScore(plaintext) };
+      }).sort((left, right) => left.score - right.score);
+
+      $('#caesarAttackRows').innerHTML = candidates.map((candidate, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${candidate.key}</td>
+          <td>${candidate.score.toFixed(2)}</td>
+          <td class="mono">${escapeHtml(candidate.plaintext)}</td>
+        </tr>`).join('');
+
+      const best = candidates[0];
+      setStatus($('#attackStatus'), `Mejor hipótesis estadística: k=${best.key}, χ²=${best.score.toFixed(2)}. Debe confirmarse semánticamente.`, 'good');
+    };
+
+    function factorCandidates(distance) {
+      const factors = [];
+      for (let factor = 2; factor <= 20; factor += 1) {
+        if (distance % factor === 0) factors.push(factor);
+      }
+      return factors;
+    }
+
+    function kasiskiAnalysis(value, ngramLength) {
+      const clean = lettersOnly(value);
+      const positions = new Map();
+
+      for (let index = 0; index <= clean.length - ngramLength; index += 1) {
+        const ngram = clean.slice(index, index + ngramLength);
+        if (!positions.has(ngram)) positions.set(ngram, []);
+        positions.get(ngram).push(index);
+      }
+
+      const repeats = [];
+      const factorCounts = new Map();
+
+      for (const [ngram, indexes] of positions.entries()) {
+        if (indexes.length < 2) continue;
+        const distances = [];
+        for (let index = 1; index < indexes.length; index += 1) {
+          const distance = indexes[index] - indexes[index - 1];
+          distances.push(distance);
+          for (const factor of factorCandidates(distance)) {
+            factorCounts.set(factor, (factorCounts.get(factor) ?? 0) + 1);
+          }
+        }
+        repeats.push({ ngram, indexes, distances });
+      }
+
+      repeats.sort((left, right) => right.indexes.length - left.indexes.length || left.ngram.localeCompare(right.ngram));
+      const rankedFactors = [...factorCounts.entries()].sort((left, right) => right[1] - left[1] || left[0] - right[0]);
+      return { clean, repeats, rankedFactors };
+    }
+
+    function runKasiski() {
+      const length = Number($('#ngramLength').value);
+      const result = kasiskiAnalysis($('#kasiskiText').value, length);
+
+      $('#kasiskiOutput').textContent = result.repeats.length
+        ? result.repeats.slice(0, 30).map((repeat) => {
+            return `${repeat.ngram}: posiciones ${repeat.indexes.join(', ')} · distancias ${repeat.distances.join(', ')}`;
+          }).join('\n')
+        : 'No se encontraron fragmentos repetidos con esta longitud.';
+
+      $('#factorOutput').textContent = result.rankedFactors.length
+        ? result.rankedFactors.slice(0, 12).map(([factor, count], index) => `${index + 1}. período ${factor}: ${count} coincidencia(s)`).join('\n')
+        : 'No hay factores suficientes para proponer un período.';
+
+      setStatus(
+        $('#kasiskiStatus'),
+        result.repeats.length
+          ? `Se detectaron ${result.repeats.length} fragmentos repetidos. Los factores son hipótesis, no una demostración.`
+          : 'No se detectaron repeticiones. Probá un texto más largo, otra longitud de n-grama o una clave más corta.',
+        result.repeats.length ? 'good' : 'warn'
+      );
+    }
+
+    $('#runKasiski').onclick = runKasiski;
+
+    $('#analyzeColumns').onclick = () => {
+      const clean = lettersOnly($('#kasiskiText').value);
+      const period = Math.max(1, Math.min(20, Number($('#periodCandidate').value)));
+      $('#periodCandidate').value = period;
+
+      if (!clean.length) {
+        $('#columnOutput').textContent = '';
+        setStatus($('#kasiskiStatus'), 'Ingresá un criptograma para analizar.', 'bad');
+        return;
+      }
+
+      const rows = [];
+      let sum = 0;
+      for (let column = 0; column < period; column += 1) {
+        let sequence = '';
+        for (let index = column; index < clean.length; index += period) sequence += clean[index];
+        const ic = indexOfCoincidence(sequence);
+        sum += ic;
+        rows.push(`Columna ${column + 1}: n=${sequence.length}, IC=${ic.toFixed(4)}, muestra=${sequence.slice(0, 36)}`);
+      }
+      const average = sum / period;
+      $('#columnOutput').textContent = `Período supuesto: ${period}\nIC medio: ${average.toFixed(4)}\n\n${rows.join('\n')}`;
+      setStatus($('#kasiskiStatus'), `Para el período ${period}, el IC medio de las columnas es ${average.toFixed(4)}. Un valor próximo al idioma natural refuerza la hipótesis.`, 'good');
+    };
+
+    $('#runCaesar').click();
+    $('#runAffine').click();
+    $('#runVigenere').click();
+    $('#frequencyText').value = $('#caesarOut').textContent;
+    $('#kasiskiText').value = $('#vigenereOut').textContent;
+    renderFrequencyAnalysis();
+    $('#attackCaesar').click();
+    runKasiski();
+  </script>
+</body>
+</html>
