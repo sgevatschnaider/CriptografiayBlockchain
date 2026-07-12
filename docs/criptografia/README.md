@@ -20,6 +20,24 @@ Este campus complementa —sin reemplazar— los contenidos existentes del repos
   <a href="./08-seguridad-aplicada.md"><img src="https://img.shields.io/badge/08-Seguridad_aplicada-DC2626?style=for-the-badge" alt="Seguridad aplicada"></a>
 </p>
 
+## 🔬 Laboratorios interactivos
+
+<p align="center">
+  <a href="../../simuladores/index.html"><img src="https://img.shields.io/badge/Abrir-Laboratorios_interactivos-0EA5E9?style=for-the-badge&logo=html5&logoColor=white" alt="Laboratorios interactivos"></a>
+  <a href="./guia-docente-simuladores.md"><img src="https://img.shields.io/badge/Abrir-Guía_docente-7C3AED?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Guía docente"></a>
+</p>
+
+| Módulo | Simulación | Pregunta experimental |
+|---|---|---|
+| 1 | [César, Vigenère y frecuencias](../../simuladores/01-criptografia-clasica.html) | ¿Por qué un texto ilegible puede seguir siendo fácil de atacar? |
+| 2 | [Aritmética modular y Diffie–Hellman](../../simuladores/02-fundamentos-matematicos.html) | ¿Qué propiedades matemáticas hacen reversible una operación para quien posee la clave? |
+| 3 | [SHA-256, AES-GCM y ECDSA](../../simuladores/03-criptografia-moderna.html) | ¿Qué objetivo de seguridad aporta cada primitiva? |
+| 4 | [Ocultamiento LSB](../../simuladores/04-esteganografia.html) | ¿Ocultar la existencia equivale a proteger el contenido? |
+| 5 | [Blockchain y Merkle trees](../../simuladores/05-blockchain.html) | ¿Qué detecta el encadenamiento y qué no garantiza? |
+| 6 | [Shamir, commitments y Schnorr](../../simuladores/06-protocolos-privacidad.html) | ¿Cómo distribuir confianza o demostrar conocimiento sin revelar? |
+| 7 | [Grover, BB84 y migración](../../simuladores/07-poscuantica-cuantica.html) | ¿Qué debe migrarse y con qué prioridad? |
+| 8 | [Nonces, amenazas y claves](../../simuladores/08-seguridad-aplicada.html) | ¿Por qué fallan sistemas con algoritmos correctos? |
+
 ## Mapa de aprendizaje
 
 | Etapa | Pregunta rectora | Contenidos centrales | Resultado esperado |
@@ -50,6 +68,8 @@ Cada módulo puede trabajarse en cuatro capas:
 - **Implementación:** bibliotecas, formatos y protocolos.
 - **Análisis crítico:** ataques, límites, errores frecuentes y decisiones de diseño.
 
+Los simuladores agregan una quinta capa: **experimentación**, mediante la secuencia predecir, ejecutar, interpretar, atacar y transferir.
+
 ## Referencias normativas y técnicas
 
 - NIST Computer Security Resource Center: estándares FIPS y publicaciones especiales.
@@ -59,4 +79,4 @@ Cada módulo puede trabajarse en cuatro capas:
 
 ---
 
-[⬅️ Volver al README principal](../../README.md)
+[⬅️ Volver al README principal](../../README.md) · [🔬 Abrir simuladores](../../simuladores/index.html)
