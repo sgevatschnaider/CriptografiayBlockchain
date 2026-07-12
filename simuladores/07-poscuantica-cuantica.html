@@ -1,7 +1,357 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Criptografía poscuántica y cuántica</title><link rel="stylesheet" href="assets/lab.css"></head><body><main class="shell" id="app"></main><script src="assets/lab.js"></script><script>
-const {nav,footer,$,randomInt,setStatus}=Lab;$('#app').innerHTML=nav()+`<section class="hero"><div class="eyebrow">Módulo 7</div><h1>Criptografía poscuántica y cuántica</h1><p>Separá tres ideas que suelen confundirse: ataques cuánticos contra criptografía actual, algoritmos poscuánticos ejecutados en computadoras clásicas y protocolos cuánticos como BB84.</p></section><section class="grid"><article class="card"><h2>Complejidad de búsqueda</h2><div class="control"><label>Bits de una clave simétrica: <span id="bitsLabel">128</span></label><input id="bits" type="range" min="32" max="256" step="8" value="128"></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="classExp">2¹²⁸</strong><span>búsqueda clásica</span></div><div class="metric"><strong id="groverExp">2⁶⁴</strong><span>Grover idealizado</span></div><div class="metric"><strong id="classBits">128</strong><span>bits clásicos</span></div><div class="metric"><strong id="quantumBits">64</strong><span>seguridad idealizada</span></div></div><div class="status" id="complexStatus">Grover ofrece una mejora cuadrática idealizada, no una ruptura instantánea.</div></article><article class="card"><h2>Impacto conceptual</h2><div class="table-wrap"><table><thead><tr><th>Familia</th><th>Computación cuántica relevante</th></tr></thead><tbody><tr><td>RSA / DH / ECC</td><td>Shor amenaza los problemas de factorización y logaritmo discreto.</td></tr><tr><td>AES / hashes</td><td>Grover reduce idealmente el exponente de búsqueda.</td></tr><tr><td>ML‑KEM / ML‑DSA</td><td>Diseñados frente a ataques clásicos y cuánticos conocidos.</td></tr><tr><td>QKD</td><td>Usa estados cuánticos para distribuir material de clave.</td></tr></tbody></table></div></article><article class="card full"><h2>Simulador BB84</h2><p class="muted">Alice prepara bits en bases recta (+) o diagonal (×). Bob mide con bases aleatorias. Al comparar bases conservan únicamente las posiciones compatibles. Eve, si está activa, introduce perturbaciones medibles.</p><div class="controls"><div class="control"><label>Número de fotones</label><select id="photons"><option>16</option><option selected>32</option><option>64</option><option>128</option></select></div><div class="control"><label>Atacante</label><select id="eve"><option value="0">Sin Eve</option><option value="1">Eve intercepta y reenvía</option></select></div></div><div class="actions"><button id="runBB84">Ejecutar BB84</button></div><div class="metric-grid" style="margin-top:14px"><div class="metric"><strong id="sifted">0</strong><span>bits conservados</span></div><div class="metric"><strong id="qber">0%</strong><span>QBER observado</span></div><div class="metric"><strong id="eveState">No</strong><span>intercepción</span></div><div class="metric"><strong id="decision">—</strong><span>decisión</span></div></div><div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>i</th><th>A bit</th><th>A base</th><th>E base</th><th>B base</th><th>B bit</th><th>Conservar</th></tr></thead><tbody id="bb84Rows"></tbody></table></div><div class="status" id="bb84Status">Una muestra finita produce variación; repetí el experimento.</div></article><article class="card full"><h2>Estándares poscuánticos de referencia</h2><div class="module-cards"><a class="module-card" href="https://csrc.nist.gov/pubs/fips/203/final" target="_blank" rel="noreferrer"><span class="tag">FIPS 203</span><b>ML‑KEM</b><p>Mecanismo de encapsulación de claves basado en retículas. Establece un secreto compartido para cifrado simétrico.</p></a><a class="module-card" href="https://csrc.nist.gov/pubs/fips/204/final" target="_blank" rel="noreferrer"><span class="tag">FIPS 204</span><b>ML‑DSA</b><p>Firma digital basada en retículas para autenticidad e integridad.</p></a><a class="module-card" href="https://csrc.nist.gov/pubs/fips/205/final" target="_blank" rel="noreferrer"><span class="tag">FIPS 205</span><b>SLH‑DSA</b><p>Firma sin estado basada en hashes, con una base matemática diferente.</p></a><div class="module-card"><span class="tag">Estrategia</span><b>Despliegue híbrido</b><p>Combina mecanismos clásicos y poscuánticos durante la transición, con formatos versionados y agilidad criptográfica.</p></div></div><div class="callout" style="margin-top:16px">Este laboratorio no implementa ML‑KEM, ML‑DSA ni SLH‑DSA. Una visualización educativa no debe confundirse con una biblioteca criptográfica validada.</div></article><article class="card full"><h2>Inventario y prioridad de migración</h2><p class="muted">La migración comienza identificando dónde viven los algoritmos, cuánto tiempo deben permanecer secretos los datos y qué tan difícil es reemplazar el componente.</p><div class="table-wrap"><table><thead><tr><th>Sistema</th><th>Algoritmo actual</th><th>Vida del dato</th><th>Exposición</th><th>Dificultad</th><th>Prioridad</th></tr></thead><tbody id="inventory"></tbody></table></div><div class="actions"><button id="recalc">Recalcular prioridades</button></div><div class="status" id="inventoryStatus">“Recolectar ahora, descifrar después” vuelve urgente proteger datos de larga vida.</div></article><article class="card"><h2>Ruta de transición</h2><ol class="steps"><li>Inventariar algoritmos, certificados, bibliotecas y dependencias.</li><li>Clasificar información por vida útil y exposición.</li><li>Introducir agilidad criptográfica y formatos versionados.</li><li>Probar interoperabilidad, rendimiento y rollback.</li><li>Migrar por riesgo y mantener monitoreo de estándares y erratas.</li></ol></article><article class="card"><h2>Desafío</h2><ol class="steps"><li>Compará 128 y 256 bits frente a Grover.</li><li>Ejecutá BB84 veinte veces con y sin Eve.</li><li>Explicá por qué QKD no reemplaza firmas ni autenticación.</li><li>Priorizá un sistema que deba guardar secretos por veinte años.</li></ol></article></section>`+footer();
-function superscript(n){const m={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};return String(n).split('').map(c=>m[c]||c).join('')}function updateBits(){const n=+$('#bits').value,q=Math.ceil(n/2);$('#bitsLabel').textContent=n;$('#classExp').textContent='2'+superscript(n);$('#groverExp').textContent='2'+superscript(q);$('#classBits').textContent=n;$('#quantumBits').textContent=q;setStatus($('#complexStatus'),n>=256?'Una clave de 256 bits conserva aproximadamente 128 bits frente a Grover idealizado.':'La estimación ignora costos físicos, paralelización y estructura del sistema.','good')}$('#bits').oninput=updateBits;
-function rndBit(){return randomInt(0,1)}function runBB84(){const n=+$('#photons').value,eve=$('#eve').value==='1',rows=[];let kept=0,errors=0;for(let i=0;i<n;i++){const abit=rndBit(),abase=rndBit();let transmitted=abit,ebase='—';if(eve){const eb=rndBit();ebase=eb?'×':'+';transmitted=eb===abase?abit:rndBit()}const bbase=rndBit(),bbit=bbase===(eve?null:abase)?abit:(eve?(bbase===(ebase==='×'?1:0)?transmitted:rndBit()):(bbase===abase?abit:rndBit()));const keep=abase===bbase;if(keep){kept++;if(bbit!==abit)errors++}rows.push({i:i+1,abit,abase:abase?'×':'+',ebase,bbase:bbase?'×':'+',bbit,keep})}const qber=kept?errors/kept:0;$('#sifted').textContent=kept;$('#qber').textContent=(qber*100).toFixed(1)+'%';$('#eveState').textContent=eve?'Sí':'No';const decision=qber>.11?'Abortar':'Continuar';$('#decision').textContent=decision;$('#bb84Rows').innerHTML=rows.slice(0,32).map(r=>`<tr><td>${r.i}</td><td>${r.abit}</td><td>${r.abase}</td><td>${r.ebase}</td><td>${r.bbase}</td><td>${r.bbit}</td><td>${r.keep?'✓':'—'}</td></tr>`).join('');setStatus($('#bb84Status'),`Se conservaron ${kept}/${n} posiciones y se observaron ${errors} errores. ${decision==='Abortar'?'El QBER es alto en esta muestra.':'El QBER no supera el umbral didáctico.'}`,decision==='Abortar'?'bad':'good')}
-$('#runBB84').onclick=runBB84;
-const systems=[{name:'Portal web',alg:'ECDHE + RSA',life:2,exposure:3,difficulty:1},{name:'Archivo legal',alg:'RSA-OAEP',life:20,exposure:2,difficulty:2},{name:'Firmware IoT',alg:'ECDSA',life:12,exposure:3,difficulty:3},{name:'VPN corporativa',alg:'ECDH',life:5,exposure:3,difficulty:2},{name:'Backup histórico',alg:'AES-256 + RSA',life:25,exposure:1,difficulty:2}];function renderInventory(){const score=s=>Math.min(100,Math.round(s.life*2+s.exposure*15+s.difficulty*10));$('#inventory').innerHTML=systems.sort((a,b)=>score(b)-score(a)).map(s=>{const v=score(s),level=v>=75?'Crítica':v>=55?'Alta':v>=35?'Media':'Baja';return`<tr><td>${s.name}</td><td>${s.alg}</td><td><input data-k="life" data-name="${s.name}" type="number" min="0" max="50" value="${s.life}" style="width:80px"></td><td><select data-k="exposure" data-name="${s.name}"><option value="1" ${s.exposure===1?'selected':''}>Baja</option><option value="2" ${s.exposure===2?'selected':''}>Media</option><option value="3" ${s.exposure===3?'selected':''}>Alta</option></select></td><td><select data-k="difficulty" data-name="${s.name}"><option value="1" ${s.difficulty===1?'selected':''}>Baja</option><option value="2" ${s.difficulty===2?'selected':''}>Media</option><option value="3" ${s.difficulty===3?'selected':''}>Alta</option></select></td><td><b>${level}</b> (${v})</td></tr>`}).join('');$$('#inventory input,#inventory select').forEach(el=>el.onchange=()=>{const s=systems.find(x=>x.name===el.dataset.name);s[el.dataset.k]=+el.value})}$('#recalc').onclick=()=>{renderInventory();setStatus($('#inventoryStatus'),'Prioridades recalculadas según vida del dato, exposición y dificultad de cambio.','good')};updateBits();runBB84();renderInventory();
-</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio de Grover, BB84, estándares poscuánticos NIST e inventario de migración criptográfica.">
+  <title>Criptografía poscuántica y cuántica | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="assets/lab.css">
+</head>
+<body>
+  <main class="shell" id="app"></main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar las simulaciones.</div></noscript>
+
+  <script src="assets/lab.js"></script>
+  <script>
+    const { nav, footer, $, $$, randomInt, setStatus } = Lab;
+
+    $('#app').innerHTML = nav() + `
+      <section class="hero">
+        <div class="eyebrow">Módulo 7</div>
+        <h1>Criptografía poscuántica y cuántica</h1>
+        <p>Separá tres conceptos que suelen confundirse: ataques cuánticos contra criptografía actual, algoritmos poscuánticos ejecutados en computadoras clásicas y protocolos cuánticos como BB84.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Complejidad de búsqueda</h2>
+          <div class="control">
+            <label>Bits de una clave simétrica: <span id="bitsLabel">128</span></label>
+            <input id="bits" type="range" min="32" max="256" step="8" value="128">
+          </div>
+
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="classExp">2¹²⁸</strong><span>búsqueda clásica ideal</span></div>
+            <div class="metric"><strong id="groverExp">2⁶⁴</strong><span>Grover idealizado</span></div>
+            <div class="metric"><strong id="classBits">128</strong><span>bits clásicos</span></div>
+            <div class="metric"><strong id="quantumBits">64</strong><span>seguridad idealizada</span></div>
+          </div>
+          <div class="status" id="complexStatus">Grover ofrece una mejora cuadrática idealizada, no una ruptura instantánea.</div>
+        </article>
+
+        <article class="card">
+          <h2>Impacto conceptual</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Familia</th><th>Efecto cuántico relevante</th></tr></thead>
+              <tbody>
+                <tr><td>RSA / DH / ECC</td><td>Shor amenaza factorización y logaritmo discreto.</td></tr>
+                <tr><td>AES / hashes</td><td>Grover reduce idealmente el exponente de búsqueda exhaustiva.</td></tr>
+                <tr><td>ML-KEM / ML-DSA</td><td>Diseñados frente a ataques clásicos y cuánticos conocidos.</td></tr>
+                <tr><td>QKD</td><td>Usa estados cuánticos para distribuir material de clave.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card full">
+          <h2>Simulador BB84</h2>
+          <p class="muted">Alice prepara bits en bases recta (+) o diagonal (×). Bob mide con bases aleatorias. Tras comparar bases, conservan únicamente las posiciones compatibles. Eve, si intercepta y reenvía, introduce perturbaciones observables.</p>
+
+          <div class="controls">
+            <div class="control">
+              <label>Número de fotones por ejecución</label>
+              <select id="photons">
+                <option>16</option>
+                <option selected>32</option>
+                <option>64</option>
+                <option>128</option>
+              </select>
+            </div>
+            <div class="control">
+              <label>Atacante</label>
+              <select id="eve">
+                <option value="0">Sin Eve</option>
+                <option value="1">Eve intercepta y reenvía</option>
+              </select>
+            </div>
+            <div class="control">
+              <label>Repeticiones para estimar QBER</label>
+              <select id="trials">
+                <option value="1">1 ejecución</option>
+                <option value="25" selected>25 ejecuciones</option>
+                <option value="100">100 ejecuciones</option>
+                <option value="250">250 ejecuciones</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="runBB84">Ejecutar BB84</button>
+          </div>
+
+          <div class="metric-grid" style="margin-top:14px">
+            <div class="metric"><strong id="sifted">0</strong><span>bits conservados en muestra</span></div>
+            <div class="metric"><strong id="sampleQber">0%</strong><span>QBER de la primera ejecución</span></div>
+            <div class="metric"><strong id="averageQber">0%</strong><span>QBER agregado</span></div>
+            <div class="metric"><strong id="decision">—</strong><span>decisión didáctica</span></div>
+          </div>
+
+          <div class="table-wrap" style="margin-top:14px">
+            <table>
+              <thead>
+                <tr><th>i</th><th>A bit</th><th>A base</th><th>E base</th><th>E bit</th><th>B base</th><th>B bit</th><th>Conservar</th></tr>
+              </thead>
+              <tbody id="bb84Rows"></tbody>
+            </table>
+          </div>
+          <div class="status" id="bb84Status">Una muestra finita produce variación. Las repeticiones permiten observar la tendencia estadística.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Estándares poscuánticos de referencia</h2>
+          <div class="module-cards">
+            <a class="module-card" href="https://csrc.nist.gov/pubs/fips/203/final" target="_blank" rel="noopener noreferrer">
+              <span class="tag">FIPS 203</span><b>ML-KEM</b>
+              <p>Mecanismo de encapsulación de claves basado en retículas. Establece un secreto compartido para cifrado simétrico.</p>
+            </a>
+            <a class="module-card" href="https://csrc.nist.gov/pubs/fips/204/final" target="_blank" rel="noopener noreferrer">
+              <span class="tag">FIPS 204</span><b>ML-DSA</b>
+              <p>Firma digital basada en retículas para autenticidad e integridad.</p>
+            </a>
+            <a class="module-card" href="https://csrc.nist.gov/pubs/fips/205/final" target="_blank" rel="noopener noreferrer">
+              <span class="tag">FIPS 205</span><b>SLH-DSA</b>
+              <p>Firma sin estado basada en hashes, con una base matemática diferente.</p>
+            </a>
+            <div class="module-card">
+              <span class="tag">Estrategia</span><b>Despliegue híbrido</b>
+              <p>Combina mecanismos clásicos y poscuánticos durante la transición, con negociación, formatos versionados y rollback.</p>
+            </div>
+          </div>
+          <div class="callout" style="margin-top:16px">Este laboratorio no implementa ML-KEM, ML-DSA ni SLH-DSA. Una visualización educativa no debe confundirse con una biblioteca criptográfica validada.</div>
+        </article>
+
+        <article class="card full">
+          <h2>Inventario y prioridad de migración</h2>
+          <p class="muted">La transición comienza identificando dónde viven los algoritmos, cuánto tiempo deben permanecer secretos los datos y qué tan difícil es reemplazar cada componente.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Sistema</th><th>Algoritmo actual</th><th>Vida del dato</th><th>Exposición</th><th>Dificultad</th><th>Prioridad</th></tr></thead>
+              <tbody id="inventory"></tbody>
+            </table>
+          </div>
+          <div class="actions"><button id="recalc">Recalcular prioridades</button></div>
+          <div class="status" id="inventoryStatus">“Recolectar ahora, descifrar después” vuelve urgente proteger datos de larga vida.</div>
+        </article>
+
+        <article class="card">
+          <h2>Ruta de transición</h2>
+          <ol class="steps">
+            <li>Inventariar algoritmos, certificados, bibliotecas, protocolos y dependencias.</li>
+            <li>Clasificar información por vida útil, exposición e impacto.</li>
+            <li>Introducir agilidad criptográfica y formatos versionados.</li>
+            <li>Probar interoperabilidad, rendimiento, negociación y rollback.</li>
+            <li>Migrar por riesgo y mantener monitoreo de estándares, perfiles y erratas.</li>
+          </ol>
+        </article>
+
+        <article class="card">
+          <h2>Desafío</h2>
+          <ol class="steps">
+            <li>Compará 128 y 256 bits frente a Grover.</li>
+            <li>Ejecutá BB84 con y sin Eve usando 1 y 100 repeticiones.</li>
+            <li>Explicá por qué QKD no reemplaza firmas, autenticación ni gestión de claves.</li>
+            <li>Priorizá un sistema que deba conservar secretos durante veinte años.</li>
+          </ol>
+        </article>
+      </section>` + footer();
+
+    function superscript(value) {
+      const digits = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
+      return String(value).split('').map((character) => digits[character] ?? character).join('');
+    }
+
+    function updateBits() {
+      const bits = Number($('#bits').value);
+      const groverBits = Math.ceil(bits / 2);
+      $('#bitsLabel').textContent = bits;
+      $('#classExp').textContent = '2' + superscript(bits);
+      $('#groverExp').textContent = '2' + superscript(groverBits);
+      $('#classBits').textContent = bits;
+      $('#quantumBits').textContent = groverBits;
+
+      setStatus(
+        $('#complexStatus'),
+        bits >= 256
+          ? 'Una clave de 256 bits conserva aproximadamente 128 bits frente a Grover idealizado.'
+          : 'La equivalencia ignora costos físicos, profundidad del circuito, corrección de errores y paralelización.',
+        'good'
+      );
+    }
+
+    $('#bits').oninput = updateBits;
+
+    function randomBit() {
+      return randomInt(0, 1);
+    }
+
+    function measure(preparedBit, preparedBasis, measurementBasis) {
+      return preparedBasis === measurementBasis ? preparedBit : randomBit();
+    }
+
+    function runSingleBB84(numberOfPhotons, withEve) {
+      const rows = [];
+      let kept = 0;
+      let errors = 0;
+
+      for (let index = 0; index < numberOfPhotons; index += 1) {
+        const aliceBit = randomBit();
+        const aliceBasis = randomBit();
+
+        let transmittedBit = aliceBit;
+        let transmittedBasis = aliceBasis;
+        let eveBasis = null;
+        let eveBit = null;
+
+        if (withEve) {
+          eveBasis = randomBit();
+          eveBit = measure(aliceBit, aliceBasis, eveBasis);
+          transmittedBit = eveBit;
+          transmittedBasis = eveBasis;
+        }
+
+        const bobBasis = randomBit();
+        const bobBit = measure(transmittedBit, transmittedBasis, bobBasis);
+        const keep = bobBasis === aliceBasis;
+
+        if (keep) {
+          kept += 1;
+          if (bobBit !== aliceBit) errors += 1;
+        }
+
+        rows.push({
+          index: index + 1,
+          aliceBit,
+          aliceBasis,
+          eveBasis,
+          eveBit,
+          bobBasis,
+          bobBit,
+          keep
+        });
+      }
+
+      return { rows, kept, errors, qber: kept ? errors / kept : 0 };
+    }
+
+    function basisSymbol(basis) {
+      if (basis === null) return '—';
+      return basis ? '×' : '+';
+    }
+
+    function runBB84() {
+      const numberOfPhotons = Number($('#photons').value);
+      const withEve = $('#eve').value === '1';
+      const trials = Number($('#trials').value);
+      const first = runSingleBB84(numberOfPhotons, withEve);
+      let totalKept = first.kept;
+      let totalErrors = first.errors;
+
+      for (let trial = 1; trial < trials; trial += 1) {
+        const result = runSingleBB84(numberOfPhotons, withEve);
+        totalKept += result.kept;
+        totalErrors += result.errors;
+      }
+
+      const aggregateQber = totalKept ? totalErrors / totalKept : 0;
+      const threshold = 0.11;
+      const decision = aggregateQber > threshold ? 'Abortar' : 'Continuar';
+
+      $('#sifted').textContent = first.kept;
+      $('#sampleQber').textContent = (first.qber * 100).toFixed(1) + '%';
+      $('#averageQber').textContent = (aggregateQber * 100).toFixed(1) + '%';
+      $('#decision').textContent = decision;
+
+      $('#bb84Rows').innerHTML = first.rows.slice(0, 32).map((row) => `
+        <tr>
+          <td>${row.index}</td>
+          <td>${row.aliceBit}</td>
+          <td>${basisSymbol(row.aliceBasis)}</td>
+          <td>${basisSymbol(row.eveBasis)}</td>
+          <td>${row.eveBit ?? '—'}</td>
+          <td>${basisSymbol(row.bobBasis)}</td>
+          <td>${row.bobBit}</td>
+          <td>${row.keep ? '✓' : '—'}</td>
+        </tr>`).join('');
+
+      setStatus(
+        $('#bb84Status'),
+        `${trials} ejecución(es), ${totalKept} bits cribados y ${totalErrors} errores. ` +
+        `QBER agregado ${(aggregateQber * 100).toFixed(1)}%. ` +
+        `${withEve ? 'La intercepción ideal tiende a introducir aproximadamente 25% de error en los bits cribados.' : 'Sin ruido ni atacante, el modelo ideal produce QBER cercano a 0%.'}`,
+        decision === 'Abortar' ? 'bad' : 'good'
+      );
+    }
+
+    $('#runBB84').onclick = runBB84;
+
+    const systems = [
+      { name: 'Portal web', algorithm: 'ECDHE + RSA', life: 2, exposure: 3, difficulty: 1 },
+      { name: 'Archivo legal', algorithm: 'RSA-OAEP', life: 20, exposure: 2, difficulty: 2 },
+      { name: 'Firmware IoT', algorithm: 'ECDSA', life: 12, exposure: 3, difficulty: 3 },
+      { name: 'VPN corporativa', algorithm: 'ECDH', life: 5, exposure: 3, difficulty: 2 },
+      { name: 'Backup histórico', algorithm: 'AES-256 + RSA', life: 25, exposure: 1, difficulty: 2 }
+    ];
+
+    function migrationScore(system) {
+      return Math.min(100, Math.round(system.life * 2 + system.exposure * 15 + system.difficulty * 10));
+    }
+
+    function renderInventory() {
+      const sorted = [...systems].sort((a, b) => migrationScore(b) - migrationScore(a));
+      $('#inventory').innerHTML = sorted.map((system) => {
+        const score = migrationScore(system);
+        const level = score >= 75 ? 'Crítica' : score >= 55 ? 'Alta' : score >= 35 ? 'Media' : 'Baja';
+
+        return `
+          <tr>
+            <td>${system.name}</td>
+            <td>${system.algorithm}</td>
+            <td><input data-key="life" data-name="${system.name}" type="number" min="0" max="50" value="${system.life}" style="width:80px"></td>
+            <td>
+              <select data-key="exposure" data-name="${system.name}">
+                <option value="1" ${system.exposure === 1 ? 'selected' : ''}>Baja</option>
+                <option value="2" ${system.exposure === 2 ? 'selected' : ''}>Media</option>
+                <option value="3" ${system.exposure === 3 ? 'selected' : ''}>Alta</option>
+              </select>
+            </td>
+            <td>
+              <select data-key="difficulty" data-name="${system.name}">
+                <option value="1" ${system.difficulty === 1 ? 'selected' : ''}>Baja</option>
+                <option value="2" ${system.difficulty === 2 ? 'selected' : ''}>Media</option>
+                <option value="3" ${system.difficulty === 3 ? 'selected' : ''}>Alta</option>
+              </select>
+            </td>
+            <td><b>${level}</b> (${score})</td>
+          </tr>`;
+      }).join('');
+
+      $$('#inventory input, #inventory select').forEach((element) => {
+        element.onchange = () => {
+          const system = systems.find((item) => item.name === element.dataset.name);
+          system[element.dataset.key] = Number(element.value);
+        };
+      });
+    }
+
+    $('#recalc').onclick = () => {
+      renderInventory();
+      setStatus($('#inventoryStatus'), 'Prioridades recalculadas según vida del dato, exposición y dificultad de cambio.', 'good');
+    };
+
+    updateBits();
+    runBB84();
+    renderInventory();
+  </script>
+</body>
+</html>
