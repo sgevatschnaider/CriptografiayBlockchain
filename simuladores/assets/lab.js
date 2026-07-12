@@ -1,3 +1,4 @@
+(()=>{
 const $=(s,r=document)=>r.querySelector(s);const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const te=new TextEncoder(),td=new TextDecoder();
 function mod(a,n){return((Number(a)%Number(n))+Number(n))%Number(n)}
@@ -20,3 +21,5 @@ function isProbablePrime(n){n=Number(n);if(n<2)return false;if(n%2===0)return n=
 function nav(){return `<div class="topbar"><div class="brand"><a href="index.html">🔐 Laboratorios de Criptografía</a></div><nav class="nav"><a href="https://github.com/sgevatschnaider/CriptografiayBlockchain" target="_blank" rel="noreferrer">Repositorio</a><a href="index.html">Todos los módulos</a></nav></div>`}
 function footer(){return `<footer class="footer">Material educativo. Los algoritmos simplificados no deben utilizarse para proteger información real.</footer>`}
 window.Lab={$, $$,te,td,mod,gcd,egcd,powMod,randomInt,bytesToHex,hexToBytes,bytesToB64,b64ToBytes,sha256,bitDifference,setStatus,escapeHtml,downloadText,xorBytes,entropyOfText,isProbablePrime,nav,footer};
+window.$$=$$;
+})();
