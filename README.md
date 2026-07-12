@@ -27,7 +27,9 @@ Este repositorio es una ruta de aprendizaje teórica, matemática y práctica pa
 ## 🧭 Campus de criptografía
 
 <p align="center">
-  <a href="docs/criptografia/README.md"><img src="https://img.shields.io/badge/Abrir-Campus%20de%20Criptografía-1f6feb?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Campus de criptografía"></a>
+  <a href="docs/criptografia/README.md"><img src="https://img.shields.io/badge/Abrir-Campus%20teórico-1f6feb?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Campus de criptografía"></a>
+  <a href="simuladores/index.html"><img src="https://img.shields.io/badge/Abrir-Laboratorios%20interactivos-0ea5e9?style=for-the-badge&logo=html5&logoColor=white" alt="Laboratorios interactivos"></a>
+  <a href="docs/criptografia/guia-docente-simuladores.md"><img src="https://img.shields.io/badge/Abrir-Guía%20docente-7c3aed?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Guía docente"></a>
 </p>
 
 <p align="center">
@@ -43,6 +45,25 @@ Este repositorio es una ruta de aprendizaje teórica, matemática y práctica pa
   <a href="docs/criptografia/07-poscuantica-y-cuantica.md"><img src="https://img.shields.io/badge/07-Poscuántica%20y%20Cuántica-dc2626?style=for-the-badge" alt="Poscuántica y cuántica"></a>
   <a href="docs/criptografia/08-seguridad-aplicada.md"><img src="https://img.shields.io/badge/08-Seguridad%20Aplicada-111827?style=for-the-badge" alt="Seguridad aplicada"></a>
 </p>
+
+---
+
+## 🔬 Suite de laboratorios interactivos
+
+Cada módulo dispone ahora de una simulación HTML autónoma con explicación, controles, métricas, desafío y advertencias de alcance.
+
+| Módulo | Laboratorio | Experimentos principales |
+|---|---|---|
+| **1. Criptografía clásica** | [Abrir](simuladores/01-criptografia-clasica.html) | César, Vigenère, frecuencias y fuerza bruta |
+| **2. Fundamentos matemáticos** | [Abrir](simuladores/02-fundamentos-matematicos.html) | Congruencias, inversos, Diffie–Hellman y entropía |
+| **3. Criptografía moderna** | [Abrir](simuladores/03-criptografia-moderna.html) | SHA-256, AES-GCM, PBKDF2 y ECDSA mediante Web Crypto |
+| **4. Esteganografía** | [Abrir](simuladores/04-esteganografia.html) | LSB, extracción, capacidad, distorsión y estegoanálisis |
+| **5. Blockchain** | [Abrir](simuladores/05-blockchain.html) | Minería, manipulación, validación y árboles de Merkle |
+| **6. Protocolos y privacidad** | [Abrir](simuladores/06-protocolos-privacidad.html) | Shamir, compromisos hash y Schnorr simplificado |
+| **7. Poscuántica y cuántica** | [Abrir](simuladores/07-poscuantica-cuantica.html) | Grover, BB84, estándares NIST e inventario de migración |
+| **8. Seguridad aplicada** | [Abrir](simuladores/08-seguridad-aplicada.html) | Nonces, CSPRNG, secretos, amenazas y ciclo de vida de claves |
+
+La metodología propuesta sigue cinco pasos: **predecir, experimentar, interpretar, atacar y transferir**. Los laboratorios modernos utilizan la Web Cryptography API cuando corresponde; los modelos con parámetros pequeños están claramente señalados como educativos.
 
 ---
 
@@ -80,7 +101,7 @@ npm install
 npx hardhat test
 ```
 
-Los materiales conceptuales pueden leerse directamente desde GitHub sin instalar dependencias. Las dependencias son necesarias para los laboratorios de blockchain, contratos inteligentes y pruebas con Hardhat.
+Los materiales conceptuales y la mayoría de las simulaciones pueden abrirse directamente mediante GitHub Pages. Las funciones de Web Crypto requieren HTTPS o un servidor local seguro. Las dependencias de Node.js son necesarias para contratos inteligentes, blockchain y pruebas con Hardhat.
 
 ---
 
@@ -98,7 +119,7 @@ Los materiales conceptuales pueden leerse directamente desde GitHub sin instalar
 
 ---
 
-## 🔬 Laboratorios interactivos conservados
+## 🎨 Recursos interactivos y visualizaciones anteriores
 
 | Recurso | Acceso |
 |---|---|
@@ -112,7 +133,7 @@ Los materiales conceptuales pueden leerse directamente desde GitHub sin instalar
 
 ---
 
-## 📂 Arquitectura propuesta
+## 📂 Arquitectura del repositorio
 
 ```text
 .
@@ -131,7 +152,19 @@ Los materiales conceptuales pueden leerse directamente desde GitHub sin instalar
 │       ├── 05-criptografia-blockchain.md
 │       ├── 06-protocolos-privacidad.md
 │       ├── 07-poscuantica-y-cuantica.md
-│       └── 08-seguridad-aplicada.md
+│       ├── 08-seguridad-aplicada.md
+│       └── guia-docente-simuladores.md
+├── simuladores/
+│   ├── index.html
+│   ├── 01-criptografia-clasica.html
+│   ├── 02-fundamentos-matematicos.html
+│   ├── 03-criptografia-moderna.html
+│   ├── 04-esteganografia.html
+│   ├── 05-blockchain.html
+│   ├── 06-protocolos-privacidad.html
+│   ├── 07-poscuantica-cuantica.html
+│   ├── 08-seguridad-aplicada.html
+│   └── assets/
 ├── recursos/
 ├── assets/
 ├── hardhat.config.ts
@@ -150,13 +183,14 @@ Los materiales conceptuales pueden leerse directamente desde GitHub sin instalar
   <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js">
   <img src="https://img.shields.io/badge/Hardhat-FFF670?style=for-the-badge&logo=ethereum&logoColor=black" alt="Hardhat">
   <img src="https://img.shields.io/badge/Ethers.js-2535A0?style=for-the-badge&logo=ethereum&logoColor=white" alt="Ethers.js">
+  <img src="https://img.shields.io/badge/Web%20Crypto-API-0EA5E9?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Web Cryptography API">
 </p>
 
 ---
 
 ## ⚠️ Alcance y seguridad
 
-Los ejemplos clásicos y simplificados se incluyen con fines educativos. No deben utilizarse para proteger información real. Para producción se deben emplear bibliotecas auditadas, parámetros vigentes, gestión segura de claves y protocolos estandarizados.
+Los ejemplos clásicos y simplificados se incluyen con fines educativos. No deben utilizarse para proteger información real. Para producción se deben emplear bibliotecas auditadas, parámetros vigentes, gestión segura de claves y protocolos estandarizados. No introduzcas secretos, credenciales ni datos personales reales en los simuladores.
 
 ---
 
