@@ -26,17 +26,19 @@ Este repositorio es un **laboratorio académico y profesional** para estudiar c�
 
 ## 🧭 Acceso directo por módulos
 
+Cada módulo posee ahora una **página propia** que organiza su laboratorio integral, sus simulaciones especializadas, la teoría y los futuros notebooks o videos.
+
 <div align="center">
 
-[![Módulo 1](https://img.shields.io/badge/MÓDULO%201-CRIPTOGRAFÍA%20CLÁSICA-0f766e?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html)
-[![Módulo 2](https://img.shields.io/badge/MÓDULO%202-FUNDAMENTOS%20MATEMÁTICOS-1d4ed8?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/02-fundamentos-matematicos.html)
-[![Módulo 3](https://img.shields.io/badge/MÓDULO%203-CRIPTOGRAFÍA%20MODERNA-6d28d9?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/03-criptografia-moderna.html)
-[![Módulo 4](https://img.shields.io/badge/MÓDULO%204-ESTEGANOGRAFÍA-be123c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html)
+[![Módulo 1](https://img.shields.io/badge/MÓDULO%201-CRIPTOGRAFÍA%20CLÁSICA-0f766e?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-01/)
+[![Módulo 2](https://img.shields.io/badge/MÓDULO%202-FUNDAMENTOS%20MATEMÁTICOS-1d4ed8?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/)
+[![Módulo 3](https://img.shields.io/badge/MÓDULO%203-CRIPTOGRAFÍA%20MODERNA-6d28d9?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/)
+[![Módulo 4](https://img.shields.io/badge/MÓDULO%204-ESTEGANOGRAFÍA-be123c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-04/)
 
-[![Módulo 5](https://img.shields.io/badge/MÓDULO%205-BLOCKCHAIN-111827?style=for-the-badge&logo=ethereum)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html)
-[![Módulo 6](https://img.shields.io/badge/MÓDULO%206-PRIVACIDAD%20Y%20PROTOCOLOS-9d174d?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html)
-[![Módulo 7](https://img.shields.io/badge/MÓDULO%207-POSCUÁNTICA%20Y%20CUÁNTICA-0891b2?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html)
-[![Módulo 8](https://img.shields.io/badge/MÓDULO%208-SEGURIDAD%20APLICADA-b91c1c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/08-seguridad-aplicada.html)
+[![Módulo 5](https://img.shields.io/badge/MÓDULO%205-BLOCKCHAIN-111827?style=for-the-badge&logo=ethereum)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-05/)
+[![Módulo 6](https://img.shields.io/badge/MÓDULO%206-PRIVACIDAD%20Y%20PROTOCOLOS-9d174d?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-06/)
+[![Módulo 7](https://img.shields.io/badge/MÓDULO%207-POSCUÁNTICA%20Y%20CUÁNTICA-0891b2?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-07/)
+[![Módulo 8](https://img.shields.io/badge/MÓDULO%208-SEGURIDAD%20APLICADA-b91c1c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-08/)
 
 </div>
 
@@ -91,6 +93,7 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 
 [![Campus teórico](https://img.shields.io/badge/ABRIR-CAMPUS%20TEÓRICO-7c3aed?style=for-the-badge&logo=markdown&logoColor=white)](docs/criptografia/README.md)
 [![Plan de simuladores](https://img.shields.io/badge/ABRIR-PLAN%20DE%20SIMULADORES-0f766e?style=for-the-badge&logo=checkmarx&logoColor=white)](docs/criptografia/plan-desarrollo-simuladores.md)
+[![Catálogo JSON](https://img.shields.io/badge/DATA-CATÁLOGO%20DE%20SIMULACIONES-334155?style=for-the-badge&logo=json&logoColor=white)](simuladores/catalogo.json)
 
 </div>
 
@@ -103,7 +106,6 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 [![Laboratorio esteganográfico](https://img.shields.io/badge/VISUAL-LABORATORIO%20ESTEGANOGRÁFICO-ff0080?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizaci%C3%B3n_%20art%C3%ADstica_julia.html)
 [![Hipercubo criptográfico](https://img.shields.io/badge/VISUAL-HIPERCUBO%20CRIPTOGRÁFICO-00bcd4?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/hipercubo_criptografico.html)
 [![Cripto DNN](https://img.shields.io/badge/VISUAL-ATAQUE%20Y%20DEFENSA%20DNN-f97316?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/ataque_%20y_%20defensa.html)
-
 [![Campos finitos](https://img.shields.io/badge/VISUAL-CAMPOS%20FINITOS-16a34a?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizacion_%20artistica_polinomio%20.html)
 [![Anatomía SHA-256](https://img.shields.io/badge/VISUAL-ANATOMÍA%20SHA--256-2563eb?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/cryptocube.html)
 [![Grafo de Petersen](https://img.shields.io/badge/VISUAL-GRAFO%20DE%20PETERSEN-7c3aed?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/spectral-graph-visualizer.html)
@@ -152,6 +154,7 @@ El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 ├── index.html
 ├── simuladores/
 │   ├── index.html
+│   ├── catalogo.json
 │   ├── 01-criptografia-clasica.html
 │   ├── 01a-cifrado-cesar-castellano.html
 │   ├── 02-fundamentos-matematicos.html
@@ -161,6 +164,7 @@ El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 │   ├── 06-protocolos-privacidad.html
 │   ├── 07-poscuantica-cuantica.html
 │   ├── 08-seguridad-aplicada.html
+│   ├── modulo-01/ ... modulo-08/
 │   └── assets/
 ├── docs/criptografia/
 ├── recursos/
