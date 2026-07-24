@@ -26,12 +26,12 @@ Este repositorio es un **laboratorio académico y profesional** para estudiar c�
 
 ## 🧭 Acceso directo por módulos
 
-Cada módulo posee ahora una **página propia** que organiza su laboratorio integral, sus simulaciones especializadas, la teoría y los futuros notebooks o videos.
+Cada módulo posee una **página propia** que organiza su laboratorio integral, sus simulaciones especializadas, la teoría y los futuros notebooks o videos.
 
 <div align="center">
 
 [![Módulo 1](https://img.shields.io/badge/MÓDULO%201-CRIPTOGRAFÍA%20CLÁSICA-0f766e?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-01/)
-[![Módulo 2](https://img.shields.io/badge/MÓDULO%202-FUNDAMENTOS%20MATEMÁTICOS-1d4ed8?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/)
+[![Módulo 2](https://img.shields.io/badge/MÓDULO%202-FUNDAMENTOS%20MODERNOS-1d4ed8?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/)
 [![Módulo 3](https://img.shields.io/badge/MÓDULO%203-CRIPTOGRAFÍA%20MODERNA-6d28d9?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/)
 [![Módulo 4](https://img.shields.io/badge/MÓDULO%204-ESTEGANOGRAFÍA-be123c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-04/)
 
@@ -42,14 +42,22 @@ Cada módulo posee ahora una **página propia** que organiza su laboratorio inte
 
 </div>
 
+### Área transversal
+
+<div align="center">
+
+[![Fundamentos matemáticos](https://img.shields.io/badge/BASE-FUNDAMENTOS%20MATEMÁTICOS-334155?style=for-the-badge&logo=wolframmathematica&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/fundamentos-matematicos/)
+
+</div>
+
 ### Laboratorios destacados
 
 <div align="center">
 
 [![César castellano](https://img.shields.io/badge/LAB-CÉSAR%20CASTELLANO-00a6a6?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01a-cifrado-cesar-castellano.html)
-[![Criptoanálisis clásico](https://img.shields.io/badge/LAB-CRIPTOANÁLISIS-2563eb?style=for-the-badge&logo=python&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html)
+[![Shannon y entropía](https://img.shields.io/badge/LAB-SHANNON%20Y%20ENTROPÍA-1d4ed8?style=for-the-badge&logo=python&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/entropia-shannon.html)
+[![AES y AEAD](https://img.shields.io/badge/LAB-AES%20Y%20AEAD-6d28d9?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/modos-aes-aead.html)
 [![Blockchain y Merkle](https://img.shields.io/badge/LAB-BLOCKCHAIN%20Y%20MERKLE-111827?style=for-the-badge&logo=bitcoin&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html)
-[![Grover y BB84](https://img.shields.io/badge/LAB-GROVER%20Y%20BB84-7c3aed?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html)
 
 </div>
 
@@ -81,8 +89,9 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 | Etapa | Núcleo conceptual | Contenidos principales | Resultado esperado |
 |---|---|---|---|
 | **1** | Criptografía clásica | Sustitución, transposición, César, Vigenère y criptoanálisis | Entender la relación entre diseño y ataque |
-| **2** | Fundamentos matemáticos | Aritmética modular, grupos, cuerpos finitos, probabilidad y entropía | Comprender el lenguaje matemático de la criptografía |
-| **3** | Criptografía moderna | AES, ChaCha20, hashes, MAC, AEAD, RSA, DH, ECC y firmas | Diferenciar primitivas y combinarlas correctamente |
+| **2** | Fundamentos de la criptografía moderna | Shannon, entropía, pseudoaleatoriedad, complejidad, bloques, flujos y AEAD | Comprender el salto desde los cifrados históricos hacia modelos computacionales |
+| **Base transversal** | Fundamentos matemáticos | Aritmética modular, grupos, cuerpos finitos, probabilidad y teoría de números | Dominar el lenguaje matemático de la criptografía |
+| **3** | Criptografía moderna aplicada | AES, ChaCha20, hashes, MAC, RSA, DH, ECC, firmas y PKI | Diferenciar primitivas y combinarlas correctamente |
 | **4** | Esteganografía | LSB, imágenes, audio, canales encubiertos y estegoanálisis | Separar ocultamiento de existencia y cifrado de contenido |
 | **5** | Blockchain | Hashes, Merkle trees, firmas, wallets, consenso, contratos y DeFi | Comprender qué aporta realmente la criptografía a una blockchain |
 | **6** | Protocolos y privacidad | PKI, commitments, secret sharing, ZKP, MPC y cifrado homomórfico | Analizar seguridad a nivel de protocolo |
@@ -156,14 +165,9 @@ El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 │   ├── index.html
 │   ├── catalogo.json
 │   ├── 01-criptografia-clasica.html
-│   ├── 01a-cifrado-cesar-castellano.html
 │   ├── 02-fundamentos-matematicos.html
 │   ├── 03-criptografia-moderna.html
-│   ├── 04-esteganografia.html
-│   ├── 05-blockchain.html
-│   ├── 06-protocolos-privacidad.html
-│   ├── 07-poscuantica-cuantica.html
-│   ├── 08-seguridad-aplicada.html
+│   ├── fundamentos-matematicos/
 │   ├── modulo-01/ ... modulo-08/
 │   └── assets/
 ├── docs/criptografia/
@@ -177,4 +181,4 @@ El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 
 ## 📄 Licencia
 
-Este proyecto se distribuye bajo la [Licencia MIT](LICENSE).
+Este proyecto se distribuye bajo la licencia indicada en el repositorio.
