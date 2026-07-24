@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Visor académico de los módulos teóricos de Criptografía y Blockchain.">
+  <title>Módulo teórico | Criptografía y Blockchain</title>
+  <link rel="stylesheet" href="../../simuladores/assets/lab.css">
+  <style>
+    .reading-shell{max-width:1120px;margin:0 auto}.reading-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}.article{padding:clamp(22px,4vw,44px);border:1px solid var(--line);border-radius:24px;background:var(--panel);box-shadow:var(--shadow)}.article h1{font-size:clamp(2rem,5vw,3.8rem);line-height:1.04;margin:0 0 18px}.article h2{margin:34px 0 14px;font-size:1.65rem}.article h3{margin:25px 0 10px;font-size:1.25rem}.article p,.article li{color:var(--text);line-height:1.78}.article ul,.article ol{padding-left:1.35rem}.article code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:rgba(72,229,255,.08);border:1px solid rgba(72,229,255,.14);padding:.12rem .38rem;border-radius:6px}.article pre{overflow:auto;padding:18px;border:1px solid var(--line);border-radius:16px;background:#050c17}.article pre code{border:0;background:none;padding:0;color:#dff8ff}.article blockquote{margin:24px 0;padding:16px 18px;border-left:4px solid var(--cyan);background:rgba(72,229,255,.07);border-radius:0 14px 14px 0}.article table{width:100%;border-collapse:collapse;margin:20px 0;display:block;overflow:auto}.article th,.article td{border:1px solid var(--line);padding:11px 13px;text-align:left;min-width:170px}.article th{background:rgba(72,229,255,.08)}.side-nav{position:sticky;top:18px;padding:20px;border:1px solid var(--line);border-radius:20px;background:var(--panel)}.side-nav h2{font-size:1rem;margin:0 0 12px}.side-nav a{display:block;padding:8px 0;color:var(--muted);text-decoration:none}.side-nav a:hover{color:var(--cyan)}.loading,.error{padding:30px;border:1px dashed var(--line);border-radius:18px;text-align:center;color:var(--muted)}@media(max-width:900px){.reading-layout{grid-template-columns:1fr}.side-nav{position:static;order:-1}}
+  </style>
+</head>
+<body>
+  <main class="shell reading-shell">
+    <header class="topbar">
+      <div class="brand"><a href="../../index.html">⛓️ Criptografía y Blockchain</a></div>
+      <nav class="nav"><a href="../../simuladores/">Laboratorios</a><a href="README.md">Campus teórico</a></nav>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">Campus teórico</div>
+      <h1 id="heroTitle">Módulo académico</h1>
+      <p>Versión web legible del material teórico, conservando el archivo Markdown como fuente académica.</p>
+      <div class="actions" style="margin-top:18px"><a id="sourceLink" class="button secondary" href="#">Ver fuente Markdown</a><a id="moduleLink" class="button" href="../../simuladores/">Abrir simulaciones</a></div>
+    </section>
+    <div class="reading-layout">
+      <article id="article" class="article"><div class="loading">Cargando módulo teórico…</div></article>
+      <aside class="side-nav"><h2>Contenido</h2><nav id="toc"><span class="muted">Se generará automáticamente.</span></nav></aside>
+    </div>
+    <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer>
+  </main>
+<script>
+(() => {
+  'use strict';
+  const allowed = new Map([
+    ['01-criptografia-clasica','01'],['02-fundamentos-matematicos','02'],['03-criptografia-moderna','03'],['04-esteganografia','04'],['05-criptografia-blockchain','05'],['06-protocolos-privacidad','06'],['07-poscuantica-y-cuantica','07'],['08-seguridad-aplicada','08']
+  ]);
+  const params = new URLSearchParams(location.search);
+  const slug = params.get('modulo') || '01-criptografia-clasica';
+  const safeSlug = allowed.has(slug) ? slug : '01-criptografia-clasica';
+  const moduleNumber = allowed.get(safeSlug);
+  const source = `${safeSlug}.md`;
+  document.getElementById('sourceLink').href = `https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/docs/criptografia/${source}`;
+  document.getElementById('moduleLink').href = `../../simuladores/modulo-${moduleNumber}/`;
+
+  const escapeHtml = value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const inline = text => escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>');
+  const slugify = text => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
+  function renderMarkdown(md){
+    const lines = md.replace(/\r/g,'').split('\n');
+    let html='', inCode=false, code=[], inUl=false, inOl=false, inTable=false, table=[];
+    const closeLists=()=>{if(inUl){html+='</ul>';inUl=false}if(inOl){html+='</ol>';inOl=false}};
+    const flushTable=()=>{if(!inTable)return; const rows=table.filter(r=>!/^\s*\|?\s*:?-+/.test(r)); if(rows.length){html+='<table>'; rows.forEach((r,i)=>{const cells=r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim()); html+=i===0?'<thead><tr>':'<tbody><tr>'; html+=cells.map(c=>i===0?`<th>${inline(c)}</th>`:`<td>${inline(c)}</td>`).join(''); html+='</tr>'; if(i===0)html+='</thead>';}); html+='</tbody></table>';} table=[];inTable=false};
+    for(const raw of lines){
+      const line=raw.trimEnd();
+      if(line.startsWith('```')){closeLists();flushTable(); if(!inCode){inCode=true;code=[]}else{html+=`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`;inCode=false} continue}
+      if(inCode){code.push(raw);continue}
+      if(/^\|.*\|$/.test(line.trim())){closeLists();inTable=true;table.push(line.trim());continue}else flushTable();
+      if(!line.trim()){closeLists();continue}
+      const h=line.match(/^(#{1,3})\s+(.+)/); if(h){closeLists(); const level=h[1].length; const id=slugify(h[2]); html+=`<h${level} id="${id}">${inline(h[2])}</h${level}>`;continue}
+      const ul=line.match(/^[-*]\s+(.+)/); if(ul){if(!inUl){closeLists();html+='<ul>';inUl=true}html+=`<li>${inline(ul[1])}</li>`;continue}
+      const ol=line.match(/^\d+\.\s+(.+)/); if(ol){if(!inOl){closeLists();html+='<ol>';inOl=true}html+=`<li>${inline(ol[1])}</li>`;continue}
+      if(line.startsWith('> ')){closeLists();html+=`<blockquote>${inline(line.slice(2))}</blockquote>`;continue}
+      if(/^---+$/.test(line.trim())){closeLists();html+='<hr>';continue}
+      html+=`<p>${inline(line)}</p>`;
+    }
+    closeLists();flushTable();return html;
+  }
+
+  fetch(source).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text()}).then(md=>{
+    const article=document.getElementById('article'); article.innerHTML=renderMarkdown(md);
+    const title=article.querySelector('h1'); if(title){document.getElementById('heroTitle').textContent=title.textContent; document.title=`${title.textContent} | Criptografía y Blockchain`; title.remove();}
+    const toc=document.getElementById('toc'); toc.innerHTML=''; article.querySelectorAll('h2,h3').forEach(h=>{const a=document.createElement('a');a.href=`#${h.id}`;a.textContent=h.textContent;a.style.paddingLeft=h.tagName==='H3'?'12px':'0';toc.appendChild(a)});
+  }).catch(err=>{document.getElementById('article').innerHTML=`<div class="error"><strong>No se pudo cargar el módulo.</strong><br>${escapeHtml(err.message)}</div>`});
+})();
+</script>
+</body>
+</html>
