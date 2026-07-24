@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "modulos": [
     {
@@ -7,97 +7,20 @@
       "titulo": "Criptografía clásica y criptoanálisis",
       "laboratorio_integral": "../01-criptografia-clasica.html",
       "simulaciones": [
-        {"titulo": "Cifrado César en castellano", "archivo": "../01a-cifrado-cesar-castellano.html", "estado": "disponible", "temas": ["César", "módulo 27", "fuerza bruta", "chi-cuadrado"]},
-        {"titulo": "Cifrado afín", "estado": "planificado", "temas": ["inversos", "coprimalidad", "ataque exhaustivo"]},
-        {"titulo": "Escítala y transposición", "estado": "planificado", "temas": ["transposición", "filas", "columnas"]},
-        {"titulo": "Vigenère y Kasiski", "estado": "planificado", "temas": ["periodicidad", "índice de coincidencia", "Kasiski"]},
-        {"titulo": "Vernam y One-Time Pad", "estado": "planificado", "temas": ["XOR", "secreto perfecto", "reutilización de clave"]},
-        {"titulo": "Máquina Enigma", "estado": "planificado", "temas": ["rotores", "reflector", "cribas"]}
+        {"titulo":"Cifrado César en castellano","archivo":"../01a-cifrado-cesar-castellano.html","estado":"disponible","temas":["César","módulo 27","fuerza bruta","chi-cuadrado"]},
+        {"titulo":"Cifrado afín","archivo":"cifrado-afin.html","estado":"disponible","temas":["inversos","coprimalidad","312 claves","ataque exhaustivo"]},
+        {"titulo":"Escítala y transposición","archivo":"escitala-transposicion.html","estado":"disponible","temas":["transposición","grillas","rutas","frecuencias"]},
+        {"titulo":"Vigenère y Kasiski","archivo":"vigenere-kasiski.html","estado":"disponible","temas":["periodicidad","índice de coincidencia","Kasiski"]},
+        {"titulo":"Vernam y One-Time Pad","archivo":"vernam-one-time-pad.html","estado":"disponible","temas":["XOR","secreto perfecto","reutilización de clave"]},
+        {"titulo":"Máquina Enigma","archivo":"maquina-enigma.html","estado":"disponible","temas":["rotores","reflector","plugboard","cribas"]}
       ]
     },
-    {
-      "id": "modulo-02",
-      "titulo": "Fundamentos matemáticos",
-      "laboratorio_integral": "../02-fundamentos-matematicos.html",
-      "simulaciones": [
-        {"titulo": "Aritmética modular", "estado": "planificado"},
-        {"titulo": "Euclides extendido", "estado": "planificado"},
-        {"titulo": "Inversos modulares", "estado": "planificado"},
-        {"titulo": "Diffie–Hellman", "estado": "planificado"},
-        {"titulo": "Entropía y espacio de claves", "estado": "planificado"}
-      ]
-    },
-    {
-      "id": "modulo-03",
-      "titulo": "Criptografía moderna",
-      "laboratorio_integral": "../03-criptografia-moderna.html",
-      "simulaciones": [
-        {"titulo": "Efecto avalancha de SHA-256", "estado": "planificado"},
-        {"titulo": "Hash, MAC y firma", "estado": "planificado"},
-        {"titulo": "AES y modos de operación", "estado": "planificado"},
-        {"titulo": "AES-GCM y autenticación", "estado": "planificado"},
-        {"titulo": "RSA, ECDH y cifrado híbrido", "estado": "planificado"}
-      ]
-    },
-    {
-      "id": "modulo-04",
-      "titulo": "Esteganografía digital",
-      "laboratorio_integral": "../04-esteganografia.html",
-      "simulaciones": [
-        {"titulo": "Ocultamiento LSB", "estado": "planificado"},
-        {"titulo": "Capacidad y distorsión", "estado": "planificado"},
-        {"titulo": "PSNR e histogramas", "estado": "planificado"},
-        {"titulo": "Estegoanálisis básico", "estado": "planificado"},
-        {"titulo": "Cifrar antes de ocultar", "estado": "planificado"}
-      ]
-    },
-    {
-      "id": "modulo-05",
-      "titulo": "Criptografía y blockchain",
-      "laboratorio_integral": "../05-blockchain.html",
-      "simulaciones": [
-        {"titulo": "Cadena de bloques", "estado": "planificado"},
-        {"titulo": "Proof-of-Work y dificultad", "estado": "planificado"},
-        {"titulo": "Árboles de Merkle", "estado": "planificado"},
-        {"titulo": "Firmas y transacciones", "estado": "planificado"},
-        {"titulo": "Forks y consenso", "estado": "planificado"}
-      ]
-    },
-    {
-      "id": "modulo-06",
-      "titulo": "Protocolos y privacidad",
-      "laboratorio_integral": "../06-protocolos-privacidad.html",
-      "simulaciones": [
-        {"titulo": "Shamir Secret Sharing", "estado": "planificado"},
-        {"titulo": "Compromisos criptográficos", "estado": "planificado"},
-        {"titulo": "Identificación de Schnorr", "estado": "planificado"},
-        {"titulo": "Fiat–Shamir", "estado": "planificado"},
-        {"titulo": "Introducción a ZKP", "estado": "planificado"}
-      ]
-    },
-    {
-      "id": "modulo-07",
-      "titulo": "Criptografía poscuántica y cuántica",
-      "laboratorio_integral": "../07-poscuantica-cuantica.html",
-      "simulaciones": [
-        {"titulo": "Shor y Grover", "estado": "planificado"},
-        {"titulo": "BB84", "estado": "planificado"},
-        {"titulo": "ML-KEM", "estado": "planificado"},
-        {"titulo": "ML-DSA y SLH-DSA", "estado": "planificado"},
-        {"titulo": "Inventario de migración", "estado": "planificado"}
-      ]
-    },
-    {
-      "id": "modulo-08",
-      "titulo": "Seguridad aplicada",
-      "laboratorio_integral": "../08-seguridad-aplicada.html",
-      "simulaciones": [
-        {"titulo": "Reutilización de nonces", "estado": "planificado"},
-        {"titulo": "CSPRNG y aleatoriedad", "estado": "planificado"},
-        {"titulo": "Gestión y rotación de claves", "estado": "planificado"},
-        {"titulo": "Ataques de canal lateral", "estado": "planificado"},
-        {"titulo": "Modelado de amenazas", "estado": "planificado"}
-      ]
-    }
+    {"id":"modulo-02","titulo":"Fundamentos matemáticos","laboratorio_integral":"../02-fundamentos-matematicos.html","simulaciones":[{"titulo":"Aritmética modular","estado":"planificado"},{"titulo":"Euclides extendido","estado":"planificado"},{"titulo":"Inversos modulares","estado":"planificado"},{"titulo":"Diffie–Hellman","estado":"planificado"},{"titulo":"Entropía y espacio de claves","estado":"planificado"}]},
+    {"id":"modulo-03","titulo":"Criptografía moderna","laboratorio_integral":"../03-criptografia-moderna.html","simulaciones":[{"titulo":"Efecto avalancha de SHA-256","estado":"planificado"},{"titulo":"Hash, MAC y firma","estado":"planificado"},{"titulo":"AES y modos de operación","estado":"planificado"},{"titulo":"AES-GCM y autenticación","estado":"planificado"},{"titulo":"RSA, ECDH y cifrado híbrido","estado":"planificado"}]},
+    {"id":"modulo-04","titulo":"Esteganografía digital","laboratorio_integral":"../04-esteganografia.html","simulaciones":[{"titulo":"Ocultamiento LSB","estado":"planificado"},{"titulo":"Capacidad y distorsión","estado":"planificado"},{"titulo":"PSNR e histogramas","estado":"planificado"},{"titulo":"Estegoanálisis básico","estado":"planificado"},{"titulo":"Cifrar antes de ocultar","estado":"planificado"}]},
+    {"id":"modulo-05","titulo":"Criptografía y blockchain","laboratorio_integral":"../05-blockchain.html","simulaciones":[{"titulo":"Cadena de bloques","estado":"planificado"},{"titulo":"Proof-of-Work y dificultad","estado":"planificado"},{"titulo":"Árboles de Merkle","estado":"planificado"},{"titulo":"Firmas y transacciones","estado":"planificado"},{"titulo":"Forks y consenso","estado":"planificado"}]},
+    {"id":"modulo-06","titulo":"Protocolos y privacidad","laboratorio_integral":"../06-protocolos-privacidad.html","simulaciones":[{"titulo":"Shamir Secret Sharing","estado":"planificado"},{"titulo":"Compromisos criptográficos","estado":"planificado"},{"titulo":"Identificación de Schnorr","estado":"planificado"},{"titulo":"Fiat–Shamir","estado":"planificado"},{"titulo":"Introducción a ZKP","estado":"planificado"}]},
+    {"id":"modulo-07","titulo":"Criptografía poscuántica y cuántica","laboratorio_integral":"../07-poscuantica-cuantica.html","simulaciones":[{"titulo":"Shor y Grover","estado":"planificado"},{"titulo":"BB84","estado":"planificado"},{"titulo":"ML-KEM","estado":"planificado"},{"titulo":"ML-DSA y SLH-DSA","estado":"planificado"},{"titulo":"Inventario de migración","estado":"planificado"}]},
+    {"id":"modulo-08","titulo":"Seguridad aplicada","laboratorio_integral":"../08-seguridad-aplicada.html","simulaciones":[{"titulo":"Reutilización de nonces","estado":"planificado"},{"titulo":"CSPRNG y aleatoriedad","estado":"planificado"},{"titulo":"Gestión y rotación de claves","estado":"planificado"},{"titulo":"Ataques de canal lateral","estado":"planificado"},{"titulo":"Modelado de amenazas","estado":"planificado"}]}
   ]
 }
