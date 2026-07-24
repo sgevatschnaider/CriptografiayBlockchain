@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo del cifrado César para el alfabeto castellano de 27 letras, con Ñ, fuerza bruta y ranking estadístico.">
+  <meta name="theme-color" content="#071321">
+  <title>Cifrado César en castellano | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="assets/lab.css">
+  <style>
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}.toggle{display:flex;gap:8px}.toggle button[aria-pressed="true"]{background:linear-gradient(90deg,#38d8f3,#75e2bb);color:#06111c}.alphabet{overflow:auto;padding-bottom:5px}.alphabet-row{display:grid;grid-template-columns:repeat(27,minmax(34px,1fr));gap:5px;min-width:1040px;margin-top:6px}.alphabet-row span{display:grid;place-items:center;min-height:35px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.035);font-weight:800}.alphabet-row.shifted span{color:#bff8ff;background:rgba(72,229,255,.08)}.trace{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px}.trace-item{padding:10px;border:1px solid var(--line);border-radius:12px;text-align:center}.trace-item small{display:block;color:var(--muted);margin-top:4px}.brute-row{display:grid;grid-template-columns:95px minmax(0,1fr) 90px auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-top:7px}.brute-row.best{border-color:rgba(114,241,184,.52);background:rgba(114,241,184,.07)}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}.score{color:var(--muted);font-size:.8rem}.warning{border-left:4px solid #ffd166;padding:12px 14px;background:rgba(255,209,102,.08);border-radius:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.theme-light{--bg:#edf3fb;--panel:#fff;--text:#13233c;--muted:#5d6d84;--line:rgba(19,35,60,.14)}body.theme-light{background:#edf3fb;color:var(--text)}body.theme-light .card,body.theme-light .hero,body.theme-light .topbar{background:#fff}body.theme-light textarea,body.theme-light input,body.theme-light select{background:#f8fbff;color:#13233c}@media(max-width:760px){.two{grid-template-columns:1fr}.brute-row{grid-template-columns:75px minmax(0,1fr)}.score{grid-column:1}.brute-row button{grid-column:2}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">⛓️ Campus de laboratorios</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="01-criptografia-clasica.html">Módulo 1</a>
+        <button class="button secondary" id="theme" type="button">Cambiar tema</button>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Criptografía clásica · alfabeto castellano</div>
+      <h1>Laboratorio avanzado del cifrado César</h1>
+      <p>Cifra, descifra y ataca mensajes usando las 27 letras del alfabeto castellano, incluida la Ñ. El laboratorio distingue entre transformación matemática, presentación tipográfica y recuperación estadística.</p>
+      <div class="pill-row" style="margin-top:18px">
+        <span class="pill">A–Z + Ñ</span><span class="pill">m = 27</span><span class="pill">Fuerza bruta</span><span class="pill">Ranking χ²</span><span class="pill">Sin dependencias</span>
+      </div>
+    </section>
+
+    <section id="laboratorio" class="grid">
+      <article class="card full">
+        <div class="toolbar">
+          <div class="toggle" aria-label="Operación">
+            <button id="encrypt" type="button" aria-pressed="true">Cifrar</button>
+            <button id="decrypt" class="secondary" type="button" aria-pressed="false">Descifrar</button>
+          </div>
+          <strong id="formula" class="mono">C = (P + 3) mod 27</strong>
+        </div>
+
+        <div class="two">
+          <div class="control">
+            <label for="input">Texto de entrada</label>
+            <textarea id="input" rows="7">CESAR EL EMPERADOR HA SIDO ASESINADO</textarea>
+          </div>
+          <div class="control">
+            <label for="output">Resultado</label>
+            <textarea id="output" rows="7" readonly></textarea>
+          </div>
+        </div>
+
+        <div class="controls" style="margin-top:14px">
+          <div class="control">
+            <label for="key">Clave k: <span id="keyValue">3</span></label>
+            <input id="key" type="range" min="0" max="26" value="3">
+          </div>
+          <div class="control">
+            <label for="accents">Tratamiento de tildes</label>
+            <select id="accents"><option value="normalize">Normalizar Á→A, É→E…</option><option value="preserve">Conservar como signos externos</option></select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="run" type="button">Ejecutar</button>
+          <button id="swap" class="secondary" type="button">Usar salida como entrada</button>
+          <button id="copy" class="secondary" type="button">Copiar resultado</button>
+          <button id="clear" class="secondary" type="button">Limpiar</button>
+        </div>
+        <div id="status" class="status" aria-live="polite"></div>
+
+        <div class="alphabet" style="margin-top:20px">
+          <h2>Correspondencia del alfabeto</h2>
+          <div id="plainAlphabet" class="alphabet-row"></div>
+          <div id="shiftedAlphabet" class="alphabet-row shifted"></div>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Transformación carácter por carácter</h2>
+        <p class="muted">Cada letra se representa mediante un índice entre 0 y 26. Los signos y espacios se conservan.</p>
+        <div id="trace" class="trace"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Ataque por fuerza bruta y ranking estadístico</h2>
+        <p class="muted">Se prueban las 27 claves y se ordenan por distancia χ² respecto de frecuencias aproximadas del castellano. Un puntaje bajo es una hipótesis estadística, no una prueba semántica.</p>
+        <div class="actions"><button id="attack" type="button">Probar las 27 claves</button></div>
+        <div id="candidates" aria-live="polite"></div>
+      </article>
+
+      <article class="card">
+        <h2>Qué demuestra</h2>
+        <ol class="steps">
+          <li>El espacio de claves contiene solo 27 posibilidades.</li>
+          <li>Una sustitución fija conserva la distribución de frecuencias.</li>
+          <li>La ilegibilidad visual no equivale a seguridad.</li>
+          <li>El algoritmo puede ser público: la debilidad está en el diseño y el tamaño de la clave.</li>
+        </ol>
+      </article>
+
+      <article class="card">
+        <h2>Límite importante</h2>
+        <div class="warning">Los bloques de cinco letras son una convención de presentación. Si se eliminaron los espacios originales entre palabras, César no contiene información suficiente para reconstruirlos automáticamente. El laboratorio no inventa separaciones.</div>
+      </article>
+    </section>
+
+    <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Modelo educativo: no utilizar para proteger información real.</p></footer>
+  </main>
+
+<script>
+(() => {
+  'use strict';
+  const ALPHABET=[...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
+  const N=ALPHABET.length;
+  const INDEX=new Map(ALPHABET.map((letter,index)=>[letter,index]));
+  const ACCENTS={Á:'A',À:'A',Ä:'A',Â:'A',É:'E',È:'E',Ë:'E',Ê:'E',Í:'I',Ì:'I',Ï:'I',Î:'I',Ó:'O',Ò:'O',Ö:'O',Ô:'O',Ú:'U',Ù:'U',Ü:'U',Û:'U'};
+  const FREQ={A:12.53,B:1.42,C:4.68,D:5.86,E:13.68,F:.69,G:1.01,H:.70,I:6.25,J:.44,K:.02,L:4.97,M:3.15,N:6.71,'Ñ':.31,O:8.68,P:2.51,Q:.88,R:6.87,S:7.98,T:4.63,U:3.93,V:.90,W:.01,X:.22,Y:.90,Z:.52};
+  const $=id=>document.getElementById(id);
+  let mode='encrypt';
+  const mod=(value,modulus)=>((value%modulus)+modulus)%modulus;
+  const normalizeChar=char=>{
+    const upper=char.toUpperCase();
+    return $('accents').value==='normalize' && ACCENTS[upper] ? ACCENTS[upper] : upper;
+  };
+  function transform(text,key,decrypt=false,withTrace=true){
+    let result=''; const trace=[];
+    for(const original of text){
+      const normalized=normalizeChar(original); const index=INDEX.get(normalized);
+      if(index===undefined){result+=original;continue;}
+      const next=mod(index+(decrypt?-key:key),N);
+      let out=ALPHABET[next];
+      if(original===original.toLowerCase()) out=out.toLowerCase();
+      result+=out;
+      if(withTrace) trace.push({original,out,index,next});
+    }
+    return {result,trace};
+  }
+  function score(text){
+    const letters=[...text.toUpperCase()].map(c=>ACCENTS[c]||c).filter(c=>INDEX.has(c));
+    if(!letters.length) return Infinity;
+    const counts=Object.fromEntries(ALPHABET.map(c=>[c,0]));
+    letters.forEach(c=>counts[c]++);
+    return ALPHABET.reduce((sum,c)=>{const expected=letters.length*FREQ[c]/100;return sum+((counts[c]-expected)**2)/Math.max(expected,.0001)},0);
+  }
+  function renderAlphabet(){
+    const key=Number($('key').value); const direction=mode==='encrypt'?1:-1;
+    $('plainAlphabet').innerHTML=ALPHABET.map(c=>`<span>${c}</span>`).join('');
+    $('shiftedAlphabet').innerHTML=ALPHABET.map((_,i)=>`<span>${ALPHABET[mod(i+direction*key,N)]}</span>`).join('');
+    $('formula').textContent=mode==='encrypt'?`C = (P + ${key}) mod ${N}`:`P = (C − ${key}) mod ${N}`;
+    $('keyValue').textContent=key;
+  }
+  function renderTrace(items){
+    $('trace').innerHTML=items.length?items.slice(0,120).map(item=>`<div class="trace-item"><strong>${item.original} → ${item.out}</strong><small>${item.index} ${mode==='encrypt'?'+':'−'} ${$('key').value} ≡ ${item.next} (mod ${N})</small></div>`).join(''):'<p class="muted">No hay letras para mostrar.</p>';
+  }
+  function run(){
+    const data=transform($('input').value,Number($('key').value),mode==='decrypt');
+    $('output').value=data.result; renderTrace(data.trace); renderAlphabet();
+    $('status').textContent=data.result?'Transformación ejecutada correctamente.':'Ingrese un texto.';
+  }
+  function setMode(next){mode=next;$('encrypt').setAttribute('aria-pressed',String(next==='encrypt'));$('decrypt').setAttribute('aria-pressed',String(next==='decrypt'));run();}
+  function attack(){
+    const source=$('input').value.trim()||$('output').value.trim();
+    if(!source){$('candidates').innerHTML='<p class="muted">No hay texto para analizar.</p>';return;}
+    const rows=Array.from({length:N},(_,key)=>{const candidate=transform(source,key,true,false).result;return{key,candidate,score:score(candidate)}}).sort((a,b)=>a.score-b.score);
+    $('candidates').innerHTML=rows.map((row,rank)=>`<div class="brute-row ${rank===0?'best':''}"><strong class="mono">#${rank+1} · k=${row.key}</strong><span class="mono">${row.candidate.replaceAll('&','&amp;').replaceAll('<','&lt;')}</span><span class="score">χ² ${Number.isFinite(row.score)?row.score.toFixed(2):'—'}</span><button type="button" data-key="${row.key}">Usar</button></div>`).join('');
+    $('candidates').querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{$('key').value=button.dataset.key;setMode('decrypt');window.scrollTo({top:0,behavior:'smooth'})}));
+  }
+  $('encrypt').addEventListener('click',()=>setMode('encrypt'));
+  $('decrypt').addEventListener('click',()=>setMode('decrypt'));
+  $('run').addEventListener('click',run); $('key').addEventListener('input',run); $('accents').addEventListener('change',run);
+  $('input').addEventListener('input',run); $('attack').addEventListener('click',attack);
+  $('swap').addEventListener('click',()=>{if(!$('output').value)return;$('input').value=$('output').value;setMode(mode==='encrypt'?'decrypt':'encrypt')});
+  $('copy').addEventListener('click',async()=>{if(!$('output').value)return;try{await navigator.clipboard.writeText($('output').value);$('status').textContent='Resultado copiado.'}catch{$('output').select();document.execCommand('copy')}});
+  $('clear').addEventListener('click',()=>{$('input').value='';$('output').value='';$('candidates').innerHTML='';run()});
+  $('theme').addEventListener('click',()=>{document.body.classList.toggle('theme-light');localStorage.setItem('cesar-theme',document.body.classList.contains('theme-light')?'light':'dark')});
+  if(localStorage.getItem('cesar-theme')==='light')document.body.classList.add('theme-light');
+  renderAlphabet();run();
+})();
+</script>
+</body>
+</html>
