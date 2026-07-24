@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Campus de ocho simuladores HTML sobre criptografía clásica, moderna, blockchain, privacidad y seguridad poscuántica.">
+  <meta name="description" content="Campus de laboratorios HTML sobre criptografía clásica, moderna, blockchain, privacidad y seguridad poscuántica.">
   <meta name="theme-color" content="#071321">
   <title>Campus de laboratorios de criptografía</title>
   <link rel="stylesheet" href="assets/lab.css">
@@ -11,7 +11,6 @@
 <body>
   <main class="shell">
     <a class="skip-link" href="#modulos">Saltar a los módulos</a>
-
     <header class="topbar">
       <div class="brand"><a href="../index.html">⛓️ Criptografía y Blockchain</a></div>
       <nav class="nav" aria-label="Navegación principal">
@@ -23,87 +22,41 @@
     <section class="hero">
       <div class="eyebrow">Aprender haciendo</div>
       <h1>Laboratorios interactivos de criptografía</h1>
-      <p>Ocho experiencias autónomas para experimentar con cifrados, matemática modular, primitivas modernas, esteganografía, blockchain, privacidad, transición poscuántica y seguridad de implementación.</p>
+      <p>Experiencias autónomas para experimentar con cifrados, matemática modular, primitivas modernas, esteganografía, blockchain, privacidad, transición poscuántica y seguridad de implementación.</p>
       <div class="pill-row" style="margin-top:18px">
         <span class="pill">HTML + CSS + JavaScript</span>
         <span class="pill">Sin instalación</span>
         <span class="pill">Compatible con GitHub Pages</span>
-        <span class="pill">Actividades y desafíos</span>
+        <span class="pill">Actividades, métricas y ataques</span>
       </div>
     </section>
 
+    <section class="grid" aria-label="Laboratorios destacados">
+      <article class="card full">
+        <div class="eyebrow">Nuevo laboratorio destacado</div>
+        <h2>Cifrado César para el alfabeto castellano</h2>
+        <p class="muted">Simulación independiente con Ñ, módulo 27, traza carácter por carácter, fuerza bruta y ranking estadístico χ². El laboratorio evita reconstruir de manera ficticia los espacios perdidos.</p>
+        <div class="actions"><a class="button" href="01a-cifrado-cesar-castellano.html">Abrir simulador avanzado</a></div>
+      </article>
+    </section>
+
     <section id="modulos" class="module-cards" aria-label="Módulos interactivos">
-      <a class="module-card" href="01-criptografia-clasica.html">
-        <span class="tag">Módulo 1</span>
-        <b>Criptografía clásica y criptoanálisis</b>
-        <p>César, Vigenère, frecuencias, índice de coincidencia y fuerza bruta.</p>
-      </a>
-      <a class="module-card" href="02-fundamentos-matematicos.html">
-        <span class="tag">Módulo 2</span>
-        <b>Fundamentos matemáticos</b>
-        <p>Aritmética modular, Euclides extendido, Diffie–Hellman y entropía.</p>
-      </a>
-      <a class="module-card" href="03-criptografia-moderna.html">
-        <span class="tag">Módulo 3</span>
-        <b>Criptografía moderna</b>
-        <p>SHA-256, AES-GCM, PBKDF2 y firmas ECDSA mediante Web Crypto.</p>
-      </a>
-      <a class="module-card" href="04-esteganografia.html">
-        <span class="tag">Módulo 4</span>
-        <b>Esteganografía digital</b>
-        <p>Ocultamiento LSB en imágenes, extracción, capacidad y análisis de distorsión.</p>
-      </a>
-      <a class="module-card" href="05-blockchain.html">
-        <span class="tag">Módulo 5</span>
-        <b>Criptografía y blockchain</b>
-        <p>Bloques enlazados, prueba de trabajo, manipulación y árboles de Merkle.</p>
-      </a>
-      <a class="module-card" href="06-protocolos-privacidad.html">
-        <span class="tag">Módulo 6</span>
-        <b>Protocolos y privacidad</b>
-        <p>Secret sharing, compromisos criptográficos e identificación de Schnorr.</p>
-      </a>
-      <a class="module-card" href="07-poscuantica-cuantica.html">
-        <span class="tag">Módulo 7</span>
-        <b>Poscuántica y cuántica</b>
-        <p>Grover, BB84, estándares NIST e inventario de migración.</p>
-      </a>
-      <a class="module-card" href="08-seguridad-aplicada.html">
-        <span class="tag">Módulo 8</span>
-        <b>Seguridad aplicada</b>
-        <p>Reutilización de nonces, CSPRNG, secretos, amenazas y ciclo de vida de claves.</p>
-      </a>
+      <a class="module-card" href="01-criptografia-clasica.html"><span class="tag">Módulo 1</span><b>Criptografía clásica y criptoanálisis</b><p>César, afín, Vigenère, frecuencias, índice de coincidencia, Kasiski y fuerza bruta.</p></a>
+      <a class="module-card" href="02-fundamentos-matematicos.html"><span class="tag">Módulo 2</span><b>Fundamentos matemáticos</b><p>Aritmética modular, Euclides extendido, Diffie–Hellman y entropía.</p></a>
+      <a class="module-card" href="03-criptografia-moderna.html"><span class="tag">Módulo 3</span><b>Criptografía moderna</b><p>SHA-256, AES-GCM, PBKDF2 y firmas ECDSA mediante Web Crypto.</p></a>
+      <a class="module-card" href="04-esteganografia.html"><span class="tag">Módulo 4</span><b>Esteganografía digital</b><p>Ocultamiento LSB en imágenes, extracción, capacidad y análisis de distorsión.</p></a>
+      <a class="module-card" href="05-blockchain.html"><span class="tag">Módulo 5</span><b>Criptografía y blockchain</b><p>Bloques enlazados, prueba de trabajo, manipulación y árboles de Merkle.</p></a>
+      <a class="module-card" href="06-protocolos-privacidad.html"><span class="tag">Módulo 6</span><b>Protocolos y privacidad</b><p>Secret sharing, compromisos criptográficos e identificación de Schnorr.</p></a>
+      <a class="module-card" href="07-poscuantica-cuantica.html"><span class="tag">Módulo 7</span><b>Poscuántica y cuántica</b><p>Grover, BB84, estándares NIST e inventario de migración.</p></a>
+      <a class="module-card" href="08-seguridad-aplicada.html"><span class="tag">Módulo 8</span><b>Seguridad aplicada</b><p>Reutilización de nonces, CSPRNG, secretos, amenazas y ciclo de vida de claves.</p></a>
     </section>
 
     <section class="grid">
-      <article class="card full">
-        <h2>Secuencia pedagógica</h2>
-        <ol class="steps">
-          <li><strong>Predecir:</strong> anticipar el resultado antes de ejecutar.</li>
-          <li><strong>Experimentar:</strong> cambiar una sola variable por vez.</li>
-          <li><strong>Explicar:</strong> relacionar el resultado con el objetivo de seguridad.</li>
-          <li><strong>Atacar:</strong> identificar el supuesto que permite quebrar el modelo.</li>
-          <li><strong>Transferir:</strong> conectar la observación con un sistema real.</li>
-        </ol>
-      </article>
-
-      <article class="card">
-        <h2>Para estudiantes</h2>
-        <p class="muted">Cada laboratorio contiene conceptos, controles, métricas, retroalimentación, advertencias de alcance y un desafío integrador. Se recomienda registrar hipótesis y conclusiones en una bitácora.</p>
-      </article>
-
-      <article class="card">
-        <h2>Para docentes</h2>
-        <p class="muted">La suite puede utilizarse como demostración, práctica guiada, trabajo grupal o evaluación oral.</p>
-        <div class="actions">
-          <a class="button secondary" href="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/docs/criptografia/guia-docente-simuladores.md" target="_blank" rel="noopener noreferrer">Abrir guía docente ↗</a>
-        </div>
-      </article>
+      <article class="card full"><h2>Secuencia pedagógica</h2><ol class="steps"><li><strong>Predecir:</strong> anticipar el resultado antes de ejecutar.</li><li><strong>Experimentar:</strong> cambiar una sola variable por vez.</li><li><strong>Explicar:</strong> relacionar el resultado con el objetivo de seguridad.</li><li><strong>Atacar:</strong> identificar el supuesto que permite quebrar el modelo.</li><li><strong>Transferir:</strong> conectar la observación con un sistema real.</li></ol></article>
+      <article class="card"><h2>Para estudiantes</h2><p class="muted">Cada laboratorio contiene conceptos, controles, métricas, retroalimentación, advertencias de alcance y un desafío integrador. Se recomienda registrar hipótesis y conclusiones en una bitácora.</p></article>
+      <article class="card"><h2>Para docentes</h2><p class="muted">La suite puede utilizarse como demostración, práctica guiada, trabajo grupal o evaluación oral.</p><div class="actions"><a class="button secondary" href="https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/docs/criptografia/guia-docente-simuladores.md" target="_blank" rel="noopener noreferrer">Abrir guía docente ↗</a></div></article>
     </section>
-
-    <footer class="footer">
-      <p>Material educativo. Los mecanismos simplificados no deben utilizarse para proteger información real.</p>
-    </footer>
+    <footer class="footer"><p>Material educativo. Los mecanismos simplificados no deben utilizarse para proteger información real.</p></footer>
   </main>
 </body>
 </html>
