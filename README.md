@@ -1,12 +1,15 @@
 <div align="center">
 
-# ⛓️ Criptografía y Blockchain
+<a href="https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizaci%C3%B3n_%20art%C3%ADstica_julia.html">
+  <img src="assets/readme-hero.svg" width="100%" alt="Criptografía y Blockchain: laboratorio académico y profesional">
+</a>
 
-### De los cifrados clásicos a la seguridad poscuántica, los protocolos de privacidad y las aplicaciones descentralizadas
+<br>
 
-[![Abrir sitio](https://img.shields.io/badge/Abrir-Sitio%20interactivo-0ea5e9?style=for-the-badge&logo=html5&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/)
-[![Campus](https://img.shields.io/badge/Abrir-Laboratorios-2563eb?style=for-the-badge&logo=googlescholar&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/)
-[![Guía docente](https://img.shields.io/badge/Leer-Guía%20docente-7c3aed?style=for-the-badge&logo=readthedocs&logoColor=white)](docs/criptografia/guia-docente-simuladores.md)
+[![Sitio interactivo](https://img.shields.io/badge/LIVE-SITIO%20INTERACTIVO-00bcd4?style=for-the-badge&logo=html5&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/)
+[![Campus de laboratorios](https://img.shields.io/badge/LIVE-LABORATORIOS-2563eb?style=for-the-badge&logo=googlescholar&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/)
+[![Teoría](https://img.shields.io/badge/DOCS-CAMPUS%20TEÓRICO-7c3aed?style=for-the-badge&logo=readthedocs&logoColor=white)](docs/criptografia/README.md)
+[![Guía docente](https://img.shields.io/badge/DOCS-GUÍA%20DOCENTE-d97706?style=for-the-badge&logo=bookstack&logoColor=white)](docs/criptografia/guia-docente-simuladores.md)
 
 ![GitHub Stars](https://img.shields.io/github/stars/sgevatschnaider/CriptografiayBlockchain?style=flat-square&logo=github)
 ![GitHub Forks](https://img.shields.io/github/forks/sgevatschnaider/CriptografiayBlockchain?style=flat-square&logo=github)
@@ -15,28 +18,38 @@
 
 </div>
 
-Este repositorio es una ruta de aprendizaje teórica, matemática y práctica para comprender cómo se construye la confianza digital. Integra criptografía clásica, criptografía moderna, esteganografía, privacidad avanzada, blockchain, contratos inteligentes, seguridad poscuántica y fundamentos de criptografía cuántica.
+Este repositorio es un **laboratorio académico y profesional** para estudiar cómo se construye la confianza digital. Integra fundamentos matemáticos, criptografía clásica y moderna, esteganografía, privacidad avanzada, blockchain, contratos inteligentes, seguridad poscuántica y criptografía cuántica.
 
 > **Principio rector:** un algoritmo criptográfico no es seguro únicamente por su matemática. También importan el protocolo, la generación y custodia de claves, la implementación, el entorno de ejecución y el modelo de amenazas.
 
 ---
 
-## 🌐 Visualización directa
+## 🧭 Acceso directo por módulos
 
-Los laboratorios se publican automáticamente mediante **GitHub Pages**. Al pulsar los enlaces de la tabla, el navegador ejecuta el HTML; no se muestra el código fuente del archivo.
+<div align="center">
 
-**Sitio principal:** https://sgevatschnaider.github.io/CriptografiayBlockchain/
+[![Módulo 1](https://img.shields.io/badge/MÓDULO%201-CRIPTOGRAFÍA%20CLÁSICA-0f766e?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html)
+[![Módulo 2](https://img.shields.io/badge/MÓDULO%202-FUNDAMENTOS%20MATEMÁTICOS-1d4ed8?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/02-fundamentos-matematicos.html)
+[![Módulo 3](https://img.shields.io/badge/MÓDULO%203-CRIPTOGRAFÍA%20MODERNA-6d28d9?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/03-criptografia-moderna.html)
+[![Módulo 4](https://img.shields.io/badge/MÓDULO%204-ESTEGANOGRAFÍA-be123c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html)
 
-| Módulo | Abrir simulación | Experimentos principales |
-|---|---|---|
-| **1. Criptografía clásica** | [Ejecutar laboratorio](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) | César, Vigenère, frecuencias, índice de coincidencia y fuerza bruta |
-| **2. Fundamentos matemáticos** | [Ejecutar laboratorio](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/02-fundamentos-matematicos.html) | Congruencias, inversos, Euclides extendido, Diffie–Hellman y entropía |
-| **3. Criptografía moderna** | [Ejecutar laboratorio](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/03-criptografia-moderna.html) | SHA-256, PBKDF2, AES-GCM y ECDSA mediante Web Crypto |
-| **4. Esteganografía** | [Ejecutar laboratorio](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) | LSB, extracción, capacidad, PSNR y estegoanálisis básico |
-| **5. Blockchain** | [Ejecutar laboratorio](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) | Prueba de trabajo, cadena de hashes, manipulación y árboles de Merkle |
-| **6. Protocolos y privacidad** | [Ejecutar laboratorio](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) | Shamir, compromisos hash e identificación de Schnorr |
-| **7. Poscuántica y cuántica** | [Ejecutar laboratorio](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html) | Grover, BB84, estándares NIST e inventario de migración |
-| **8. Seguridad aplicada** | [Ejecutar laboratorio](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/08-seguridad-aplicada.html) | Nonces, CSPRNG, secretos, amenazas y ciclo de vida de claves |
+[![Módulo 5](https://img.shields.io/badge/MÓDULO%205-BLOCKCHAIN-111827?style=for-the-badge&logo=ethereum)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html)
+[![Módulo 6](https://img.shields.io/badge/MÓDULO%206-PRIVACIDAD%20Y%20PROTOCOLOS-9d174d?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html)
+[![Módulo 7](https://img.shields.io/badge/MÓDULO%207-POSCUÁNTICA%20Y%20CUÁNTICA-0891b2?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html)
+[![Módulo 8](https://img.shields.io/badge/MÓDULO%208-SEGURIDAD%20APLICADA-b91c1c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/08-seguridad-aplicada.html)
+
+</div>
+
+### Laboratorios destacados
+
+<div align="center">
+
+[![César castellano](https://img.shields.io/badge/LAB-CÉSAR%20CASTELLANO-00a6a6?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01a-cifrado-cesar-castellano.html)
+[![Criptoanálisis clásico](https://img.shields.io/badge/LAB-CRIPTOANÁLISIS-2563eb?style=for-the-badge&logo=python&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html)
+[![Blockchain y Merkle](https://img.shields.io/badge/LAB-BLOCKCHAIN%20Y%20MERKLE-111827?style=for-the-badge&logo=bitcoin&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html)
+[![Grover y BB84](https://img.shields.io/badge/LAB-GROVER%20Y%20BB84-7c3aed?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html)
+
+</div>
 
 ---
 
@@ -74,21 +87,29 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 | **7** | Poscuántica y cuántica | Shor, Grover, ML-KEM, ML-DSA, SLH-DSA, migración y QKD | Diseñar una estrategia de transición criptográfica |
 | **8** | Seguridad aplicada | Gestión de claves, HSM, side channels, nonces, CSPRNG y threat modeling | Evitar fallas de implementación y operación |
 
-El material teórico completo se encuentra en [`docs/criptografia`](docs/criptografia/README.md).
+<div align="center">
+
+[![Campus teórico](https://img.shields.io/badge/ABRIR-CAMPUS%20TEÓRICO-7c3aed?style=for-the-badge&logo=markdown&logoColor=white)](docs/criptografia/README.md)
+[![Plan de simuladores](https://img.shields.io/badge/ABRIR-PLAN%20DE%20SIMULADORES-0f766e?style=for-the-badge&logo=checkmarx&logoColor=white)](docs/criptografia/plan-desarrollo-simuladores.md)
+
+</div>
 
 ---
 
-## 🎨 Visualizaciones anteriores conservadas
+## 🎨 Visualizaciones experimentales
 
-| Recurso | Acceso web |
-|---|---|
-| Hipercubo criptográfico | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/hipercubo_criptografico.html) |
-| Ataque y defensa Cripto-DNN | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/ataque_%20y_%20defensa.html) |
-| Fractales de Julia | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizaci%C3%B3n_%20art%C3%ADstica_julia.html) |
-| Campos de polinomios finitos | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizacion_%20artistica_polinomio%20.html) |
-| Anatomía de SHA-256 | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/cryptocube.html) |
-| Grafo de Petersen y teoría espectral | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/spectral-graph-visualizer.html) |
-| Protocolo Fiat–Shamir | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/protocolo_fiat_shamir.html) |
+<div align="center">
+
+[![Laboratorio esteganográfico](https://img.shields.io/badge/VISUAL-LABORATORIO%20ESTEGANOGRÁFICO-ff0080?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizaci%C3%B3n_%20art%C3%ADstica_julia.html)
+[![Hipercubo criptográfico](https://img.shields.io/badge/VISUAL-HIPERCUBO%20CRIPTOGRÁFICO-00bcd4?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/hipercubo_criptografico.html)
+[![Cripto DNN](https://img.shields.io/badge/VISUAL-ATAQUE%20Y%20DEFENSA%20DNN-f97316?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/ataque_%20y_%20defensa.html)
+
+[![Campos finitos](https://img.shields.io/badge/VISUAL-CAMPOS%20FINITOS-16a34a?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/visualizacion_%20artistica_polinomio%20.html)
+[![Anatomía SHA-256](https://img.shields.io/badge/VISUAL-ANATOMÍA%20SHA--256-2563eb?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/cryptocube.html)
+[![Grafo de Petersen](https://img.shields.io/badge/VISUAL-GRAFO%20DE%20PETERSEN-7c3aed?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/spectral-graph-visualizer.html)
+[![Fiat–Shamir](https://img.shields.io/badge/VISUAL-FIAT–SHAMIR-be123c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/recursos/protocolo_fiat_shamir.html)
+
+</div>
 
 ---
 
@@ -126,10 +147,13 @@ El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 
 ```text
 .
+├── assets/
+│   └── readme-hero.svg
 ├── index.html
 ├── simuladores/
 │   ├── index.html
 │   ├── 01-criptografia-clasica.html
+│   ├── 01a-cifrado-cesar-castellano.html
 │   ├── 02-fundamentos-matematicos.html
 │   ├── 03-criptografia-moderna.html
 │   ├── 04-esteganografia.html
@@ -140,9 +164,12 @@ El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 │   └── assets/
 ├── docs/criptografia/
 ├── recursos/
-├── scripts/validate-simulators.mjs
+├── scripts/
+├── tests/
 └── .github/workflows/pages.yml
 ```
+
+---
 
 ## 📄 Licencia
 
