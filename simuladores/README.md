@@ -1,26 +1,92 @@
 # 🔬 Laboratorios interactivos de criptografía
 
-Esta carpeta reúne ocho simuladores HTML que complementan los módulos teóricos del repositorio.
+Esta carpeta reúne el campus ejecutable del repositorio. Cada módulo posee:
+
+1. un **laboratorio integral**;
+2. una **página de catálogo modular**;
+3. simulaciones especializadas independientes;
+4. teoría, scripts, notebooks y recursos complementarios.
 
 ## Acceso web directo
-
-GitHub muestra el código fuente cuando se abre un archivo `.html` desde la vista del repositorio. Para **ejecutar** los laboratorios se utiliza GitHub Pages:
 
 - [Abrir la portada del proyecto](https://sgevatschnaider.github.io/CriptografiayBlockchain/)
 - [Abrir el campus interactivo](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/)
 
-## Laboratorios
+## Catálogos por módulo
 
-| Módulo | Simulación ejecutable | Experimentos principales |
+| Módulo | Catálogo | Laboratorio integral |
 |---|---|---|
-| 1 | [Criptografía clásica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) | César, Vigenère, frecuencias, índice de coincidencia y fuerza bruta |
-| 2 | [Fundamentos matemáticos](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/02-fundamentos-matematicos.html) | Congruencias, inversos, Euclides extendido, Diffie–Hellman y entropía |
-| 3 | [Criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/03-criptografia-moderna.html) | SHA-256, AES-GCM, PBKDF2 y ECDSA mediante Web Crypto |
-| 4 | [Esteganografía](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) | Inserción LSB, extracción, capacidad, PSNR y distorsión |
-| 5 | [Blockchain](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) | Prueba de trabajo, encadenamiento, validación y Merkle trees |
-| 6 | [Protocolos y privacidad](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) | Shamir, compromisos hash y Schnorr simplificado |
-| 7 | [Poscuántica y cuántica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html) | Grover, BB84, estándares NIST y estrategia de migración |
-| 8 | [Seguridad aplicada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/08-seguridad-aplicada.html) | Nonces, CSPRNG, secretos, amenazas y ciclo de vida de claves |
+| 1 | [Criptografía clásica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-01/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) |
+| 2 | [Fundamentos matemáticos](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/02-fundamentos-matematicos.html) |
+| 3 | [Criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/03-criptografia-moderna.html) |
+| 4 | [Esteganografía](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-04/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) |
+| 5 | [Blockchain](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-05/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) |
+| 6 | [Protocolos y privacidad](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-06/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) |
+| 7 | [Poscuántica y cuántica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-07/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html) |
+| 8 | [Seguridad aplicada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-08/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/08-seguridad-aplicada.html) |
+
+## Arquitectura
+
+```text
+simuladores/
+├── index.html
+├── README.md
+├── catalogo.json
+├── 01-criptografia-clasica.html
+├── 01a-cifrado-cesar-castellano.html
+├── 02-fundamentos-matematicos.html
+├── 03-criptografia-moderna.html
+├── 04-esteganografia.html
+├── 05-blockchain.html
+├── 06-protocolos-privacidad.html
+├── 07-poscuantica-cuantica.html
+├── 08-seguridad-aplicada.html
+├── modulo-01/
+│   └── index.html
+├── modulo-02/
+│   └── index.html
+├── ...
+├── modulo-08/
+│   └── index.html
+└── assets/
+    ├── lab.css
+    └── lab.js
+```
+
+## Cómo agregar una simulación nueva
+
+1. Crear el archivo HTML dentro de la carpeta del módulo, por ejemplo:
+
+   ```text
+   simuladores/modulo-01/cifrado-afin.html
+   ```
+
+2. Usar nombres sin espacios, tildes ni paréntesis.
+3. Enlazar la simulación desde `simuladores/modulo-01/index.html`.
+4. Registrar el recurso en `simuladores/catalogo.json`.
+5. Incluir navegación de regreso al módulo y al campus.
+6. Probar localmente con:
+
+   ```bash
+   python -m http.server 8000
+   ```
+
+7. Abrir un Pull Request y verificar los checks antes del merge.
+
+## Estructura pedagógica común
+
+Cada simulación debería incluir:
+
+1. pregunta rectora;
+2. definición y objetivo de seguridad;
+3. modelo matemático;
+4. controles experimentales;
+5. visualización o métricas;
+6. ataque, falla o límite;
+7. interpretación;
+8. transferencia a un sistema real;
+9. advertencia de alcance;
+10. desafío final.
 
 ## Diseño pedagógico
 
@@ -34,57 +100,17 @@ Cada laboratorio sigue cinco momentos:
 
 ## Calidad técnica común
 
-Los laboratorios comparten `assets/lab.css` y `assets/lab.js`, que proporcionan:
-
-- diseño responsivo para escritorio y dispositivos móviles;
-- navegación consistente y controles aptos para teclado;
-- asociación entre etiquetas y campos;
-- regiones accesibles para resultados y errores;
-- detección de Web Crypto y contexto HTTPS;
-- manejo visible de excepciones y promesas rechazadas;
-- utilidades criptográficas y matemáticas encapsuladas;
-- generación aleatoria sin sesgo modular para los rangos didácticos.
-
-## Arquitectura
-
-```text
-simuladores/
-├── index.html
-├── 01-criptografia-clasica.html
-├── 02-fundamentos-matematicos.html
-├── 03-criptografia-moderna.html
-├── 04-esteganografia.html
-├── 05-blockchain.html
-├── 06-protocolos-privacidad.html
-├── 07-poscuantica-cuantica.html
-├── 08-seguridad-aplicada.html
-└── assets/
-    ├── lab.css
-    └── lab.js
-```
-
-Los laboratorios no requieren instalación. Las funciones criptográficas modernas deben ejecutarse en un contexto seguro, como GitHub Pages mediante HTTPS o un servidor local.
+Los laboratorios comparten `assets/lab.css` y `assets/lab.js`, que proporcionan diseño responsivo, navegación consistente, controles accesibles, regiones de estado, manejo visible de errores y utilidades matemáticas o criptográficas.
 
 ## Validación
 
-El script `scripts/validate-simulators.mjs` revisa automáticamente:
-
-- existencia de todos los archivos;
-- estructura HTML básica;
-- sintaxis de JavaScript;
-- enlaces locales;
-- identificadores duplicados;
-- importación de utilidades compartidas;
-- presencia de elementos pedagógicos y de retroalimentación.
-
-La acción `.github/workflows/pages.yml` ejecuta esta validación en cada pull request y publica el sitio después de actualizar `main`.
+El script `scripts/validate-simulators.mjs` revisa la estructura HTML, la sintaxis de JavaScript, enlaces locales, identificadores duplicados y la existencia de los laboratorios obligatorios. La acción `.github/workflows/pages.yml` ejecuta la validación en cada Pull Request y publica el sitio después de actualizar `main`.
 
 ## Alcance de seguridad
 
-- Los cifrados clásicos, Diffie–Hellman con números pequeños, Schnorr simplificado, blockchain didáctica y reutilización de flujo son modelos educativos.
-- AES-GCM, PBKDF2, SHA-256, ECDSA y el generador aleatorio se invocan mediante primitivas del navegador, pero la interfaz no es una aplicación de producción.
-- El módulo poscuántico describe estándares y migración; no implementa ML-KEM, ML-DSA ni SLH-DSA.
-- No deben introducirse secretos, claves o datos reales en estos laboratorios.
+- Los cifrados clásicos, grupos pequeños y protocolos simplificados son modelos educativos.
+- No deben introducirse secretos, claves o datos reales.
+- Los ejemplos no sustituyen bibliotecas auditadas ni una revisión profesional.
 
 ## Material docente
 
