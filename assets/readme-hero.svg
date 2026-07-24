@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" viewBox="0 0 1600 620" role="img" aria-labelledby="title desc">
+  <title id="title">Criptografía y Blockchain</title>
+  <desc id="desc">Portada visual con red criptográfica, bloques enlazados y geometría generativa.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#05080d"/>
+      <stop offset="0.5" stop-color="#071321"/>
+      <stop offset="1" stop-color="#120b26"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0.18" cy="0.20" r="0.52">
+      <stop offset="0" stop-color="#00ffff" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#00ffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.82" cy="0.78" r="0.54">
+      <stop offset="0" stop-color="#ff0080" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#ff0080" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00ffff"/>
+      <stop offset="0.55" stop-color="#7c6cff"/>
+      <stop offset="1" stop-color="#ff3fa4"/>
+    </linearGradient>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M44 0H0V44" fill="none" stroke="#9fdfff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="620" rx="28" fill="url(#bg)"/>
+  <rect width="1600" height="620" rx="28" fill="url(#glow1)"/>
+  <rect width="1600" height="620" rx="28" fill="url(#glow2)"/>
+  <rect width="1600" height="620" rx="28" fill="url(#grid)"/>
+
+  <g opacity="0.56" stroke="url(#accent)" fill="none" stroke-width="2">
+    <path d="M1030 105L1182 76 1328 151 1437 278 1365 432 1197 514 1037 447 951 284Z"/>
+    <path d="M1030 105L1197 514M1182 76L1037 447M1328 151L951 284M1437 278L1030 105M1365 432L1182 76" opacity="0.45"/>
+    <circle cx="1197" cy="292" r="137"/>
+    <circle cx="1197" cy="292" r="89" opacity="0.6"/>
+    <circle cx="1197" cy="292" r="43" opacity="0.85"/>
+  </g>
+
+  <g fill="#071321" stroke="url(#accent)" stroke-width="3" filter="url(#softGlow)">
+    <rect x="1000" y="220" width="146" height="96" rx="16"/>
+    <rect x="1158" y="268" width="146" height="96" rx="16"/>
+    <rect x="1316" y="220" width="146" height="96" rx="16"/>
+  </g>
+  <g fill="#dffcff" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="1073" y="258" font-size="16" font-weight="700">HASH</text>
+    <text x="1073" y="286" font-size="12" fill="#8eb8cd">0x8f…a2</text>
+    <text x="1231" y="306" font-size="16" font-weight="700">BLOCK</text>
+    <text x="1231" y="334" font-size="12" fill="#8eb8cd">MERKLE ROOT</text>
+    <text x="1389" y="258" font-size="16" font-weight="700">SIGN</text>
+    <text x="1389" y="286" font-size="12" fill="#8eb8cd">ECDSA</text>
+  </g>
+
+  <g fill="none" stroke="url(#accent)" stroke-width="4" stroke-linecap="round">
+    <path d="M1146 268H1158"/>
+    <path d="M1304 316H1316"/>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="96" y="154" fill="#9ffcff" font-size="19" font-weight="700" letter-spacing="4">LABORATORIO ACADÉMICO Y PROFESIONAL</text>
+    <text x="92" y="247" fill="#ffffff" font-size="72" font-weight="800">Criptografía</text>
+    <text x="92" y="327" fill="url(#accent)" font-size="72" font-weight="800">y Blockchain</text>
+    <text x="96" y="384" fill="#a9bfd3" font-size="24">Matemática · Seguridad · Privacidad · Sistemas descentralizados</text>
+    <text x="96" y="438" fill="#d8e7f3" font-size="20">De los cifrados clásicos a la seguridad poscuántica</text>
+  </g>
+
+  <g transform="translate(96 485)">
+    <rect width="520" height="54" rx="27" fill="#091a2c" stroke="#00ffff" stroke-opacity="0.5"/>
+    <circle cx="30" cy="27" r="7" fill="#4dffb8" filter="url(#softGlow)"/>
+    <text x="53" y="35" fill="#dffcff" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Simuladores · Notebooks · Protocolos · Blockchain</text>
+  </g>
+</svg>
