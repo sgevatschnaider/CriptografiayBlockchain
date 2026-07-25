@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo del cifrado Hill 2x2 con matrices, cifrado, descifrado, difusión por bloques y validación modular.">
+  <title>Cifrado Hill 2×2 | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    .hill-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.8fr);gap:18px}.matrix{display:grid;grid-template-columns:repeat(2,76px);gap:9px;justify-content:center;padding:18px;border-left:4px solid var(--accent);border-right:4px solid var(--accent);border-radius:18px;background:#071625}.matrix input{width:76px;text-align:center;font-size:1.35rem;font-weight:800}.matrix-readonly span{display:grid;place-items:center;min-height:54px;border:1px solid var(--border);border-radius:10px;background:#061522;font-size:1.3rem;font-weight:800;color:var(--accent)}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:center}.flow-symbol{font-size:2rem;color:var(--accent);font-weight:900}.vector{display:grid;gap:8px;padding:14px;border-left:4px solid var(--border-strong);border-right:4px solid var(--border-strong);border-radius:14px;background:#071625}.vector span{display:grid;place-items:center;min-height:52px;border:1px solid var(--border);border-radius:10px;background:#061522;font-size:1.2rem;font-weight:800}.metric-grid,.block-grid,.diff-grid{display:grid;gap:12px}.metric-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.metric{padding:14px;border:1px solid var(--border);border-radius:13px;background:#071625}.metric strong{display:block;font-size:1.15rem;margin-bottom:4px}.metric span{color:var(--muted);font-size:.82rem}.block-grid{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-top:14px}.block-card{padding:12px;border:1px solid var(--border);border-radius:12px;background:#071625;text-align:center}.block-card strong{display:block;color:var(--accent);margin-bottom:5px}.diff-grid{grid-template-columns:1fr 1fr}.notice{padding:14px;border-left:4px solid var(--good);border-radius:10px;background:rgba(74,222,163,.07)}.notice.warn{border-left-color:#ffd166;background:rgba(255,209,102,.07)}.calc{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;line-height:1.65;padding:14px;border:1px solid var(--border);border-radius:12px;background:#061522}.output-label{display:block;margin:14px 0 7px;font-weight:800}.output{min-height:84px}.small-note{font-size:.85rem;color:var(--muted)}@media(max-width:900px){.hill-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:1fr}.flow-symbol{text-align:center}.diff-grid{grid-template-columns:1fr}}@media(max-width:560px){.metric-grid{grid-template-columns:1fr}.matrix{grid-template-columns:repeat(2,64px)}.matrix input{width:64px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar"><div class="brand"><a href="index.html">← Módulo 1</a></div><nav class="nav"><a href="ic-entropia-criptosistemas.html">IC y entropía</a><a href="../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a></nav></header>
+
+    <section class="hero">
+      <div class="eyebrow">Sustitución poligráfica · álgebra lineal modular</div>
+      <h1>Cifrado Hill 2×2</h1>
+      <p>Explorá cómo una matriz invertible transforma bloques de dos letras mediante <strong>C = KP mod 26</strong>. El laboratorio muestra cifrado, descifrado, determinante, matriz inversa y difusión dentro del bloque.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card full">
+        <div class="hill-grid">
+          <section>
+            <h2>Clave matricial</h2>
+            <p class="muted">Usamos A=0, B=1, …, Z=25.</p>
+            <div class="matrix" aria-label="Matriz clave 2 por 2">
+              <input id="k11" type="number" value="3" min="0" max="25" aria-label="k11">
+              <input id="k12" type="number" value="3" min="0" max="25" aria-label="k12">
+              <input id="k21" type="number" value="2" min="0" max="25" aria-label="k21">
+              <input id="k22" type="number" value="5" min="0" max="25" aria-label="k22">
+            </div>
+            <div class="actions"><button id="random-key" type="button">Generar matriz válida</button><button id="reset-key" class="secondary" type="button">Restablecer</button></div>
+          </section>
+
+          <section>
+            <h2>Validez e inversa</h2>
+            <div class="metric-grid">
+              <div class="metric"><strong id="det">—</strong><span>det(K)</span></div>
+              <div class="metric"><strong id="detmod">—</strong><span>det(K) mod 26</span></div>
+              <div class="metric"><strong id="gcd">—</strong><span>mcd(det,26)</span></div>
+              <div class="metric"><strong id="valid">—</strong><span>Clave</span></div>
+            </div>
+            <div class="key-label" style="margin-top:14px">Matriz inversa K⁻¹ mod 26</div>
+            <div id="inverse" class="matrix matrix-readonly"></div>
+          </section>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Cifrar y descifrar</h2>
+        <div class="controls">
+          <div class="control full"><label for="text">Texto</label><textarea id="text" rows="5">EN CRIPTOGRAFIA CLASICA LOS BLOQUES SE TRANSFORMAN CON MATRICES</textarea></div>
+        </div>
+        <div class="actions"><button id="encrypt" type="button">Cifrar</button><button id="decrypt" class="secondary" type="button">Descifrar entrada</button><button id="use-output" class="secondary" type="button">Usar resultado como entrada</button></div>
+        <div id="status" class="status" aria-live="polite"></div>
+        <label class="output-label" for="out">Resultado</label>
+        <div id="out" class="output" aria-live="polite"></div>
+        <p class="small-note">Hill opera sobre letras normalizadas sin espacios. Si la longitud es impar, se agrega X como relleno.</p>
+      </article>
+
+      <article class="card full">
+        <h2>Transformación paso a paso</h2>
+        <div id="flow" class="flow"></div>
+        <div id="calculation" class="calc" style="margin-top:16px"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Bloques procesados</h2>
+        <p class="muted">Cada tarjeta muestra un bloque claro y su bloque cifrado.</p>
+        <div id="blocks" class="block-grid"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Difusión dentro del bloque</h2>
+        <p class="muted">Cambiar una sola letra de entrada puede modificar ambas letras de salida porque cada componente depende de las dos coordenadas.</p>
+        <div class="diff-grid">
+          <div>
+            <div class="control"><label for="block-a">Bloque A</label><input id="block-a" value="HO" maxlength="2"></div>
+            <div id="block-a-result" class="notice"></div>
+          </div>
+          <div>
+            <div class="control"><label for="block-b">Bloque B</label><input id="block-b" value="IO" maxlength="2"></div>
+            <div id="block-b-result" class="notice"></div>
+          </div>
+        </div>
+        <div id="diff-result" class="notice warn" style="margin-top:14px"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Qué demuestra</h2>
+        <ul class="steps">
+          <li>Hill es una sustitución <strong>poligráfica</strong>: transforma bloques, no letras aisladas.</li>
+          <li>La matriz debe ser invertible módulo 26: <strong>mcd(det(K),26)=1</strong>.</li>
+          <li>La difusión ocurre dentro del bloque; no equivale al efecto avalancha de un cifrado moderno.</li>
+          <li>Las frecuencias monográficas suelen modificarse, pero el sistema sigue siendo lineal y determinista.</li>
+          <li>Con suficientes pares de texto claro y cifrado, la clave puede recuperarse mediante álgebra lineal modular.</li>
+        </ul>
+      </article>
+    </section>
+
+    <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p></footer>
+  </main>
+
+  <script>
+    'use strict';
+    const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ',$=id=>document.getElementById(id),mod=(n,m)=>((n%m)+m)%m;
+    let lastResult='',lastMode='encrypt';
+    const norm=s=>s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/Ñ/g,'N').replace(/[^A-Z]/g,'');
+    const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+    function invMod(a,m){a=mod(a,m);for(let x=1;x<m;x++)if(mod(a*x,m)===1)return x;return null}
+    function key(){return [[mod(+$('k11').value||0,26),mod(+$('k12').value||0,26)],[mod(+$('k21').value||0,26),mod(+$('k22').value||0,26)]]}
+    function det(K){return K[0][0]*K[1][1]-K[0][1]*K[1][0]}
+    function inverse(K){const d=mod(det(K),26),di=invMod(d,26);if(di===null)return null;return [[mod(di*K[1][1],26),mod(-di*K[0][1],26)],[mod(-di*K[1][0],26),mod(di*K[0][0],26)]]}
+    function mul(K,v){return [mod(K[0][0]*v[0]+K[0][1]*v[1],26),mod(K[1][0]*v[0]+K[1][1]*v[1],26)]}
+    const toVec=b=>[A.indexOf(b[0]),A.indexOf(b[1])],toText=v=>A[v[0]]+A[v[1]];
+    function transform(text,decrypt=false){const K=key(),M=decrypt?inverse(K):K;if(!M)throw new Error('La matriz no es invertible módulo 26.');let s=norm(text);if(s.length%2)s+='X';const blocks=[];let out='';for(let i=0;i<s.length;i+=2){const b=s.slice(i,i+2),v=toVec(b),r=mul(M,v),c=toText(r);blocks.push({plain:b,vec:v,resultVec:r,result:c});out+=c}return{out,blocks,matrix:M,padded:s}}
+    function renderKey(){const K=key(),d=det(K),dm=mod(d,26),g=gcd(dm,26),I=inverse(K);$('det').textContent=d;$('detmod').textContent=dm;$('gcd').textContent=g;$('valid').textContent=I?'Válida ✓':'Inválida';const box=$('inverse');box.replaceChildren();(I||[['—','—'],['—','—']]).flat().forEach(x=>{const s=document.createElement('span');s.textContent=x;box.append(s)});return I}
+    function renderResult(data,decrypt){lastResult=data.out;lastMode=decrypt?'decrypt':'encrypt';$('out').textContent=data.out;$('status').innerHTML=`<span class="ok">${decrypt?'Descifrado':'Cifrado'} ejecutado.</span> ${data.blocks.length} bloques procesados.`;renderBlocks(data.blocks,decrypt);renderStep(data.blocks[0],data.matrix,decrypt)}
+    function renderBlocks(blocks,decrypt){const box=$('blocks');box.replaceChildren();blocks.slice(0,40).forEach((b,i)=>{const c=document.createElement('div');c.className='block-card';c.innerHTML=`<strong>Bloque ${i+1}</strong>${decrypt?b.plain+' → '+b.result:b.plain+' → '+b.result}`;box.append(c)})}
+    function renderStep(b,M,decrypt){const flow=$('flow');flow.replaceChildren();if(!b){$('calculation').textContent='No hay bloques para mostrar.';return}const mk=(title,items,cls='vector')=>{const w=document.createElement('div'),h=document.createElement('div');h.className='small-note';h.textContent=title;w.append(h);const v=document.createElement('div');v.className=cls;items.forEach(x=>{const s=document.createElement('span');s.textContent=x;v.append(s)});w.append(v);return w};flow.append(mk(decrypt?'K⁻¹':'K',[M[0][0]+'  '+M[0][1],M[1][0]+'  '+M[1][1]]),Object.assign(document.createElement('div'),{className:'flow-symbol',textContent:'×'}),mk('Vector de entrada',[`${b.vec[0]} (${b.plain[0]})`,`${b.vec[1]} (${b.plain[1]})`]),Object.assign(document.createElement('div'),{className:'flow-symbol',textContent:'='}),mk('Vector de salida',[`${b.resultVec[0]} (${b.result[0]})`,`${b.resultVec[1]} (${b.result[1]})`]));$('calculation').textContent=`c₁ = (${M[0][0]}·${b.vec[0]} + ${M[0][1]}·${b.vec[1]}) mod 26 = ${b.resultVec[0]} (${b.result[0]})\nc₂ = (${M[1][0]}·${b.vec[0]} + ${M[1][1]}·${b.vec[1]}) mod 26 = ${b.resultVec[1]} (${b.result[1]})`}
+    function run(decrypt=false){try{if(!renderKey())throw new Error('La matriz no es invertible módulo 26.');renderResult(transform($('text').value,decrypt),decrypt)}catch(e){$('status').innerHTML=`<span class="bad">Error:</span> ${e.message}`;$('out').textContent=''}}
+    function compareBlocks(){const K=key();if(!inverse(K)){return}const read=id=>{let s=norm($(id).value).slice(0,2);while(s.length<2)s+='X';$(id).value=s;return s},a=read('block-a'),b=read('block-b'),ra=toText(mul(K,toVec(a))),rb=toText(mul(K,toVec(b)));$('block-a-result').innerHTML=`<strong>${a} → ${ra}</strong> vector ${toVec(a).join(', ')} → ${toVec(ra).join(', ')}`;$('block-b-result').innerHTML=`<strong>${b} → ${rb}</strong> vector ${toVec(b).join(', ')} → ${toVec(rb).join(', ')}`;let changed=0;for(let i=0;i<2;i++)if(ra[i]!==rb[i])changed++;$('diff-result').innerHTML=`<strong>Resultado</strong>Cambiaron ${changed} de 2 letras cifradas. Esto ilustra difusión dentro del bloque, no un efecto avalancha criptográfico moderno.`}
+    function randomValid(){let K;do{K=[[Math.floor(Math.random()*26),Math.floor(Math.random()*26)],[Math.floor(Math.random()*26),Math.floor(Math.random()*26)]]}while(!inverse(K));[['k11',K[0][0]],['k12',K[0][1]],['k21',K[1][0]],['k22',K[1][1]]].forEach(([id,v])=>$(id).value=v);renderKey();run(false);compareBlocks()}
+    ['k11','k12','k21','k22'].forEach(id=>$(id).addEventListener('input',()=>{renderKey();compareBlocks()}));$('encrypt').onclick=()=>run(false);$('decrypt').onclick=()=>run(true);$('use-output').onclick=()=>{if(!lastResult)return;$('text').value=lastResult;run(lastMode==='encrypt')};$('random-key').onclick=randomValid;$('reset-key').onclick=()=>{[['k11',3],['k12',3],['k21',2],['k22',5]].forEach(([id,v])=>$(id).value=v);renderKey();run(false);compareBlocks()};$('block-a').oninput=compareBlocks;$('block-b').oninput=compareBlocks;renderKey();run(false);compareBlocks();
+  </script>
+</body>
+</html>
