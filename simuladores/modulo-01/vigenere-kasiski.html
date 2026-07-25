@@ -1,1 +1,619 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vigenère y Kasiski | Laboratorio interactivo</title><link rel="stylesheet" href="../assets/lab.css"><style>.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}.token{padding:9px;border:1px solid var(--border);border-radius:10px;text-align:center;background:#071625}.token small{display:block;color:var(--muted)}.analysis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.metric{padding:14px;border:1px solid var(--border);border-radius:14px;background:#071625}.metric b{display:block;font-size:1.4rem;color:var(--accent)}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">⛓️ Módulo 1</a></div><nav class="nav"><a href="../index.html">Campus</a><a href="../01-criptografia-clasica.html">Laboratorio integral</a></nav></header><section class="hero"><div class="eyebrow">Sustitución polialfabética</div><h1>Vigenère, Kasiski e índice de coincidencia</h1><p>Observá cómo una clave periódica distribuye las letras entre varios alfabetos y cómo esa periodicidad puede reaparecer en repeticiones e índices estadísticos.</p></section><section class="grid"><article class="card"><h2>Cifrar y descifrar</h2><div class="controls"><div class="control full"><label for="text">Texto</label><textarea id="text">ESTE MENSAJE REPITE ESTRUCTURAS ESTE MENSAJE REPITE ESTRUCTURAS</textarea></div><div class="control full"><label for="key">Clave</label><input id="key" value="CLAVE"></div></div><div class="actions"><button id="enc">Cifrar</button><button id="dec" class="secondary">Descifrar</button><button id="analyze" class="warn">Analizar periodicidad</button></div><div id="out" class="output"></div></article><article class="card"><h2>Traza polialfabética</h2><div id="trace" class="strip"></div></article><article class="card full"><h2>Métricas</h2><div id="metrics" class="analysis"></div></article><article class="card"><h2>Repeticiones Kasiski</h2><div id="repeats" class="output"></div></article><article class="card"><h2>IC por longitud candidata</h2><div id="ics" class="output"></div></article><article class="card full"><h2>Interpretación</h2><p>Una clave periódica no elimina la estructura: la reparte. Si se estima la longitud de la clave, cada columna puede estudiarse como un César independiente.</p></article></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p></footer></main><script>const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ',$=id=>document.getElementById(id);const clean=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z]/g,'');function vig(s,k,dec=false){s=clean(s);k=clean(k)||'A';return [...s].map((c,i)=>A[(A.indexOf(c)+(dec?-1:1)*A.indexOf(k[i%k.length])+26)%26]).join('')}function ic(s){s=clean(s);const n=s.length;if(n<2)return 0;const f={};[...s].forEach(c=>f[c]=(f[c]||0)+1);return Object.values(f).reduce((a,v)=>a+v*(v-1),0)/(n*(n-1))}function trace(s,k){s=clean(s);k=clean(k)||'A';$('trace').innerHTML=[...s].slice(0,40).map((c,i)=>`<div class="token"><b>${c}</b><small>${k[i%k.length]} · +${A.indexOf(k[i%k.length])}</small></div>`).join('')}function kasiski(s){s=clean(s);const found=[];for(let n=3;n<=5;n++){const m={};for(let i=0;i<=s.length-n;i++){const g=s.slice(i,i+n);(m[g]??=[]).push(i)}for(const [g,p] of Object.entries(m))if(p.length>1)found.push(`${g}: posiciones ${p.join(', ')} · distancias ${p.slice(1).map((x,i)=>x-p[i]).join(', ')}`)}return found.length?found.join('\n'):'No se detectaron repeticiones útiles de 3 a 5 letras.'}function analyze(){const s=clean($('out').textContent||$('text').value),rows=[];for(let len=1;len<=12;len++){const cols=Array.from({length:len},(_,j)=>[...s].filter((_,i)=>i%len===j).join(''));rows.push({len,avg:cols.reduce((a,c)=>a+ic(c),0)/len})}rows.sort((a,b)=>b.avg-a.avg);$('metrics').innerHTML=`<div class="metric"><span>IC global</span><b>${ic(s).toFixed(4)}</b></div><div class="metric"><span>Mejor longitud candidata</span><b>${rows[0].len}</b></div><div class="metric"><span>IC medio máximo</span><b>${rows[0].avg.toFixed(4)}</b></div>`;$('ics').textContent=rows.map(r=>`Longitud ${r.len}: IC medio ${r.avg.toFixed(4)}`).join('\n');$('repeats').textContent=kasiski(s)}function run(dec=false){const r=vig($('text').value,$('key').value,dec);$('out').textContent=r;trace($('text').value,$('key').value);analyze()}$('enc').onclick=()=>run(false);$('dec').onclick=()=>run(true);$('analyze').onclick=analyze;run(false);</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio visual completo de Vigenère, ataque de Kasiski, índice de coincidencia y recuperación estadística de la clave por chi-cuadrado.">
+  <title>Vigenère, Kasiski e índice de coincidencia | Laboratorio completo</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    :root {
+      --plain: #63d5ff;
+      --key: #ffc766;
+      --cipher: #4adea3;
+      --period: #b38cff;
+      --attack: #ff8ea1;
+      --ink: #071625;
+      --soft-line: rgba(169,187,208,.18);
+    }
+    .hero-grid {display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:24px;align-items:center}
+    .hero-orbit {position:relative;min-height:280px;display:grid;place-items:center}
+    .orbit-ring {position:relative;width:min(290px,78vw);aspect-ratio:1;border-radius:50%;border:1px solid var(--border-strong);background:radial-gradient(circle,rgba(99,213,255,.12) 0 35%,transparent 36%),conic-gradient(from -90deg,rgba(99,213,255,.38),rgba(179,140,255,.4),rgba(74,222,163,.35),rgba(255,199,102,.38),rgba(99,213,255,.38));box-shadow:0 0 70px rgba(99,213,255,.17)}
+    .orbit-core {position:absolute;inset:31%;display:grid;place-items:center;border:1px solid var(--border);border-radius:50%;background:#091827;text-align:center;font-weight:900}
+    .orbit-core small {display:block;color:var(--muted);font-size:.72rem;font-weight:700}
+    .orbit-letter {position:absolute;width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--border);border-radius:50%;background:#0b2138;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+    .orbit-letter:nth-of-type(1){top:3%;left:43%}.orbit-letter:nth-of-type(2){top:17%;right:8%}.orbit-letter:nth-of-type(3){bottom:17%;right:8%}.orbit-letter:nth-of-type(4){bottom:3%;left:43%}.orbit-letter:nth-of-type(5){bottom:17%;left:8%}.orbit-letter:nth-of-type(6){top:17%;left:8%}
+    .mode-tabs {display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+    .mode-tabs button {border:1px solid var(--border);background:rgba(7,22,37,.86);color:var(--muted)}
+    .mode-tabs button.active {color:#04121e;background:var(--accent);border-color:transparent}
+    .panel {display:none}.panel.active {display:block}
+    .lesson-strip {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+    .lesson {padding:15px;border:1px solid var(--border);border-radius:16px;background:rgba(7,22,37,.78)}
+    .lesson b {display:block;color:var(--accent);margin-bottom:4px}.lesson span {color:var(--muted);font-size:.88rem}
+    .formula-box {padding:18px;border:1px solid var(--border-strong);border-radius:18px;background:rgba(7,22,37,.92)}
+    .formula-box code {display:block;margin:8px 0;padding:12px;border-radius:12px;background:#04111d;color:#fff;font-size:clamp(.95rem,2vw,1.15rem);overflow-x:auto}
+    .theory-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .theory-card {padding:17px;border:1px solid var(--border);border-radius:16px;background:rgba(8,25,42,.8)}
+    .theory-card h3 {margin:0 0 7px}.theory-card p {margin:0;color:var(--muted)}
+    .control-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .control-grid.two {grid-template-columns:repeat(2,minmax(0,1fr))}
+    .inline-check {display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.9rem}
+    .inline-check input {width:auto;min-height:unset}
+    .status-panel {margin-top:14px;padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:#071625}
+    .status-panel.good {border-color:rgba(74,222,163,.48);background:rgba(74,222,163,.08)}
+    .status-panel.warn {border-color:rgba(255,199,102,.5);background:rgba(255,199,102,.08)}
+    .status-panel.bad {border-color:rgba(255,115,131,.5);background:rgba(255,115,131,.08)}
+    .metric-grid-5 {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+    .metric-box {padding:14px;border:1px solid var(--border);border-radius:14px;background:#071625}
+    .metric-box strong {display:block;font-size:1.35rem;color:var(--accent);overflow-wrap:anywhere}.metric-box span {color:var(--muted);font-size:.8rem}
+    .trace-wrap {overflow:auto;border:1px solid var(--border);border-radius:16px;background:#071625}
+    .trace-table {width:100%;border-collapse:collapse;min-width:720px}
+    .trace-table th,.trace-table td {padding:9px 10px;border-bottom:1px solid var(--soft-line);text-align:center;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    .trace-table th {position:sticky;left:0;z-index:2;background:#0c2239;text-align:left;color:var(--muted)}
+    .cell-plain {color:var(--plain)}.cell-key {color:var(--key)}.cell-cipher {color:var(--cipher)}.cell-period {color:var(--period)}
+    .alphabet-grid {display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:6px}
+    .alpha-cell {padding:8px 4px;border:1px solid var(--border);border-radius:10px;text-align:center;background:#071625;font-family:ui-monospace,monospace}
+    .alpha-cell b {display:block;color:var(--plain)}.alpha-cell span {color:var(--muted);font-size:.72rem}
+    .tableau-wrap {overflow:auto;border:1px solid var(--border);border-radius:16px;max-height:560px}
+    .tableau {border-collapse:collapse;min-width:980px;width:100%;font-family:ui-monospace,monospace}
+    .tableau th,.tableau td {width:34px;height:34px;padding:4px;text-align:center;border:1px solid rgba(169,187,208,.12)}
+    .tableau th {position:sticky;background:#0c2239;color:var(--muted);z-index:2}.tableau thead th {top:0}.tableau tbody th {left:0}
+    .tableau tr.focus-row td,.tableau tr.focus-row th {background:rgba(255,199,102,.15);color:#fff}.tableau td.diagonal {color:var(--cipher);font-weight:900}
+    .highlighted-cipher {padding:15px;border:1px solid var(--border);border-radius:14px;background:#04111d;font-family:ui-monospace,monospace;line-height:1.8;overflow-wrap:anywhere}
+    .highlighted-cipher mark {padding:2px 1px;border-radius:4px;color:#071625;background:var(--key);font-weight:900}
+    .period-grid {display:grid;gap:8px}
+    .period-row {display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:start}
+    .period-label {padding:8px;border-radius:10px;background:rgba(179,140,255,.12);color:var(--period);text-align:center;font-weight:900}
+    .period-letters {display:flex;flex-wrap:wrap;gap:5px}
+    .period-letters span {min-width:30px;padding:6px;border:1px solid var(--border);border-radius:8px;background:#071625;text-align:center;font-family:ui-monospace,monospace}
+    .repeat-list {display:grid;gap:10px}
+    .repeat-card {padding:13px;border:1px solid var(--border);border-radius:14px;background:#071625}
+    .repeat-card strong {color:var(--cipher)}
+    .repeat-meta {display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .pill {display:inline-flex;align-items:center;padding:5px 9px;border:1px solid var(--border);border-radius:999px;color:var(--muted);background:rgba(8,25,42,.9);font-size:.78rem}
+    .bar-list {display:grid;gap:8px}
+    .bar-row {display:grid;grid-template-columns:58px minmax(0,1fr) 74px;gap:10px;align-items:center}
+    .bar-track {height:12px;border-radius:999px;background:#05111d;overflow:hidden;border:1px solid var(--border)}
+    .bar-fill {height:100%;border-radius:999px;background:linear-gradient(90deg,var(--period),var(--accent));transition:width .25s ease}
+    .bar-fill.kasiski {background:linear-gradient(90deg,var(--key),var(--attack))}
+    .candidate-table-wrap {overflow:auto;border:1px solid var(--border);border-radius:16px}
+    .candidate-table {width:100%;border-collapse:collapse;min-width:920px}
+    .candidate-table th,.candidate-table td {padding:10px 11px;border-bottom:1px solid var(--soft-line);text-align:center}
+    .candidate-table th {background:#0c2239;color:#dcecff;position:sticky;top:0}
+    .candidate-table tr.selected {background:rgba(99,213,255,.08)}
+    .candidate-table button {padding:6px 9px;border-radius:9px}
+    .heatmap {overflow:auto;border:1px solid var(--border);border-radius:16px}
+    .heatmap table {border-collapse:collapse;min-width:680px;width:100%}
+    .heatmap th,.heatmap td {padding:8px;text-align:center;border:1px solid rgba(169,187,208,.12)}
+    .heatmap th {background:#0c2239}.heat-cell {font-family:ui-monospace,monospace;border-radius:6px}
+    .attack-steps {display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:8px;overflow:auto;padding-bottom:4px}
+    .attack-step {padding:12px;border:1px solid var(--border);border-radius:14px;background:#071625;color:var(--muted)}
+    .attack-step.active {border-color:var(--border-strong);color:#fff;background:rgba(99,213,255,.1)}
+    .attack-step.done {border-color:rgba(74,222,163,.42);color:#dffff1}
+    .columns-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:12px}
+    .column-card {padding:14px;border:1px solid var(--border);border-radius:15px;background:#071625}
+    .column-card h3 {display:flex;justify-content:space-between;gap:8px;align-items:center;margin:0 0 9px}
+    .column-sample {font-family:ui-monospace,monospace;color:var(--muted);overflow-wrap:anywhere;min-height:48px}
+    .ranking {display:grid;gap:5px;margin-top:10px}
+    .rank-row {display:grid;grid-template-columns:28px 32px minmax(0,1fr) 64px;gap:7px;align-items:center;font-size:.82rem}
+    .rank-track {height:7px;border-radius:999px;background:#05111d;overflow:hidden}.rank-fill {height:100%;background:var(--accent);border-radius:999px}
+    .key-editor {display:flex;flex-wrap:wrap;gap:8px}
+    .key-slot {width:58px;display:grid;gap:4px;text-align:center}
+    .key-slot label {font-size:.7rem;color:var(--muted)}
+    .key-slot select {padding:7px;min-height:40px;text-align:center;font-weight:900;color:var(--key)}
+    .plaintext-preview {white-space:pre-wrap;overflow-wrap:anywhere;min-height:160px;padding:16px;border:1px solid var(--border);border-radius:16px;background:#04111d;font-family:ui-monospace,monospace;line-height:1.65}
+    .quality-meter {display:grid;grid-template-columns:120px minmax(0,1fr) 72px;gap:10px;align-items:center;margin-top:12px}
+    .quality-track {height:12px;border-radius:999px;background:#05111d;border:1px solid var(--border);overflow:hidden}.quality-fill {height:100%;background:linear-gradient(90deg,var(--attack),var(--key),var(--cipher));transition:width .25s ease}
+    .notice {padding:15px 17px;border-left:4px solid var(--accent);border-radius:12px;background:rgba(99,213,255,.08)}
+    .notice.warn {border-left-color:var(--warn);background:rgba(255,199,102,.08)}
+    .notice.danger {border-left-color:var(--bad);background:rgba(255,115,131,.08)}
+    .notice.good {border-left-color:var(--good);background:rgba(74,222,163,.08)}
+    .small-list {margin:8px 0 0;padding-left:20px;color:var(--muted)}
+    .hidden {display:none!important}
+    @media (max-width:1020px) {
+      .hero-grid,.theory-grid {grid-template-columns:1fr}.lesson-strip {grid-template-columns:repeat(2,minmax(0,1fr))}
+      .control-grid,.control-grid.two {grid-template-columns:1fr 1fr}.metric-grid-5 {grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:680px) {
+      .lesson-strip,.control-grid,.control-grid.two,.metric-grid-5 {grid-template-columns:1fr}.alphabet-grid {grid-template-columns:repeat(7,minmax(0,1fr))}
+      .quality-meter {grid-template-columns:1fr}.bar-row {grid-template-columns:48px minmax(0,1fr) 60px}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+  <main class="shell" id="main">
+    <header class="topbar">
+      <div class="brand"><a href="index.html">⛓️ Módulo 1</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="../index.html">Campus</a>
+        <a href="../01-criptografia-clasica.html">Laboratorio integral</a>
+        <a href="../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Sustitución polialfabética · criptoanálisis guiado</div>
+          <h1>Vigenère, Kasiski e índice de coincidencia</h1>
+          <p>Construí el cifrado letra por letra y después atacalo como un criptoanalista: detectá repeticiones, estimá el período, separá columnas, resolvé cada César con χ² y reconstruí la clave.</p>
+          <div class="mode-tabs" role="tablist" aria-label="Modos del laboratorio">
+            <button id="tabBuild" class="active" type="button" role="tab" aria-selected="true">1. Construcción</button>
+            <button id="tabAttack" type="button" role="tab" aria-selected="false">2. Criptoanálisis</button>
+          </div>
+        </div>
+        <div class="hero-orbit" aria-hidden="true">
+          <div class="orbit-ring">
+            <div class="orbit-core">Vigenère<small>clave periódica</small></div>
+            <span class="orbit-letter" style="color:var(--plain)">P</span>
+            <span class="orbit-letter" style="color:var(--key)">K</span>
+            <span class="orbit-letter" style="color:var(--cipher)">C</span>
+            <span class="orbit-letter" style="color:var(--period)">r</span>
+            <span class="orbit-letter">IC</span>
+            <span class="orbit-letter">χ²</span>
+          </div>
+        </div>
+      </div>
+      <div class="lesson-strip">
+        <div class="lesson"><b>Polialfabético</b><span>Una letra clara puede cifrarse de varias formas según su posición.</span></div>
+        <div class="lesson"><b>Periódico</b><span>La clave se repite y distribuye el texto entre varias columnas César.</span></div>
+        <div class="lesson"><b>Kasiski</b><span>Las repeticiones revelan distancias y factores compatibles con el período.</span></div>
+        <div class="lesson"><b>IC + χ²</b><span>El IC estima la longitud; χ² ayuda a recuperar cada desplazamiento.</span></div>
+      </div>
+    </section>
+
+    <section class="grid" style="margin-top:22px">
+      <article class="card full">
+        <h2>Fundamento teórico</h2>
+        <div class="theory-grid">
+          <section class="theory-card">
+            <h3>Cifrado</h3>
+            <p>Con A=0,…,Z=25, cada letra se cifra mediante <strong>Cᵢ=(Pᵢ+Kᵢ) mod 26</strong>. La clave avanza solo cuando aparece una letra.</p>
+          </section>
+          <section class="theory-card">
+            <h3>Índice de coincidencia</h3>
+            <p><strong>IC=Σfᵢ(fᵢ−1)/[N(N−1)]</strong>. Es la probabilidad de extraer dos letras iguales sin reposición.</p>
+          </section>
+          <section class="theory-card">
+            <h3>Ataque</h3>
+            <p>Si se estima el período r, las posiciones i≡j (mod r) forman una columna cifrada con un único César.</p>
+          </section>
+        </div>
+        <div class="notice warn" style="margin-top:14px">
+          <strong>Advertencia rigurosa:</strong> un IC global cercano a 1/26 no demuestra seguridad. Vigenère puede ocultar la distribución monográfica y conservar una periodicidad explotable.
+        </div>
+      </article>
+    </section>
+
+    <section id="buildPanel" class="panel active" role="tabpanel" aria-labelledby="tabBuild">
+      <section class="grid">
+        <article class="card full">
+          <h2>1. Configuración del cifrado</h2>
+          <div class="control-grid two">
+            <div class="control">
+              <label for="plainText">Texto claro</label>
+              <textarea id="plainText" rows="7">EN CRIPTOGRAFIA CLASICA UNA CLAVE PERIODICA DISTRIBUYE LAS FRECUENCIAS DEL IDIOMA ENTRE VARIAS COLUMNAS. EL ATAQUE DE KASISKI BUSCA REPETICIONES Y EL INDICE DE COINCIDENCIA AYUDA A ESTIMAR LA LONGITUD DE LA CLAVE. CUANDO EL PERIODO ES CORRECTO CADA COLUMNA SE COMPORTA COMO UN CIFRADO CESAR INDEPENDIENTE.</textarea>
+            </div>
+            <div class="control">
+              <label for="buildKey">Clave</label>
+              <input id="buildKey" value="CLAVE" maxlength="40" autocomplete="off">
+              <p class="muted small">Se normaliza a A–Z. Ejemplo: CLAVE → desplazamientos 2, 11, 0, 21, 4.</p>
+              <label class="inline-check"><input id="preserveSpaces" type="checkbox" checked> Conservar espacios y puntuación</label>
+              <div class="actions">
+                <button id="encryptBtn" type="button">Cifrar</button>
+                <button id="decryptBtn" class="secondary" type="button">Descifrar entrada</button>
+                <button id="sendToAttackBtn" class="warn" type="button">Enviar criptograma al ataque</button>
+              </div>
+              <div id="buildStatus" class="status-panel" aria-live="polite"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card full">
+          <h2>2. Resultado y métricas</h2>
+          <div class="metric-grid-5">
+            <div class="metric-box"><strong id="writtenLength">—</strong><span>Longitud escrita</span></div>
+            <div class="metric-box"><strong id="effectivePeriod">—</strong><span>Período efectivo</span></div>
+            <div class="metric-box"><strong id="plainLength">—</strong><span>Letras analizadas</span></div>
+            <div class="metric-box"><strong id="plainIC">—</strong><span>IC del texto claro</span></div>
+            <div class="metric-box"><strong id="cipherIC">—</strong><span>IC del criptograma</span></div>
+            <div class="metric-box"><strong>0,03846</strong><span>Referencia uniforme 1/26</span></div>
+          </div>
+          <div class="control full" style="margin-top:14px">
+            <label for="cipherOutput">Criptograma</label>
+            <textarea id="cipherOutput" rows="6" readonly></textarea>
+          </div>
+        </article>
+
+        <article class="card full">
+          <h2>3. Traza polialfabética completa</h2>
+          <p class="muted">Cada columna muestra la posición, la letra clara, su número, la letra de clave, el desplazamiento, la suma modular y la letra cifrada.</p>
+          <div class="trace-wrap"><table id="traceTable" class="trace-table"></table></div>
+        </article>
+
+        <article class="card full">
+          <h2>4. Tableau de Vigenère opcional</h2>
+          <p class="muted">Cada fila representa un desplazamiento César. Elegí una letra de clave para resaltar su alfabeto.</p>
+          <div class="control-grid">
+            <div class="control"><label for="tableauKeyLetter">Letra de clave</label><select id="tableauKeyLetter"></select></div>
+            <div class="control"><label>&nbsp;</label><button id="toggleTableauBtn" class="secondary" type="button">Mostrar tableau</button></div>
+          </div>
+          <div id="tableauWrap" class="tableau-wrap hidden" style="margin-top:14px"><table id="tableau" class="tableau"></table></div>
+        </article>
+
+        <article class="card">
+          <h2>5. Alfabeto A=0,…,Z=25</h2>
+          <div id="alphabetGrid" class="alphabet-grid"></div>
+        </article>
+
+        <article class="card">
+          <h2>6. Periodicidad de la clave</h2>
+          <div id="periodicKeyView" class="period-grid"></div>
+          <div id="periodNote" class="notice" style="margin-top:12px"></div>
+        </article>
+      </section>
+    </section>
+
+    <section id="attackPanel" class="panel" role="tabpanel" aria-labelledby="tabAttack">
+      <section class="grid">
+        <article class="card full">
+          <h2>Ruta guiada del criptoanálisis</h2>
+          <div class="attack-steps" id="attackSteps">
+            <div class="attack-step active">1. Preparar criptograma</div>
+            <div class="attack-step">2. Buscar repeticiones</div>
+            <div class="attack-step">3. Votar períodos</div>
+            <div class="attack-step">4. Comparar IC</div>
+            <div class="attack-step">5. Separar columnas</div>
+            <div class="attack-step">6. Resolver César</div>
+            <div class="attack-step">7. Reconstruir clave</div>
+          </div>
+        </article>
+
+        <article class="card full">
+          <h2>1. Criptograma para analizar</h2>
+          <div class="control-grid">
+            <div class="control" style="grid-column:span 2">
+              <label for="attackText">Criptograma</label>
+              <textarea id="attackText" rows="7"></textarea>
+            </div>
+            <div class="control">
+              <label for="maxPeriod">Período máximo</label>
+              <input id="maxPeriod" type="number" min="2" max="30" value="20">
+              <label for="ngramMin">N-grama mínimo</label>
+              <select id="ngramMin"><option value="3" selected>3</option><option value="4">4</option></select>
+              <label for="ngramMax">N-grama máximo</label>
+              <select id="ngramMax"><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option></select>
+              <div class="actions">
+                <button id="analyzeBtn" type="button">Analizar todo</button>
+                <button id="sampleBtn" class="secondary" type="button">Cargar ejemplo</button>
+              </div>
+            </div>
+          </div>
+          <div id="sampleStatus" class="status-panel" aria-live="polite"></div>
+        </article>
+
+        <article class="card full">
+          <h2>2. Repeticiones de Kasiski</h2>
+          <p class="muted">Se buscan n-gramas repetidos, sus posiciones, las distancias consecutivas, el MCD y los factores compatibles.</p>
+          <div id="repeatList" class="repeat-list"></div>
+          <h3 style="margin-top:18px">Repeticiones resaltadas en el criptograma normalizado</h3>
+          <div id="highlightedCipher" class="highlighted-cipher"></div>
+        </article>
+
+        <article class="card">
+          <h2>3. Votación de factores</h2>
+          <p class="muted">Cada distancia aporta votos a sus divisores. Un pico fuerte sugiere un período o uno de sus divisores.</p>
+          <div id="factorBars" class="bar-list"></div>
+        </article>
+
+        <article class="card">
+          <h2>4. IC medio por período</h2>
+          <p class="muted">Los candidatos se mantienen en orden 1,…,r para ver picos, múltiplos y relaciones.</p>
+          <div id="icBars" class="bar-list"></div>
+        </article>
+
+        <article class="card full">
+          <h2>5. Evidencia combinada</h2>
+          <p class="muted">La puntuación combina Kasiski, IC medio, cercanía al castellano y una penalización por columnas demasiado cortas. No se declara un período por un único máximo.</p>
+          <div class="candidate-table-wrap"><table id="candidateTable" class="candidate-table"></table></div>
+          <div id="candidateInterpretation" class="notice" style="margin-top:12px"></div>
+        </article>
+
+        <article class="card full">
+          <h2>6. Mapa térmico de IC por columna</h2>
+          <p class="muted">Cada fila es una longitud candidata; cada celda es el IC de una clase residual. En el período correcto, varias columnas recuperan una concentración compatible con lenguaje natural.</p>
+          <div id="icHeatmap" class="heatmap"></div>
+        </article>
+
+        <article class="card full">
+          <h2>7. Separación por columnas</h2>
+          <div class="control-grid">
+            <div class="control">
+              <label for="chosenPeriod">Período elegido</label>
+              <input id="chosenPeriod" type="number" min="1" max="30" value="5">
+            </div>
+            <div class="control">
+              <label>&nbsp;</label>
+              <button id="buildColumnsBtn" type="button">Construir columnas</button>
+            </div>
+            <div class="control">
+              <label>Interpretación</label>
+              <div class="pill">Cada columna ≈ un César</div>
+            </div>
+          </div>
+          <div id="periodGrid" class="period-grid" style="margin-top:14px"></div>
+          <div id="columnCards" class="columns-grid" style="margin-top:14px"></div>
+        </article>
+
+        <article class="card full">
+          <h2>8. Recuperación estadística de la clave</h2>
+          <p class="muted">Para cada columna se prueban los 26 desplazamientos y se compara la distribución descifrada con frecuencias aproximadas del castellano mediante χ². Los cinco mejores quedan visibles.</p>
+          <div class="actions">
+            <button id="recoverKeyBtn" type="button">Estimar clave por χ²</button>
+            <button id="useBestCandidateBtn" class="secondary" type="button">Usar mejor período combinado</button>
+          </div>
+          <div id="keyEditor" class="key-editor" style="margin-top:14px"></div>
+          <div class="metric-grid-5" style="margin-top:14px">
+            <div class="metric-box"><strong id="estimatedKey">—</strong><span>Clave estimada</span></div>
+            <div class="metric-box"><strong id="estimatedPeriod">—</strong><span>Período usado</span></div>
+            <div class="metric-box"><strong id="avgChi">—</strong><span>χ² medio</span></div>
+            <div class="metric-box"><strong id="languageScore">—</strong><span>Legibilidad heurística</span></div>
+            <div class="metric-box"><strong id="attackIC">—</strong><span>IC del texto recuperado</span></div>
+          </div>
+        </article>
+
+        <article class="card full">
+          <h2>9. Vista previa del descifrado</h2>
+          <div id="plaintextPreview" class="plaintext-preview"></div>
+          <div class="quality-meter">
+            <span>Legibilidad</span>
+            <div class="quality-track"><div id="qualityFill" class="quality-fill" style="width:0%"></div></div>
+            <strong id="qualityValue">0%</strong>
+          </div>
+          <div id="attackConclusion" class="notice warn" style="margin-top:14px"></div>
+        </article>
+
+        <article class="card full">
+          <h2>Interpretación rigurosa y límites</h2>
+          <ul class="small-list">
+            <li>Kasiski puede fallar si el texto es corto, la clave es larga o no aparecen repeticiones útiles.</li>
+            <li>Los múltiplos del período real también pueden producir IC elevados.</li>
+            <li>Una clave escrita como ABCABC tiene longitud 6, pero período efectivo 3.</li>
+            <li>Las columnas cortas producen estimaciones de IC y χ² inestables.</li>
+            <li>Las frecuencias lingüísticas dependen del corpus y de la normalización A–Z.</li>
+            <li>El ataque estadístico propone candidatos; el contexto y la inspección humana siguen siendo importantes.</li>
+          </ul>
+        </article>
+      </section>
+    </section>
+
+    <footer class="footer">
+      <p>Material elaborado por el profesor Sergio Gevatschnaider. Uso educativo; los resultados estadísticos dependen de la muestra.</p>
+    </footer>
+  </main>
+
+  <script>
+  'use strict';
+  const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const RIC=1/26;
+  const SPANISH_IC=0.074;
+  const SPANISH_FREQ={A:12.53,B:1.42,C:4.68,D:5.86,E:13.68,F:0.69,G:1.01,H:0.70,I:6.25,J:0.44,K:0.02,L:4.97,M:3.15,N:6.71,O:8.68,P:2.51,Q:0.88,R:6.87,S:7.98,T:4.63,U:3.93,V:0.90,W:0.01,X:0.22,Y:0.90,Z:0.52};
+  const COMMON=['DE','LA','EL','EN','QUE','LOS','LAS','DEL','POR','CON','UNA','PARA','SE','ES','AL','UN','Y','O','ESTA','COMO','CLAVE','CRIPTO','MENSAJE'];
+  const $=id=>document.getElementById(id);
+  const mod=(n,m)=>((n%m)+m)%m;
+  const fmt=(n,d=4)=>Number.isFinite(n)?n.toFixed(d):'—';
+
+  function normalizeText(s){return s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/Ñ/g,'N')}
+  function letters(s){return [...normalizeText(s)].filter(c=>A.includes(c)).join('')}
+  function cleanKey(s){return letters(s)||'A'}
+  function counts(s){const c=Object.fromEntries([...A].map(x=>[x,0]));for(const ch of letters(s))c[ch]++;return c}
+  function icFromText(s){const c=counts(s),n=Object.values(c).reduce((a,b)=>a+b,0);if(n<2)return 0;return Object.values(c).reduce((sum,f)=>sum+f*(f-1),0)/(n*(n-1))}
+  function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a}
+  function divisors(n,max){const out=[];for(let d=2;d<=Math.min(n,max);d++)if(n%d===0)out.push(d);return out}
+  function effectivePeriod(k){k=cleanKey(k);for(let p=1;p<=k.length;p++)if(k.length%p===0&&k.slice(0,p).repeat(k.length/p)===k)return p;return k.length}
+  function vigenereTransform(text,key,decrypt=false,preserve=true){
+    const k=cleanKey(key);let pos=0;let out='';const trace=[];
+    for(const raw of normalizeText(text)){
+      const pi=A.indexOf(raw);
+      if(pi<0){if(preserve)out+=raw;continue}
+      const keyChar=k[pos%k.length],ki=A.indexOf(keyChar),ci=mod(pi+(decrypt?-ki:ki),26),cipher=A[ci];
+      trace.push({index:pos,plain:raw,p:pi,key:keyChar,k:ki,cipher,c:ci,period:pos%k.length,expression:decrypt?`${pi}−${ki}≡${ci}`:`${pi}+${ki}≡${ci}`});
+      out+=cipher;pos++;
+    }
+    return {text:out,trace,key:k};
+  }
+  function buildAlphabet(){
+    $('alphabetGrid').innerHTML=[...A].map((c,i)=>`<div class="alpha-cell"><b>${c}</b><span>${i}</span></div>`).join('');
+    $('tableauKeyLetter').innerHTML=[...A].map(c=>`<option value="${c}">${c} · +${A.indexOf(c)}</option>`).join('');
+    buildTableau('A');
+  }
+  function buildTableau(focus='A'){
+    let html='<thead><tr><th>K\P</th>'+[...A].map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>';
+    for(let r=0;r<26;r++){html+=`<tr class="${A[r]===focus?'focus-row':''}"><th>${A[r]}</th>`;for(let c=0;c<26;c++)html+=`<td class="${c===0?'diagonal':''}">${A[(r+c)%26]}</td>`;html+='</tr>'}
+    $('tableau').innerHTML=html+'</tbody>';
+  }
+  function buildTrace(rows){
+    const limit=Math.min(rows.length,80),data=rows.slice(0,limit);
+    const labels=[['Posición','index','cell-period'],['Texto claro','plain','cell-plain'],['Pᵢ','p','cell-plain'],['Clave','key','cell-key'],['Kᵢ','k','cell-key'],['Operación','expression',''],['Criptograma','cipher','cell-cipher'],['Cᵢ','c','cell-cipher'],['Columna','period','cell-period']];
+    $('traceTable').innerHTML=`<tbody>${labels.map(([lab,key,cl])=>`<tr><th>${lab}</th>${data.map(r=>`<td class="${cl}">${r[key]}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  }
+  function buildPeriodicKey(key,count){
+    const k=cleanKey(key),eff=effectivePeriod(k),n=Math.min(Math.max(20,count),60),rows=[];
+    for(let start=0;start<n;start+=15){rows.push(`<div class="period-row"><div class="period-label">${start}</div><div class="period-letters">${Array.from({length:Math.min(15,n-start)},(_,j)=>{const i=start+j;return `<span title="posición ${i}; columna ${i%eff}">${k[i%k.length]}</span>`}).join('')}</div></div>`)}
+    $('periodicKeyView').innerHTML=rows.join('');
+    $('periodNote').innerHTML=k.length===eff?`La longitud escrita y el período efectivo coinciden: <strong>${eff}</strong>.`:`La clave escrita tiene longitud ${k.length}, pero repite un patrón mínimo de longitud <strong>${eff}</strong>.`;
+  }
+  function updateBuild(decrypt=false){
+    const src=$('plainText').value,key=cleanKey($('buildKey').value),preserve=$('preserveSpaces').checked,res=vigenereTransform(src,key,decrypt,preserve),pLetters=letters(src);
+    $('buildKey').value=key;$('cipherOutput').value=res.text;
+    $('writtenLength').textContent=key.length;$('effectivePeriod').textContent=effectivePeriod(key);$('plainLength').textContent=pLetters.length;
+    $('plainIC').textContent=fmt(icFromText(pLetters),5);$('cipherIC').textContent=fmt(icFromText(res.text),5);
+    buildTrace(res.trace);buildPeriodicKey(key,pLetters.length);
+    const msg=decrypt?'La entrada se interpretó como criptograma y se aplicó la resta modular.':'Cifrado completado. La clave avanza únicamente sobre letras.';
+    $('buildStatus').className='status-panel good';$('buildStatus').textContent=msg;
+    return res;
+  }
+
+  function sampleAssessment(n){
+    if(n<40)return {type:'bad',text:`Solo ${n} letras: evidencia muy débil. Kasiski, IC y χ² pueden ser inestables.`};
+    if(n<80)return {type:'warn',text:`${n} letras: análisis exploratorio. Conviene usar una muestra mayor.`};
+    if(n<140)return {type:'warn',text:`${n} letras: muestra razonable, aunque todavía puede haber falsos picos.`};
+    return {type:'good',text:`${n} letras: muestra adecuada para observar el flujo completo del ataque, sin garantía absoluta.`};
+  }
+  function findRepeats(text,minN,maxN){
+    const s=letters(text),found=[];
+    for(let n=minN;n<=maxN;n++){
+      const map=new Map();
+      for(let i=0;i<=s.length-n;i++){
+        const gram=s.slice(i,i+n);if(!map.has(gram))map.set(gram,[]);map.get(gram).push(i);
+      }
+      for(const [gram,pos] of map.entries()){
+        if(pos.length<2)continue;
+        const distances=[];for(let i=1;i<pos.length;i++)distances.push(pos[i]-pos[i-1]);
+        const g=distances.reduce((a,b)=>gcd(a,b),0);
+        found.push({gram,n,pos,distances,g});
+      }
+    }
+    return found.sort((a,b)=>b.n-a.n||b.pos.length-a.pos.length||a.pos[0]-b.pos[0]).slice(0,80);
+  }
+  function renderRepeats(repeats,maxPeriod){
+    if(!repeats.length){$('repeatList').innerHTML='<div class="notice warn">No se detectaron repeticiones útiles. Esto no prueba ausencia de periodicidad: puede deberse a texto corto, clave larga o falta de coincidencias.</div>';$('highlightedCipher').textContent=letters($('attackText').value);return}
+    $('repeatList').innerHTML=repeats.map(r=>{
+      const allFactors=[...new Set(r.distances.flatMap(d=>divisors(d,maxPeriod)))].sort((a,b)=>a-b);
+      return `<article class="repeat-card"><strong>${r.gram}</strong> · ${r.n}-grama<div class="repeat-meta"><span class="pill">posiciones: ${r.pos.join(', ')}</span><span class="pill">distancias: ${r.distances.join(', ')}</span><span class="pill">MCD: ${r.g||'—'}</span><span class="pill">factores ≤${maxPeriod}: ${allFactors.join(', ')||'ninguno'}</span></div></article>`;
+    }).join('');
+    renderHighlightedRepeats(letters($('attackText').value),repeats);
+  }
+  function renderHighlightedRepeats(text,repeats){
+    const marks=Array(text.length).fill(false);
+    repeats.slice(0,16).forEach(r=>r.pos.forEach(pos=>{for(let i=pos;i<Math.min(text.length,pos+r.n);i++)marks[i]=true}));
+    let html='',open=false;for(let i=0;i<text.length;i++){if(marks[i]&&!open){html+='<mark>';open=true}if(!marks[i]&&open){html+='</mark>';open=false}html+=text[i];if((i+1)%80===0)html+='<wbr>'}if(open)html+='</mark>';$('highlightedCipher').innerHTML=html;
+  }
+  function factorVotes(repeats,maxPeriod){
+    const votes=Array(maxPeriod+1).fill(0);
+    for(const r of repeats){
+      for(const d of r.distances){
+        for(const f of divisors(d,maxPeriod))votes[f]+=1+(r.n-3)*0.35;
+      }
+      if(r.g>1&&r.g<=maxPeriod)votes[r.g]+=1.5;
+    }
+    return votes;
+  }
+  function columnsFor(text,p){const s=letters(text),cols=Array.from({length:p},()=>[]);[...s].forEach((c,i)=>cols[i%p].push(c));return cols.map(c=>c.join(''))}
+  function periodRows(text,maxPeriod,votes){
+    const s=letters(text),rows=[];
+    for(let p=1;p<=maxPeriod;p++){
+      const cols=columnsFor(s,p),ics=cols.map(icFromText),avg=ics.reduce((a,b)=>a+b,0)/p,minLen=Math.min(...cols.map(c=>c.length)),meanLen=s.length/p;
+      const icSignal=Math.max(0,1-Math.abs(avg-SPANISH_IC)/0.05);
+      const voteMax=Math.max(1,...votes),kSignal=(votes[p]||0)/voteMax;
+      const lengthPenalty=Math.min(1,meanLen/18);
+      const score=(0.48*icSignal+0.42*kSignal+0.10*Math.min(1,Math.max(0,(avg-RIC)/0.035)))*lengthPenalty;
+      rows.push({p,cols,ics,avg,minLen,meanLen,votes:votes[p]||0,score});
+    }
+    return rows;
+  }
+  function renderBars(id,rows,valueFn,className=''){
+    const max=Math.max(0.0001,...rows.map(valueFn));
+    $(id).innerHTML=rows.map(r=>`<div class="bar-row"><strong>${r.p}</strong><div class="bar-track"><div class="bar-fill ${className}" style="width:${Math.max(1,valueFn(r)/max*100)}%"></div></div><span>${className?fmt(valueFn(r),1):fmt(valueFn(r),4)}</span></div>`).join('');
+  }
+  function relationLabel(p,best){
+    if(p===best)return 'principal';
+    if(p%best===0)return `múltiplo de ${best}`;
+    if(best%p===0)return `divisor de ${best}`;
+    return 'alternativo';
+  }
+  function renderCandidateTable(rows){
+    const ranked=[...rows].sort((a,b)=>b.score-a.score),best=ranked[0]?.p||1,top=new Set(ranked.slice(0,8).map(r=>r.p));
+    $('candidateTable').innerHTML=`<thead><tr><th>r</th><th>Votos Kasiski</th><th>IC medio</th><th>IC mín.–máx.</th><th>Letras/col.</th><th>Relación</th><th>Puntuación</th><th>Elegir</th></tr></thead><tbody>${rows.filter(r=>top.has(r.p)||r.p<=12).map(r=>`<tr class="${r.p===best?'selected':''}"><td><strong>${r.p}</strong></td><td>${fmt(r.votes,1)}</td><td>${fmt(r.avg,5)}</td><td>${fmt(Math.min(...r.ics),4)}–${fmt(Math.max(...r.ics),4)}</td><td>${fmt(r.meanLen,1)}</td><td>${relationLabel(r.p,best)}</td><td>${fmt(r.score*100,1)}%</td><td><button type="button" data-period="${r.p}" class="choose-period secondary">Usar</button></td></tr>`).join('')}</tbody>`;
+    document.querySelectorAll('.choose-period').forEach(b=>b.onclick=()=>{$('chosenPeriod').value=b.dataset.period;buildColumns(+b.dataset.period)});
+    $('candidateInterpretation').innerHTML=`Mejor evidencia combinada actual: <strong>r=${best}</strong>. Revisá también divisores y múltiplos, porque un período real puede generar picos relacionados.`;
+    return best;
+  }
+  function renderHeatmap(rows){
+    const show=rows.slice(0,Math.min(rows.length,20)),maxCols=Math.max(...show.map(r=>r.p));
+    let html='<table><thead><tr><th>r</th><th>IC medio</th>'+Array.from({length:maxCols},(_,i)=>`<th>c${i}</th>`).join('')+'</tr></thead><tbody>';
+    for(const r of show){
+      html+=`<tr><th>${r.p}</th><td>${fmt(r.avg,4)}</td>`;
+      for(let i=0;i<maxCols;i++){
+        if(i>=r.ics.length){html+='<td></td>';continue}
+        const v=r.ics[i],t=Math.max(0,Math.min(1,(v-RIC)/0.055)),alpha=.08+.62*t;
+        html+=`<td class="heat-cell" style="background:rgba(179,140,255,${alpha})" title="r=${r.p}, columna ${i}, IC=${fmt(v,5)}">${fmt(v,3)}</td>`;
+      }
+      html+='</tr>';
+    }
+    $('icHeatmap').innerHTML=html+'</tbody></table>';
+  }
+  function renderPeriodGrid(text,p){
+    const s=letters(text),rows=[];for(let r=0;r<Math.ceil(s.length/p);r++){const chunk=s.slice(r*p,(r+1)*p);rows.push(`<div class="period-row"><div class="period-label">${r*p}</div><div class="period-letters">${[...chunk].map((c,i)=>`<span title="columna ${i}">${c}</span>`).join('')}</div></div>`)}
+    $('periodGrid').innerHTML=rows.slice(0,18).join('')+(rows.length>18?'<div class="muted small">Vista truncada para mantener legibilidad.</div>':'');
+  }
+  function chiForShift(col,shift){
+    const n=col.length;if(!n)return Infinity;const dec=[...col].map(c=>A[mod(A.indexOf(c)-shift,26)]).join(''),obs=counts(dec);let chi=0;
+    for(const c of A){const expected=n*(SPANISH_FREQ[c]/100);chi+=(obs[c]-expected)**2/Math.max(expected,.001)}
+    return {shift,letter:A[shift],chi,text:dec};
+  }
+  function rankingsForColumn(col){return Array.from({length:26},(_,s)=>chiForShift(col,s)).sort((a,b)=>a.chi-b.chi)}
+  function renderColumnCards(text,p,withRanks=false){
+    const cols=columnsFor(text,p);
+    $('columnCards').innerHTML=cols.map((col,i)=>{
+      const ranks=rankingsForColumn(col),best=ranks[0],max=Math.max(...ranks.slice(0,5).map(r=>r.chi),1),ranking=withRanks?`<div class="ranking">${ranks.slice(0,5).map((r,j)=>`<div class="rank-row"><span>${j+1}</span><strong>${r.letter}</strong><div class="rank-track"><div class="rank-fill" style="width:${Math.max(4,(1-r.chi/max)*100)}%"></div></div><span>${fmt(r.chi,1)}</span></div>`).join('')}</div>`:'';
+      return `<article class="column-card"><h3><span>Columna ${i}</span><span class="pill">IC ${fmt(icFromText(col),4)}</span></h3><div class="column-sample">${col.slice(0,90)}${col.length>90?'…':''}</div><div class="repeat-meta"><span class="pill">n=${col.length}</span><span class="pill">mejor: ${best.letter} / χ² ${fmt(best.chi,1)}</span></div>${ranking}</article>`;
+    }).join('');
+    return cols;
+  }
+  function buildColumns(p){
+    const text=$('attackText').value;p=Math.max(1,Math.min(30,Math.trunc(p||+$('chosenPeriod').value||1)));$('chosenPeriod').value=p;
+    renderPeriodGrid(text,p);renderColumnCards(text,p,false);setStep(4);
+  }
+  function scoreLanguage(text){
+    const normalized=normalizeText(text),compact=letters(text),s=' '+normalized.replace(/[^A-Z]+/g,' ')+' ';if(!compact)return 0;
+    let score=0;for(const w of COMMON){const bounded=new RegExp(`(?:^| )${w}(?: |$)`,'g');score+=(s.match(bounded)||[]).length*Math.min(6,w.length);score+=Math.min(3,(compact.match(new RegExp(w,'g'))||[]).length)*.8}
+    const vowel=[...letters(text)].filter(c=>'AEIOU'.includes(c)).length/Math.max(1,letters(text).length);score+=Math.max(0,1-Math.abs(vowel-.45)/.25)*18;
+    return Math.max(0,Math.min(100,score));
+  }
+  function decryptWithKey(text,key){return vigenereTransform(text,key,true,true).text}
+  function updateRecoveredPreview(){
+    const selects=[...document.querySelectorAll('#keyEditor select')],key=selects.map(s=>s.value).join('')||'A',plain=decryptWithKey($('attackText').value,key),q=scoreLanguage(plain),cols=columnsFor($('attackText').value,key.length),chis=cols.map((c,i)=>chiForShift(c,A.indexOf(key[i])).chi);
+    $('estimatedKey').textContent=key;$('estimatedPeriod').textContent=key.length;$('avgChi').textContent=fmt(chis.reduce((a,b)=>a+b,0)/Math.max(1,chis.length),1);$('languageScore').textContent=`${fmt(q,0)}%`;$('attackIC').textContent=fmt(icFromText(plain),5);
+    $('plaintextPreview').textContent=plain;$('qualityFill').style.width=`${q}%`;$('qualityValue').textContent=`${fmt(q,0)}%`;
+    $('attackConclusion').className=`notice ${q>55?'good':q>25?'warn':'danger'}`;
+    $('attackConclusion').innerHTML=q>55?'La recuperación produce rasgos lingüísticos claros. Revisá manualmente las letras alternativas para mejorar el texto.':q>25?'Hay señales parciales de lenguaje. Probá un divisor o múltiplo del período y ajustá las letras de la clave.':'La hipótesis actual es débil. Revisá el período, la longitud de la muestra y los rankings χ².';
+  }
+  function recoverKey(){
+    const p=Math.max(1,Math.min(30,+$('chosenPeriod').value||1)),cols=renderColumnCards($('attackText').value,p,true),ranks=cols.map(rankingsForColumn),lettersBest=ranks.map(r=>r[0].letter);
+    $('keyEditor').innerHTML=ranks.map((rs,i)=>`<div class="key-slot"><label for="keySlot${i}">K${i}</label><select id="keySlot${i}">${rs.slice(0,8).map((r,j)=>`<option value="${r.letter}" ${j===0?'selected':''}>${r.letter} · ${fmt(r.chi,1)}</option>`).join('')}</select></div>`).join('');
+    document.querySelectorAll('#keyEditor select').forEach(s=>s.onchange=updateRecoveredPreview);
+    $('estimatedKey').textContent=lettersBest.join('');updateRecoveredPreview();setStep(6);
+  }
+  function setStep(index){document.querySelectorAll('.attack-step').forEach((el,i)=>{el.classList.toggle('active',i===index);el.classList.toggle('done',i<index)})}
+  let analysisState={rows:[],best:1};
+  function analyzeAll(){
+    const text=$('attackText').value,s=letters(text),max=Math.max(2,Math.min(30,+$('maxPeriod').value||20)),minN=+$('ngramMin').value,maxN=Math.max(minN,+$('ngramMax').value);
+    const assessment=sampleAssessment(s.length);$('sampleStatus').className=`status-panel ${assessment.type}`;$('sampleStatus').textContent=assessment.text;
+    const repeats=findRepeats(s,minN,maxN);renderRepeats(repeats,max);setStep(1);
+    const votes=factorVotes(repeats,max),rows=periodRows(s,max,votes);renderBars('factorBars',rows,r=>r.votes,'kasiski');setStep(2);renderBars('icBars',rows,r=>r.avg,'');setStep(3);
+    const best=renderCandidateTable(rows);renderHeatmap(rows);analysisState={rows,best,repeats};$('chosenPeriod').value=best;buildColumns(best);setStep(4);
+  }
+  function loadExample(){
+    const plain='EN EL CRIPTOANALISIS CLASICO LAS REPETICIONES DEL TEXTO PUEDEN REVELAR DISTANCIAS RELACIONADAS CON LA CLAVE. EL METODO DE KASISKI BUSCA SECUENCIAS REPETIDAS Y FACTORIZA SUS DISTANCIAS. EL INDICE DE COINCIDENCIA COMPLEMENTA ESA EVIDENCIA. CUANDO SE PRUEBA EL PERIODO CORRECTO LAS COLUMNAS RECUPERAN LA DISTRIBUCION DEL CASTELLANO Y CADA UNA PUEDE RESOLVERSE COMO UN CIFRADO CESAR. ESTA COMBINACION DE EVIDENCIAS PERMITE ESTIMAR LA CLAVE SIN CONOCER EL MENSAJE ORIGINAL.';
+    $('attackText').value=vigenereTransform(plain,'CLAVE',false,false).text;analyzeAll();
+  }
+  function switchPanel(which){
+    const build=which==='build';$('buildPanel').classList.toggle('active',build);$('attackPanel').classList.toggle('active',!build);$('tabBuild').classList.toggle('active',build);$('tabAttack').classList.toggle('active',!build);$('tabBuild').setAttribute('aria-selected',build);$('tabAttack').setAttribute('aria-selected',!build);
+  }
+
+  $('tabBuild').onclick=()=>switchPanel('build');$('tabAttack').onclick=()=>switchPanel('attack');
+  $('tableauKeyLetter').onchange=()=>buildTableau($('tableauKeyLetter').value);
+  $('toggleTableauBtn').onclick=()=>{const box=$('tableauWrap'),show=box.classList.toggle('hidden')===false;$('toggleTableauBtn').textContent=show?'Ocultar tableau':'Mostrar tableau'};
+  $('encryptBtn').onclick=()=>updateBuild(false);$('decryptBtn').onclick=()=>updateBuild(true);
+  $('sendToAttackBtn').onclick=()=>{$('attackText').value=$('cipherOutput').value||updateBuild(false).text;switchPanel('attack');analyzeAll()};
+  $('analyzeBtn').onclick=analyzeAll;$('sampleBtn').onclick=loadExample;$('buildColumnsBtn').onclick=()=>buildColumns(+$('chosenPeriod').value);
+  $('recoverKeyBtn').onclick=recoverKey;$('useBestCandidateBtn').onclick=()=>{$('chosenPeriod').value=analysisState.best||1;buildColumns(analysisState.best||1)};
+  $('maxPeriod').onchange=analyzeAll;$('chosenPeriod').onchange=()=>buildColumns(+$('chosenPeriod').value);
+  $('plainText').oninput=()=>updateBuild(false);$('buildKey').oninput=()=>updateBuild(false);$('preserveSpaces').onchange=()=>updateBuild(false);
+
+  buildAlphabet();updateBuild(false);$('attackText').value=$('cipherOutput').value;analyzeAll();
+  </script>
+</body>
+</html>
