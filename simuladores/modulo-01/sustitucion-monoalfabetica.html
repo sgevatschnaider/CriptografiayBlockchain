@@ -1,1 +1,547 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sustitución monoalfabética</title><link rel="stylesheet" href="../assets/lab.css"><style>.alphabet{display:grid;grid-template-columns:repeat(13,1fr);gap:5px;margin-top:10px}.alphabet span{padding:8px 2px;text-align:center;border:1px solid var(--border);border-radius:8px;background:#071625;font-weight:800}.bars{display:grid;grid-template-columns:repeat(26,1fr);gap:3px;align-items:end;height:180px;margin-top:12px}.bar{background:linear-gradient(var(--accent),#4b8cff);min-height:2px;border-radius:5px 5px 0 0;position:relative}.bar small{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:.62rem;color:var(--muted)}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">← Módulo 1</a></div><nav class="nav"><a href="../../index.html">Portada</a><a href="../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a></nav></header><section class="hero"><div class="eyebrow">Sustitución general</div><h1>Sustitución monoalfabética</h1><p>Generá una permutación del alfabeto, cifrá textos y observá que la forma del histograma se conserva aunque cambien las etiquetas.</p></section><section class="grid"><article class="card"><h2>Clave y texto</h2><div class="actions"><button id="shuffle">Generar clave</button><button id="identity" class="secondary">Restablecer</button></div><div class="alphabet" id="plainAlpha"></div><div class="alphabet" id="cipherAlpha"></div><div class="control" style="margin-top:18px"><label for="txt">Texto</label><textarea id="txt">EN CRIPTOGRAFIA CLASICA LA FRECUENCIA DEL IDIOMA DEJA HUELLAS</textarea></div><div class="actions"><button id="enc">Cifrar</button><button id="dec" class="secondary">Descifrar</button></div><div class="output" id="out"></div></article><article class="card"><h2>Frecuencias del resultado</h2><div class="bars" id="bars"></div><p class="muted small" style="margin-top:34px">La sustitución cambia qué letra ocupa cada frecuencia, pero no elimina la distribución estadística.</p></article><article class="card full"><h2>Criptoanálisis asistido</h2><p>La gran cantidad de permutaciones no basta para garantizar seguridad. Un atacante combina frecuencias, patrones de palabras, bigramas, trigramas y contexto para reconstruir la clave.</p></article></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main><script>const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ',$=s=>document.querySelector(s);let K=A;function norm(s){return s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}function renderKey(){$('#plainAlpha').innerHTML=[...A].map(c=>`<span>${c}</span>`).join('');$('#cipherAlpha').innerHTML=[...K].map(c=>`<span>${c}</span>`).join('')}function transform(s,decode=false){return norm(s).split('').map(ch=>{const i=(decode?K:A).indexOf(ch);return i<0?ch:(decode?A:K)[i]}).join('')}function chart(s){const counts=Object.fromEntries([...A].map(c=>[c,0]));for(const c of s)if(counts[c]!=null)counts[c]++;const max=Math.max(1,...Object.values(counts));$('#bars').innerHTML=[...A].map(c=>`<div class="bar" title="${c}: ${counts[c]}" style="height:${8+150*counts[c]/max}px"><small>${c}</small></div>`).join('')}function run(decode=false){const r=transform($('#txt').value,decode);$('#out').textContent=r;chart(r)}$('#shuffle').onclick=()=>{K=[...A].sort(()=>crypto.getRandomValues(new Uint32Array(1))[0]/2**32-.5).join('');renderKey();run()};$('#identity').onclick=()=>{K=A;renderKey();run()};$('#enc').onclick=()=>run(false);$('#dec').onclick=()=>run(true);renderKey();run();</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Simulador de sustitución monoalfabética con comparación directa de frecuencias entre texto claro y criptograma.">
+  <title>Sustitución monoalfabética | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    .alphabet {
+      display: grid;
+      grid-template-columns: repeat(13, 1fr);
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .alphabet span {
+      padding: 8px 2px;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #071625;
+      font-weight: 800;
+    }
+
+    .key-label {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: .84rem;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    .output-label {
+      display: block;
+      margin: 18px 0 7px;
+      font-weight: 800;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .chart-panel {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #071625;
+      min-width: 0;
+    }
+
+    .chart-panel h3 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+    }
+
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(26, minmax(7px, 1fr));
+      gap: 3px;
+      align-items: end;
+      height: 190px;
+      margin: 12px 0 25px;
+    }
+
+    .bar {
+      min-height: 2px;
+      border-radius: 5px 5px 0 0;
+      position: relative;
+    }
+
+    .bar.plain {
+      background: linear-gradient(var(--accent), #4b8cff);
+    }
+
+    .bar.cipher {
+      background: linear-gradient(var(--good), #38a8d8);
+    }
+
+    .bar small {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: .62rem;
+      color: var(--muted);
+    }
+
+    .verification {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .metric {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(7, 22, 37, .72);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.15rem;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .proof {
+      margin-top: 16px;
+      padding: 14px;
+      border-left: 4px solid var(--good);
+      border-radius: 10px;
+      background: rgba(74, 222, 163, .07);
+    }
+
+    .frequency-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: .88rem;
+    }
+
+    .frequency-table th,
+    .frequency-table td {
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .frequency-table th {
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .ok { color: var(--good); }
+    .bad { color: var(--bad); }
+
+    @media (max-width: 850px) {
+      .chart-grid { grid-template-columns: 1fr; }
+      .verification { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .alphabet { grid-template-columns: repeat(7, 1fr); }
+      .bars { gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 1</a></div>
+      <nav class="nav">
+        <a href="../../index.html">Portada</a>
+        <a href="../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Sustitución general</div>
+      <h1>Sustitución monoalfabética</h1>
+      <p>
+        Generá una permutación del alfabeto, cifrá textos y comprobá que cada
+        frecuencia se traslada a otra letra sin cambiar su cantidad.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Clave y texto</h2>
+
+        <div class="actions">
+          <button id="shuffle" type="button">Generar clave</button>
+          <button id="identity" class="secondary" type="button">Restablecer</button>
+        </div>
+
+        <div class="key-label">Alfabeto claro</div>
+        <div class="alphabet" id="plainAlpha"></div>
+
+        <div class="key-label">Alfabeto cifrado: A → primera letra, B → segunda letra…</div>
+        <div class="alphabet" id="cipherAlpha"></div>
+
+        <div class="control" style="margin-top:18px">
+          <label for="txt">Texto de entrada</label>
+          <textarea id="txt">EN CRIPTOGRAFIA CLASICA LA FRECUENCIA DEL IDIOMA DEJA HUELLAS</textarea>
+        </div>
+
+        <div class="actions">
+          <button id="enc" type="button">Cifrar</button>
+          <button id="dec" class="secondary" type="button">Descifrar entrada</button>
+          <button id="use-output" class="secondary" type="button">Usar resultado como entrada</button>
+        </div>
+
+        <div id="status" class="status" aria-live="polite"></div>
+        <label class="output-label" for="out">Resultado</label>
+        <div class="output" id="out" aria-live="polite"></div>
+      </article>
+
+      <article class="card">
+        <h2>Qué hace la clave</h2>
+        <p class="muted">
+          Cada letra clara se reemplaza siempre por una única letra cifrada.
+          La clave es una permutación: no se repiten letras y ninguna queda fuera.
+        </p>
+        <div id="mapping-table" class="table-wrap"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Comparación de frecuencias</h2>
+        <p class="muted">
+          Los histogramas alfabéticos pueden parecer distintos porque las barras cambian
+          de posición. La altura asociada a cada letra clara reaparece exactamente en su
+          letra cifrada correspondiente.
+        </p>
+
+        <div class="chart-grid">
+          <section class="chart-panel">
+            <h3>Texto claro</h3>
+            <div class="bars" id="plain-bars" aria-label="Frecuencias del texto claro"></div>
+          </section>
+
+          <section class="chart-panel">
+            <h3>Criptograma</h3>
+            <div class="bars" id="cipher-bars" aria-label="Frecuencias del criptograma"></div>
+          </section>
+        </div>
+
+        <div class="verification">
+          <div class="metric">
+            <strong id="total-letters">0 = 0</strong>
+            <span>Total de letras conservado</span>
+          </div>
+          <div class="metric">
+            <strong id="distinct-letters">0 = 0</strong>
+            <span>Cantidad de símbolos distintos</span>
+          </div>
+          <div class="metric">
+            <strong id="profile-check">—</strong>
+            <span>Perfil ordenado de frecuencias</span>
+          </div>
+        </div>
+
+        <div class="proof" id="proof"></div>
+        <div id="frequency-correspondence" class="table-wrap"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Criptoanálisis asistido</h2>
+        <p>
+          La gran cantidad de permutaciones no basta para garantizar seguridad.
+          Un atacante no necesita probarlas todas: combina frecuencias, patrones de
+          palabras, letras repetidas, bigramas, trigramas y contexto para reconstruir
+          progresivamente la clave.
+        </p>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <p>Material elaborado por el profesor Sergio Gevatschnaider. Uso educativo.</p>
+    </footer>
+  </main>
+
+  <script>
+    'use strict';
+
+    const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const $ = selector => document.querySelector(selector);
+
+    let key = ALPHABET;
+    let lastPlaintext = '';
+    let lastCiphertext = '';
+    let lastAction = 'encrypt';
+
+    function normalizeText(text) {
+      return text
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function secureShuffle(text) {
+      const values = [...text];
+
+      for (let i = values.length - 1; i > 0; i--) {
+        const limit = Math.floor(0x100000000 / (i + 1)) * (i + 1);
+        let randomValue;
+
+        do {
+          randomValue = crypto.getRandomValues(new Uint32Array(1))[0];
+        } while (randomValue >= limit);
+
+        const j = randomValue % (i + 1);
+        [values[i], values[j]] = [values[j], values[i]];
+      }
+
+      return values.join('');
+    }
+
+    function isValidKey(candidate) {
+      return candidate.length === ALPHABET.length &&
+        new Set(candidate).size === ALPHABET.length &&
+        [...candidate].every(character => ALPHABET.includes(character));
+    }
+
+    function transform(text, decode = false) {
+      if (!isValidKey(key)) {
+        throw new Error('La clave no es una permutación válida del alfabeto.');
+      }
+
+      const sourceAlphabet = decode ? key : ALPHABET;
+      const targetAlphabet = decode ? ALPHABET : key;
+
+      return [...normalizeText(text)].map(character => {
+        const index = sourceAlphabet.indexOf(character);
+        return index < 0 ? character : targetAlphabet[index];
+      }).join('');
+    }
+
+    function countLetters(text) {
+      const counts = Object.fromEntries([...ALPHABET].map(letter => [letter, 0]));
+
+      for (const character of normalizeText(text)) {
+        if (Object.hasOwn(counts, character)) counts[character] += 1;
+      }
+
+      return counts;
+    }
+
+    function sortedFrequencyProfile(counts) {
+      return Object.values(counts).sort((a, b) => b - a);
+    }
+
+    function renderKey() {
+      $('#plainAlpha').replaceChildren();
+      $('#cipherAlpha').replaceChildren();
+
+      for (const letter of ALPHABET) {
+        const cell = document.createElement('span');
+        cell.textContent = letter;
+        $('#plainAlpha').append(cell);
+      }
+
+      for (const letter of key) {
+        const cell = document.createElement('span');
+        cell.textContent = letter;
+        $('#cipherAlpha').append(cell);
+      }
+
+      const table = document.createElement('table');
+      table.className = 'frequency-table';
+      table.innerHTML = '<thead><tr><th>Letra clara</th><th>→</th><th>Letra cifrada</th></tr></thead>';
+      const body = document.createElement('tbody');
+
+      [...ALPHABET].forEach((plainLetter, index) => {
+        const row = document.createElement('tr');
+        const plainCell = document.createElement('td');
+        const arrowCell = document.createElement('td');
+        const cipherCell = document.createElement('td');
+
+        plainCell.textContent = plainLetter;
+        arrowCell.textContent = '→';
+        cipherCell.textContent = key[index];
+        row.append(plainCell, arrowCell, cipherCell);
+        body.append(row);
+      });
+
+      table.append(body);
+      $('#mapping-table').replaceChildren(table);
+    }
+
+    function renderBars(containerSelector, counts, className, commonMaximum) {
+      const container = $(containerSelector);
+      container.replaceChildren();
+
+      for (const letter of ALPHABET) {
+        const bar = document.createElement('div');
+        bar.className = `bar ${className}`;
+        bar.style.height = `${8 + 150 * counts[letter] / Math.max(1, commonMaximum)}px`;
+        bar.title = `${letter}: ${counts[letter]}`;
+
+        const label = document.createElement('small');
+        label.textContent = letter;
+        bar.append(label);
+        container.append(bar);
+      }
+    }
+
+    function renderFrequencyCorrespondence(plainCounts, cipherCounts) {
+      const nonZeroMappings = [...ALPHABET]
+        .map((plainLetter, index) => ({
+          plainLetter,
+          cipherLetter: key[index],
+          plainCount: plainCounts[plainLetter],
+          cipherCount: cipherCounts[key[index]]
+        }))
+        .filter(item => item.plainCount > 0);
+
+      const table = document.createElement('table');
+      table.className = 'frequency-table';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Letra clara</th>
+            <th>Frecuencia</th>
+            <th>Se cifra como</th>
+            <th>Frecuencia cifrada</th>
+            <th>Comprobación</th>
+          </tr>
+        </thead>`;
+
+      const body = document.createElement('tbody');
+
+      for (const item of nonZeroMappings) {
+        const row = document.createElement('tr');
+        const values = [
+          item.plainLetter,
+          String(item.plainCount),
+          item.cipherLetter,
+          String(item.cipherCount),
+          item.plainCount === item.cipherCount ? '✓ iguales' : '✗ diferentes'
+        ];
+
+        values.forEach((value, index) => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          if (index === 4) cell.className = item.plainCount === item.cipherCount ? 'ok' : 'bad';
+          row.append(cell);
+        });
+
+        body.append(row);
+      }
+
+      table.append(body);
+      $('#frequency-correspondence').replaceChildren(table);
+    }
+
+    function renderComparison(plaintext, ciphertext) {
+      const plainCounts = countLetters(plaintext);
+      const cipherCounts = countLetters(ciphertext);
+      const commonMaximum = Math.max(
+        1,
+        ...Object.values(plainCounts),
+        ...Object.values(cipherCounts)
+      );
+
+      renderBars('#plain-bars', plainCounts, 'plain', commonMaximum);
+      renderBars('#cipher-bars', cipherCounts, 'cipher', commonMaximum);
+
+      const plainTotal = Object.values(plainCounts).reduce((sum, value) => sum + value, 0);
+      const cipherTotal = Object.values(cipherCounts).reduce((sum, value) => sum + value, 0);
+      const plainDistinct = Object.values(plainCounts).filter(Boolean).length;
+      const cipherDistinct = Object.values(cipherCounts).filter(Boolean).length;
+      const profileIsEqual = JSON.stringify(sortedFrequencyProfile(plainCounts)) ===
+        JSON.stringify(sortedFrequencyProfile(cipherCounts));
+
+      $('#total-letters').textContent = `${plainTotal} = ${cipherTotal}`;
+      $('#distinct-letters').textContent = `${plainDistinct} = ${cipherDistinct}`;
+      $('#profile-check').textContent = profileIsEqual ? 'Idéntico ✓' : 'Distinto ✗';
+      $('#profile-check').className = profileIsEqual ? 'ok' : 'bad';
+
+      $('#proof').innerHTML = profileIsEqual
+        ? '<strong class="ok">Conservación verificada.</strong> Para cada letra clara x, la frecuencia de x en el texto claro es exactamente igual a la frecuencia de su sustituta K(x) en el criptograma: <code>f<sub>P</sub>(x) = f<sub>C</sub>(K(x))</code>. Las barras no desaparecen: solo cambian de etiqueta y posición.'
+        : '<strong class="bad">La conservación no pudo verificarse.</strong> Revisá la clave o el par de textos comparados.';
+
+      renderFrequencyCorrespondence(plainCounts, cipherCounts);
+    }
+
+    function encryptInput() {
+      try {
+        const plaintext = $('#txt').value;
+        const ciphertext = transform(plaintext, false);
+
+        lastPlaintext = normalizeText(plaintext);
+        lastCiphertext = ciphertext;
+        lastAction = 'encrypt';
+
+        $('#out').textContent = ciphertext;
+        $('#status').innerHTML = '<span class="ok">Cifrado correcto.</span> El resultado usa la permutación mostrada arriba.';
+        renderComparison(lastPlaintext, lastCiphertext);
+      } catch (error) {
+        $('#status').innerHTML = `<span class="bad">${error.message}</span>`;
+      }
+    }
+
+    function decryptInput() {
+      try {
+        const ciphertext = $('#txt').value;
+        const plaintext = transform(ciphertext, true);
+
+        lastCiphertext = normalizeText(ciphertext);
+        lastPlaintext = plaintext;
+        lastAction = 'decrypt';
+
+        $('#out').textContent = plaintext;
+        $('#status').innerHTML = '<span class="ok">Descifrado correcto.</span> La entrada fue interpretada como criptograma.';
+        renderComparison(lastPlaintext, lastCiphertext);
+      } catch (error) {
+        $('#status').innerHTML = `<span class="bad">${error.message}</span>`;
+      }
+    }
+
+    $('#shuffle').addEventListener('click', () => {
+      key = secureShuffle(ALPHABET);
+      renderKey();
+      encryptInput();
+    });
+
+    $('#identity').addEventListener('click', () => {
+      key = ALPHABET;
+      renderKey();
+      encryptInput();
+    });
+
+    $('#enc').addEventListener('click', encryptInput);
+    $('#dec').addEventListener('click', decryptInput);
+
+    $('#use-output').addEventListener('click', () => {
+      const result = $('#out').textContent;
+      if (!result) return;
+
+      $('#txt').value = result;
+      $('#status').textContent = lastAction === 'encrypt'
+        ? 'El criptograma pasó al campo de entrada. Ahora podés presionar “Descifrar entrada”.'
+        : 'El texto claro pasó al campo de entrada.';
+    });
+
+    $('#txt').addEventListener('input', () => {
+      $('#status').textContent = 'Texto modificado. Elegí Cifrar o Descifrar entrada.';
+    });
+
+    renderKey();
+    encryptInput();
+  </script>
+</body>
+</html>
