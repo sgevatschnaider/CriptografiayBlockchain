@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Introducción visual e interactiva a la aritmética modular: reloj modular, congruencias, operaciones, tablas y cifrado César.">
+  <title>Aritmética modular visual | Criptografía y Blockchain</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    :root{--a:#63d5ff;--b:#ffc766;--n:#b38cff;--r:#4adea3;--hot:#ff7383}
+    .hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:28px;align-items:center}
+    .hero-copy{min-width:0}.hero-visual{display:grid;place-items:center;min-height:280px}
+    .hero-ring{width:min(290px,80vw);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;position:relative;background:radial-gradient(circle,rgba(99,213,255,.1) 0 34%,transparent 35%),conic-gradient(from -90deg,rgba(99,213,255,.3),rgba(159,122,234,.34),rgba(74,222,163,.3),rgba(99,213,255,.3));box-shadow:0 0 70px rgba(99,213,255,.18)}
+    .hero-ring::before{content:"mod 12";display:grid;place-items:center;width:58%;aspect-ratio:1;border-radius:50%;background:#091827;border:1px solid var(--border-strong);font-size:clamp(1.4rem,4vw,2rem);font-weight:900}
+    .hero-ring span{position:absolute;font-weight:850;color:#d9efff}
+    .hero-ring span:nth-child(2){top:4%;left:48%}.hero-ring span:nth-child(3){right:9%;top:22%}.hero-ring span:nth-child(4){right:4%;top:48%}.hero-ring span:nth-child(5){right:10%;bottom:20%}.hero-ring span:nth-child(6){bottom:4%;left:48%}.hero-ring span:nth-child(7){left:9%;bottom:20%}.hero-ring span:nth-child(8){left:4%;top:48%}.hero-ring span:nth-child(9){left:10%;top:22%}
+    .hero-actions,.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .button,button{border:1px solid transparent;border-radius:12px;padding:11px 15px;color:#03111d;background:var(--accent);font-weight:850;cursor:pointer;text-decoration:none;transition:transform .16s ease,filter .16s ease,border-color .16s ease}
+    button:hover,.button:hover{transform:translateY(-1px);filter:brightness(1.08)}
+    button.secondary,.button.secondary{color:var(--text);background:rgba(10,24,41,.78);border-color:var(--border)}
+    button.warn{background:var(--warn)} button.good{background:var(--good)} button.danger{background:var(--bad)}
+    .lesson-nav{display:flex;gap:8px;overflow-x:auto;padding:14px 0 2px;scrollbar-width:thin}
+    .lesson-nav a{flex:0 0 auto;padding:8px 12px;border:1px solid var(--border);border-radius:999px;color:var(--muted);text-decoration:none;background:rgba(7,22,37,.82)}
+    .lesson-nav a:hover{color:#fff;border-color:var(--border-strong)}
+    .concept-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}
+    .concept{padding:16px;border:1px solid var(--border);border-radius:16px;background:rgba(10,25,42,.75)}
+    .concept strong{display:block;font-size:1.05rem;margin-bottom:5px}.concept span{color:var(--muted);font-size:.88rem}
+    .visual-layout{display:grid;grid-template-columns:minmax(320px,1fr) minmax(300px,.85fr);gap:22px;align-items:start}
+    .stage{position:relative;min-height:470px;display:grid;place-items:center;border:1px solid var(--border);border-radius:22px;background:radial-gradient(circle at center,rgba(99,213,255,.1),transparent 52%),#071625;overflow:hidden}
+    #clockSvg{width:min(100%,560px);height:auto;overflow:visible}
+    .clock-node{transition:transform .2s ease,filter .2s ease}.clock-node circle{fill:#102943;stroke:rgba(169,187,208,.38);stroke-width:2}.clock-node text{fill:#dcecff;font-weight:850;font-size:14px;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+    .clock-node.start circle{fill:rgba(99,213,255,.28);stroke:var(--a);stroke-width:4}.clock-node.result circle{fill:rgba(74,222,163,.28);stroke:var(--r);stroke-width:4}.clock-node.path circle{filter:drop-shadow(0 0 8px rgba(255,199,102,.75));stroke:var(--b)}
+    .clock-center{fill:#091827;stroke:var(--border-strong);stroke-width:2}.clock-center-text{fill:#fff;font-weight:900;text-anchor:middle}.clock-subtext{fill:var(--muted);font-size:13px;text-anchor:middle}
+    .clock-arrow{fill:none;stroke:var(--b);stroke-width:5;stroke-linecap:round;filter:drop-shadow(0 0 7px rgba(255,199,102,.5))}
+    .panel-stack{display:grid;gap:14px}.formula-card{padding:18px;border:1px solid var(--border);border-radius:18px;background:rgba(9,27,45,.88)}
+    .formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:clamp(1rem,2vw,1.3rem);line-height:1.75;word-break:break-word}
+    .var-a{color:var(--a)}.var-b{color:var(--b)}.var-n{color:var(--n)}.var-r{color:var(--r)}
+    .metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{padding:13px;border:1px solid var(--border);border-radius:14px;background:#071625}.metric strong{display:block;font-size:1.35rem}.metric span{color:var(--muted);font-size:.8rem}
+    .mode-toggle{display:flex;gap:8px;padding:5px;border:1px solid var(--border);border-radius:14px;background:#071625}.mode-toggle button{flex:1;background:transparent;color:var(--muted);padding:8px}.mode-toggle button.active{background:var(--accent);color:#03111d}
+    .range-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.range-value{min-width:56px;text-align:center;padding:9px;border-radius:10px;background:#071625;border:1px solid var(--border);font-weight:850}
+    input[type=range]{padding:0;accent-color:var(--accent)}
+    .division-visual{display:grid;gap:16px}.groups{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}.group-box{padding:11px;border-radius:14px;border:1px solid rgba(159,122,234,.55);background:rgba(159,122,234,.12)}.dots{display:flex;flex-wrap:wrap;gap:4px;max-width:180px}.dot{width:9px;height:9px;border-radius:50%;background:var(--n)}.remainder-box{border-color:rgba(74,222,163,.65);background:rgba(74,222,163,.12)}.remainder-box .dot{background:var(--r)}
+    .number-line{position:relative;padding:54px 10px 30px;overflow-x:auto}.line-track{position:relative;height:4px;background:linear-gradient(90deg,var(--a),var(--n));border-radius:99px;min-width:760px}.tick{position:absolute;top:-8px;width:2px;height:20px;background:rgba(220,236,255,.5)}.tick span{position:absolute;top:24px;left:50%;transform:translateX(-50%);font-size:.76rem;color:var(--muted)}.tick.active{height:28px;top:-12px;background:var(--r);box-shadow:0 0 13px var(--r)}.tick.active::before{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:var(--r);top:-5px;left:-5px}
+    .class-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.class-chip{padding:8px 11px;border:1px solid rgba(74,222,163,.45);border-radius:999px;background:rgba(74,222,163,.1);color:#caffea;font-family:ui-monospace,monospace}
+    .op-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.op-tabs button.active{background:var(--accent);color:#03111d}.op-tabs button{background:#071625;color:var(--muted);border-color:var(--border)}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px}.mod-table{border-collapse:collapse;width:100%;min-width:440px}.mod-table th,.mod-table td{padding:9px;text-align:center;border:1px solid rgba(159,184,211,.14)}.mod-table th{background:#102943;position:sticky;top:0}.mod-table td{cursor:pointer;transition:.12s}.mod-table td:hover,.mod-table td.focus{background:rgba(99,213,255,.2);color:#fff}.mod-table .head-focus{background:rgba(255,199,102,.2)}
+    .cipher-layout{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(320px,1.2fr);gap:20px}.alphabet{display:grid;grid-template-columns:repeat(13,1fr);gap:5px}.letter-cell{padding:7px 2px;text-align:center;border:1px solid var(--border);border-radius:8px;background:#071625;font-size:.76rem}.letter-cell strong{display:block;color:var(--accent)}.cipher-steps{display:grid;gap:8px;margin-top:14px}.cipher-step{display:grid;grid-template-columns:42px 1fr 42px;gap:8px;align-items:center;padding:9px 11px;border:1px solid var(--border);border-radius:12px;background:#071625}.cipher-step strong:first-child{color:var(--a)}.cipher-step strong:last-child{color:var(--r)}
+    .quiz-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.quiz{padding:17px;border:1px solid var(--border);border-radius:16px;background:#071625}.quiz.correct{border-color:rgba(74,222,163,.7)}.quiz.incorrect{border-color:rgba(255,115,131,.7)}.feedback{min-height:24px;margin-top:9px;color:var(--muted);font-size:.88rem}
+    .callout{padding:16px 18px;border-left:4px solid var(--accent);border-radius:0 14px 14px 0;background:rgba(99,213,255,.08)}.status{margin-top:12px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;color:var(--muted);background:#071625}.status.good{border-color:rgba(74,222,163,.5);color:#caffea}.status.bad{border-color:rgba(255,115,131,.5);color:#ffe4e8}
+    @media(max-width:900px){.hero,.visual-layout,.cipher-layout{grid-template-columns:1fr}.hero-visual{order:-1;min-height:220px}.hero-ring{width:220px}.concept-strip{grid-template-columns:repeat(2,1fr)}.stage{min-height:390px}.alphabet{grid-template-columns:repeat(7,1fr)}}
+    @media(max-width:620px){.concept-strip,.quiz-grid,.metric-grid{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.alphabet{grid-template-columns:repeat(5,1fr)}.stage{min-height:330px}.hero{padding:24px}.shell{width:min(100% - 20px,1220px)}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<main class="shell" id="contenido">
+  <header class="topbar">
+    <div class="brand"><a href="../index.html">⛓️ Campus Criptografía</a></div>
+    <nav class="nav" aria-label="Navegación principal">
+      <a href="./index.html">Fundamentos</a>
+      <a href="../02-fundamentos-matematicos.html">Laboratorio integral</a>
+      <a href="../../index.html">Portada</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Introducción visual interactiva</div>
+      <h1>Aritmética modular: cuando los números vuelven a empezar</h1>
+      <p>Explorá residuos, congruencias y ciclos mediante tres representaciones sincronizadas: división con resto, recta numérica y reloj modular. Después aplicá la misma idea al cifrado César.</p>
+      <div class="hero-actions">
+        <a class="button" href="#explorador">Comenzar exploración</a>
+        <a class="button secondary" href="#cesar">Ir a criptografía</a>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-ring"><span></span><span>0</span><span>2</span><span>3</span><span>5</span><span>6</span><span>8</span><span>9</span><span>11</span></div>
+    </div>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Secciones de la lección">
+    <a href="#idea">Idea central</a><a href="#explorador">Reloj modular</a><a href="#division">División y resto</a><a href="#congruencias">Congruencias</a><a href="#operaciones">Operaciones</a><a href="#tablas">Tablas</a><a href="#cesar">César</a><a href="#desafios">Desafíos</a>
+  </nav>
+
+  <section class="concept-strip" id="idea">
+    <div class="concept"><strong>1. Dividir</strong><span>Todo entero se expresa como cociente × módulo + resto.</span></div>
+    <div class="concept"><strong>2. Reducir</strong><span>El resto canónico queda entre 0 y n − 1.</span></div>
+    <div class="concept"><strong>3. Agrupar</strong><span>Los enteros con igual resto forman una clase de congruencia.</span></div>
+    <div class="concept"><strong>4. Cifrar</strong><span>César desplaza letras mediante una suma módulo 26.</span></div>
+  </section>
+
+  <section class="grid" id="explorador">
+    <article class="card full">
+      <div class="eyebrow">Explorador central</div>
+      <h2>El reloj modular</h2>
+      <p class="muted">Modificá los valores. El reloj, la división y la fórmula se actualizan al mismo tiempo.</p>
+      <div class="visual-layout">
+        <div class="stage">
+          <svg id="clockSvg" viewBox="0 0 560 560" role="img" aria-labelledby="clockTitle clockDesc">
+            <title id="clockTitle">Reloj modular interactivo</title>
+            <desc id="clockDesc">Representación circular de los residuos y del desplazamiento seleccionado.</desc>
+            <defs><marker id="arrowHead" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ffc766"/></marker></defs>
+            <g id="clockPath"></g><g id="clockNodes"></g><circle class="clock-center" cx="280" cy="280" r="92"></circle>
+            <text class="clock-center-text" id="clockCenterMain" x="280" y="270" font-size="26">mod 12</text>
+            <text class="clock-subtext" id="clockCenterSub" x="280" y="302">10 + 5 ≡ 3</text>
+          </svg>
+        </div>
+        <div class="panel-stack">
+          <div class="formula-card">
+            <div class="mode-toggle" aria-label="Modo de visualización">
+              <button id="numberMode" class="active" type="button">Números</button>
+              <button id="alphabetMode" type="button">Alfabeto A=0</button>
+            </div>
+          </div>
+          <div class="formula-card controls">
+            <div class="control full">
+              <label for="modulus">Módulo <span class="var-n">n</span></label>
+              <div class="range-row"><input id="modulus" type="range" min="2" max="30" value="12"><output class="range-value" id="modulusValue">12</output></div>
+            </div>
+            <div class="control"><label for="start">Inicio <span class="var-a">a</span></label><input id="start" type="number" value="10"></div>
+            <div class="control"><label for="step">Desplazamiento <span class="var-b">b</span></label><input id="step" type="number" value="5"></div>
+            <div class="control full"><label for="operation">Operación</label><select id="operation"><option value="add">Suma: a + b</option><option value="subtract">Resta: a − b</option><option value="multiply">Multiplicación: a × b</option><option value="power">Potencia: aᵇ</option></select></div>
+          </div>
+          <div class="formula-card">
+            <div class="formula" id="mainFormula"></div>
+            <div class="status" id="walkStatus" aria-live="polite"></div>
+            <div class="actions"><button id="animateBtn" type="button">Animar recorrido</button><button id="resetBtn" type="button" class="secondary">Ejemplo inicial</button></div>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><strong id="ordinaryResult">15</strong><span>resultado ordinario</span></div>
+            <div class="metric"><strong id="modResult">3</strong><span>resto módulo n</span></div>
+            <div class="metric"><strong id="quotientResult">1</strong><span>cociente euclídeo</span></div>
+            <div class="metric"><strong id="cycleCount">1</strong><span>vueltas completas</span></div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid" id="division">
+    <article class="card full">
+      <div class="eyebrow">Primera representación</div><h2>División euclídea: grupos completos y resto</h2>
+      <div class="callout"><strong>Teorema de la división.</strong> Para todo entero x y todo n &gt; 0 existen únicos enteros q y r tales que x = qn + r, con 0 ≤ r &lt; n.</div>
+      <div class="division-visual" style="margin-top:18px">
+        <div class="formula" id="divisionFormula"></div>
+        <div class="groups" id="divisionGroups" aria-label="Grupos completos y resto"></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid" id="congruencias">
+    <article class="card full">
+      <div class="eyebrow">Segunda representación</div><h2>Recta numérica y clases de congruencia</h2>
+      <p class="muted">Dos enteros son congruentes módulo n cuando su diferencia es múltiplo de n. Todos los valores resaltados caen en la misma posición del reloj.</p>
+      <div class="number-line"><div class="line-track" id="numberLine"></div></div>
+      <div class="class-chips" id="classChips"></div>
+      <div class="formula-card" style="margin-top:15px"><div class="formula" id="congruenceFormula"></div></div>
+    </article>
+  </section>
+
+  <section class="grid" id="operaciones">
+    <article class="card">
+      <div class="eyebrow">Propiedades</div><h2>Laboratorio de operaciones</h2>
+      <div class="op-tabs" id="opTabs"><button data-op="add" class="active">Suma</button><button data-op="subtract">Resta</button><button data-op="multiply">Producto</button><button data-op="power">Potencia</button></div>
+      <div class="formula-card"><div class="formula" id="operationExplanation"></div></div>
+      <div class="status">Reducir después de operar o reducir antes produce el mismo resultado para suma, resta y multiplicación.</div>
+    </article>
+    <article class="card">
+      <div class="eyebrow">Invariantes</div><h2>Reglas que preservan el resto</h2>
+      <div class="formula">
+        Si a ≡ a′ (mod n) y b ≡ b′ (mod n), entonces:<br><br>
+        a + b ≡ a′ + b′ (mod n)<br>
+        a − b ≡ a′ − b′ (mod n)<br>
+        ab ≡ a′b′ (mod n)
+      </div>
+      <p class="muted">Estas compatibilidades permiten operar directamente con clases de residuos y son la base algebraica de muchos criptosistemas.</p>
+    </article>
+  </section>
+
+  <section class="grid" id="tablas">
+    <article class="card full">
+      <div class="eyebrow">Patrones finitos</div><h2>Tabla modular interactiva</h2>
+      <div class="controls">
+        <div class="control"><label for="tableModulus">Módulo de la tabla</label><input id="tableModulus" type="number" min="2" max="12" value="5"></div>
+        <div class="control"><label for="tableOperation">Operación</label><select id="tableOperation"><option value="add">Suma</option><option value="multiply">Multiplicación</option></select></div>
+      </div>
+      <div class="table-wrap" style="margin-top:16px"><table class="mod-table" id="modTable"></table></div>
+      <div class="status" id="tableStatus">Pasá el cursor o seleccioná una celda para interpretar la operación.</div>
+    </article>
+  </section>
+
+  <section class="grid" id="cesar">
+    <article class="card full">
+      <div class="eyebrow">Aplicación criptográfica</div><h2>Del reloj al cifrado César</h2>
+      <p class="muted">Asignamos A=0, B=1, …, Z=25. Cifrar consiste en sumar una clave k y reducir módulo 26.</p>
+      <div class="cipher-layout">
+        <div>
+          <div class="controls">
+            <div class="control full"><label for="plainText">Texto claro</label><textarea id="plainText">CASA</textarea></div>
+            <div class="control full"><label for="shiftKey">Desplazamiento k</label><input id="shiftKey" type="number" value="3"></div>
+          </div>
+          <div class="actions"><button id="cipherBtn">Cifrar</button><button id="decipherBtn" class="secondary">Descifrar</button></div>
+          <div class="formula-card" style="margin-top:14px"><div class="formula">E<sub>k</sub>(x) = (x + k) mod 26</div><div class="status good" id="cipherResult">CASA → FDVD</div></div>
+        </div>
+        <div>
+          <div class="alphabet" id="alphabetGrid"></div>
+          <div class="cipher-steps" id="cipherSteps"></div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid" id="desafios">
+    <article class="card full">
+      <div class="eyebrow">Comprobación activa</div><h2>Desafíos autocorregibles</h2>
+      <div class="quiz-grid">
+        <div class="quiz" data-answer="2"><strong>1. ¿Cuánto vale 17 mod 5?</strong><input type="number" aria-label="Respuesta al desafío 1"><button class="checkQuiz" type="button">Comprobar</button><div class="feedback"></div></div>
+        <div class="quiz" data-answer="5"><strong>2. ¿Cuánto vale (9 + 8) mod 12?</strong><input type="number" aria-label="Respuesta al desafío 2"><button class="checkQuiz" type="button">Comprobar</button><div class="feedback"></div></div>
+        <div class="quiz" data-answer="3"><strong>3. ¿Cuánto vale −4 mod 7?</strong><input type="number" aria-label="Respuesta al desafío 3"><button class="checkQuiz" type="button">Comprobar</button><div class="feedback"></div></div>
+        <div class="quiz" data-answer="2"><strong>4. Si Y=24 y k=4, ¿qué número cifrado resulta?</strong><input type="number" aria-label="Respuesta al desafío 4"><button class="checkQuiz" type="button">Comprobar</button><div class="feedback"></div></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="card full">
+      <h2>La idea esencial</h2>
+      <div class="concept-strip">
+        <div class="concept"><strong>x mod n</strong><span>Es el resto canónico de dividir x por n.</span></div>
+        <div class="concept"><strong>x ≡ y (mod n)</strong><span>Significa que n divide exactamente a x − y.</span></div>
+        <div class="concept"><strong>ℤ/nℤ</strong><span>Contiene exactamente n clases de residuos.</span></div>
+        <div class="concept"><strong>César</strong><span>Es una traslación dentro del grupo aditivo módulo 26.</span></div>
+      </div>
+      <div class="actions"><a class="button" href="../02-fundamentos-matematicos.html">Continuar al laboratorio integral</a><a class="button secondary" href="./index.html">Volver a Fundamentos</a></div>
+    </article>
+  </section>
+
+  <footer class="footer"><p>Material interactivo elaborado por el profesor Sergio Gevatschnaider.</p></footer>
+</main>
+<script>
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const mod = (a,n) => ((a % n) + n) % n;
+  const clampInt = (v,fallback=0) => Number.isSafeInteger(Number(v)) ? Number(v) : fallback;
+  const powMod = (base, exp, modulus) => {
+    if (exp < 0) return NaN;
+    let result = 1, b = mod(base, modulus), e = exp;
+    while (e > 0) { if (e % 2 === 1) result = (result * b) % modulus; b = (b * b) % modulus; e = Math.floor(e / 2); }
+    return result;
+  };
+  const state = { n:12, a:10, b:5, op:'add', alphabet:false, timer:null };
+  function evaluate(){
+    const {a,b,n,op}=state;
+    if(op==='add') return {ordinary:a+b,result:mod(a+b,n),symbol:'+',label:'suma'};
+    if(op==='subtract') return {ordinary:a-b,result:mod(a-b,n),symbol:'−',label:'resta'};
+    if(op==='multiply') return {ordinary:a*b,result:mod(a*b,n),symbol:'×',label:'producto'};
+    const result=powMod(a,b,n); return {ordinary:Number.isSafeInteger(a**b)?a**b:null,result,symbol:'^',label:'potencia'};
+  }
+  function displayValue(v){ return state.alphabet && state.n===26 ? String.fromCharCode(65+mod(v,26)) : String(v); }
+  function operationSequence(){
+    const {a,b,n,op}=state, out=[];
+    if(op==='add'||op==='subtract'){
+      const dir=op==='add'?Math.sign(b||1):-Math.sign(b||1), count=Math.min(Math.abs(b),120);
+      let cur=mod(a,n); out.push(cur); for(let i=0;i<count;i++){cur=mod(cur+dir,n);out.push(cur)} return out;
+    }
+    if(op==='multiply'){
+      const count=Math.min(Math.abs(b),80); let cur=0;out.push(cur);const add=mod(a,n)*Math.sign(b||1);for(let i=0;i<count;i++){cur=mod(cur+add,n);out.push(cur)}return out;
+    }
+    const count=Math.min(Math.max(b,0),40);let cur=1;out.push(cur);for(let i=0;i<count;i++){cur=mod(cur*a,n);out.push(cur)}return out;
+  }
+  function renderClock(activeIndex=-1){
+    const nodes=$('#clockNodes'), path=$('#clockPath');nodes.innerHTML='';path.innerHTML='';
+    const {n,a}=state,{result,symbol}=evaluate(),cx=280,cy=280,radius=n>20?218:210,nodeR=n>22?15:n>16?18:22;
+    for(let i=0;i<n;i++){
+      const ang=-Math.PI/2+2*Math.PI*i/n,x=cx+radius*Math.cos(ang),y=cy+radius*Math.sin(ang);
+      const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','clock-node'+(i===mod(a,n)?' start':'')+(i===result?' result':'')+(i===activeIndex?' path':''));g.setAttribute('transform',`translate(${x} ${y})`);
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('r',nodeR);
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.textContent=displayValue(i);if(n>22)t.setAttribute('font-size','11');
+      g.append(c,t);nodes.append(g);
+    }
+    const startAng=-Math.PI/2+2*Math.PI*mod(a,n)/n,endAng=-Math.PI/2+2*Math.PI*result/n,rr=145;
+    const sx=cx+rr*Math.cos(startAng),sy=cy+rr*Math.sin(startAng),ex=cx+rr*Math.cos(endAng),ey=cy+rr*Math.sin(endAng);
+    const diff=mod(result-mod(a,n),n),large=diff>n/2?1:0;
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('class','clock-arrow');p.setAttribute('marker-end','url(#arrowHead)');
+    p.setAttribute('d',diff===0?`M ${sx} ${sy} A 42 42 0 1 1 ${sx-1} ${sy}`:`M ${sx} ${sy} A ${rr} ${rr} 0 ${large} 1 ${ex} ${ey}`);path.append(p);
+    $('#clockCenterMain').textContent=state.alphabet&&n===26?'A = 0 · Z = 25':`mod ${n}`;
+    $('#clockCenterSub').textContent=`${displayValue(mod(a,n))} ${symbol} ${state.b} ≡ ${displayValue(result)}`;
+  }
+  function renderDivision(){
+    const {n}=state,{ordinary,result}=evaluate();
+    if(!Number.isFinite(ordinary)){ $('#divisionFormula').innerHTML=`La potencia es demasiado grande para mostrarla como entero ordinario. Se calcula directamente por exponenciación modular.`;$('#divisionGroups').innerHTML='';return; }
+    const q=Math.floor(ordinary/n),r=mod(ordinary,n);
+    $('#divisionFormula').innerHTML=`<span class="var-a">${ordinary}</span> = <span class="var-n">${q}</span> × <span class="var-n">${n}</span> + <span class="var-r">${r}</span>`;
+    const groups=$('#divisionGroups');groups.innerHTML='';
+    const visible=Math.min(Math.abs(q),6);
+    for(let i=0;i<visible;i++){const box=document.createElement('div');box.className='group-box';box.innerHTML=`<strong>grupo ${i+1}</strong><div class="dots">${Array.from({length:Math.min(n,40)},()=>'<i class="dot"></i>').join('')}${n>40?'<span>…</span>':''}</div>`;groups.append(box)}
+    if(Math.abs(q)>visible){const more=document.createElement('div');more.className='group-box';more.textContent=`+ ${Math.abs(q)-visible} grupos`;groups.append(more)}
+    const rem=document.createElement('div');rem.className='group-box remainder-box';rem.innerHTML=`<strong>resto = ${result}</strong><div class="dots">${Array.from({length:Math.min(result,40)},()=>'<i class="dot"></i>').join('')||'<span>sin elementos</span>'}</div>`;groups.append(rem);
+  }
+  function renderNumberLine(){
+    const {n}=state,{result}=evaluate(),min=result-3*n,max=result+3*n,track=$('#numberLine');track.innerHTML='';
+    const span=max-min;
+    for(let x=min;x<=max;x++){
+      const tick=document.createElement('div');tick.className='tick'+(mod(x,n)===result?' active':'');tick.style.left=`${((x-min)/span)*100}%`;tick.innerHTML=`<span>${x}</span>`;track.append(tick);
+    }
+    const vals=Array.from({length:7},(_,i)=>result+(i-3)*n);
+    $('#classChips').innerHTML=vals.map(v=>`<span class="class-chip">${v} mod ${n} = ${result}</span>`).join('');
+    $('#congruenceFormula').innerHTML=vals.map(v=>`<span class="var-${v===result?'r':'a'}">${v}</span>`).join(' ≡ ')+` <span class="var-n">(mod ${n})</span>`;
+  }
+  function renderOperation(){
+    const {a,b,n,op}=state,{ordinary,result,symbol,label}=evaluate();
+    const ordinaryText=Number.isFinite(ordinary)?ordinary:'valor enorme';
+    $('#operationExplanation').innerHTML=`<strong>${label[0].toUpperCase()+label.slice(1)} modular</strong><br><span class="var-a">${a}</span> ${symbol} <span class="var-b">${b}</span> = ${ordinaryText}<br>${ordinaryText} mod <span class="var-n">${n}</span> = <span class="var-r">${result}</span><br><span class="var-a">${a}</span> ${symbol} <span class="var-b">${b}</span> ≡ <span class="var-r">${result}</span> (mod <span class="var-n">${n}</span>)`;
+    $$('#opTabs button').forEach(btn=>btn.classList.toggle('active',btn.dataset.op===op));
+  }
+  function renderAll(){
+    state.n=clampInt($('#modulus').value,12);state.a=clampInt($('#start').value,0);state.b=clampInt($('#step').value,0);state.op=$('#operation').value;
+    if(state.op==='power'&&state.b<0){state.b=0;$('#step').value=0}
+    $('#modulusValue').textContent=state.n;
+    const {ordinary,result,symbol}=evaluate(),q=Number.isFinite(ordinary)?Math.floor(ordinary/state.n):'—';
+    $('#ordinaryResult').textContent=Number.isFinite(ordinary)?ordinary:'grande';$('#modResult').textContent=result;$('#quotientResult').textContent=q;$('#cycleCount').textContent=Number.isFinite(q)?Math.abs(q):'—';
+    $('#mainFormula').innerHTML=`<span class="var-a">${state.a}</span> ${symbol} <span class="var-b">${state.b}</span> ≡ <span class="var-r">${result}</span> <span class="var-n">(mod ${state.n})</span>`;
+    const seq=operationSequence();$('#walkStatus').textContent=seq.length<=24?seq.map(displayValue).join(' → '):`${displayValue(seq[0])} → … → ${displayValue(seq.at(-1))} (${seq.length-1} pasos)`;
+    renderClock();renderDivision();renderNumberLine();renderOperation();
+  }
+  function animate(){
+    clearInterval(state.timer);const seq=operationSequence();let i=0;renderClock(seq[0]);state.timer=setInterval(()=>{i++;renderClock(seq[Math.min(i,seq.length-1)]);if(i>=seq.length-1){clearInterval(state.timer);state.timer=null}},Math.max(70,Math.min(350,1400/Math.max(seq.length,1))));
+  }
+  function buildTable(){
+    const n=Math.max(2,Math.min(12,clampInt($('#tableModulus').value,5))),op=$('#tableOperation').value,sign=op==='add'?'+':'×',table=$('#modTable');
+    let h=`<thead><tr><th>${sign}</th>${Array.from({length:n},(_,i)=>`<th data-col="${i}">${i}</th>`).join('')}</tr></thead><tbody>`;
+    for(let i=0;i<n;i++){h+=`<tr><th data-row="${i}">${i}</th>`;for(let j=0;j<n;j++){const v=op==='add'?mod(i+j,n):mod(i*j,n);h+=`<td tabindex="0" data-i="${i}" data-j="${j}" data-v="${v}">${v}</td>`}h+='</tr>'}table.innerHTML=h+'</tbody>';
+    table.querySelectorAll('td').forEach(td=>{const show=()=>{table.querySelectorAll('.focus,.head-focus').forEach(x=>x.classList.remove('focus','head-focus'));td.classList.add('focus');table.querySelector(`[data-row="${td.dataset.i}"]`)?.classList.add('head-focus');table.querySelector(`[data-col="${td.dataset.j}"]`)?.classList.add('head-focus');$('#tableStatus').textContent=`${td.dataset.i} ${sign} ${td.dataset.j} ≡ ${td.dataset.v} (mod ${n})`;};td.onmouseenter=show;td.onclick=show;td.onfocus=show});
+  }
+  function buildAlphabet(){ $('#alphabetGrid').innerHTML=Array.from({length:26},(_,i)=>`<div class="letter-cell"><strong>${String.fromCharCode(65+i)}</strong>${i}</div>`).join('') }
+  function runCipher(direction=1){
+    const text=$('#plainText').value.toUpperCase(),k=clampInt($('#shiftKey').value,3)*direction,steps=[];let out='';
+    for(const ch of text){if(ch<'A'||ch>'Z'){out+=ch;continue}const x=ch.charCodeAt(0)-65,y=mod(x+k,26),enc=String.fromCharCode(65+y);out+=enc;if(steps.length<12)steps.push(`<div class="cipher-step"><strong>${ch}</strong><span>${x} ${k>=0?'+':'−'} ${Math.abs(k)} ≡ ${y} (mod 26)</span><strong>${enc}</strong></div>`)}
+    $('#cipherResult').textContent=`${text} → ${out}`;$('#cipherSteps').innerHTML=steps.join('')+(text.replace(/[^A-Z]/g,'').length>12?'<div class="status">Se muestran los primeros 12 pasos.</div>':'');
+  }
+  ['modulus','start','step','operation'].forEach(id=>$('#'+id).addEventListener('input',renderAll));
+  $('#animateBtn').onclick=animate;
+  $('#resetBtn').onclick=()=>{$('#modulus').value=12;$('#start').value=10;$('#step').value=5;$('#operation').value='add';state.alphabet=false;$('#numberMode').classList.add('active');$('#alphabetMode').classList.remove('active');renderAll()};
+  $('#numberMode').onclick=()=>{state.alphabet=false;$('#numberMode').classList.add('active');$('#alphabetMode').classList.remove('active');renderAll()};
+  $('#alphabetMode').onclick=()=>{state.alphabet=true;$('#modulus').value=26;$('#numberMode').classList.remove('active');$('#alphabetMode').classList.add('active');renderAll()};
+  $$('#opTabs button').forEach(btn=>btn.onclick=()=>{$('#operation').value=btn.dataset.op;renderAll()});
+  ['tableModulus','tableOperation'].forEach(id=>$('#'+id).addEventListener('input',buildTable));
+  $('#cipherBtn').onclick=()=>runCipher(1);$('#decipherBtn').onclick=()=>runCipher(-1);
+  $$('.checkQuiz').forEach(btn=>btn.onclick=()=>{const box=btn.closest('.quiz'),input=box.querySelector('input'),answer=Number(box.dataset.answer),ok=Number(input.value)===answer;box.classList.toggle('correct',ok);box.classList.toggle('incorrect',!ok);box.querySelector('.feedback').textContent=ok?'Correcto. El resto canónico está entre 0 y n−1.':`Revisá la división y buscá el resto entre 0 y n−1. La respuesta es ${answer}.`;});
+  buildAlphabet();buildTable();renderAll();runCipher(1);
+})();
+</script>
+</body>
+</html>
