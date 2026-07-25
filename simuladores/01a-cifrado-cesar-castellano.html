@@ -88,6 +88,7 @@
         <h2>Ataque por fuerza bruta y ranking estadístico</h2>
         <p class="muted">Se prueban las 27 claves y se ordenan por distancia χ² respecto de frecuencias aproximadas del castellano. Un puntaje bajo es una hipótesis estadística, no una prueba semántica.</p>
         <div class="actions"><button id="attack" type="button">Probar las 27 claves</button></div>
+        <div id="attackStatus" class="status" aria-live="polite"></div>
         <div id="candidates" aria-live="polite"></div>
       </article>
 
@@ -120,6 +121,9 @@
   const FREQ={A:12.53,B:1.42,C:4.68,D:5.86,E:13.68,F:.69,G:1.01,H:.70,I:6.25,J:.44,K:.02,L:4.97,M:3.15,N:6.71,'Ñ':.31,O:8.68,P:2.51,Q:.88,R:6.87,S:7.98,T:4.63,U:3.93,V:.90,W:.01,X:.22,Y:.90,Z:.52};
   const $=id=>document.getElementById(id);
   let mode='encrypt';
+  let lastResult='';
+  let lastMode=null;
+  let lastInputSnapshot='';
   const mod=(value,modulus)=>((value%modulus)+modulus)%modulus;
   const normalizeChar=char=>{
     const upper=char.toUpperCase();
@@ -158,23 +162,50 @@
   function run(){
     const data=transform($('input').value,Number($('key').value),mode==='decrypt');
     $('output').value=data.result; renderTrace(data.trace); renderAlphabet();
+    lastResult=data.result;
+    lastMode=mode;
+    lastInputSnapshot=$('input').value;
     $('status').textContent=data.result?'Transformación ejecutada correctamente.':'Ingrese un texto.';
   }
   function setMode(next){mode=next;$('encrypt').setAttribute('aria-pressed',String(next==='encrypt'));$('decrypt').setAttribute('aria-pressed',String(next==='decrypt'));run();}
+  function getAttackSource(){
+    const currentInput=$('input').value;
+    if(lastMode==='encrypt' && lastResult.trim() && currentInput===lastInputSnapshot){
+      return {text:lastResult,description:'Se analiza el último resultado cifrado.'};
+    }
+    return {text:currentInput,description:'Se analiza el campo de entrada como criptograma.'};
+  }
+  function escapeHtml(text){
+    return text.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+  }
   function attack(){
-    const source=$('input').value.trim()||$('output').value.trim();
-    if(!source){$('candidates').innerHTML='<p class="muted">No hay texto para analizar.</p>';return;}
-    const rows=Array.from({length:N},(_,key)=>{const candidate=transform(source,key,true,false).result;return{key,candidate,score:score(candidate)}}).sort((a,b)=>a.score-b.score);
-    $('candidates').innerHTML=rows.map((row,rank)=>`<div class="brute-row ${rank===0?'best':''}"><strong class="mono">#${rank+1} · k=${row.key}</strong><span class="mono">${row.candidate.replaceAll('&','&amp;').replaceAll('<','&lt;')}</span><span class="score">χ² ${Number.isFinite(row.score)?row.score.toFixed(2):'—'}</span><button type="button" data-key="${row.key}">Usar</button></div>`).join('');
-    $('candidates').querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{$('key').value=button.dataset.key;setMode('decrypt');window.scrollTo({top:0,behavior:'smooth'})}));
+    const source=getAttackSource();
+    const ciphertext=source.text.trim();
+    if(!ciphertext){
+      $('attackStatus').innerHTML='<span class="bad">No hay texto para analizar.</span>';
+      $('candidates').innerHTML='';
+      return;
+    }
+    const rows=Array.from({length:N},(_,key)=>{
+      const candidate=transform(ciphertext,key,true,false).result;
+      return {key,candidate,score:score(candidate)};
+    }).sort((a,b)=>a.score-b.score);
+    $('attackStatus').innerHTML=`<span class="ok">27 claves evaluadas.</span> ${source.description}`;
+    $('candidates').innerHTML=rows.map((row,rank)=>`<div class="brute-row ${rank===0?'best':''}"><strong class="mono">#${rank+1} · k=${row.key}</strong><span class="mono">${escapeHtml(row.candidate)}</span><span class="score">χ² ${Number.isFinite(row.score)?row.score.toFixed(2):'—'}</span><button type="button" data-key="${row.key}">Usar</button></div>`).join('');
+    $('candidates').querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{
+      $('input').value=ciphertext;
+      $('key').value=button.dataset.key;
+      setMode('decrypt');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }));
   }
   $('encrypt').addEventListener('click',()=>setMode('encrypt'));
   $('decrypt').addEventListener('click',()=>setMode('decrypt'));
   $('run').addEventListener('click',run); $('key').addEventListener('input',run); $('accents').addEventListener('change',run);
-  $('input').addEventListener('input',run); $('attack').addEventListener('click',attack);
+  $('input').addEventListener('input',()=>{run();$('attackStatus').textContent='';$('candidates').innerHTML=''}); $('attack').addEventListener('click',attack);
   $('swap').addEventListener('click',()=>{if(!$('output').value)return;$('input').value=$('output').value;setMode(mode==='encrypt'?'decrypt':'encrypt')});
   $('copy').addEventListener('click',async()=>{if(!$('output').value)return;try{await navigator.clipboard.writeText($('output').value);$('status').textContent='Resultado copiado.'}catch{$('output').select();document.execCommand('copy')}});
-  $('clear').addEventListener('click',()=>{$('input').value='';$('output').value='';$('candidates').innerHTML='';run()});
+  $('clear').addEventListener('click',()=>{$('input').value='';$('output').value='';$('attackStatus').textContent='';$('candidates').innerHTML='';lastResult='';lastMode=null;lastInputSnapshot='';run()});
   $('theme').addEventListener('click',()=>{document.body.classList.toggle('theme-light');localStorage.setItem('cesar-theme',document.body.classList.contains('theme-light')?'light':'dark')});
   if(localStorage.getItem('cesar-theme')==='light')document.body.classList.add('theme-light');
   renderAlphabet();run();
