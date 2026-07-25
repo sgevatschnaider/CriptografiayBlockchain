@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Laboratorio interactivo para comparar espacio de claves, índice de coincidencia, entropía y conservación de frecuencias en criptosistemas clásicos.">
+  <meta name="description" content="Laboratorio interactivo para comparar espacio de claves, índice de coincidencia, entropía, frecuencias y difusión en criptosistemas clásicos.">
   <title>IC, entropía y estructura | Criptosistemas clásicos</title>
   <link rel="stylesheet" href="../assets/lab.css">
   <link rel="stylesheet" href="assets/ic-entropia.css">
@@ -24,9 +24,9 @@
           <div class="eyebrow">Criptoanálisis estadístico · laboratorio interactivo</div>
           <h1>Índice de coincidencia, entropía y estructura</h1>
           <p>
-            Compará César, afín, alfabeto mixto y Vigenère sobre el mismo mensaje.
-            El objetivo no es premiar una métrica aislada, sino comprender qué información
-            conserva cada transformación y cómo esa fuga orienta el ataque.
+            Compará César, afín, alfabeto mixto, Vigenère y Hill sobre el mismo mensaje.
+            El objetivo es comprender qué información conserva cada transformación y por qué
+            un espacio de claves grande no basta para evaluar la seguridad.
           </p>
           <div class="method-legend" aria-label="Métodos comparados">
             <span class="legend-pill"><span class="legend-dot" style="background:var(--plain)"></span>Texto claro</span>
@@ -34,37 +34,40 @@
             <span class="legend-pill"><span class="legend-dot" style="background:var(--affine)"></span>Afín</span>
             <span class="legend-pill"><span class="legend-dot" style="background:var(--mixed)"></span>Alfabeto mixto</span>
             <span class="legend-pill"><span class="legend-dot" style="background:var(--vigenere)"></span>Vigenère</span>
+            <span class="legend-pill"><span class="legend-dot" style="background:var(--hill)"></span>Hill 2×2</span>
           </div>
         </div>
         <aside class="formula-box">
-          <strong>Dos métricas, dos preguntas</strong>
+          <strong>Tres preguntas diferentes</strong>
           <code>IC = Σ fᵢ(fᵢ − 1) / [N(N − 1)]</code>
-          <span class="muted">¿Con qué probabilidad coinciden dos letras extraídas sin reemplazo?</span>
+          <span class="muted">¿Cuánta concentración tienen las frecuencias monográficas?</span>
           <code>H = −Σ pᵢ log₂(pᵢ)</code>
-          <span class="muted">¿Cuánta incertidumbre empírica existe por símbolo?</span>
+          <span class="muted">¿Cuánta incertidumbre marginal existe por símbolo?</span>
+          <code>C = K · P mod 26</code>
+          <span class="muted">¿Cómo mezcla Hill las letras dentro de cada bloque?</span>
         </aside>
       </div>
     </section>
 
     <section class="concept-grid" style="margin-top:20px">
       <article class="concept-card">
-        <h3>1. Espacio de claves</h3>
-        <p>Indica cuántas claves existen, no cuánto lenguaje filtra cada clave. Debe analizarse junto con la estructura conservada.</p>
+        <h3>1. Sustitución fija</h3>
+        <p>César, afín válido y alfabeto mixto renombran símbolos: conservan exactamente IC, entropía y perfil ordenado.</p>
       </article>
       <article class="concept-card">
-        <h3>2. Sustitución fija</h3>
-        <p>César, afín válido y alfabeto mixto solo renombran símbolos. Por eso conservan exactamente IC, entropía y perfil ordenado.</p>
+        <h3>2. Polialfabetismo</h3>
+        <p>Vigenère distribuye una misma letra entre varios símbolos, aunque su clave periódica deja columnas analizables.</p>
       </article>
       <article class="concept-card">
-        <h3>3. Polialfabetismo periódico</h3>
-        <p>Vigenère distribuye una letra entre varios símbolos, pero la clave repetida crea columnas monoalfabéticas detectables.</p>
+        <h3>3. Sustitución poligráfica</h3>
+        <p>Hill transforma bloques completos. La estadística monográfica cambia, pero persisten linealidad y determinismo por bloques.</p>
       </article>
     </section>
 
     <section class="grid" style="margin-top:22px">
       <article class="card full">
         <h2>Configuración del experimento</h2>
-        <p class="muted">Se usa el alfabeto A–Z. Las tildes y la Ñ se normalizan para mantener módulo 26.</p>
+        <p class="muted">Se usa A–Z con módulo 26. Las tildes y la Ñ se normalizan. Hill elimina separadores y agrega X si falta una letra para completar el último bloque.</p>
 
         <div class="control full">
           <label for="plaintext">Texto claro</label>
@@ -95,6 +98,17 @@
           <input id="mixed-key" type="text" readonly>
         </div>
 
+        <fieldset class="hill-fieldset">
+          <legend>Hill 2×2: matriz clave K</legend>
+          <div class="hill-matrix-input" aria-label="Matriz clave de Hill">
+            <input id="hill-k11" type="number" min="0" max="25" value="3" aria-label="K fila 1 columna 1">
+            <input id="hill-k12" type="number" min="0" max="25" value="3" aria-label="K fila 1 columna 2">
+            <input id="hill-k21" type="number" min="0" max="25" value="2" aria-label="K fila 2 columna 1">
+            <input id="hill-k22" type="number" min="0" max="25" value="5" aria-label="K fila 2 columna 2">
+          </div>
+          <div id="hill-key-status" class="hill-key-status"></div>
+        </fieldset>
+
         <div class="actions">
           <button id="analyze" type="button">Analizar</button>
           <button id="new-mixed" class="secondary" type="button">Generar alfabeto mixto</button>
@@ -110,9 +124,7 @@
 
       <article class="card full">
         <h2>Comparación cuantitativa</h2>
-        <p class="muted">
-          Los valores se calculan sobre el texto actual. El espacio de Vigenère supone una longitud fija r igual a la clave ingresada.
-        </p>
+        <p class="muted">Los valores se calculan sobre el texto actual. Para Hill 2×2, el espacio de claves es el número de matrices invertibles sobre ℤ₂₆.</p>
         <div class="comparison-wrap">
           <table class="comparison-table" id="comparison-table"></table>
         </div>
@@ -125,29 +137,26 @@
             <h3>Espacio de claves</h3>
             <p>Escala log₂: bits necesarios para enumerar todas las claves del modelo.</p>
             <div class="metric-bars" id="keyspace-bars"></div>
-            <div class="metric-note">Un valor alto dificulta fuerza bruta, pero no elimina ataques estructurales.</div>
+            <div class="metric-note">Un valor alto dificulta fuerza bruta, pero no elimina ataques algebraicos o estadísticos.</div>
           </section>
           <section class="chart-card">
             <h3>Índice de coincidencia</h3>
-            <p>La línea conceptual de ruido uniforme es 1/26 ≈ 0,03846.</p>
+            <p>Referencia uniforme: 1/26 ≈ 0,03846.</p>
             <div class="metric-bars" id="ic-bars"></div>
-            <div class="metric-note">César, afín y alfabeto mixto deben coincidir exactamente con el texto claro.</div>
+            <div class="metric-note">Hill puede modificar el IC monográfico porque cada salida depende de dos letras de entrada.</div>
           </section>
           <section class="chart-card">
             <h3>Entropía empírica</h3>
             <p>Máximo para 26 símbolos equiprobables: log₂(26) ≈ 4,700 bits.</p>
             <div class="metric-bars" id="entropy-bars"></div>
-            <div class="metric-note">Más entropía marginal no prueba seguridad: puede persistir periodicidad o dependencia entre símbolos.</div>
+            <div class="metric-note">Entropía marginal alta no detecta linealidad, periodicidad ni relaciones entre bloques.</div>
           </section>
         </div>
       </article>
 
       <article class="card full">
-        <h2>Por qué IC y entropía se conservan en una sustitución monoalfabética</h2>
-        <p class="muted">
-          Una permutación fija no modifica las cantidades <code>fᵢ</code>; solo cambia sus etiquetas.
-          Como IC y entropía dependen de sumas simétricas sobre esas cantidades, el resultado numérico permanece idéntico.
-        </p>
+        <h2>Qué se conserva y qué se modifica</h2>
+        <p class="muted">Una permutación fija conserva el multiconjunto de frecuencias. Vigenère y Hill ya no son sustituciones monográficas fijas.</p>
         <div class="diagnostic-grid" id="diagnostics"></div>
         <div id="identity-proof" class="notice good"></div>
       </article>
@@ -162,19 +171,31 @@
               <option value="affine">Afín</option>
               <option value="mixed">Alfabeto mixto</option>
               <option value="vigenere">Vigenère</option>
+              <option value="hill">Hill 2×2</option>
             </select>
           </div>
-          <div class="muted">Cada fila compara cantidades; en métodos monoalfabéticos se indica además la letra de destino.</div>
+          <div class="muted">En Hill y Vigenère no existe una única letra de destino para cada letra clara.</div>
         </div>
         <div id="frequency-pairs" class="frequency-pairs"></div>
       </article>
 
       <article class="card full">
-        <h2>Diagnóstico específico de Vigenère</h2>
+        <h2>Hill paso a paso: difusión dentro del bloque</h2>
         <p class="muted">
-          El IC global puede acercarse al uniforme, pero al separar el criptograma en columnas según el período correcto,
-          cada columna vuelve a comportarse como un César y recupera la firma estadística del idioma.
+          La matriz actúa sobre pares. Con K = [[3,3],[2,5]], HO = (7,14) produce LG = (11,6).
+          Cambiar H por I modifica ambas componentes de salida. Esto es difusión en el bloque, no un efecto avalancha criptográfico moderno.
         </p>
+        <div id="hill-demo" class="hill-demo"></div>
+        <div id="hill-blocks" class="block-list"></div>
+        <div class="notice warn">
+          <strong>Límite de Hill</strong>
+          Un mismo bloque alineado se cifra siempre igual. Además, la linealidad permite recuperar K con suficientes pares texto claro–criptograma linealmente independientes.
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Diagnóstico específico de Vigenère</h2>
+        <p class="muted">El IC global puede acercarse al uniforme, pero al separar el criptograma según el período correcto, cada columna vuelve a ser una sustitución César.</p>
         <div class="diagnostic-grid" id="vigenere-diagnostics"></div>
         <div id="column-ics" class="column-list"></div>
         <div id="vigenere-note" class="notice warn"></div>
@@ -183,11 +204,11 @@
       <article class="card full">
         <h2>Interpretación rigurosa</h2>
         <ul class="muted-list">
-          <li><strong>IC alto o bajo no constituye por sí solo una prueba de seguridad.</strong> Es un indicador de concentración de frecuencias.</li>
-          <li><strong>Entropía marginal alta tampoco garantiza seguridad.</strong> No mide periodicidad, claves reutilizadas ni dependencias entre posiciones.</li>
-          <li><strong>Los textos cortos producen estimaciones inestables.</strong> El laboratorio muestra una advertencia cuando hay menos de 80 letras.</li>
-          <li><strong>El alfabeto mixto no se “rompe siempre en milisegundos”.</strong> La dificultad depende de la longitud, el idioma, los espacios conservados y el algoritmo de ataque.</li>
-          <li><strong>La debilidad monoalfabética es la sustitución fija</strong>, no la mera invertibilidad matemática del cifrado.</li>
+          <li><strong>IC y entropía son métricas marginales.</strong> No miden por sí solas periodicidad, linealidad, dependencia entre bloques ni seguridad semántica.</li>
+          <li><strong>Hill no cifra un bigrama de forma diferente por su posición.</strong> El mismo bloque alineado, con la misma matriz, produce siempre el mismo bloque cifrado.</li>
+          <li><strong>Hill oculta patrones monográficos, pero conserva relaciones lineales.</strong> Su principal ataque es algebraico con texto conocido, no fuerza bruta ciega.</li>
+          <li><strong>La matriz debe ser invertible módulo 26:</strong> mcd(det K, 26)=1. Determinante cero no es la única matriz inválida.</li>
+          <li><strong>Los textos cortos producen estimaciones inestables.</strong> El laboratorio advierte cuando hay menos de 80 letras.</li>
         </ul>
       </article>
     </section>
@@ -196,7 +217,6 @@
       <p>Material elaborado por el profesor Sergio Gevatschnaider. Uso educativo; los resultados estadísticos dependen de la muestra.</p>
     </footer>
   </main>
-
   <script src="assets/ic-entropia.js"></script>
 </body>
 </html>
