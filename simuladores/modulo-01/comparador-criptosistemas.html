@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Comparador interactivo de César, afín, sustitución por alfabeto mixto y Vigenère: clasificación, espacio de claves y frecuencias.">
+  <title>Comparador de criptosistemas clásicos</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    :root{--mono:#4ee6ff;--poly:#b69cff;--warn2:#ffd166}
+    .intro-grid,.lab-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
+    .family-tree{display:grid;gap:14px}.tree-root,.tree-node{padding:14px;border:1px solid var(--border);border-radius:14px;background:#071625;text-align:center}.tree-root{font-size:1.1rem;font-weight:900;border-color:var(--border-strong)}.tree-branches{display:grid;grid-template-columns:1fr 1fr;gap:14px}.tree-column{display:grid;gap:10px}.tree-title{font-weight:900;color:var(--accent)}.tree-leaves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tree-leaf{padding:11px 8px;border:1px solid var(--border);border-radius:11px;background:rgba(255,255,255,.03);font-weight:750}.tree-leaf.active{outline:2px solid var(--good)}
+    .bubble-stage{position:relative;min-height:330px;border:1px solid var(--border);border-radius:18px;background:radial-gradient(circle at 30% 25%,rgba(78,230,255,.11),transparent 28%),radial-gradient(circle at 70% 65%,rgba(182,156,255,.12),transparent 32%),#071625;overflow:hidden}.bubble{position:absolute;display:grid;place-items:center;border-radius:50%;border:2px solid rgba(255,255,255,.25);text-align:center;font-weight:900;line-height:1.05;cursor:pointer;transition:.2s;box-shadow:0 14px 38px rgba(0,0,0,.28)}.bubble:hover,.bubble.selected{transform:scale(1.06);border-color:#fff}.bubble small{display:block;font-size:.68rem;font-weight:650;margin-top:4px}.bubble.mono{background:linear-gradient(145deg,rgba(78,230,255,.86),rgba(49,111,255,.86));color:#04111c}.bubble.poly{background:linear-gradient(145deg,rgba(182,156,255,.9),rgba(106,72,214,.88));color:white}.bubble-note{margin-top:10px;color:var(--muted);font-size:.84rem}
+    .compare-wrap{overflow:auto}.compare-table{width:100%;border-collapse:separate;border-spacing:0;min-width:920px}.compare-table th,.compare-table td{padding:13px 12px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);vertical-align:top}.compare-table th:first-child,.compare-table td:first-child{position:sticky;left:0;background:#0b1d31;z-index:2;font-weight:900}.compare-table thead th{position:sticky;top:0;background:#102944;z-index:3}.compare-table tr:first-child th{border-top:1px solid var(--border)}.compare-table th:first-child,.compare-table td:first-child{border-left:1px solid var(--border)}.tag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:.72rem;font-weight:850}.tag.same{background:rgba(74,222,163,.12);color:var(--good)}.tag.changed{background:rgba(255,209,102,.12);color:var(--warn2)}
+    .controls-inline{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}.result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.result-card{padding:15px;border:1px solid var(--border);border-radius:14px;background:#071625}.result-card h3{margin:0 0 8px}.ciphertext{min-height:74px;padding:11px;border-radius:10px;background:#04111e;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}.bars{display:grid;grid-template-columns:repeat(26,minmax(5px,1fr));align-items:end;gap:2px;height:130px;margin:14px 0 24px}.bar{min-height:2px;border-radius:4px 4px 0 0;position:relative;background:linear-gradient(var(--accent),#4b8cff)}.bar small{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:.54rem;color:var(--muted)}.profile{display:flex;align-items:flex-end;gap:4px;height:72px;margin-top:12px}.profile span{flex:1;min-width:4px;border-radius:4px 4px 0 0;background:linear-gradient(var(--good),#38a8d8)}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.metric{padding:9px;border:1px solid var(--border);border-radius:10px;text-align:center}.metric strong{display:block;font-size:1rem}.metric small{color:var(--muted)}.explain{margin-top:12px;padding:11px;border-left:4px solid var(--accent);border-radius:9px;background:rgba(78,230,255,.06)}.formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--accent)}
+    .key-map{display:grid;grid-template-columns:repeat(13,1fr);gap:4px;margin-top:10px}.key-map span{padding:6px 2px;border:1px solid var(--border);border-radius:7px;text-align:center;background:#061522;font-size:.78rem}.lesson{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.lesson article{padding:15px;border:1px solid var(--border);border-radius:14px;background:#071625}.lesson h3{margin-top:0}
+    @media(max-width:900px){.intro-grid,.lab-grid{grid-template-columns:1fr}.controls-inline{grid-template-columns:1fr 1fr}.lesson{grid-template-columns:1fr}.bubble-stage{min-height:390px}}
+    @media(max-width:650px){.tree-branches,.result-grid{grid-template-columns:1fr}.controls-inline{grid-template-columns:1fr}.tree-leaves{grid-template-columns:1fr}.key-map{grid-template-columns:repeat(7,1fr)}.metrics{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <div class="brand"><a href="index.html">← Módulo 1</a></div>
+    <nav class="nav"><a href="../index.html">Campus</a><a href="../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a></nav>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Clasificación · espacio de claves · frecuencias</div>
+    <h1>Comparador de criptosistemas clásicos</h1>
+    <p>César, afín y el alfabeto mixto son sustituciones monoalfabéticas: cambian las etiquetas de las frecuencias, pero conservan sus cantidades. Vigenère es polialfabético: una misma letra puede cifrarse de manera diferente según la posición.</p>
+  </section>
+
+  <section class="intro-grid">
+    <article class="card">
+      <h2>1. Ubicación en la clasificación</h2>
+      <div class="family-tree">
+        <div class="tree-root">Criptosistemas clásicos</div>
+        <div class="tree-branches">
+          <div class="tree-column">
+            <div class="tree-node tree-title">Transposición</div>
+            <div class="tree-leaves"><div class="tree-leaf">Escítala</div><div class="tree-leaf">Filas y columnas</div></div>
+            <p class="muted">Cambia posiciones; no cambia las letras.</p>
+          </div>
+          <div class="tree-column">
+            <div class="tree-node tree-title">Sustitución</div>
+            <div class="tree-node">Monoalfabética</div>
+            <div class="tree-leaves"><div class="tree-leaf active">César</div><div class="tree-leaf active">Afín</div><div class="tree-leaf active">Alfabeto mixto</div><div class="tree-leaf">Playfair / Hill</div></div>
+            <div class="tree-node">Polialfabética</div>
+            <div class="tree-leaves"><div class="tree-leaf active">Vigenère</div><div class="tree-leaf">Enigma</div></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>2. Espacio de claves</h2>
+      <p class="muted">El tamaño de cada burbuja usa una escala logarítmica en bits: <span class="formula">log₂(|K|)</span>. Hacé clic para ver la explicación.</p>
+      <div class="bubble-stage" id="bubble-stage"></div>
+      <div id="bubble-detail" class="explain"></div>
+      <p class="bubble-note">Un espacio grande no garantiza seguridad: el alfabeto mixto tiene aproximadamente 88,4 bits teóricos, pero conserva patrones y frecuencias.</p>
+    </article>
+  </section>
+
+  <section class="card full" style="margin-top:18px">
+    <h2>3. Comparación teórica</h2>
+    <div class="compare-wrap"><table class="compare-table" id="compare-table"></table></div>
+  </section>
+
+  <section class="card full" style="margin-top:18px">
+    <h2>4. Laboratorio de frecuencias</h2>
+    <p class="muted">El mismo texto se cifra con cuatro sistemas. Compará el histograma por letras y el perfil ordenado sin etiquetas.</p>
+    <div class="control"><label for="plain">Texto claro</label><textarea id="plain">EN CRIPTOGRAFIA CLASICA LA FRECUENCIA DEL IDIOMA DEJA HUELLAS</textarea></div>
+    <div class="controls-inline" style="margin-top:12px">
+      <div class="control"><label for="caesar-key">César · k</label><input id="caesar-key" type="number" min="0" max="25" value="3"></div>
+      <div class="control"><label for="affine-a">Afín · a</label><select id="affine-a"></select></div>
+      <div class="control"><label for="affine-b">Afín · b</label><input id="affine-b" type="number" min="0" max="25" value="3"></div>
+      <div class="control"><label for="vig-key">Vigenère · clave</label><input id="vig-key" value="CLAVE"></div>
+    </div>
+    <div class="actions"><button id="random-mixed" type="button">Generar alfabeto mixto</button><button id="run" type="button">Comparar sistemas</button></div>
+    <div class="key-map" id="mixed-map"></div>
+    <div id="results" class="result-grid" style="margin-top:18px"></div>
+  </section>
+
+  <section class="card full" style="margin-top:18px">
+    <h2>5. Qué debe aprenderse</h2>
+    <div class="lesson">
+      <article><h3>Transposición</h3><p>Conserva exactamente las frecuencias bajo las mismas letras: <span class="formula">fP(E)=fC(E)</span>.</p></article>
+      <article><h3>Monoalfabética</h3><p>César, afín y alfabeto mixto conservan las cantidades, pero las trasladan: <span class="formula">fP(x)=fC(E(x))</span>.</p></article>
+      <article><h3>Polialfabética</h3><p>Vigenère distribuye una misma letra entre varios símbolos según la posición; modifica el perfil global, pero la repetición de la clave introduce periodicidad.</p></article>
+    </div>
+  </section>
+
+  <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Uso educativo.</p></footer>
+</main>
+<script>
+'use strict';
+const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const $=id=>document.getElementById(id);
+const mod=(n,m)=>((n%m)+m)%m;
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const systems={
+  caesar:{name:'César',family:'Sustitución monoalfabética',unit:'Letra',space:'26',bits:Math.log2(26),freq:'Rotada',profile:'Igual',pattern:'Conservado',attack:'Fuerza bruta y frecuencias',formula:'|K| = 26',className:'mono',detail:'Una rotación del alfabeto. Solo existen 26 desplazamientos; las alturas del histograma se desplazan circularmente.'},
+  affine:{name:'Afín',family:'Sustitución monoalfabética',unit:'Letra',space:'312',bits:Math.log2(312),freq:'Permutada',profile:'Igual',pattern:'Conservado',attack:'Fuerza bruta y frecuencias',formula:'|K| = 26·φ(26) = 312',className:'mono',detail:'Usa E(x)=(ax+b) mod 26 con mcd(a,26)=1. Produce una permutación algebraica del alfabeto.'},
+  mixed:{name:'Alfabeto mixto',family:'Sustitución monoalfabética general',unit:'Letra',space:'26! ≈ 4,03×10²⁶',bits:88.38,freq:'Permutada',profile:'Igual',pattern:'Conservado',attack:'Análisis de frecuencias y patrones',formula:'|K| = 26!',className:'mono',detail:'La clave es una permutación arbitraria. La fuerza bruta es impracticable, pero las frecuencias y patrones de palabras continúan visibles.'},
+  vigenere:{name:'Vigenère',family:'Sustitución polialfabética periódica',unit:'Letra + posición',space:'26ʳ',bits:Math.log2(26)*5,freq:'Distribuida',profile:'Modificado',pattern:'Generalmente modificado',attack:'Kasiski e índice de coincidencia',formula:'|K| = 26ʳ',className:'poly',detail:'La clave de longitud r se repite. Una misma letra clara puede cifrarse de varias maneras según su posición.'}
+};
+let mixedKey=secureShuffle(ABC);
+function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()}
+function secureShuffle(text){const a=[...text];for(let i=a.length-1;i>0;i--){const x=crypto.getRandomValues(new Uint32Array(1))[0];const j=x%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a.join('')}
+function transformLetters(text,fn){return [...norm(text)].map(ch=>{const i=ABC.indexOf(ch);return i<0?ch:ABC[fn(i)]}).join('')}
+function caesar(text,k){return transformLetters(text,i=>mod(i+k,26))}
+function affine(text,a,b){return transformLetters(text,i=>mod(a*i+b,26))}
+function mixed(text){return [...norm(text)].map(ch=>{const i=ABC.indexOf(ch);return i<0?ch:mixedKey[i]}).join('')}
+function vigenere(text,key){const shifts=[...norm(key)].filter(c=>ABC.includes(c)).map(c=>ABC.indexOf(c));if(!shifts.length)return norm(text);let p=0;return [...norm(text)].map(ch=>{const i=ABC.indexOf(ch);if(i<0)return ch;const out=ABC[mod(i+shifts[p%shifts.length],26)];p++;return out}).join('')}
+function counts(text){const c=Object.fromEntries([...ABC].map(x=>[x,0]));for(const x of norm(text))if(x in c)c[x]++;return c}
+function profile(c){return Object.values(c).sort((a,b)=>b-a)}
+function ic(c){const n=Object.values(c).reduce((a,b)=>a+b,0);if(n<2)return 0;return Object.values(c).reduce((s,f)=>s+f*(f-1),0)/(n*(n-1))}
+function entropy(c){const n=Object.values(c).reduce((a,b)=>a+b,0);if(!n)return 0;return Object.values(c).reduce((h,f)=>f?h-(f/n)*Math.log2(f/n):h,0)}
+function renderBubbles(){const stage=$('bubble-stage');stage.replaceChildren();const layout={caesar:[8,15],affine:[43,8],mixed:[15,52],vigenere:[63,48]};Object.entries(systems).forEach(([id,s])=>{const size=58+Math.sqrt(s.bits)*10;const b=document.createElement('button');b.className=`bubble ${s.className}`;b.style.width=`${size}px`;b.style.height=`${size}px`;b.style.left=`${layout[id][0]}%`;b.style.top=`${layout[id][1]}%`;b.innerHTML=`${s.name}<small>${s.bits.toFixed(1)} bits</small>`;b.onclick=()=>{document.querySelectorAll('.bubble').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('bubble-detail').innerHTML=`<strong>${s.name}</strong><br>${s.formula}<br>${s.detail}`};stage.append(b)});stage.querySelector('.bubble').click()}
+function renderTable(){const rows=[['Familia','family'],['Unidad transformada','unit'],['Espacio de claves','space'],['Frecuencia simple','freq'],['Perfil ordenado','profile'],['Patrón de palabra','pattern'],['Ataque principal','attack']];let html='<thead><tr><th>Propiedad</th>'+Object.values(systems).map(s=>`<th>${s.name}</th>`).join('')+'</tr></thead><tbody>';for(const [label,key] of rows){html+=`<tr><td>${label}</td>`+Object.values(systems).map(s=>{const mark=(key==='profile'||key==='pattern')?(s[key].includes('Igual')||s[key]==='Conservado'?'<span class="tag same">Conservado</span> ':'<span class="tag changed">Modificado</span> '):'';return `<td>${mark}${s[key]}</td>`}).join('')+'</tr>'}html+='</tbody>';$('compare-table').innerHTML=html}
+function renderMixedMap(){$('mixed-map').innerHTML=[...ABC].map((c,i)=>`<span>${c}→${mixedKey[i]}</span>`).join('')}
+function bars(c){const max=Math.max(1,...Object.values(c));return [...ABC].map(x=>`<div class="bar" style="height:${4+105*c[x]/max}px" title="${x}: ${c[x]}"><small>${x}</small></div>`).join('')}
+function profileBars(c){const p=profile(c),max=Math.max(1,...p);return p.map(v=>`<span style="height:${5+62*v/max}px" title="${v}"></span>`).join('')}
+function renderResult(id,text,plainCounts){const s=systems[id],c=counts(text),same=JSON.stringify(profile(c))===JSON.stringify(profile(plainCounts));const explanations={caesar:'El histograma se rota: cada frecuencia conserva su altura y cambia de letra.',affine:'El histograma se permuta mediante la función afín; las cantidades no cambian.',mixed:'Las etiquetas cambian según una permutación arbitraria, pero el perfil ordenado es idéntico.',vigenere:'Una letra clara se distribuye entre varias letras cifradas; el perfil global suele cambiar.'};return `<article class="result-card"><h3>${s.name}</h3><div class="ciphertext">${text}</div><div class="bars">${bars(c)}</div><strong>Perfil ordenado</strong><div class="profile">${profileBars(c)}</div><div class="metrics"><div class="metric"><strong>${same?'Igual':'Modificado'}</strong><small>perfil</small></div><div class="metric"><strong>${ic(c).toFixed(3)}</strong><small>IC</small></div><div class="metric"><strong>${entropy(c).toFixed(2)}</strong><small>entropía</small></div></div><div class="explain">${explanations[id]}</div></article>`}
+function run(){const text=$('plain').value;const a=+$('affine-a').value,b=+$('affine-b').value,k=+$('caesar-key').value;const pc=counts(text);const outputs={caesar:caesar(text,k),affine:affine(text,a,b),mixed:mixed(text),vigenere:vigenere(text,$('vig-key').value)};$('results').innerHTML=Object.entries(outputs).map(([id,out])=>renderResult(id,out,pc)).join('')}
+for(let a=1;a<26;a++)if(gcd(a,26)===1){const o=document.createElement('option');o.value=a;o.textContent=a;o.selected=a===5;$('affine-a').append(o)}
+$('random-mixed').onclick=()=>{mixedKey=secureShuffle(ABC);renderMixedMap();run()};$('run').onclick=run;['plain','caesar-key','affine-a','affine-b','vig-key'].forEach(id=>$(id).addEventListener('input',run));
+renderBubbles();renderTable();renderMixedMap();run();
+</script>
+</body>
+</html>
