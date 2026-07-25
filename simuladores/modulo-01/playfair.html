@@ -1,1 +1,953 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cifrado Playfair</title><link rel="stylesheet" href="../assets/lab.css"><style>.matrix{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:14px}.cell{min-height:56px;display:grid;place-items:center;border:1px solid var(--border);border-radius:11px;background:#071625;font-size:1.1rem;font-weight:850}.pairs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.pair{padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:#06101d}.rule{padding:12px;border-left:3px solid var(--accent);background:rgba(99,213,255,.06);margin:8px 0}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">← Módulo 1</a></div><nav class="nav"><a href="../../index.html">Portada</a><a href="../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a></nav></header><section class="hero"><div class="eyebrow">Sustitución digráfica</div><h1>Cifrado Playfair</h1><p>Construí una matriz 5×5 a partir de una palabra clave y observá cómo las reglas de fila, columna y rectángulo transforman pares de letras.</p></section><section class="grid"><article class="card"><h2>Mensaje y clave</h2><div class="control"><label for="key">Palabra clave</label><input id="key" value="BEATLES"></div><div class="control"><label for="txt">Texto</label><textarea id="txt">WITH A LITTLE HELP FROM MY FRIENDS</textarea></div><div class="actions"><button id="enc">Cifrar</button><button id="dec" class="secondary">Descifrar</button></div><h3>Dígrafos preparados</h3><div class="pairs" id="pairs"></div><div class="output" id="out"></div></article><article class="card"><h2>Matriz de clave</h2><div class="matrix" id="matrix"></div><div class="status">Convención utilizada: I/J comparten celda. Se inserta X entre letras repetidas y al final cuando hace falta.</div></article><article class="card full"><h2>Reglas</h2><div class="rule"><b>Misma fila:</b> desplazar una posición a la derecha al cifrar y a la izquierda al descifrar.</div><div class="rule"><b>Misma columna:</b> desplazar una posición hacia abajo al cifrar y hacia arriba al descifrar.</div><div class="rule"><b>Rectángulo:</b> conservar la fila de cada letra y tomar la columna de la otra.</div></article></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main><script>const A='ABCDEFGHIKLMNOPQRSTUVWXYZ',$=s=>document.querySelector(s);let M=[];function norm(s){return s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/J/g,'I').replace(/[^A-Z]/g,'')}function build(){const seq=[];for(const c of norm($('#key').value)+A)if(A.includes(c)&&!seq.includes(c))seq.push(c);M=seq.slice(0,25);$('#matrix').innerHTML=M.map(c=>`<div class="cell">${c}</div>`).join('')}function prepare(s){const t=norm(s),p=[];let i=0;while(i<t.length){let a=t[i],b=t[i+1]||'X';if(a===b){b='X';i++}else i+=2;p.push(a+b)}return p}function pos(c){const i=M.indexOf(c);return [Math.floor(i/5),i%5]}function code(pair,dir){let [r1,c1]=pos(pair[0]),[r2,c2]=pos(pair[1]);if(r1===r2){c1=(c1+dir+5)%5;c2=(c2+dir+5)%5}else if(c1===c2){r1=(r1+dir+5)%5;r2=(r2+dir+5)%5}else{[c1,c2]=[c2,c1]}return M[r1*5+c1]+M[r2*5+c2]}function run(dec=false){build();const pairs=dec?(norm($('#txt').value).match(/.{1,2}/g)||[]):prepare($('#txt').value);$('#pairs').innerHTML=pairs.map(x=>`<span class="pair">${x}</span>`).join('');$('#out').textContent=pairs.map(x=>code(x,dec?-1:1)).join(' ')}$('#enc').onclick=()=>run(false);$('#dec').onclick=()=>run(true);$('#key').oninput=build;build();run(false);</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo del cifrado Playfair con preparación de dígrafos, matriz 5×5 y visualización de las reglas de fila, columna y rectángulo.">
+  <title>Cifrado Playfair | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    :root {
+      --pf-first: #56c7ff;
+      --pf-second: #ffb454;
+      --pf-result: #4adea3;
+      --pf-fill: #ff79b0;
+    }
+
+    .hero-grid,
+    .workspace,
+    .theory-grid,
+    .rule-grid,
+    .comparison-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid {
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
+      align-items: center;
+    }
+
+    .workspace {
+      grid-template-columns: minmax(320px, .9fr) minmax(420px, 1.1fr);
+      margin-top: 22px;
+    }
+
+    .theory-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 18px;
+    }
+
+    .rule-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .comparison-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hero-note,
+    .theory-card,
+    .rule-card,
+    .step-card,
+    .matrix-panel,
+    .pair-panel,
+    .explanation-panel,
+    .comparison-card,
+    .notice {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(7, 22, 37, .78);
+    }
+
+    .hero-note,
+    .theory-card,
+    .rule-card,
+    .step-card,
+    .matrix-panel,
+    .pair-panel,
+    .explanation-panel,
+    .comparison-card,
+    .notice {
+      padding: 17px;
+    }
+
+    .hero-note code {
+      display: block;
+      margin: 8px 0;
+      color: var(--accent);
+      font-size: 1rem;
+      white-space: normal;
+    }
+
+    .theory-card h3,
+    .rule-card h3,
+    .comparison-card h3,
+    .matrix-panel h3,
+    .pair-panel h3,
+    .explanation-panel h3 {
+      margin: 0 0 8px;
+    }
+
+    .theory-card p,
+    .rule-card p,
+    .comparison-card p,
+    .matrix-panel p,
+    .pair-panel p,
+    .explanation-panel p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .flow-step {
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #071625;
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .flow-arrow {
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .key-preview {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(42px, 1fr));
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .matrix-cell {
+      position: relative;
+      min-height: 62px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #061522;
+      font-size: 1.18rem;
+      font-weight: 900;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .matrix-cell small {
+      position: absolute;
+      top: 5px;
+      right: 7px;
+      color: var(--muted);
+      font-size: .58rem;
+      font-weight: 700;
+    }
+
+    .matrix-cell.first {
+      border-color: var(--pf-first);
+      box-shadow: 0 0 0 2px rgba(86, 199, 255, .16);
+      color: var(--pf-first);
+      transform: translateY(-2px);
+    }
+
+    .matrix-cell.second {
+      border-color: var(--pf-second);
+      box-shadow: 0 0 0 2px rgba(255, 180, 84, .16);
+      color: var(--pf-second);
+      transform: translateY(-2px);
+    }
+
+    .matrix-cell.result-one,
+    .matrix-cell.result-two {
+      outline: 2px solid var(--pf-result);
+      outline-offset: -5px;
+    }
+
+    .matrix-cell.same-line {
+      background: rgba(86, 199, 255, .08);
+    }
+
+    .matrix-cell.rectangle-corner {
+      background: rgba(74, 222, 163, .08);
+    }
+
+    .pair-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pair-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 11px;
+      background: #061522;
+      color: var(--text);
+      font: inherit;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .pair-button:hover,
+    .pair-button.active {
+      border-color: var(--border-strong);
+      background: rgba(86, 199, 255, .09);
+    }
+
+    .pair-button .fill-mark {
+      color: var(--pf-fill);
+      margin-left: 4px;
+      font-size: .72rem;
+    }
+
+    .pair-arrow {
+      color: var(--muted);
+      margin: 0 3px;
+    }
+
+    .selected-pair {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0;
+      font-size: 1.45rem;
+      font-weight: 900;
+    }
+
+    .letter-chip {
+      min-width: 48px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+      background: #061522;
+    }
+
+    .letter-chip.first { color: var(--pf-first); border-color: var(--pf-first); }
+    .letter-chip.second { color: var(--pf-second); border-color: var(--pf-second); }
+    .letter-chip.result { color: var(--pf-result); border-color: var(--pf-result); }
+
+    .rule-badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: .76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .rule-badge.row { color: var(--pf-first); }
+    .rule-badge.column { color: var(--pf-second); }
+    .rule-badge.rectangle { color: var(--pf-result); }
+
+    .calculation {
+      margin-top: 12px;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #061522;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .preparation-log {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .prep-step {
+      display: grid;
+      grid-template-columns: 34px 72px 1fr;
+      gap: 9px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #061522;
+      font-size: .82rem;
+    }
+
+    .prep-step strong {
+      color: var(--accent);
+    }
+
+    .prep-step .inserted {
+      color: var(--pf-fill);
+      font-weight: 850;
+    }
+
+    .result-box {
+      min-height: 72px;
+      margin-top: 12px;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: #061522;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+    }
+
+    .rule-card {
+      border-top: 4px solid var(--accent);
+    }
+
+    .rule-card:nth-child(2) { border-top-color: var(--pf-second); }
+    .rule-card:nth-child(3) { border-top-color: var(--pf-result); }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 42px);
+      gap: 5px;
+      justify-content: center;
+      margin: 13px 0;
+    }
+
+    .mini-cell {
+      min-height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #061522;
+      font-weight: 850;
+    }
+
+    .mini-cell.on { border-color: var(--accent); color: var(--accent); }
+    .mini-cell.target { outline: 2px solid var(--pf-result); outline-offset: -4px; }
+
+    .notice {
+      margin-top: 14px;
+      border-left: 4px solid var(--accent);
+      color: var(--muted);
+    }
+
+    .notice strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .status.good { color: var(--good); }
+    .status.bad { color: var(--bad); }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .workspace,
+      .theory-grid,
+      .rule-grid,
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .key-preview { gap: 4px; }
+      .matrix-cell { min-height: 48px; font-size: 1rem; }
+      .prep-step { grid-template-columns: 28px 60px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 1</a></div>
+      <nav class="nav">
+        <a href="cifrado-hill.html">Comparar con Hill</a>
+        <a href="../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Sustitución poligráfica · dígrafos</div>
+          <h1>Cifrado Playfair</h1>
+          <p>
+            Playfair no sustituye letras aisladas. Primero prepara el mensaje en pares y después
+            transforma cada dígrafo según la posición geométrica de sus dos letras en una matriz 5×5.
+          </p>
+          <div class="flow" aria-label="Flujo del cifrado Playfair">
+            <span class="flow-step">Clave</span><span class="flow-arrow">→</span>
+            <span class="flow-step">Matriz 5×5</span><span class="flow-arrow">→</span>
+            <span class="flow-step">Preparar dígrafos</span><span class="flow-arrow">→</span>
+            <span class="flow-step">Aplicar regla</span><span class="flow-arrow">→</span>
+            <span class="flow-step">Criptograma</span>
+          </div>
+        </div>
+        <aside class="hero-note">
+          <strong>Idea esencial</strong>
+          <code>par claro → dos posiciones → regla geométrica → par cifrado</code>
+          <span class="muted">No usa multiplicación matricial. Eso corresponde al cifrado Hill.</span>
+        </aside>
+      </div>
+    </section>
+
+    <section class="theory-grid">
+      <article class="theory-card">
+        <h3>1. Alfabeto de 25 símbolos</h3>
+        <p>La matriz tiene 25 celdas. En esta convención, I y J comparten símbolo: toda J se normaliza como I.</p>
+      </article>
+      <article class="theory-card">
+        <h3>2. Clave sin repeticiones</h3>
+        <p>Se escriben primero las letras distintas de la palabra clave y luego se completa con el alfabeto restante.</p>
+      </article>
+      <article class="theory-card">
+        <h3>3. Mensaje por pares</h3>
+        <p>Las letras repetidas dentro de un par se separan con relleno. Si queda una letra sola, se completa el último dígrafo.</p>
+      </article>
+      <article class="theory-card">
+        <h3>4. Tres reglas</h3>
+        <p>Cada par cae necesariamente en uno de estos casos: misma fila, misma columna o esquinas de un rectángulo.</p>
+      </article>
+    </section>
+
+    <section class="workspace">
+      <article class="card">
+        <h2>Configuración y preparación</h2>
+
+        <div class="control">
+          <label for="key">Palabra clave</label>
+          <input id="key" value="CRIPTOGRAFIA">
+        </div>
+
+        <div class="control">
+          <label for="txt">Texto de entrada</label>
+          <textarea id="txt" rows="5">HOLA MUNDO</textarea>
+        </div>
+
+        <div class="actions">
+          <button id="enc" type="button">Cifrar</button>
+          <button id="dec" class="secondary" type="button">Descifrar entrada</button>
+          <button id="use-output" class="secondary" type="button">Usar resultado como entrada</button>
+          <button id="reset" class="secondary" type="button">Restablecer</button>
+        </div>
+
+        <div id="status" class="status" aria-live="polite"></div>
+
+        <section class="pair-panel" style="margin-top:16px">
+          <h3>Dígrafos preparados</h3>
+          <p>Seleccioná un par para ver exactamente qué regla se aplicó.</p>
+          <div id="pairs" class="pair-list"></div>
+        </section>
+
+        <section class="pair-panel" style="margin-top:16px">
+          <h3>Cómo se preparó el mensaje</h3>
+          <div id="preparation-log" class="preparation-log"></div>
+        </section>
+
+        <label for="out" style="display:block;margin-top:16px;font-weight:850">Resultado</label>
+        <div id="out" class="result-box" aria-live="polite"></div>
+      </article>
+
+      <article class="card">
+        <h2>Matriz y transformación seleccionada</h2>
+
+        <section class="matrix-panel">
+          <h3>Matriz de clave</h3>
+          <p id="key-explanation"></p>
+          <div id="matrix" class="key-preview" aria-label="Matriz Playfair 5 por 5"></div>
+          <div class="legend">
+            <span><i class="dot" style="background:var(--pf-first)"></i>Primera letra</span>
+            <span><i class="dot" style="background:var(--pf-second)"></i>Segunda letra</span>
+            <span><i class="dot" style="background:var(--pf-result)"></i>Resultado</span>
+          </div>
+        </section>
+
+        <section class="explanation-panel" style="margin-top:16px">
+          <h3>Lectura del dígrafo</h3>
+          <div id="selected-pair" class="selected-pair"></div>
+          <div id="rule-description"></div>
+          <div id="calculation" class="calculation"></div>
+        </section>
+      </article>
+    </section>
+
+    <section class="grid" style="margin-top:22px">
+      <article class="card full">
+        <h2>Las tres reglas de Playfair</h2>
+        <div class="rule-grid">
+          <section class="rule-card">
+            <h3>Misma fila</h3>
+            <p>Al cifrar, cada letra se mueve una celda a la derecha. Al descifrar, una celda a la izquierda. El recorrido es circular.</p>
+            <div class="mini-grid">
+              <span class="mini-cell on">A</span><span class="mini-cell target">B</span><span class="mini-cell">C</span>
+              <span class="mini-cell">D</span><span class="mini-cell">E</span><span class="mini-cell">F</span>
+              <span class="mini-cell">G</span><span class="mini-cell">H</span><span class="mini-cell">I</span>
+            </div>
+            <p><strong>Esquema:</strong> (r,c) → (r,c+1)</p>
+          </section>
+
+          <section class="rule-card">
+            <h3>Misma columna</h3>
+            <p>Al cifrar, cada letra baja una celda. Al descifrar, sube una celda. También se aplica recorrido circular.</p>
+            <div class="mini-grid">
+              <span class="mini-cell on">A</span><span class="mini-cell">B</span><span class="mini-cell">C</span>
+              <span class="mini-cell target">D</span><span class="mini-cell">E</span><span class="mini-cell">F</span>
+              <span class="mini-cell">G</span><span class="mini-cell">H</span><span class="mini-cell">I</span>
+            </div>
+            <p><strong>Esquema:</strong> (r,c) → (r+1,c)</p>
+          </section>
+
+          <section class="rule-card">
+            <h3>Rectángulo</h3>
+            <p>Cada letra conserva su fila y toma la columna de la otra. En otras palabras, se intercambian las columnas.</p>
+            <div class="mini-grid">
+              <span class="mini-cell on">A</span><span class="mini-cell">B</span><span class="mini-cell target">C</span>
+              <span class="mini-cell">D</span><span class="mini-cell">E</span><span class="mini-cell">F</span>
+              <span class="mini-cell target">G</span><span class="mini-cell">H</span><span class="mini-cell on">I</span>
+            </div>
+            <p><strong>Esquema:</strong> (r₁,c₁),(r₂,c₂) → (r₁,c₂),(r₂,c₁)</p>
+          </section>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Playfair frente a Hill</h2>
+        <div class="comparison-grid">
+          <section class="comparison-card">
+            <h3>Playfair: geometría de una cuadrícula</h3>
+            <p>La clave es una permutación de letras en una matriz 5×5. El cifrado depende de fila, columna o rectángulo.</p>
+          </section>
+          <section class="comparison-card">
+            <h3>Hill: álgebra lineal modular</h3>
+            <p>La clave es una matriz numérica invertible. Los bloques se transforman mediante C = KP mod 26.</p>
+          </section>
+        </div>
+        <div class="notice">
+          <strong>Lo que ambos comparten</strong>
+          Ambos son cifrados poligráficos y trabajan con bloques. Sin embargo, Playfair es geométrico y Hill es algebraico.
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Qué oculta y qué conserva</h2>
+        <div class="comparison-grid">
+          <section class="comparison-card">
+            <h3>Qué dificulta</h3>
+            <p>Reduce la utilidad del análisis de frecuencias de letras aisladas, porque la sustitución depende del compañero del dígrafo.</p>
+          </section>
+          <section class="comparison-card">
+            <h3>Qué todavía filtra</h3>
+            <p>El mismo dígrafo alineado produce siempre el mismo resultado. Persisten frecuencias de pares, patrones y estructura lingüística.</p>
+          </section>
+        </div>
+        <div class="notice">
+          <strong>No es un cifrado moderno seguro</strong>
+          Playfair es útil para estudiar cómo pasar de sustitución monográfica a poligráfica, no para proteger información real.
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p>
+    </footer>
+  </main>
+
+  <script>
+    'use strict';
+
+    const ALPHABET = 'ABCDEFGHIKLMNOPQRSTUVWXYZ';
+    const $ = id => document.getElementById(id);
+
+    let matrix = [];
+    let currentPairs = [];
+    let currentSteps = [];
+    let currentMode = 'encrypt';
+    let selectedIndex = 0;
+    let lastOutput = '';
+
+    function normalize(text) {
+      return text
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/J/g, 'I')
+        .replace(/[^A-Z]/g, '');
+    }
+
+    function fillerFor(letter) {
+      return letter === 'X' ? 'Q' : 'X';
+    }
+
+    function buildMatrix() {
+      const key = normalize($('key').value);
+      const sequence = [];
+
+      for (const character of key + ALPHABET) {
+        if (ALPHABET.includes(character) && !sequence.includes(character)) {
+          sequence.push(character);
+        }
+      }
+
+      matrix = sequence.slice(0, 25);
+      $('key-explanation').textContent = key
+        ? `Primero se incorporan las letras distintas de “${key}”; después se completa con el alfabeto restante.`
+        : 'Sin palabra clave, la matriz queda formada por el alfabeto convencional de Playfair.';
+    }
+
+    function preparePlaintext(text) {
+      const source = normalize(text);
+      const pairs = [];
+      const log = [];
+      let index = 0;
+      let step = 1;
+
+      while (index < source.length) {
+        const first = source[index];
+        const next = source[index + 1];
+
+        if (!next) {
+          const fill = fillerFor(first);
+          pairs.push(first + fill);
+          log.push({ step, pair: first + fill, reason: `Quedó una letra sola; se agregó ${fill} como relleno.`, inserted: fill });
+          index += 1;
+        } else if (first === next) {
+          const fill = fillerFor(first);
+          pairs.push(first + fill);
+          log.push({ step, pair: first + fill, reason: `El par ${first}${next} repite letra; se insertó ${fill} entre ambas.`, inserted: fill });
+          index += 1;
+        } else {
+          pairs.push(first + next);
+          log.push({ step, pair: first + next, reason: 'Par tomado directamente del mensaje.', inserted: null });
+          index += 2;
+        }
+
+        step += 1;
+      }
+
+      return { pairs, log, source };
+    }
+
+    function prepareCiphertext(text) {
+      const source = normalize(text);
+      const pairs = source.match(/.{1,2}/g) || [];
+      const log = pairs.map((pair, index) => ({
+        step: index + 1,
+        pair,
+        reason: pair.length === 2
+          ? 'Dígrafo leído directamente del criptograma.'
+          : 'Dígrafo incompleto: el criptograma debe contener una cantidad par de letras.',
+        inserted: null
+      }));
+      return { pairs, log, source };
+    }
+
+    function position(character) {
+      const index = matrix.indexOf(character);
+      if (index < 0) throw new Error(`La letra ${character} no pertenece a la matriz.`);
+      return { row: Math.floor(index / 5), col: index % 5 };
+    }
+
+    function characterAt(row, col) {
+      return matrix[((row + 5) % 5) * 5 + ((col + 5) % 5)];
+    }
+
+    function transformPair(pair, direction) {
+      if (pair.length !== 2) throw new Error('Todos los dígrafos deben contener exactamente dos letras.');
+
+      const first = position(pair[0]);
+      const second = position(pair[1]);
+      let resultPositions;
+      let rule;
+
+      if (first.row === second.row) {
+        rule = 'row';
+        resultPositions = [
+          { row: first.row, col: (first.col + direction + 5) % 5 },
+          { row: second.row, col: (second.col + direction + 5) % 5 }
+        ];
+      } else if (first.col === second.col) {
+        rule = 'column';
+        resultPositions = [
+          { row: (first.row + direction + 5) % 5, col: first.col },
+          { row: (second.row + direction + 5) % 5, col: second.col }
+        ];
+      } else {
+        rule = 'rectangle';
+        resultPositions = [
+          { row: first.row, col: second.col },
+          { row: second.row, col: first.col }
+        ];
+      }
+
+      const output = resultPositions
+        .map(pos => characterAt(pos.row, pos.col))
+        .join('');
+
+      return {
+        input: pair,
+        output,
+        rule,
+        first,
+        second,
+        resultPositions
+      };
+    }
+
+    function ruleName(rule) {
+      return rule === 'row' ? 'Misma fila' : rule === 'column' ? 'Misma columna' : 'Rectángulo';
+    }
+
+    function renderMatrix(step = null) {
+      const container = $('matrix');
+      container.replaceChildren();
+
+      matrix.forEach((character, index) => {
+        const row = Math.floor(index / 5);
+        const col = index % 5;
+        const cell = document.createElement('div');
+        cell.className = 'matrix-cell';
+        cell.textContent = character;
+
+        const coordinate = document.createElement('small');
+        coordinate.textContent = `${row + 1},${col + 1}`;
+        cell.append(coordinate);
+
+        if (step) {
+          if (row === step.first.row && col === step.first.col) cell.classList.add('first');
+          if (row === step.second.row && col === step.second.col) cell.classList.add('second');
+          if (row === step.resultPositions[0].row && col === step.resultPositions[0].col) cell.classList.add('result-one');
+          if (row === step.resultPositions[1].row && col === step.resultPositions[1].col) cell.classList.add('result-two');
+
+          if (step.rule === 'row' && row === step.first.row) cell.classList.add('same-line');
+          if (step.rule === 'column' && col === step.first.col) cell.classList.add('same-line');
+          if (step.rule === 'rectangle') {
+            const rectangleRows = [step.first.row, step.second.row];
+            const rectangleCols = [step.first.col, step.second.col];
+            if (rectangleRows.includes(row) && rectangleCols.includes(col)) {
+              cell.classList.add('rectangle-corner');
+            }
+          }
+        }
+
+        container.append(cell);
+      });
+    }
+
+    function renderPairs() {
+      const container = $('pairs');
+      container.replaceChildren();
+
+      currentSteps.forEach((step, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `pair-button${index === selectedIndex ? ' active' : ''}`;
+
+        const input = document.createElement('span');
+        input.textContent = step.input;
+        const arrow = document.createElement('span');
+        arrow.className = 'pair-arrow';
+        arrow.textContent = '→';
+        const output = document.createElement('span');
+        output.textContent = step.output;
+
+        button.append(input, arrow, output);
+
+        const prep = currentPairs[index];
+        if (prep?.inserted) {
+          const mark = document.createElement('span');
+          mark.className = 'fill-mark';
+          mark.textContent = `relleno ${prep.inserted}`;
+          button.append(mark);
+        }
+
+        button.addEventListener('click', () => {
+          selectedIndex = index;
+          renderPairs();
+          renderSelectedStep();
+        });
+
+        container.append(button);
+      });
+    }
+
+    function renderPreparationLog() {
+      const container = $('preparation-log');
+      container.replaceChildren();
+
+      currentPairs.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'prep-step';
+
+        const number = document.createElement('strong');
+        number.textContent = item.step;
+        const pair = document.createElement('span');
+        pair.textContent = item.pair;
+        const reason = document.createElement('span');
+        reason.textContent = item.reason;
+
+        if (item.inserted) reason.classList.add('inserted');
+        row.append(number, pair, reason);
+        container.append(row);
+      });
+    }
+
+    function renderSelectedStep() {
+      const step = currentSteps[selectedIndex];
+      if (!step) {
+        $('selected-pair').textContent = 'No hay dígrafos para mostrar.';
+        $('rule-description').textContent = '';
+        $('calculation').textContent = '';
+        renderMatrix();
+        return;
+      }
+
+      renderMatrix(step);
+
+      const selected = $('selected-pair');
+      selected.replaceChildren();
+
+      const first = document.createElement('span');
+      first.className = 'letter-chip first';
+      first.textContent = step.input[0];
+      const second = document.createElement('span');
+      second.className = 'letter-chip second';
+      second.textContent = step.input[1];
+      const arrow = document.createElement('span');
+      arrow.textContent = '→';
+      arrow.style.color = 'var(--muted)';
+      const result = document.createElement('span');
+      result.className = 'letter-chip result';
+      result.textContent = step.output;
+
+      selected.append(first, second, arrow, result);
+
+      const badge = document.createElement('span');
+      badge.className = `rule-badge ${step.rule}`;
+      badge.textContent = ruleName(step.rule);
+
+      const description = document.createElement('p');
+      if (step.rule === 'row') {
+        description.textContent = currentMode === 'encrypt'
+          ? 'Las dos letras están en la misma fila: cada una avanza una columna hacia la derecha.'
+          : 'Las dos letras están en la misma fila: cada una retrocede una columna hacia la izquierda.';
+      } else if (step.rule === 'column') {
+        description.textContent = currentMode === 'encrypt'
+          ? 'Las dos letras están en la misma columna: cada una baja una fila.'
+          : 'Las dos letras están en la misma columna: cada una sube una fila.';
+      } else {
+        description.textContent = 'Las letras están en filas y columnas distintas: forman un rectángulo y cada una toma la columna de la otra.';
+      }
+
+      const ruleBox = $('rule-description');
+      ruleBox.replaceChildren(badge, description);
+
+      const firstResult = step.resultPositions[0];
+      const secondResult = step.resultPositions[1];
+      let calculation;
+
+      if (step.rule === 'rectangle') {
+        calculation =
+          `${step.input[0]} = (${step.first.row + 1},${step.first.col + 1}) → (${firstResult.row + 1},${firstResult.col + 1}) = ${step.output[0]}\n` +
+          `${step.input[1]} = (${step.second.row + 1},${step.second.col + 1}) → (${secondResult.row + 1},${secondResult.col + 1}) = ${step.output[1]}\n\n` +
+          'Cada letra conserva su fila y toma la columna de la otra.';
+      } else {
+        calculation =
+          `${step.input[0]} = (${step.first.row + 1},${step.first.col + 1}) → (${firstResult.row + 1},${firstResult.col + 1}) = ${step.output[0]}\n` +
+          `${step.input[1]} = (${step.second.row + 1},${step.second.col + 1}) → (${secondResult.row + 1},${secondResult.col + 1}) = ${step.output[1]}`;
+      }
+
+      $('calculation').textContent = calculation;
+    }
+
+    function run(mode) {
+      try {
+        currentMode = mode;
+        buildMatrix();
+
+        const prepared = mode === 'encrypt'
+          ? preparePlaintext($('txt').value)
+          : prepareCiphertext($('txt').value);
+
+        if (!prepared.source) {
+          throw new Error('Ingresá al menos una letra para ejecutar la transformación.');
+        }
+
+        if (mode === 'decrypt' && prepared.source.length % 2 !== 0) {
+          throw new Error('Para descifrar, el criptograma debe contener una cantidad par de letras.');
+        }
+
+        const direction = mode === 'encrypt' ? 1 : -1;
+        currentPairs = prepared.log;
+        currentSteps = prepared.pairs.map(pair => transformPair(pair, direction));
+        selectedIndex = Math.min(selectedIndex, Math.max(0, currentSteps.length - 1));
+        lastOutput = currentSteps.map(step => step.output).join('');
+
+        $('out').textContent = currentSteps.map(step => step.output).join(' ');
+        $('status').className = 'status good';
+        $('status').textContent = mode === 'encrypt'
+          ? `${prepared.source.length} letras normalizadas y ${currentSteps.length} dígrafos cifrados.`
+          : `${currentSteps.length} dígrafos descifrados. Los rellenos deben interpretarse según el contexto.`;
+
+        renderPairs();
+        renderPreparationLog();
+        renderSelectedStep();
+      } catch (error) {
+        currentPairs = [];
+        currentSteps = [];
+        lastOutput = '';
+        $('out').textContent = '';
+        $('pairs').replaceChildren();
+        $('preparation-log').replaceChildren();
+        $('status').className = 'status bad';
+        $('status').textContent = error.message;
+        renderSelectedStep();
+      }
+    }
+
+    $('enc').addEventListener('click', () => run('encrypt'));
+    $('dec').addEventListener('click', () => run('decrypt'));
+    $('use-output').addEventListener('click', () => {
+      if (!lastOutput) return;
+      $('txt').value = lastOutput;
+      run('decrypt');
+    });
+    $('reset').addEventListener('click', () => {
+      $('key').value = 'CRIPTOGRAFIA';
+      $('txt').value = 'HOLA MUNDO';
+      selectedIndex = 0;
+      run('encrypt');
+    });
+    $('key').addEventListener('input', () => run(currentMode));
+    $('txt').addEventListener('change', () => run(currentMode));
+
+    run('encrypt');
+  </script>
+</body>
+</html>
