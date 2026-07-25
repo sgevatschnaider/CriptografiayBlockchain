@@ -7,364 +7,54 @@
   <title>Cifrado afín | Laboratorio interactivo</title>
   <link rel="stylesheet" href="../assets/lab.css">
   <style>
-    .map {
-      display: grid;
-      grid-template-columns: repeat(13, minmax(56px, 1fr));
-      gap: 7px;
-    }
-
-    .cell {
-      padding: 9px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      text-align: center;
-      background: #071625;
-    }
-
-    .cell b {
-      display: block;
-      color: var(--accent);
-    }
-
-    .candidates {
-      display: grid;
-      gap: 8px;
-    }
-
-    .candidate {
-      display: grid;
-      grid-template-columns: 130px 1fr 120px;
-      gap: 10px;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-
-    .candidate:first-child {
-      border-color: var(--border-strong);
-      background: rgba(74, 222, 163, .06);
-    }
-
-    .candidate-text {
-      overflow-wrap: anywhere;
-    }
-
-    .candidate-score {
-      text-align: right;
-      color: var(--muted);
-    }
-
-    .ok { color: var(--good); }
-    .bad { color: var(--bad); }
-
-    @media (max-width: 760px) {
-      .map { grid-template-columns: repeat(5, 1fr); }
-      .candidate { grid-template-columns: 1fr; }
-      .candidate-score { text-align: left; }
-    }
+    .map{display:grid;grid-template-columns:repeat(13,minmax(56px,1fr));gap:7px}.cell{padding:9px;border:1px solid var(--border);border-radius:10px;text-align:center;background:#071625}.cell b{display:block;color:var(--accent)}.candidates{display:grid;gap:8px}.candidate{display:grid;grid-template-columns:130px 1fr 120px;gap:10px;padding:10px;border:1px solid var(--border);border-radius:12px}.candidate:first-child{border-color:var(--border-strong);background:rgba(74,222,163,.06)}.candidate-text{overflow-wrap:anywhere}.candidate-score{text-align:right;color:var(--muted)}.ok{color:var(--good)}.bad{color:var(--bad)}@media(max-width:760px){.map{grid-template-columns:repeat(5,1fr)}.candidate{grid-template-columns:1fr}.candidate-score{text-align:left}}
   </style>
 </head>
 <body>
-  <main class="shell">
-    <header class="topbar">
-      <div class="brand"><a href="index.html">⛓️ Módulo 1</a></div>
-      <nav class="nav">
-        <a href="../index.html">Campus</a>
-        <a href="../01-criptografia-clasica.html">Laboratorio integral</a>
-      </nav>
-    </header>
-
-    <section class="hero">
-      <div class="eyebrow">Criptografía clásica</div>
-      <h1>Cifrado afín</h1>
-      <p>
-        Explorá la transformación <strong>E(x)=(ax+b) mod 26</strong>, verificá
-        cuándo existe el inverso y ejecutá un ataque exhaustivo sobre las 312
-        claves válidas.
-      </p>
-    </section>
-
-    <section class="grid">
-      <article class="card">
-        <h2>Configuración</h2>
-        <div class="controls">
-          <div class="control full">
-            <label for="text">Texto</label>
-            <textarea id="text">LA CRIPTOGRAFIA EXPLICA COMO TRANSFORMAR Y ANALIZAR MENSAJES</textarea>
-          </div>
-          <div class="control">
-            <label for="a">Multiplicador a</label>
-            <select id="a"></select>
-          </div>
-          <div class="control">
-            <label for="b">Desplazamiento b</label>
-            <input id="b" type="number" min="0" max="25" value="3">
-          </div>
-        </div>
-
-        <div class="actions">
-          <button id="enc">Cifrar</button>
-          <button id="dec" class="secondary">Descifrar</button>
-          <button id="attack" class="warn">Ataque exhaustivo</button>
-        </div>
-
-        <div id="valid" class="status"></div>
-        <div id="out" class="output" aria-live="polite"></div>
-      </article>
-
-      <article class="card">
-        <h2>Mapa de sustitución</h2>
-        <p class="muted">Cada letra clara se transforma mediante la función afín.</p>
-        <div id="map" class="map"></div>
-      </article>
-
-      <article class="card full">
-        <h2>Mejores candidatos del ataque</h2>
-        <p class="muted">
-          Se prueban solo multiplicadores coprimos con 26 y se ordenan mediante
-          un puntaje lingüístico basado en frecuencias del castellano y palabras comunes.
-        </p>
-        <div id="attack-status" class="status" aria-live="polite"></div>
-        <div id="candidates" class="candidates"></div>
-      </article>
-
-      <article class="card full">
-        <h2>Interpretación</h2>
-        <p>
-          Un multiplicador sin inverso no define una permutación y hace imposible
-          recuperar unívocamente el texto. En módulo 26 hay 12 valores válidos para
-          <code>a</code> y 26 valores para <code>b</code>: 312 claves.
-        </p>
-      </article>
-    </section>
-
-    <footer class="footer">
-      <p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p>
-    </footer>
-  </main>
-
-  <script>
-    'use strict';
-
-    const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const FREQ = {
-      E: 13.68, A: 12.53, O: 8.68, S: 7.98, R: 6.87, N: 6.71,
-      I: 6.25, D: 5.86, L: 4.97, C: 4.68, T: 4.63, U: 3.93,
-      M: 3.15, P: 2.51, B: 1.42, G: 1.01, V: 0.90, Y: 0.90,
-      Q: 0.88, H: 0.70, F: 0.69, Z: 0.52, J: 0.44, X: 0.22,
-      K: 0.02, W: 0.01
-    };
-
-    const COMMON_WORDS = new Set([
-      'A', 'AL', 'COMO', 'CON', 'DE', 'DEL', 'EL', 'EN', 'ES', 'LA',
-      'LAS', 'LO', 'LOS', 'MENSAJES', 'PARA', 'POR', 'QUE', 'SE',
-      'TRANSFORMAR', 'UN', 'UNA', 'Y', 'CRIPTOGRAFIA'
-    ]);
-
-    const $ = id => document.getElementById(id);
-    const mod = (n, m) => ((n % m) + m) % m;
-    const gcd = (x, y) => y ? gcd(y, x % y) : Math.abs(x);
-
-    let lastResult = '';
-    let lastAction = null;
-    let lastInputSnapshot = '';
-
-    function inverseMod26(n) {
-      for (let i = 1; i < 26; i++) {
-        if (mod(n * i, 26) === 1) return i;
-      }
-      return null;
-    }
-
-    function normalizeText(text) {
-      return text
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toUpperCase();
-    }
-
-    function transform(text, a, b, decrypt = false) {
-      const inverse = decrypt ? inverseMod26(a) : a;
-
-      if (decrypt && inverse === null) {
-        throw new Error('a no tiene inverso módulo 26');
-      }
-
-      return [...normalizeText(text)].map(character => {
-        const index = ABC.indexOf(character);
-        if (index < 0) return character;
-
-        const value = decrypt
-          ? mod(inverse * (index - b), 26)
-          : mod(a * index + b, 26);
-
-        return ABC[value];
-      }).join('');
-    }
-
-    function linguisticScore(text) {
-      const normalized = normalizeText(text);
-      const counts = Object.fromEntries([...ABC].map(letter => [letter, 0]));
-      let totalLetters = 0;
-
-      for (const character of normalized) {
-        if (ABC.includes(character)) {
-          counts[character] += 1;
-          totalLetters += 1;
-        }
-      }
-
-      if (!totalLetters) return Number.POSITIVE_INFINITY;
-
-      let chiSquared = 0;
-      for (const letter of ABC) {
-        const observed = counts[letter];
-        const expected = FREQ[letter] * totalLetters / 100;
-        chiSquared += (observed - expected) ** 2 / Math.max(expected, 0.01);
-      }
-
-      const words = normalized.match(/[A-Z]+/g) || [];
-      const commonWordHits = words.reduce(
-        (total, word) => total + (COMMON_WORDS.has(word) ? 1 : 0),
-        0
-      );
-
-      const commonSequenceHits = (
-        normalized.match(/QUE|ENT|EST|CON|DEL|LOS|LAS|ION|PARA|CRIPTO/g) || []
-      ).length;
-
-      return chiSquared - commonWordHits * 8 - commonSequenceHits * 1.5;
-    }
-
-    function refreshKeyInformation() {
-      const a = Number($('a').value);
-      const b = mod(Number($('b').value), 26);
-      const inverse = inverseMod26(a);
-
-      $('valid').innerHTML = inverse !== null
-        ? `<span class="ok">Clave válida:</span> mcd(${a},26)=1 e inverso=${inverse}.`
-        : `<span class="bad">Clave inválida:</span> ${a} no tiene inverso módulo 26.`;
-
-      $('map').innerHTML = [...ABC].map((letter, index) => {
-        const encryptedLetter = ABC[mod(a * index + b, 26)];
-        return `<div class="cell"><b>${letter}</b>${encryptedLetter}</div>`;
-      }).join('');
-    }
-
-    function runTransform(decrypt = false) {
-      try {
-        const input = $('text').value;
-        const result = transform(input, Number($('a').value), Number($('b').value), decrypt);
-
-        lastResult = result;
-        lastAction = decrypt ? 'decrypt' : 'encrypt';
-        lastInputSnapshot = input;
-        $('out').textContent = result;
-      } catch (error) {
-        lastResult = '';
-        lastAction = null;
-        $('out').textContent = error.message;
-      }
-    }
-
-    function getAttackSource() {
-      const currentInput = $('text').value;
-
-      if (
-        lastAction === 'encrypt' &&
-        lastResult.trim() &&
-        currentInput === lastInputSnapshot
-      ) {
-        return {
-          text: lastResult,
-          description: 'Se analiza el último resultado cifrado mostrado arriba.'
-        };
-      }
-
-      return {
-        text: currentInput,
-        description: 'Se analiza el contenido del campo Texto como criptograma.'
-      };
-    }
-
-    function renderCandidates(results) {
-      const container = $('candidates');
-      container.replaceChildren();
-
-      for (const result of results.slice(0, 12)) {
-        const row = document.createElement('div');
-        row.className = 'candidate';
-
-        const key = document.createElement('b');
-        key.textContent = `a=${result.a}, b=${result.b}`;
-
-        const plaintext = document.createElement('span');
-        plaintext.className = 'candidate-text';
-        plaintext.textContent = result.text;
-
-        const score = document.createElement('span');
-        score.className = 'candidate-score';
-        score.textContent = `Puntaje ${result.score.toFixed(1)}`;
-
-        row.append(key, plaintext, score);
-        container.append(row);
-      }
-    }
-
-    function exhaustiveAttack() {
-      const source = getAttackSource();
-      const ciphertext = source.text;
-
-      if (!ciphertext.trim()) {
-        $('attack-status').innerHTML = '<span class="bad">No hay texto para analizar.</span>';
-        $('candidates').replaceChildren();
-        return;
-      }
-
-      const results = [];
-
-      for (let a = 1; a < 26; a++) {
-        if (gcd(a, 26) !== 1) continue;
-
-        for (let b = 0; b < 26; b++) {
-          const plaintext = transform(ciphertext, a, b, true);
-          results.push({
-            a,
-            b,
-            text: plaintext,
-            score: linguisticScore(plaintext)
-          });
-        }
-      }
-
-      results.sort((left, right) => left.score - right.score);
-      renderCandidates(results);
-
-      $('attack-status').innerHTML =
-        `<span class="ok">312 claves evaluadas.</span> ${source.description}`;
-    }
-
-    $('enc').addEventListener('click', () => runTransform(false));
-    $('dec').addEventListener('click', () => runTransform(true));
-    $('attack').addEventListener('click', exhaustiveAttack);
-
-    for (let i = 1; i < 26; i++) {
-      const option = document.createElement('option');
-      option.value = String(i);
-      option.textContent = String(i);
-      option.selected = i === 5;
-      $('a').append(option);
-    }
-
-    $('a').addEventListener('change', refreshKeyInformation);
-    $('b').addEventListener('input', refreshKeyInformation);
-    $('text').addEventListener('input', () => {
-      $('attack-status').textContent = '';
-      $('candidates').replaceChildren();
-    });
-
-    refreshKeyInformation();
-    runTransform(false);
-  </script>
+<main class="shell">
+  <header class="topbar"><div class="brand"><a href="index.html">⛓️ Módulo 1</a></div><nav class="nav"><a href="../index.html">Campus</a><a href="../01-criptografia-clasica.html">Laboratorio integral</a></nav></header>
+  <section class="hero"><div class="eyebrow">Criptografía clásica</div><h1>Cifrado afín</h1><p>Explorá la transformación <strong>E(x)=(ax+b) mod 26</strong>, verificá cuándo existe el inverso y ejecutá un ataque exhaustivo sobre las 312 claves válidas.</p></section>
+  <section class="grid">
+    <article class="card"><h2>Configuración</h2><div class="controls"><div class="control full"><label for="text">Texto</label><textarea id="text">LA CRIPTOGRAFIA EXPLICA COMO TRANSFORMAR Y ANALIZAR MENSAJES</textarea></div><div class="control"><label for="a">Multiplicador a</label><select id="a"></select></div><div class="control"><label for="b">Desplazamiento b</label><input id="b" type="number" min="0" max="25" value="3"></div></div><div class="actions"><button id="enc">Cifrar</button><button id="dec" class="secondary">Descifrar</button><button id="attack" class="warn">Ataque exhaustivo</button></div><div id="valid" class="status"></div><div id="out" class="output" aria-live="polite"></div></article>
+    <article class="card"><h2>Mapa de sustitución</h2><p class="muted">Cada letra clara se transforma mediante la función afín.</p><div id="map" class="map"></div></article>
+    <article class="card full"><h2>Mejores candidatos del ataque</h2><p class="muted">Se prueban los 12 multiplicadores coprimos con 26. Para textos breves se ponderan palabras completas, n-gramas y estructura vocálica; para textos largos adquieren mayor peso las frecuencias del castellano.</p><div id="attack-status" class="status" aria-live="polite"></div><div id="candidates" class="candidates"></div></article>
+    <article class="card full"><h2>Interpretación</h2><p>Un multiplicador sin inverso no define una permutación y hace imposible recuperar unívocamente el texto. En módulo 26 hay 12 valores válidos para <code>a</code> y 26 valores para <code>b</code>: 312 claves. En mensajes muy cortos el ranking es orientativo, porque distintas claves pueden producir secuencias lingüísticamente plausibles.</p></article>
+  </section>
+  <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p></footer>
+</main>
+<script>
+'use strict';
+const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const FREQ={E:13.68,A:12.53,O:8.68,S:7.98,R:6.87,N:6.71,I:6.25,D:5.86,L:4.97,C:4.68,T:4.63,U:3.93,M:3.15,P:2.51,B:1.42,G:1.01,V:.9,Y:.9,Q:.88,H:.7,F:.69,Z:.52,J:.44,X:.22,K:.02,W:.01};
+const WORD_WEIGHTS=new Map([['A',2],['AL',5],['COMO',14],['CON',10],['DE',7],['DEL',9],['EL',7],['EN',7],['ES',7],['HOLA',26],['LA',7],['LAS',8],['LO',5],['LOS',8],['MENSAJES',18],['MUNDO',26],['PARA',12],['POR',8],['QUE',12],['SE',6],['TRANSFORMAR',18],['UN',6],['UNA',7],['Y',2],['CRIPTOGRAFIA',20]]);
+const BIGRAMS=new Set(['DE','EN','ES','LA','EL','OS','AS','RA','RE','ER','ON','NT','TE','CO','AR','AL','OR','CI','ST','UN','HO','OL','MU','ND','DO']);
+const TRIGRAMS=new Set(['QUE','ENT','EST','CON','DEL','LOS','LAS','ION','PAR','TRA','MEN','MUN','HOL','OLA','UND','NDO']);
+const $=id=>document.getElementById(id),mod=(n,m)=>((n%m)+m)%m,gcd=(x,y)=>y?gcd(y,x%y):Math.abs(x);
+let lastResult='',lastAction=null,lastInputSnapshot='';
+function inv(n){for(let i=1;i<26;i++)if(mod(n*i,26)===1)return i;return null}
+function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()}
+function transform(s,a,b,decrypt=false){const ai=decrypt?inv(a):a;if(decrypt&&ai===null)throw Error('a no tiene inverso módulo 26');return[...norm(s)].map(ch=>{const i=ABC.indexOf(ch);if(i<0)return ch;return ABC[decrypt?mod(ai*(i-b),26):mod(a*i+b,26)]}).join('')}
+function score(text){
+  const normalized=norm(text),letters=[...normalized].filter(c=>ABC.includes(c)).join(''),n=letters.length;
+  if(!n)return Infinity;
+  const counts=Object.fromEntries([...ABC].map(c=>[c,0]));for(const c of letters)counts[c]++;
+  let chi=0;for(const c of ABC){const expected=FREQ[c]*n/100;chi+=(counts[c]-expected)**2/Math.max(expected,.01)}
+  let result=chi*Math.min(1,n/35);
+  const words=normalized.match(/[A-Z]+/g)||[];
+  for(const word of words){result-=WORD_WEIGHTS.get(word)||0;if(word.length>=3&&!/[AEIOU]/.test(word))result+=18;if(/[BCDFGHJKLMNPQRSTVWXYZ]{4,}/.test(word))result+=14;if(/[AEIOU]{4,}/.test(word))result+=8}
+  let bi=0,tri=0;for(let i=0;i<n-1;i++)if(BIGRAMS.has(letters.slice(i,i+2)))bi++;for(let i=0;i<n-2;i++)if(TRIGRAMS.has(letters.slice(i,i+3)))tri++;
+  result-=bi*(n<15?1.8:.8);result-=tri*(n<15?4.5:1.5);
+  const vowels=[...letters].filter(c=>'AEIOU'.includes(c)).length/n;result+=Math.abs(vowels-.45)*(n<15?28:12);
+  return result;
+}
+function refresh(){const a=+$('a').value,b=mod(+$('b').value,26),ii=inv(a);$('valid').innerHTML=ii!==null?`<span class="ok">Clave válida:</span> mcd(${a},26)=1 e inverso=${ii}.`:`<span class="bad">Clave inválida:</span> ${a} no tiene inverso módulo 26.`;$('map').innerHTML=[...ABC].map((c,i)=>`<div class="cell"><b>${c}</b>${ABC[mod(a*i+b,26)]}</div>`).join('')}
+function run(decrypt=false){try{const input=$('text').value,result=transform(input,+$('a').value,+$('b').value,decrypt);lastResult=result;lastAction=decrypt?'decrypt':'encrypt';lastInputSnapshot=input;$('out').textContent=result}catch(e){lastResult='';lastAction=null;$('out').textContent=e.message}}
+function attackSource(){const input=$('text').value;if(lastAction==='encrypt'&&lastResult.trim()&&input===lastInputSnapshot)return{text:lastResult,description:'Se analiza el último resultado cifrado mostrado arriba.'};return{text:input,description:'Se analiza el contenido del campo Texto como criptograma.'}}
+function render(results){const c=$('candidates');c.replaceChildren();for(const r of results.slice(0,12)){const row=document.createElement('div'),key=document.createElement('b'),plain=document.createElement('span'),points=document.createElement('span');row.className='candidate';key.textContent=`a=${r.a}, b=${r.b}`;plain.className='candidate-text';plain.textContent=r.text;points.className='candidate-score';points.textContent=`Puntaje ${r.score.toFixed(1)}`;row.append(key,plain,points);c.append(row)}}
+function attack(){const source=attackSource(),cipher=source.text;if(!cipher.trim()){$('attack-status').innerHTML='<span class="bad">No hay texto para analizar.</span>';$('candidates').replaceChildren();return}const results=[];for(let a=1;a<26;a++)if(gcd(a,26)===1)for(let b=0;b<26;b++){const text=transform(cipher,a,b,true);results.push({a,b,text,score:score(text)})}results.sort((x,y)=>x.score-y.score);render(results);const letters=[...norm(cipher)].filter(c=>ABC.includes(c)).length;const warning=letters<15?' <span class="bad">Advertencia:</span> el texto es muy corto y el ranking es orientativo.':'';$('attack-status').innerHTML=`<span class="ok">312 claves evaluadas.</span> ${source.description}${warning}`}
+$('enc').addEventListener('click',()=>run(false));$('dec').addEventListener('click',()=>run(true));$('attack').addEventListener('click',attack);
+for(let i=1;i<26;i++){const o=document.createElement('option');o.value=o.textContent=String(i);o.selected=i===5;$('a').append(o)}
+$('a').addEventListener('change',refresh);$('b').addEventListener('input',refresh);$('text').addEventListener('input',()=>{$('attack-status').textContent='';$('candidates').replaceChildren()});refresh();run(false);
+</script>
 </body>
 </html>
