@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo para comparar espacio de claves, índice de coincidencia, entropía y conservación de frecuencias en criptosistemas clásicos.">
+  <title>IC, entropía y estructura | Criptosistemas clásicos</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/ic-entropia.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 1</a></div>
+      <nav class="nav">
+        <a href="comparador-criptosistemas.html">Comparador general</a>
+        <a href="../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Criptoanálisis estadístico · laboratorio interactivo</div>
+          <h1>Índice de coincidencia, entropía y estructura</h1>
+          <p>
+            Compará César, afín, alfabeto mixto y Vigenère sobre el mismo mensaje.
+            El objetivo no es premiar una métrica aislada, sino comprender qué información
+            conserva cada transformación y cómo esa fuga orienta el ataque.
+          </p>
+          <div class="method-legend" aria-label="Métodos comparados">
+            <span class="legend-pill"><span class="legend-dot" style="background:var(--plain)"></span>Texto claro</span>
+            <span class="legend-pill"><span class="legend-dot" style="background:var(--caesar)"></span>César</span>
+            <span class="legend-pill"><span class="legend-dot" style="background:var(--affine)"></span>Afín</span>
+            <span class="legend-pill"><span class="legend-dot" style="background:var(--mixed)"></span>Alfabeto mixto</span>
+            <span class="legend-pill"><span class="legend-dot" style="background:var(--vigenere)"></span>Vigenère</span>
+          </div>
+        </div>
+        <aside class="formula-box">
+          <strong>Dos métricas, dos preguntas</strong>
+          <code>IC = Σ fᵢ(fᵢ − 1) / [N(N − 1)]</code>
+          <span class="muted">¿Con qué probabilidad coinciden dos letras extraídas sin reemplazo?</span>
+          <code>H = −Σ pᵢ log₂(pᵢ)</code>
+          <span class="muted">¿Cuánta incertidumbre empírica existe por símbolo?</span>
+        </aside>
+      </div>
+    </section>
+
+    <section class="concept-grid" style="margin-top:20px">
+      <article class="concept-card">
+        <h3>1. Espacio de claves</h3>
+        <p>Indica cuántas claves existen, no cuánto lenguaje filtra cada clave. Debe analizarse junto con la estructura conservada.</p>
+      </article>
+      <article class="concept-card">
+        <h3>2. Sustitución fija</h3>
+        <p>César, afín válido y alfabeto mixto solo renombran símbolos. Por eso conservan exactamente IC, entropía y perfil ordenado.</p>
+      </article>
+      <article class="concept-card">
+        <h3>3. Polialfabetismo periódico</h3>
+        <p>Vigenère distribuye una letra entre varios símbolos, pero la clave repetida crea columnas monoalfabéticas detectables.</p>
+      </article>
+    </section>
+
+    <section class="grid" style="margin-top:22px">
+      <article class="card full">
+        <h2>Configuración del experimento</h2>
+        <p class="muted">Se usa el alfabeto A–Z. Las tildes y la Ñ se normalizan para mantener módulo 26.</p>
+
+        <div class="control full">
+          <label for="plaintext">Texto claro</label>
+          <textarea id="plaintext" rows="5">EN CRIPTOGRAFIA CLASICA LAS FRECUENCIAS DEL IDIOMA DEJAN HUELLAS. UN ESPACIO DE CLAVES GRANDE NO IMPIDE QUE UNA SUSTITUCION FIJA CONSERVE PATRONES ESTADISTICOS.</textarea>
+        </div>
+
+        <div class="control-grid" style="margin-top:14px">
+          <div class="control">
+            <label for="caesar-key">César: desplazamiento k</label>
+            <input id="caesar-key" type="number" min="0" max="25" value="3">
+          </div>
+          <div class="control">
+            <label for="affine-a">Afín: multiplicador a</label>
+            <select id="affine-a"></select>
+          </div>
+          <div class="control">
+            <label for="affine-b">Afín: desplazamiento b</label>
+            <input id="affine-b" type="number" min="0" max="25" value="3">
+          </div>
+          <div class="control">
+            <label for="vigenere-key">Vigenère: clave</label>
+            <input id="vigenere-key" type="text" value="CLAVE" maxlength="40">
+          </div>
+        </div>
+
+        <div class="control full" style="margin-top:14px">
+          <label for="mixed-key">Alfabeto mixto: permutación A→primera letra, B→segunda…</label>
+          <input id="mixed-key" type="text" readonly>
+        </div>
+
+        <div class="actions">
+          <button id="analyze" type="button">Analizar</button>
+          <button id="new-mixed" class="secondary" type="button">Generar alfabeto mixto</button>
+          <button id="reset" class="secondary" type="button">Restablecer</button>
+        </div>
+        <div id="status" class="status" aria-live="polite"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Resultados cifrados</h2>
+        <div id="previews" class="preview-grid"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Comparación cuantitativa</h2>
+        <p class="muted">
+          Los valores se calculan sobre el texto actual. El espacio de Vigenère supone una longitud fija r igual a la clave ingresada.
+        </p>
+        <div class="comparison-wrap">
+          <table class="comparison-table" id="comparison-table"></table>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Visualización de las métricas</h2>
+        <div class="chart-grid">
+          <section class="chart-card">
+            <h3>Espacio de claves</h3>
+            <p>Escala log₂: bits necesarios para enumerar todas las claves del modelo.</p>
+            <div class="metric-bars" id="keyspace-bars"></div>
+            <div class="metric-note">Un valor alto dificulta fuerza bruta, pero no elimina ataques estructurales.</div>
+          </section>
+          <section class="chart-card">
+            <h3>Índice de coincidencia</h3>
+            <p>La línea conceptual de ruido uniforme es 1/26 ≈ 0,03846.</p>
+            <div class="metric-bars" id="ic-bars"></div>
+            <div class="metric-note">César, afín y alfabeto mixto deben coincidir exactamente con el texto claro.</div>
+          </section>
+          <section class="chart-card">
+            <h3>Entropía empírica</h3>
+            <p>Máximo para 26 símbolos equiprobables: log₂(26) ≈ 4,700 bits.</p>
+            <div class="metric-bars" id="entropy-bars"></div>
+            <div class="metric-note">Más entropía marginal no prueba seguridad: puede persistir periodicidad o dependencia entre símbolos.</div>
+          </section>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Por qué IC y entropía se conservan en una sustitución monoalfabética</h2>
+        <p class="muted">
+          Una permutación fija no modifica las cantidades <code>fᵢ</code>; solo cambia sus etiquetas.
+          Como IC y entropía dependen de sumas simétricas sobre esas cantidades, el resultado numérico permanece idéntico.
+        </p>
+        <div class="diagnostic-grid" id="diagnostics"></div>
+        <div id="identity-proof" class="notice good"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Frecuencias: texto claro frente al método seleccionado</h2>
+        <div class="frequency-controls">
+          <div class="control">
+            <label for="frequency-method">Método</label>
+            <select id="frequency-method">
+              <option value="caesar">César</option>
+              <option value="affine">Afín</option>
+              <option value="mixed">Alfabeto mixto</option>
+              <option value="vigenere">Vigenère</option>
+            </select>
+          </div>
+          <div class="muted">Cada fila compara cantidades; en métodos monoalfabéticos se indica además la letra de destino.</div>
+        </div>
+        <div id="frequency-pairs" class="frequency-pairs"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Diagnóstico específico de Vigenère</h2>
+        <p class="muted">
+          El IC global puede acercarse al uniforme, pero al separar el criptograma en columnas según el período correcto,
+          cada columna vuelve a comportarse como un César y recupera la firma estadística del idioma.
+        </p>
+        <div class="diagnostic-grid" id="vigenere-diagnostics"></div>
+        <div id="column-ics" class="column-list"></div>
+        <div id="vigenere-note" class="notice warn"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Interpretación rigurosa</h2>
+        <ul class="muted-list">
+          <li><strong>IC alto o bajo no constituye por sí solo una prueba de seguridad.</strong> Es un indicador de concentración de frecuencias.</li>
+          <li><strong>Entropía marginal alta tampoco garantiza seguridad.</strong> No mide periodicidad, claves reutilizadas ni dependencias entre posiciones.</li>
+          <li><strong>Los textos cortos producen estimaciones inestables.</strong> El laboratorio muestra una advertencia cuando hay menos de 80 letras.</li>
+          <li><strong>El alfabeto mixto no se “rompe siempre en milisegundos”.</strong> La dificultad depende de la longitud, el idioma, los espacios conservados y el algoritmo de ataque.</li>
+          <li><strong>La debilidad monoalfabética es la sustitución fija</strong>, no la mera invertibilidad matemática del cifrado.</li>
+        </ul>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <p>Material elaborado por el profesor Sergio Gevatschnaider. Uso educativo; los resultados estadísticos dependen de la muestra.</p>
+    </footer>
+  </main>
+
+  <script src="assets/ic-entropia.js"></script>
+</body>
+</html>
