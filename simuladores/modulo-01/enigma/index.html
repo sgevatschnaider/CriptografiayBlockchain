@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio visual avanzado de la máquina Enigma: circuito eléctrico, doble paso, permutaciones, espacio de claves, cribs y mini-Bombe.">
+  <title>Enigma | Laboratorio visual avanzado</title>
+  <link rel="stylesheet" href="../../assets/lab.css">
+  <link rel="stylesheet" href="assets/enigma.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<main class="shell" id="main">
+  <header class="topbar">
+    <div class="brand"><a href="../index.html">← Módulo 1</a></div>
+    <nav class="nav">
+      <a href="../maquina-enigma.html">Acceso anterior</a>
+      <a href="../lorenz/index.html">Lorenz y Colossus</a>
+      <a href="../../../docs/criptografia/lector.html?modulo=01-criptografia-clasica">Teoría</a>
+    </nav>
+  </header>
+
+  <section class="hero enigma-hero">
+    <div>
+      <div class="eyebrow">Criptografía electromecánica · laboratorio integral</div>
+      <h1>Máquina Enigma: electricidad, rotores y criptoanálisis</h1>
+      <p>Explorá una Enigma I de tres rotores con cableados históricos I–V, reflectores B/C, Ringstellung, Grundstellung, panel de conexiones, doble paso y trazas matemáticas completas.</p>
+      <div class="hero-actions">
+        <button type="button" data-open="circuito">Comenzar por el circuito</button>
+        <button type="button" class="secondary" data-open="crib">Ir al criptoanálisis</button>
+      </div>
+    </div>
+    <div class="machine-silhouette" aria-hidden="true">
+      <div class="rotor-stack-mini"><span>I</span><span>II</span><span>III</span></div>
+      <div class="lamp-mini">A</div>
+      <div class="keys-mini">Q W E R T Z U I O<br>A S D F G H J K<br>P Y X C V B N M L</div>
+    </div>
+  </section>
+
+  <section class="concept-ribbon" aria-label="Ruta conceptual">
+    <div><b>1</b><span>Circuito eléctrico</span></div>
+    <div><b>2</b><span>Doble paso</span></div>
+    <div><b>3</b><span>Permutaciones</span></div>
+    <div><b>4</b><span>Espacio de claves</span></div>
+    <div><b>5</b><span>Cribs</span></div>
+    <div><b>6</b><span>Mini-Bombe</span></div>
+  </section>
+
+  <section class="card full theory-intro">
+    <h2>Modelo matemático instantáneo</h2>
+    <div class="formula-flow">
+      <code>E = P ∘ R<sub>R</sub> ∘ R<sub>M</sub> ∘ R<sub>L</sub> ∘ U ∘ R<sub>L</sub><sup>−1</sup> ∘ R<sub>M</sub><sup>−1</sup> ∘ R<sub>R</sub><sup>−1</sup> ∘ P<sup>−1</sup></code>
+      <p>La permutación cambia después de cada pulsación porque los rotores avanzan <strong>antes</strong> de que circule la corriente. El reflector vuelve recíproca la transformación y elimina los puntos fijos: una letra no puede cifrarse como sí misma.</p>
+    </div>
+  </section>
+
+  <nav class="lab-tabs" aria-label="Simuladores Enigma">
+    <button type="button" class="active" data-tab="circuito">1. Viaje eléctrico</button>
+    <button type="button" data-tab="rotores">2. Rotores y doble paso</button>
+    <button type="button" data-tab="permutaciones">3. Reciprocidad</button>
+    <button type="button" data-tab="espacio">4. Espacio de claves</button>
+    <button type="button" data-tab="crib">5. Crib y autocifrado</button>
+    <button type="button" data-tab="bombe">6. Mini-Bombe</button>
+  </nav>
+
+  <section class="lab-panel active" id="panel-circuito">
+    <div class="grid">
+      <article class="card full">
+        <h2>Configuración común de la máquina</h2>
+        <p class="muted">Orden: rotor izquierdo, central y derecho. La posición visible es la Grundstellung; el anillo desplaza el cableado interno.</p>
+        <div class="machine-config">
+          <fieldset><legend>Rotor izquierdo</legend><select id="rotor-left"></select><label>Posición<input id="pos-left" maxlength="1" value="A"></label><label>Anillo<input id="ring-left" maxlength="1" value="A"></label></fieldset>
+          <fieldset><legend>Rotor central</legend><select id="rotor-mid"></select><label>Posición<input id="pos-mid" maxlength="1" value="A"></label><label>Anillo<input id="ring-mid" maxlength="1" value="A"></label></fieldset>
+          <fieldset><legend>Rotor derecho</legend><select id="rotor-right"></select><label>Posición<input id="pos-right" maxlength="1" value="A"></label><label>Anillo<input id="ring-right" maxlength="1" value="A"></label></fieldset>
+          <fieldset><legend>Reflector y Steckerbrett</legend><label>Reflector<select id="reflector"><option value="B">UKW B</option><option value="C">UKW C</option></select></label><label>Conexiones<input id="plugboard" value="AQ EP TY"></label><small>Formato: pares separados por espacios. Una letra solo puede usarse una vez.</small></fieldset>
+        </div>
+        <div id="config-status" class="status-panel" aria-live="polite"></div>
+      </article>
+
+      <article class="card">
+        <h2>Procesar una letra</h2>
+        <div class="controls">
+          <div class="control"><label for="circuit-letter">Letra de entrada</label><input id="circuit-letter" maxlength="1" value="A"></div>
+          <div class="control"><label for="animation-speed">Velocidad</label><select id="animation-speed"><option value="550">Lenta</option><option value="240" selected>Media</option><option value="80">Rápida</option><option value="0">Instantánea</option></select></div>
+        </div>
+        <div class="actions"><button id="encode-one">Pulsar tecla</button><button id="undo-one" class="secondary">Deshacer</button><button id="reset-machine" class="secondary">Restablecer</button></div>
+        <div class="position-readout"><span>Antes <b id="before-pos">AAA</b></span><span>Después del avance <b id="after-pos">AAB</b></span><span>Lámpara <b id="output-letter">—</b></span></div>
+      </article>
+
+      <article class="card">
+        <h2>Panel de lámparas</h2>
+        <div id="lampboard" class="lampboard" aria-label="Panel de lámparas"></div>
+        <p class="muted small">La letra iluminada es la salida. El mismo teclado sirve para cifrar y descifrar cuando la configuración inicial coincide.</p>
+      </article>
+
+      <article class="card full">
+        <h2>Recorrido físico y matemático</h2>
+        <div id="signal-path" class="signal-path" aria-live="polite"></div>
+        <div id="trace-detail" class="trace-detail"></div>
+      </article>
+
+      <article class="card full">
+        <h2>Procesar un mensaje</h2>
+        <div class="control"><label for="message-input">Texto</label><textarea id="message-input">ENIGMA</textarea></div>
+        <div class="actions"><button id="encode-message">Procesar desde la configuración actual</button><button id="reciprocity-message" class="secondary">Demostrar descifrado recíproco</button></div>
+        <div class="two-output"><div><label>Resultado</label><pre id="message-output" class="output"></pre></div><div><label>Comprobación</label><pre id="message-proof" class="output"></pre></div></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="lab-panel" id="panel-rotores">
+    <div class="grid">
+      <article class="card full">
+        <h2>Mecánica del avance y anomalía del doble paso</h2>
+        <p>El rotor derecho avanza en cada pulsación. Una muesca puede arrastrar al rotor vecino. Cuando el rotor central está en su propia muesca, avanza junto con el izquierdo y vuelve a avanzar en la pulsación siguiente.</p>
+        <div class="actions"><button id="step-once">Pulsar una vez</button><button id="step-ten" class="secondary">Pulsar 10 veces</button><button id="jump-double" class="warn">Ir al ejemplo ADO</button><button id="clear-step-log" class="secondary">Limpiar historial</button></div>
+      </article>
+      <article class="card full"><div id="rotor-visual" class="rotor-visual"></div></article>
+      <article class="card"><h2>Enigma real</h2><div id="step-log" class="step-log"></div></article>
+      <article class="card"><h2>Odómetro simplificado</h2><div id="odometer-log" class="step-log"></div></article>
+      <article class="card full notice warn"><strong>Precisión histórica</strong><p>La comparación con un cuentakilómetros es útil para empezar, pero es incompleta. El sistema de muescas y trinquetes produce el doble paso del rotor central y reduce ligeramente el período mecánico efectivo.</p></article>
+    </div>
+  </section>
+
+  <section class="lab-panel" id="panel-permutaciones">
+    <div class="grid">
+      <article class="card"><h2>Permutación instantánea congelada</h2><p class="muted">No se avanza ningún rotor durante esta prueba. Se observa la transformación de las 26 letras para un estado fijo.</p><div class="actions"><button id="build-permutation">Construir permutación</button><button id="test-reciprocity" class="secondary">Probar reciprocidad</button></div><div id="permutation-summary" class="status-panel"></div></article>
+      <article class="card"><h2>Experimento sin reflector</h2><p>Desactivar el reflector es un experimento didáctico, no una variante histórica de esta máquina. Permite observar que desaparece la involución automática.</p><label class="switch-line"><input type="checkbox" id="disable-reflector"> Usar solo el recorrido de ida</label><div id="no-reflector-note" class="status-panel"></div></article>
+      <article class="card full"><h2>Descomposición en ciclos</h2><div id="cycle-view" class="cycle-view"></div></article>
+      <article class="card full"><h2>Matriz A–Z</h2><div id="mapping-grid" class="mapping-grid"></div></article>
+    </div>
+  </section>
+
+  <section class="lab-panel" id="panel-espacio">
+    <div class="grid">
+      <article class="card full"><h2>Desarmar el espacio de configuraciones</h2><div class="keyspace-controls"><label>Rotores disponibles<input id="pool-rotors" type="number" min="3" max="8" value="5"></label><label>Rotores instalados<input id="used-rotors" type="number" min="3" max="4" value="3"></label><label>Pares del plugboard<input id="plug-pairs" type="number" min="0" max="13" value="10"></label><label><input id="include-rings" type="checkbox" checked> Incluir ajustes de anillo</label><label><input id="historical-effective" type="checkbox"> Ajuste didáctico por doble paso</label></div><div class="actions"><button id="calculate-keyspace">Calcular</button></div></article>
+      <article class="card full"><div id="keyspace-equation" class="keyspace-equation"></div></article>
+      <article class="card"><h2>Configuraciones</h2><div id="keyspace-total" class="big-number"></div></article>
+      <article class="card"><h2>Equivalente aproximado</h2><div id="keyspace-bits" class="big-number"></div></article>
+      <article class="card full"><div id="keyspace-bars" class="keyspace-bars"></div></article>
+      <article class="card full notice"><strong>Espacio teórico ≠ resistencia efectiva</strong><p>La cantidad de configuraciones no describe por sí sola el trabajo real del atacante. Procedimientos previsibles, cribs, restricciones del reflector, tráfico correlacionado y errores humanos reducen el problema.</p></article>
+    </div>
+  </section>
+
+  <section class="lab-panel" id="panel-crib">
+    <div class="grid">
+      <article class="card full"><h2>Deslizar un crib sobre el criptograma</h2><p>Si una letra del texto supuesto coincide con la letra cifrada en la misma posición, esa alineación es imposible porque Enigma no tiene puntos fijos.</p><div class="controls"><div class="control full"><label for="crib-cipher">Criptograma</label><textarea id="crib-cipher">QFZWRWIVTYRESXBFOG</textarea></div><div class="control"><label for="crib-word">Palabra probable</label><input id="crib-word" value="WETTER"></div><div class="control"><label for="crib-offset">Alineación</label><input id="crib-offset" type="range" min="0" max="12" value="0"></div></div><div class="actions"><button id="find-valid-alignments">Buscar alineaciones posibles</button></div></article>
+      <article class="card full"><div id="crib-alignment" class="crib-alignment"></div></article>
+      <article class="card"><h2>Diagnóstico</h2><div id="crib-diagnostic" class="status-panel"></div></article>
+      <article class="card"><h2>Alineaciones supervivientes</h2><div id="crib-survivors" class="survivor-list"></div></article>
+    </div>
+  </section>
+
+  <section class="lab-panel" id="panel-bombe">
+    <div class="grid">
+      <article class="card full"><h2>Mini-Bombe didáctica: búsqueda de posiciones</h2><p>Esta reducción educativa no reproduce la Bombe histórica. Usa un crib para probar las 17.576 posiciones iniciales de una Enigma I–II–III sin plugboard y descarta estados incompatibles.</p><div class="controls"><div class="control"><label for="bombe-plain">Crib conocido</label><input id="bombe-plain" value="WETTERBERICHT"></div><div class="control"><label for="hidden-start">Inicio secreto del ejemplo</label><input id="hidden-start" maxlength="3" value="MCK"></div><div class="control full"><label for="bombe-cipher">Criptograma generado</label><input id="bombe-cipher" readonly></div></div><div class="actions"><button id="generate-bombe-case">Generar caso</button><button id="run-bombe" class="danger">Probar 17.576 estados</button></div><div id="bombe-progress" class="status-panel"></div></article>
+      <article class="card"><h2>Menú del crib</h2><div id="menu-graph" class="menu-graph"></div></article>
+      <article class="card"><h2>Candidatos</h2><div id="bombe-results" class="candidate-list"></div></article>
+      <article class="card full notice warn"><strong>Contexto histórico</strong><p>La <em>bomba kryptologiczna</em> polaca precedió a la Bombe británica. La Bombe de Bletchley Park explotaba menús derivados de cribs y buscaba contradicciones lógicas; después se verificaban los candidatos con procedimientos adicionales.</p></article>
+    </div>
+  </section>
+
+  <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Modelo educativo de Enigma I; no representa todas las variantes, procedimientos ni ataques históricos.</p></footer>
+</main>
+<script src="assets/enigma.js"></script>
+</body>
+</html>
