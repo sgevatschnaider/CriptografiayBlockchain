@@ -1,116 +1,149 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Laboratorio interactivo del cifrado César para el alfabeto castellano de 27 letras, con Ñ, fuerza bruta y ranking estadístico.">
-  <meta name="theme-color" content="#071321">
-  <title>Cifrado César en castellano | Laboratorio interactivo</title>
-  <link rel="stylesheet" href="assets/lab.css">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="Laboratorio interactivo del cifrado César para el alfabeto castellano de 27 letras, con rueda de cifrado, Ñ, fuerza bruta y ranking estadístico." name="description"/>
+<meta content="#071321" name="theme-color"/>
+<title>Cifrado César en castellano | Laboratorio interactivo</title>
+<link href="assets/lab.css" rel="stylesheet"/><link href="assets/cesar-wheel.css" rel="stylesheet"/>
+<style>
     .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}.toggle{display:flex;gap:8px}.toggle button[aria-pressed="true"]{background:linear-gradient(90deg,#38d8f3,#75e2bb);color:#06111c}.alphabet{overflow:auto;padding-bottom:5px}.alphabet-row{display:grid;grid-template-columns:repeat(27,minmax(34px,1fr));gap:5px;min-width:1040px;margin-top:6px}.alphabet-row span{display:grid;place-items:center;min-height:35px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.035);font-weight:800}.alphabet-row.shifted span{color:#bff8ff;background:rgba(72,229,255,.08)}.trace{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px}.trace-item{padding:10px;border:1px solid var(--line);border-radius:12px;text-align:center}.trace-item small{display:block;color:var(--muted);margin-top:4px}.brute-row{display:grid;grid-template-columns:95px minmax(0,1fr) 90px auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-top:7px}.brute-row.best{border-color:rgba(114,241,184,.52);background:rgba(114,241,184,.07)}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}.score{color:var(--muted);font-size:.8rem}.warning{border-left:4px solid #ffd166;padding:12px 14px;background:rgba(255,209,102,.08);border-radius:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.theme-light{--bg:#edf3fb;--panel:#fff;--text:#13233c;--muted:#5d6d84;--line:rgba(19,35,60,.14)}body.theme-light{background:#edf3fb;color:var(--text)}body.theme-light .card,body.theme-light .hero,body.theme-light .topbar{background:#fff}body.theme-light textarea,body.theme-light input,body.theme-light select{background:#f8fbff;color:#13233c}@media(max-width:760px){.two{grid-template-columns:1fr}.brute-row{grid-template-columns:75px minmax(0,1fr)}.score{grid-column:1}.brute-row button{grid-column:2}}
   </style>
 </head>
 <body>
-  <main class="shell">
-    <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
-    <header class="topbar">
-      <div class="brand"><a href="index.html">⛓️ Campus de laboratorios</a></div>
-      <nav class="nav" aria-label="Navegación principal">
-        <a href="01-criptografia-clasica.html">Módulo 1</a>
-        <button class="button secondary" id="theme" type="button">Cambiar tema</button>
-      </nav>
-    </header>
-
-    <section class="hero">
-      <div class="eyebrow">Criptografía clásica · alfabeto castellano</div>
-      <h1>Laboratorio avanzado del cifrado César</h1>
-      <p>Cifra, descifra y ataca mensajes usando las 27 letras del alfabeto castellano, incluida la Ñ. El laboratorio distingue entre transformación matemática, presentación tipográfica y recuperación estadística.</p>
-      <div class="pill-row" style="margin-top:18px">
-        <span class="pill">A–Z + Ñ</span><span class="pill">m = 27</span><span class="pill">Fuerza bruta</span><span class="pill">Ranking χ²</span><span class="pill">Sin dependencias</span>
-      </div>
-    </section>
-
-    <section id="laboratorio" class="grid">
-      <article class="card full">
-        <div class="toolbar">
-          <div class="toggle" aria-label="Operación">
-            <button id="encrypt" type="button" aria-pressed="true">Cifrar</button>
-            <button id="decrypt" class="secondary" type="button" aria-pressed="false">Descifrar</button>
-          </div>
-          <strong id="formula" class="mono">C = (P + 3) mod 27</strong>
-        </div>
-
-        <div class="two">
-          <div class="control">
-            <label for="input">Texto de entrada</label>
-            <textarea id="input" rows="7">CESAR EL EMPERADOR HA SIDO ASESINADO</textarea>
-          </div>
-          <div class="control">
-            <label for="output">Resultado</label>
-            <textarea id="output" rows="7" readonly></textarea>
-          </div>
-        </div>
-
-        <div class="controls" style="margin-top:14px">
-          <div class="control">
-            <label for="key">Clave k: <span id="keyValue">3</span></label>
-            <input id="key" type="range" min="0" max="26" value="3">
-          </div>
-          <div class="control">
-            <label for="accents">Tratamiento de tildes</label>
-            <select id="accents"><option value="normalize">Normalizar Á→A, É→E…</option><option value="preserve">Conservar como signos externos</option></select>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button id="run" type="button">Ejecutar</button>
-          <button id="swap" class="secondary" type="button">Usar salida como entrada</button>
-          <button id="copy" class="secondary" type="button">Copiar resultado</button>
-          <button id="clear" class="secondary" type="button">Limpiar</button>
-        </div>
-        <div id="status" class="status" aria-live="polite"></div>
-
-        <div class="alphabet" style="margin-top:20px">
-          <h2>Correspondencia del alfabeto</h2>
-          <div id="plainAlphabet" class="alphabet-row"></div>
-          <div id="shiftedAlphabet" class="alphabet-row shifted"></div>
-        </div>
-      </article>
-
-      <article class="card full">
-        <h2>Transformación carácter por carácter</h2>
-        <p class="muted">Cada letra se representa mediante un índice entre 0 y 26. Los signos y espacios se conservan.</p>
-        <div id="trace" class="trace"></div>
-      </article>
-
-      <article class="card full">
-        <h2>Ataque por fuerza bruta y ranking estadístico</h2>
-        <p class="muted">Se prueban las 27 claves y se ordenan por distancia χ² respecto de frecuencias aproximadas del castellano. Un puntaje bajo es una hipótesis estadística, no una prueba semántica.</p>
-        <div class="actions"><button id="attack" type="button">Probar las 27 claves</button></div>
-        <div id="attackStatus" class="status" aria-live="polite"></div>
-        <div id="candidates" aria-live="polite"></div>
-      </article>
-
-      <article class="card">
-        <h2>Qué demuestra</h2>
-        <ol class="steps">
-          <li>El espacio de claves contiene solo 27 posibilidades.</li>
-          <li>Una sustitución fija conserva la distribución de frecuencias.</li>
-          <li>La ilegibilidad visual no equivale a seguridad.</li>
-          <li>El algoritmo puede ser público: la debilidad está en el diseño y el tamaño de la clave.</li>
-        </ol>
-      </article>
-
-      <article class="card">
-        <h2>Límite importante</h2>
-        <div class="warning">Los bloques de cinco letras son una convención de presentación. Si se eliminaron los espacios originales entre palabras, César no contiene información suficiente para reconstruirlos automáticamente. El laboratorio no inventa separaciones.</div>
-      </article>
-    </section>
-
-    <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Modelo educativo: no utilizar para proteger información real.</p></footer>
-  </main>
-
+<main class="shell">
+<a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+<header class="topbar">
+<div class="brand"><a href="index.html">⛓️ Campus de laboratorios</a></div>
+<nav aria-label="Navegación principal" class="nav">
+<a href="01-criptografia-clasica.html">Módulo 1</a>
+<button class="button secondary" id="theme" type="button">Cambiar tema</button>
+</nav>
+</header>
+<section class="hero">
+<div class="eyebrow">Criptografía clásica · alfabeto castellano</div>
+<h1>Laboratorio avanzado del cifrado César</h1>
+<p>Cifra, descifra y ataca mensajes usando las 27 letras del alfabeto castellano, incluida la Ñ. El laboratorio distingue entre transformación matemática, presentación tipográfica y recuperación estadística.</p>
+<div class="pill-row" style="margin-top:18px">
+<span class="pill">A–Z + Ñ</span><span class="pill">m = 27</span><span class="pill">Rueda interactiva</span><span class="pill">Fuerza bruta</span><span class="pill">Ranking χ²</span><span class="pill">Sin dependencias</span>
+</div>
+</section>
+<section class="grid" id="laboratorio">
+<article class="card full">
+<div class="toolbar">
+<div aria-label="Operación" class="toggle">
+<button aria-pressed="true" id="encrypt" type="button">Cifrar</button>
+<button aria-pressed="false" class="secondary" id="decrypt" type="button">Descifrar</button>
+</div>
+<strong class="mono" id="formula">C = (P + 3) mod 27</strong>
+</div>
+<div class="two">
+<div class="control">
+<label for="input">Texto de entrada</label>
+<textarea id="input" rows="7">CESAR EL EMPERADOR HA SIDO ASESINADO</textarea>
+</div>
+<div class="control">
+<label for="output">Resultado</label>
+<textarea id="output" readonly="" rows="7"></textarea>
+</div>
+</div>
+<div class="controls" style="margin-top:14px">
+<div class="control">
+<label for="key">Clave k: <span id="keyValue">3</span></label>
+<input id="key" max="26" min="0" type="range" value="3"/>
+</div>
+<div class="control">
+<label for="accents">Tratamiento de tildes</label>
+<select id="accents"><option value="normalize">Normalizar Á→A, É→E…</option><option value="preserve">Conservar como signos externos</option></select>
+</div>
+</div>
+<div class="actions">
+<button id="run" type="button">Ejecutar</button>
+<button class="secondary" id="swap" type="button">Usar salida como entrada</button>
+<button class="secondary" id="copy" type="button">Copiar resultado</button>
+<button class="secondary" id="clear" type="button">Limpiar</button>
+</div>
+<div aria-live="polite" class="status" id="status"></div>
+<div class="alphabet" style="margin-top:20px">
+<h2>Correspondencia del alfabeto</h2>
+<div class="alphabet-row" id="plainAlphabet"></div>
+<div class="alphabet-row shifted" id="shiftedAlphabet"></div>
+</div>
+</article>
+<article class="card full wheel-card">
+<div class="wheel-heading">
+<div>
+<h2 id="wheelTitle">Rueda de cifrado: discos exterior e interior</h2>
+<p class="muted">Lea cada pareja sobre una misma línea radial. El disco exterior representa la letra de entrada; el disco interior muestra la letra de salida determinada por la clave.</p>
+</div>
+<div aria-hidden="true" class="wheel-key-badge">
+<small>Rotación</small>
+<strong id="wheelBadge">k = 3</strong>
+</div>
+</div>
+<div class="wheel-layout">
+<div aria-labelledby="wheelTitle wheelDescription" class="wheel-stage" id="wheelStage" role="img">
+<div aria-hidden="true" class="wheel-track outer"></div>
+<div aria-hidden="true" class="wheel-track inner"></div>
+<div aria-hidden="true" class="wheel-axis"></div>
+<div aria-hidden="true" class="wheel-layer" id="wheelOuter"></div>
+<div aria-hidden="true" class="wheel-layer" id="wheelInner"></div>
+<div aria-hidden="true" class="wheel-center">
+<small id="wheelMode">Cifrar</small>
+<strong id="wheelKey">k = 3</strong>
+<span id="wheelPair">A → D</span>
+</div>
+<span class="visually-hidden" id="wheelDescription"></span>
+</div>
+<div class="wheel-panel">
+<div class="wheel-legend">
+<div class="wheel-legend-item">
+<span aria-hidden="true" class="wheel-swatch outer"></span>
+<div><strong>Disco exterior</strong><span class="muted">Alfabeto de entrada, fijo.</span></div>
+</div>
+<div class="wheel-legend-item">
+<span aria-hidden="true" class="wheel-swatch inner"></span>
+<div><strong>Disco interior</strong><span class="muted">Alfabeto de salida, alineado según k.</span></div>
+</div>
+</div>
+<div aria-live="polite" class="wheel-summary" id="wheelSummary"></div>
+<div aria-label="Ajuste rápido de la clave" class="wheel-actions">
+<button aria-label="Reducir la clave en una posición" class="secondary" id="wheelPrev" type="button">− 1 posición</button>
+<button aria-label="Aumentar la clave en una posición" class="secondary" id="wheelNext" type="button">+ 1 posición</button>
+</div>
+<p class="wheel-note">La rotación es una representación visual de la congruencia modular. Al superar Z se continúa desde A, porque los índices se calculan módulo 27.</p>
+</div>
+</div>
+</article>
+<article class="card full">
+<h2>Transformación carácter por carácter</h2>
+<p class="muted">Cada letra se representa mediante un índice entre 0 y 26. Los signos y espacios se conservan.</p>
+<div class="trace" id="trace"></div>
+</article>
+<article class="card full">
+<h2>Ataque por fuerza bruta y ranking estadístico</h2>
+<p class="muted">Se prueban las 27 claves y se ordenan por distancia χ² respecto de frecuencias aproximadas del castellano. Un puntaje bajo es una hipótesis estadística, no una prueba semántica.</p>
+<div class="actions"><button id="attack" type="button">Probar las 27 claves</button></div>
+<div aria-live="polite" class="status" id="attackStatus"></div>
+<div aria-live="polite" id="candidates"></div>
+</article>
+<article class="card">
+<h2>Qué demuestra</h2>
+<ol class="steps">
+<li>El espacio de claves contiene solo 27 posibilidades.</li>
+<li>Una sustitución fija conserva la distribución de frecuencias.</li>
+<li>La ilegibilidad visual no equivale a seguridad.</li>
+<li>El algoritmo puede ser público: la debilidad está en el diseño y el tamaño de la clave.</li>
+</ol>
+</article>
+<article class="card">
+<h2>Límite importante</h2>
+<div class="warning">Los bloques de cinco letras son una convención de presentación. Si se eliminaron los espacios originales entre palabras, César no contiene información suficiente para reconstruirlos automáticamente. El laboratorio no inventa separaciones.</div>
+</article>
+</section>
+<footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Modelo educativo: no utilizar para proteger información real.</p></footer>
+</main>
 <script>
 (() => {
   'use strict';
@@ -210,6 +243,6 @@
   if(localStorage.getItem('cesar-theme')==='light')document.body.classList.add('theme-light');
   renderAlphabet();run();
 })();
-</script>
+</script><script src="assets/cesar-wheel.js"></script>
 </body>
 </html>
