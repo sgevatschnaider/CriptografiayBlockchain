@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es" data-theme="dark" data-palette="aurora">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Banco completo de preguntas y respuestas desarrolladas sobre criptografía clásica y criptoanálisis.">
+  <title>Preguntas y respuestas | Criptografía clásica</title>
+  <link rel="stylesheet" href="assets/estudio.css">
+</head>
+<body data-page="questions">
+<header class="topbar">
+  <div class="nav">
+    <div class="brand"><span>CR</span><span>Guía de estudio · Preguntas y respuestas</span></div>
+    <div class="controls">
+      <a class="btn" href="../index.html">← Índice</a>
+      <a class="btn" href="glosario.html">Glosario</a>
+      <button class="btn" id="themeBtn" type="button">☀️ Tema claro</button>
+      <button class="btn" id="paletteBtn" type="button">🎨 Cambiar paleta</button>
+      <button class="btn" id="printBtn" type="button">🖨️ Imprimir</button>
+    </div>
+  </div>
+</header>
+<main id="top">
+  <section class="hero">
+    <div class="card">
+      <span class="tag">Repaso</span><span class="tag">Examen</span><span class="tag">Criptoanálisis</span><span class="tag">Historia técnica</span>
+      <h1>Criptografía clásica: 60 preguntas con respuestas desarrolladas</h1>
+      <p class="lead">Banco completo para estudiar, enseñar y evaluar desde César y afín hasta Enigma, Lorenz y Colossus. Cada respuesta explica el concepto, su formulación y su interpretación criptográfica.</p>
+      <div class="notice"><strong>Modo examen:</strong> mantiene las respuestas cerradas hasta que el estudiante decide revelarlas. El progreso, el tema, la paleta y el tamaño del texto se conservan en el navegador.</div>
+      <div class="summary-grid"><div class="summary"><strong>Fundamentos</strong>Alfabetos, claves, modularidad, permutaciones e inversos.</div><div class="summary"><strong>Criptoanálisis</strong>Frecuencias, fuerza bruta, Kasiski, IC, χ², cribs y contradicciones.</div><div class="summary"><strong>Máquinas</strong>Enigma, Lorenz, Tunny, Bombe y Colossus.</div></div>
+    </div>
+    <aside class="card"><h3>Composición del material</h3><div class="stats"><div class="stat"><strong id="questionCount">60</strong><span>preguntas desarrolladas</span></div><div class="stat"><strong id="questionCategoryCount">12</strong><span>categorías de repaso</span></div><div class="stat"><strong>HTML</strong><span>interactivo y autocontenido</span></div><div class="stat"><strong>0</strong><span>dependencias externas</span></div></div></aside>
+  </section>
+  <section class="study-panel"><div class="progress-wrap"><div class="progress-label"><span>Progreso de estudio</span><span id="progressText">0 / 60</span></div><div class="progress"><span id="progressBar"></span></div></div><div class="mode"><span>Estudio</span><label class="switch" title="Cambiar entre modo estudio y modo examen"><input id="examMode" type="checkbox"><span class="slider"></span></label><span>Examen</span></div></section>
+  <section class="toolbar"><input id="searchInput" type="search" placeholder="Buscar: clave, afín, Kasiski, secreto perfecto, rotor, crib, Colossus..."><select id="catSelect" aria-label="Filtrar por categoría"><option value="all">Todas las categorías</option></select><div class="controls"><button class="btn primary" id="openAll" type="button">Abrir todo</button><button class="btn" id="closeAll" type="button">Cerrar todo</button><button class="btn" id="randomBtn" type="button">Pregunta aleatoria</button><button class="btn" id="resetBtn" type="button">Reiniciar progreso</button><div class="range-row"><span class="tag">Texto</span><input id="fontRange" type="range" min="0.92" max="1.24" value="1" step="0.02"></div></div></section>
+  <nav class="filter-row" id="questionChips" aria-label="Filtros por categoría"></nav>
+  <div id="empty" class="card empty">No hay preguntas que coincidan con la búsqueda o el filtro seleccionado.</div>
+  <section class="qa-list" id="qaList"></section>
+  <footer class="footer"><p>Material educativo elaborado para el Módulo 1 de Criptografía y Blockchain. Las respuestas están orientadas al estudio conceptual y no sustituyen el análisis de fuentes históricas especializadas.</p></footer>
+</main>
+<a class="to-top" href="#top" aria-label="Volver arriba">↑</a>
+<script src="assets/common.js"></script>
+<script src="assets/preguntas-data.js"></script>
+<script src="assets/preguntas.js"></script>
+</body>
+</html>
