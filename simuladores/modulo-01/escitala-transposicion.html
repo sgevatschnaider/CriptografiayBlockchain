@@ -1,1 +1,470 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Escítala y transposición | Laboratorio interactivo</title><link rel="stylesheet" href="../assets/lab.css"><style>.matrix{display:grid;gap:6px;margin-top:14px}.box{display:grid;place-items:center;min-height:42px;border:1px solid var(--border);border-radius:9px;background:#071625;font-weight:800}.path{color:var(--accent)}.freq{display:flex;align-items:end;gap:4px;height:180px;overflow:auto}.bar{min-width:24px;background:linear-gradient(var(--accent),var(--accent-2));border-radius:6px 6px 0 0;text-align:center;font-size:.7rem;color:#04111d}.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:760px){.compare{grid-template-columns:1fr}}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">⛓️ Módulo 1</a></div><nav class="nav"><a href="../index.html">Campus</a><a href="../01-criptografia-clasica.html">Laboratorio integral</a></nav></header><section class="hero"><div class="eyebrow">Transposición</div><h1>Escítala, grillas y rutas</h1><p>La transposición conserva los símbolos y cambia sus posiciones. Visualizá cómo una misma secuencia produce criptogramas distintos según la geometría y la ruta de lectura.</p></section><section class="grid"><article class="card"><h2>Parámetros</h2><div class="controls"><div class="control full"><label for="text">Mensaje</label><textarea id="text">LA TRANSPOSICION CONSERVA LAS FRECUENCIAS</textarea></div><div class="control"><label for="cols">Columnas / diámetro</label><input id="cols" type="range" min="2" max="12" value="6"><span id="cv" class="muted"></span></div><div class="control"><label for="route">Ruta de lectura</label><select id="route"><option value="columns">Por columnas</option><option value="reverse">Columnas alternadas</option><option value="spiral">Espiral</option></select></div></div><div class="actions"><button id="encode">Transponer</button><button id="decode" class="secondary">Reconstruir</button></div><div id="out" class="output"></div></article><article class="card"><h2>Grilla de la escítala</h2><div id="matrix" class="matrix"></div></article><article class="card full"><h2>Frecuencias antes y después</h2><div class="compare"><div><h3>Texto claro</h3><div id="f1" class="freq"></div></div><div><h3>Texto transpuesto</h3><div id="f2" class="freq"></div></div></div><p class="status good">Las alturas son idénticas: la transposición no altera la distribución de letras.</p></article><article class="card full"><h2>Desafío</h2><p>Probá distintos números de columnas. ¿Qué pistas quedan disponibles para un atacante aunque el orden local de las letras haya cambiado?</p></article></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p></footer></main><script>const $=id=>document.getElementById(id);const clean=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-ZÑ]/g,'');function gridData(s,c){const r=Math.ceil(s.length/c),a=Array.from({length:r},()=>Array(c).fill('·'));[...s].forEach((x,i)=>a[Math.floor(i/c)][i%c]=x);return a}function spiral(a){let t=0,b=a.length-1,l=0,r=a[0].length-1,o=[];while(t<=b&&l<=r){for(let j=l;j<=r;j++)o.push([t,j]);t++;for(let i=t;i<=b;i++)o.push([i,r]);r--;if(t<=b){for(let j=r;j>=l;j--)o.push([b,j]);b--}if(l<=r){for(let i=b;i>=t;i--)o.push([i,l]);l++}}return o}function order(a,route){const r=a.length,c=a[0].length,o=[];if(route==='spiral')return spiral(a);for(let j=0;j<c;j++){const rows=route==='reverse'&&j%2?[...Array(r).keys()].reverse():[...Array(r).keys()];rows.forEach(i=>o.push([i,j]))}return o}function draw(a,o=[]){const pos=new Map(o.map((p,i)=>[p.join(','),i+1]));$('matrix').style.gridTemplateColumns=`repeat(${a[0].length},minmax(34px,1fr))`;$('matrix').innerHTML=a.flatMap((row,i)=>row.map((x,j)=>`<div class="box ${pos.has(i+','+j)?'path':''}" title="Paso ${pos.get(i+','+j)||''}">${x}</div>`)).join('')}function hist(s,id){const m={};[...clean(s)].forEach(c=>m[c]=(m[c]||0)+1);const max=Math.max(1,...Object.values(m));$(id).innerHTML=Object.entries(m).sort().map(([c,n])=>`<div class="bar" style="height:${30+140*n/max}px" title="${c}: ${n}">${c}<br>${n}</div>`).join('')}function encode(){const s=clean($('text').value),c=+$('cols').value,a=gridData(s,c),o=order(a,$('route').value),out=o.map(([i,j])=>a[i][j]).filter(x=>x!=='·').join('');draw(a,o);$('out').textContent=out;hist(s,'f1');hist(out,'f2');return out}function decode(){const cipher=clean($('text').value),c=+$('cols').value,r=Math.ceil(cipher.length/c),a=Array.from({length:r},()=>Array(c).fill('·')),o=order(a,$('route').value).filter(([i,j])=>i*c+j<cipher.length);o.forEach(([i,j],k)=>a[i][j]=cipher[k]);const plain=a.flat().filter(x=>x!=='·').join('');draw(a,o);$('out').textContent=plain;hist(cipher,'f1');hist(plain,'f2')}$('encode').onclick=encode;$('decode').onclick=decode;$('cols').oninput=()=>{$('cv').textContent=$('cols').value+' columnas';encode()};$('route').onchange=encode;$('cv').textContent='6 columnas';encode();</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Laboratorio interactivo de escítala: cifrado y descifrado por transposición, matriz, tira enrollada, frecuencias y ataque por dimensiones.">
+<title>Escítala y transposición | Laboratorio interactivo</title>
+<link rel="stylesheet" href="../assets/lab.css">
+<style>
+:root{--bronze:#f2b55f;--bronze-2:#9b5f2d;--ink:#06111d}
+.hero-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:24px;align-items:center}
+.hero-badges,.mini-stats,.mode-tabs,.step-chips,.result-actions{display:flex;flex-wrap:wrap;gap:8px}
+.hero-badge,.mini-stat,.step-chip{padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:rgba(5,15,27,.48);color:#d7e8f8;font-size:.78rem;font-weight:800}
+.hero-badge strong,.mini-stat strong{color:var(--accent)}
+.hero-visual{position:relative;min-height:245px;display:grid;place-items:center}
+.hero-rod{width:min(430px,100%);height:138px;border:2px solid rgba(242,181,95,.62);border-radius:48% / 30%;background:linear-gradient(90deg,#4f2d19 0%,#bb7641 14%,#e3a45e 45%,#9d5a2d 82%,#3e2316 100%);box-shadow:inset 0 12px 18px rgba(255,224,171,.22),inset 0 -15px 24px rgba(35,15,5,.45),0 25px 55px rgba(0,0,0,.32);transform:rotate(-4deg)}
+.hero-rod::before,.hero-rod::after{content:"";position:absolute;top:50%;width:42px;height:112px;transform:translateY(-50%);border-radius:50%;border:2px solid rgba(242,181,95,.45);background:linear-gradient(90deg,#29170e,#8b522b)}
+.hero-rod::before{left:7%}.hero-rod::after{right:7%}
+.hero-ribbon{position:absolute;width:min(480px,110%);height:44px;border:1px solid rgba(99,213,255,.75);border-radius:999px;background:linear-gradient(90deg,rgba(99,213,255,.08),rgba(99,213,255,.36),rgba(159,122,234,.26),rgba(99,213,255,.08));box-shadow:0 0 28px rgba(99,213,255,.18);transform:rotate(8deg);display:flex;align-items:center;justify-content:center;letter-spacing:.38em;font-weight:950;color:#f5fbff;text-shadow:0 1px 6px #03111d}
+.section-intro{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:14px}.section-intro h2{margin:0}.section-intro p{max-width:720px;margin:0;color:var(--muted)}
+.mode-tabs{margin-bottom:14px}.mode-tabs button{min-height:40px;padding:8px 14px}.mode-tabs button.active{background:linear-gradient(135deg,var(--accent),#4b8cff);color:var(--ink)}
+.control-note{display:block;color:var(--muted);font-size:.78rem}
+.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.metric{padding:13px;border:1px solid var(--border);border-radius:14px;background:#071625;text-align:center}.metric strong{display:block;color:var(--accent);font-size:1.25rem}.metric span{color:var(--muted);font-size:.76rem}
+.visual-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px}
+.panel{padding:18px;border:1px solid var(--border);border-radius:18px;background:rgba(5,15,27,.52)}.panel h3{margin-top:0}
+.scytale-wrap{position:relative;min-height:270px;display:grid;place-items:center;overflow:hidden;border-radius:18px;background:radial-gradient(circle at 50% 20%,rgba(242,181,95,.12),transparent 55%),linear-gradient(180deg,#081727,#050f1b)}
+.rod{position:relative;width:min(560px,88%);height:160px;border-radius:48% / 24%;border:2px solid rgba(242,181,95,.52);background:linear-gradient(90deg,#4b2a18,#a96535 17%,#dda05d 44%,#a45e31 78%,#3b2114);box-shadow:inset 0 15px 20px rgba(255,225,175,.2),inset 0 -18px 28px rgba(30,12,4,.44),0 25px 55px rgba(0,0,0,.36)}
+.rod::before,.rod::after{content:"";position:absolute;top:50%;width:58px;height:128px;transform:translateY(-50%);border-radius:50%;border:2px solid rgba(255,210,140,.3);background:linear-gradient(90deg,#2c180f,#80502f)}
+.rod::before{left:-16px}.rod::after{right:-16px}
+.band-grid{position:absolute;inset:18px 34px;display:grid;gap:5px;align-content:center;transform:skewY(-3deg)}
+.band-row{display:grid;gap:5px;padding:4px 12px;border-top:1px solid rgba(99,213,255,.45);border-bottom:1px solid rgba(99,213,255,.3);background:linear-gradient(90deg,rgba(5,15,27,.18),rgba(99,213,255,.13),rgba(5,15,27,.18))}
+.band-letter{display:grid;place-items:center;min-width:28px;height:31px;color:#fff;font-weight:950;text-shadow:0 1px 6px #000}.band-letter.active{border-radius:7px;background:rgba(255,199,102,.26);color:#fff2c9}
+.strip{display:flex;gap:4px;overflow:auto;padding:14px;border:1px solid var(--border);border-radius:14px;background:#050f1b}
+.strip-cell{flex:0 0 38px;height:46px;display:grid;place-items:center;border:1px solid var(--border);border-radius:9px;background:#0b2036;font-weight:900;color:#e9f5ff;transition:.18s}
+.strip-cell.active{border-color:var(--warn);background:rgba(255,199,102,.18);transform:translateY(-4px);box-shadow:0 8px 18px rgba(255,199,102,.15)}
+.matrix-wrap{overflow:auto;padding-bottom:4px}.matrix{display:grid;gap:7px;min-width:max-content;margin-top:12px}
+.matrix-cell{position:relative;display:grid;place-items:center;width:48px;height:48px;border:1px solid var(--border);border-radius:11px;background:#071625;font-weight:900;color:#eaf6ff;transition:.18s}.matrix-cell small{position:absolute;right:4px;bottom:2px;color:#6f8da8;font-size:.58rem}.matrix-cell.active{border-color:var(--warn);background:rgba(255,199,102,.16);color:#fff5d9;transform:scale(1.08);box-shadow:0 0 0 3px rgba(255,199,102,.08)}
+.matrix-cell.written{border-color:rgba(74,222,163,.52);background:rgba(74,222,163,.10)}
+.path-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.path-token{padding:6px 9px;border:1px solid var(--border);border-radius:10px;background:#071625;font-weight:850}.path-token.active{color:#201300;background:var(--warn);border-color:transparent}
+.output-card{margin-top:14px;padding:16px;border:1px solid var(--border-strong);border-radius:16px;background:linear-gradient(135deg,rgba(99,213,255,.09),rgba(159,122,234,.08))}.output-label{display:block;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.11em;font-weight:850}.output-value{margin-top:6px;font-family:"Cambria Math",ui-monospace,monospace;font-size:clamp(1.05rem,2.4vw,1.38rem);font-weight:900;letter-spacing:.08em;overflow-wrap:anywhere}
+.stepper{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.step-card{padding:14px;border:1px solid var(--border);border-radius:15px;background:#071625}.step-card strong{display:grid;place-items:center;width:34px;height:34px;margin-bottom:8px;border-radius:10px;background:rgba(99,213,255,.12);color:var(--accent)}.step-card.active{border-color:var(--warn);box-shadow:0 0 0 3px rgba(255,199,102,.07)}.step-card p{margin:0;color:var(--muted);font-size:.85rem}
+.example-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.example-code{padding:14px;border:1px solid var(--border);border-radius:14px;background:#050f1b;font-family:ui-monospace,monospace;overflow-wrap:anywhere}.example-code strong{color:var(--accent)}
+.freq-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.freq{display:flex;align-items:end;gap:5px;height:190px;overflow-x:auto;padding:12px;border:1px solid var(--border);border-radius:14px;background:#050f1b}.bar-wrap{display:flex;flex-direction:column;align-items:center;justify-content:end;min-width:30px;height:100%;gap:4px}.bar{width:24px;min-height:4px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 6px 16px rgba(99,213,255,.12)}.bar-label,.bar-value{font-size:.66rem;color:var(--muted)}
+.attack-list{display:grid;gap:10px;margin-top:14px}.candidate{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:13px;border:1px solid var(--border);border-radius:14px;background:#071625}.candidate.best{border-color:rgba(74,222,163,.62);background:rgba(74,222,163,.08)}.candidate-key{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#0e2843;color:var(--accent);font-weight:950}.candidate-text{font-family:ui-monospace,monospace;overflow-wrap:anywhere}.candidate-score{color:var(--muted);font-size:.75rem}
+.math-box{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.math-item{padding:16px;border:1px solid var(--border);border-radius:15px;background:#071625}.formula{padding:10px;margin-top:8px;border:1px dashed var(--accent-2);border-radius:10px;background:rgba(159,122,234,.08);font-family:"Cambria Math",Georgia,serif;text-align:center;color:#f1eaff}
+.compare-table{width:100%;border-collapse:collapse}.compare-table th,.compare-table td{padding:11px;border:1px solid var(--border);text-align:left}.compare-table th{background:#0d2742;color:var(--accent)}
+.quiz-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.quiz-card{padding:15px;border:1px solid var(--border);border-radius:15px;background:#071625}.quiz-card button{width:100%;margin-top:10px}.quiz-answer{display:none;margin-top:10px;color:#c9f7e1}.quiz-card.revealed .quiz-answer{display:block}
+.footer-signature{font-weight:800;color:#e6f4ff}
+@media(max-width:950px){.hero-layout,.visual-grid,.example-grid{grid-template-columns:1fr}.metric-grid,.stepper{grid-template-columns:repeat(2,1fr)}.math-box,.quiz-grid{grid-template-columns:1fr}.hero-visual{min-height:210px}}
+@media(max-width:680px){.metric-grid,.stepper,.freq-grid{grid-template-columns:1fr}.section-intro{align-items:start;flex-direction:column}.matrix-cell{width:42px;height:42px}.candidate{grid-template-columns:auto 1fr}.candidate-score{grid-column:2}.hero-ribbon{font-size:.8rem;letter-spacing:.18em}.rod{width:94%}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><a href="index.html">⛓️ Módulo 1</a></div>
+  <nav class="nav" aria-label="Navegación principal">
+    <a href="index.html">Índice del módulo</a>
+    <a href="ruta-guiada.html?paso=7">Ruta guiada</a>
+    <a href="../index.html">Campus</a>
+    <a href="../01-criptografia-clasica.html">Laboratorio integral</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-layout">
+    <div>
+      <div class="eyebrow">Transposición · antigua Esparta · modelo matricial</div>
+      <h1>Escítala: enrollar, permutar y reconstruir</h1>
+      <p>La escítala conserva las letras y modifica su posición. Experimentá con la clave, observá la tira enrollada, seguí la ruta de lectura y comprobá por qué las frecuencias no cambian.</p>
+      <div class="hero-badges" style="margin-top:18px">
+        <span class="hero-badge"><strong>Tipo:</strong> transposición</span>
+        <span class="hero-badge"><strong>Clave:</strong> letras por vuelta</span>
+        <span class="hero-badge"><strong>Regla:</strong> mismas letras, otro orden</span>
+        <span class="hero-badge"><strong>Uso:</strong> modelo educativo</span>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-rod"></div>
+      <div class="hero-ribbon">A B E · S A S · I N C</div>
+    </div>
+  </div>
+</section>
+
+<section id="laboratorio" class="grid">
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Laboratorio principal</div><h2>Cifrar y descifrar paso a paso</h2></div>
+      <p>En este modelo, la clave indica la cantidad de filas o letras por vuelta. El texto se escribe por filas y se lee por columnas.</p>
+    </div>
+
+    <div class="mode-tabs" role="tablist" aria-label="Modo de operación">
+      <button id="modeEncode" class="active" type="button" role="tab" aria-selected="true">Cifrar</button>
+      <button id="modeDecode" class="secondary" type="button" role="tab" aria-selected="false">Descifrar</button>
+    </div>
+
+    <div class="controls">
+      <div class="control full">
+        <label id="textLabel" for="text">Texto claro</label>
+        <textarea id="text" spellcheck="false">ASI CIFRABAN CON LA ESCITALA</textarea>
+        <span class="control-note">Se normalizan espacios, signos y tildes. La Ñ se conserva.</span>
+      </div>
+      <div class="control">
+        <label for="rows">Clave: letras por vuelta / filas</label>
+        <input id="rows" type="range" min="2" max="12" value="3">
+        <span id="rowsValue" class="control-note">3 filas</span>
+      </div>
+      <div class="control">
+        <label for="padding">Relleno de la última vuelta</label>
+        <select id="padding">
+          <option value="X">X</option>
+          <option value="Z">Z</option>
+          <option value="Q">Q</option>
+          <option value="">Sin relleno</option>
+        </select>
+        <span class="control-note">El relleno completa una matriz rectangular cuando es necesario.</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="run" type="button">Cifrar mensaje</button>
+      <button id="animate" class="secondary" type="button">▶ Mostrar recorrido</button>
+      <button id="pdfExample" class="secondary" type="button">Cargar ejemplo del PDF</button>
+      <button id="clear" class="secondary" type="button">Limpiar</button>
+    </div>
+
+    <div class="metric-grid" aria-label="Métricas de la matriz">
+      <div class="metric"><strong id="metricLength">24</strong><span>letras útiles</span></div>
+      <div class="metric"><strong id="metricRows">3</strong><span>filas / vuelta</span></div>
+      <div class="metric"><strong id="metricCols">8</strong><span>columnas</span></div>
+      <div class="metric"><strong id="metricPadding">0</strong><span>letras de relleno</span></div>
+    </div>
+
+    <div class="output-card" aria-live="polite">
+      <span id="outputLabel" class="output-label">Criptograma</span>
+      <div id="output" class="output-value">ABESASINCCCIIOTFNARLLAAA</div>
+      <div class="result-actions">
+        <button id="copy" class="secondary" type="button">Copiar resultado</button>
+        <span id="copyStatus" class="muted small" role="status"></span>
+      </div>
+    </div>
+  </article>
+
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Visualización física y abstracta</div><h2>De la tira enrollada a la matriz</h2></div>
+      <p>La vara determina cómo se alinean las letras. La matriz reproduce esa alineación mediante filas y columnas.</p>
+    </div>
+    <div class="visual-grid">
+      <section class="panel">
+        <h3>1. Tira enrollada sobre la vara</h3>
+        <div class="scytale-wrap">
+          <div class="rod"><div id="bandGrid" class="band-grid"></div></div>
+        </div>
+        <p class="muted small">Cada banda representa una vuelta. Al retirar la tira, las letras dejan de quedar alineadas.</p>
+      </section>
+      <section class="panel">
+        <h3>2. Matriz y orden de lectura</h3>
+        <div class="matrix-wrap"><div id="matrix" class="matrix" aria-label="Matriz de la escítala"></div></div>
+        <div id="pathList" class="path-list" aria-label="Secuencia de grupos"></div>
+        <p id="pathExplanation" class="status">El texto se escribe por filas y se extrae por columnas.</p>
+      </section>
+    </div>
+    <section class="panel" style="margin-top:18px">
+      <h3>3. Tira desenrollada</h3>
+      <div id="strip" class="strip" aria-label="Tira desenrollada"></div>
+    </section>
+  </article>
+
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Secuencia didáctica</div><h2>Qué ocurre en cada etapa</h2></div>
+    </div>
+    <div class="stepper">
+      <div class="step-card" data-step-card="0"><strong>1</strong><h3>Normalizar</h3><p>Se eliminan espacios y signos para trabajar con una secuencia de letras.</p></div>
+      <div class="step-card" data-step-card="1"><strong>2</strong><h3>Enrollar</h3><p>La clave fija cuántas filas o letras quedan alineadas por vuelta.</p></div>
+      <div class="step-card" data-step-card="2"><strong>3</strong><h3>Permutar</h3><p>La lectura por columnas cambia las posiciones sin sustituir símbolos.</p></div>
+      <div class="step-card" data-step-card="3"><strong>4</strong><h3>Reconstruir</h3><p>Con la misma clave se recupera la matriz y se leen nuevamente las filas.</p></div>
+    </div>
+  </article>
+
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Ejemplo del material de clase</div><h2>“ASÍ CIFRABAN CON LA ESCÍTALA”</h2></div>
+      <p>El ejemplo usa 24 letras, 3 filas y 8 columnas.</p>
+    </div>
+    <div class="example-grid">
+      <div class="example-code">
+        <strong>Criptograma agrupado</strong><br>
+        ABE | SAS | INC | CCI | IOT | FNA | RLL | AAA
+      </div>
+      <div class="example-code">
+        <strong>Lectura por filas</strong><br>
+        ASI CIFRA<br>
+        BAN CON LA<br>
+        ESCITALA
+      </div>
+    </div>
+    <div class="status good">Resultado: <strong>ASÍ CIFRABAN CON LA ESCÍTALA</strong>.</div>
+  </article>
+
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Propiedad observable</div><h2>Las frecuencias se conservan</h2></div>
+      <p>La transposición cambia el orden, pero no la cantidad de veces que aparece cada letra.</p>
+    </div>
+    <div class="freq-grid">
+      <section><h3 id="freqTitle1">Texto claro</h3><div id="freq1" class="freq"></div></section>
+      <section><h3 id="freqTitle2">Texto cifrado</h3><div id="freq2" class="freq"></div></section>
+    </div>
+    <div class="status good">Para toda letra <em>x</em>, la frecuencia antes y después es la misma: <strong>f<sub>M</sub>(x)=f<sub>C</sub>(x)</strong>.</div>
+  </article>
+
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Criptoanálisis educativo</div><h2>Probar dimensiones posibles</h2></div>
+      <p>Un atacante puede ensayar diferentes cantidades de filas y buscar resultados compatibles con el idioma.</p>
+    </div>
+    <div class="controls">
+      <div class="control full">
+        <label for="attackCipher">Criptograma para analizar</label>
+        <textarea id="attackCipher" spellcheck="false">ABESASINCCCIIOTFNARLLAAA</textarea>
+      </div>
+    </div>
+    <div class="actions"><button id="attack" class="warn" type="button">Probar claves de 2 a 12</button></div>
+    <div id="attackList" class="attack-list" aria-live="polite"></div>
+  </article>
+
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Fundamento matemático</div><h2>Una permutación de posiciones</h2></div>
+    </div>
+    <div class="math-box">
+      <div class="math-item"><h3>Dimensiones</h3><p>Si la matriz tiene <em>r</em> filas y <em>c</em> columnas:</p><div class="formula">N = r · c</div></div>
+      <div class="math-item"><h3>Escritura</h3><p>El mensaje se ubica por filas:</p><div class="formula">M<sub>i,j</sub> = P<sub>ic+j</sub></div></div>
+      <div class="math-item"><h3>Lectura</h3><p>El criptograma se obtiene por columnas:</p><div class="formula">C<sub>jr+i</sub> = M<sub>i,j</sub></div></div>
+    </div>
+  </article>
+
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Distinción esencial</div><h2>Transposición y sustitución no son lo mismo</h2></div>
+    </div>
+    <div style="overflow:auto">
+      <table class="compare-table">
+        <thead><tr><th>Propiedad</th><th>Transposición</th><th>Sustitución</th></tr></thead>
+        <tbody>
+          <tr><td>Qué cambia</td><td>La posición de las letras</td><td>La identidad de las letras</td></tr>
+          <tr><td>Qué se conserva</td><td>Letras y frecuencias</td><td>Posiciones relativas, según el método</td></tr>
+          <tr><td>Ejemplo</td><td>Escítala</td><td>César o afín</td></tr>
+          <tr><td>Idea visual</td><td>Reordenar fichas</td><td>Cambiar cada ficha por otra</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="card full">
+    <div class="section-intro">
+      <div><div class="eyebrow">Autoevaluación</div><h2>Tres preguntas rápidas</h2></div>
+    </div>
+    <div class="quiz-grid">
+      <div class="quiz-card"><h3>¿La escítala cambia las letras?</h3><button type="button">Ver respuesta</button><p class="quiz-answer">No. Conserva las letras y modifica únicamente sus posiciones.</p></div>
+      <div class="quiz-card"><h3>¿Qué representa la clave?</h3><button type="button">Ver respuesta</button><p class="quiz-answer">En el modelo didáctico, la cantidad de filas o letras por vuelta; físicamente, la geometría compatible de la vara.</p></div>
+      <div class="quiz-card"><h3>¿Por qué es vulnerable?</h3><button type="button">Ver respuesta</button><p class="quiz-answer">Conserva las frecuencias y suele permitir probar un número reducido de dimensiones posibles.</p></div>
+    </div>
+  </article>
+</section>
+
+<footer class="footer">
+  <p class="footer-signature">Material elaborado por el profesor Sergio Gevatschnaider</p>
+</footer>
+</main>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const state={mode:'encode',matrix:[],order:[],plain:'',cipher:'',padded:'',animationToken:0};
+
+function normalizeText(value){
+  return String(value||'').toUpperCase().replace(/Ñ/g,'~').normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'').replace(/~/g,'Ñ').replace(/[^A-ZÑ]/g,'');
+}
+function dims(length,rows){return {rows,cols:Math.max(1,Math.ceil(length/rows))}}
+function buildPlainMatrix(text,rows,pad){
+  const d=dims(text.length,rows),target=d.rows*d.cols;
+  let padded=text;
+  if(pad) padded=padded.padEnd(target,pad);
+  const matrix=Array.from({length:d.rows},()=>Array(d.cols).fill('·'));
+  [...padded].forEach((ch,i)=>{if(i<target)matrix[Math.floor(i/d.cols)][i%d.cols]=ch});
+  return {matrix,padded,rows:d.rows,cols:d.cols,padCount:Math.max(0,padded.length-text.length)};
+}
+function columnOrder(matrix){
+  const out=[],rows=matrix.length,cols=matrix[0]?.length||0;
+  for(let c=0;c<cols;c++)for(let r=0;r<rows;r++)if(matrix[r][c]!=='·')out.push([r,c]);
+  return out;
+}
+function encrypt(text,rows,pad){
+  const built=buildPlainMatrix(text,rows,pad),order=columnOrder(built.matrix);
+  return {...built,order,result:order.map(([r,c])=>built.matrix[r][c]).join('')};
+}
+function decrypt(cipher,rows){
+  const d=dims(cipher.length,rows),matrix=Array.from({length:d.rows},()=>Array(d.cols).fill('·'));
+  const full=cipher.length,short=full%d.rows;
+  let k=0;
+  for(let c=0;c<d.cols;c++){
+    const height=(c===d.cols-1&&short!==0)?short:d.rows;
+    for(let r=0;r<height;r++)matrix[r][c]=cipher[k++]||'·';
+  }
+  const result=matrix.flat().filter(ch=>ch!=='·').join('');
+  return {matrix,padded:result,rows:d.rows,cols:d.cols,padCount:0,order:columnOrder(matrix),result};
+}
+function groupedFromMatrix(matrix){
+  const groups=[];
+  const rows=matrix.length,cols=matrix[0]?.length||0;
+  for(let c=0;c<cols;c++){
+    let g='';for(let r=0;r<rows;r++)if(matrix[r][c]!=='·')g+=matrix[r][c];
+    if(g)groups.push(g);
+  }
+  return groups;
+}
+function setMode(mode){
+  state.mode=mode;
+  const encode=mode==='encode';
+  $('modeEncode').classList.toggle('active',encode);
+  $('modeEncode').classList.toggle('secondary',!encode);
+  $('modeEncode').setAttribute('aria-selected',String(encode));
+  $('modeDecode').classList.toggle('active',!encode);
+  $('modeDecode').classList.toggle('secondary',encode);
+  $('modeDecode').setAttribute('aria-selected',String(!encode));
+  $('textLabel').textContent=encode?'Texto claro':'Criptograma';
+  $('run').textContent=encode?'Cifrar mensaje':'Descifrar mensaje';
+  $('outputLabel').textContent=encode?'Criptograma':'Mensaje recuperado';
+  $('pathExplanation').textContent=encode?'El texto se escribe por filas y se extrae por columnas.':'El criptograma se distribuye por columnas y el mensaje se recupera leyendo las filas.';
+  run();
+}
+function render(result){
+  state.matrix=result.matrix;state.order=result.order;
+  const source=normalizeText($('text').value);
+  if(state.mode==='encode'){state.plain=source;state.cipher=result.result;state.padded=result.padded}
+  else{state.cipher=source;state.plain=result.result;state.padded=result.result}
+  $('output').textContent=result.result||'—';
+  $('metricLength').textContent=source.length;
+  $('metricRows').textContent=result.rows;
+  $('metricCols').textContent=result.cols;
+  $('metricPadding').textContent=result.padCount;
+  renderMatrix(result.matrix);
+  renderRod(result.matrix);
+  renderStrip(result.result);
+  renderPath(result.matrix);
+  renderFrequencies();
+  activateStep(-1);
+}
+function run(){
+  state.animationToken++;
+  const source=normalizeText($('text').value),rows=Number($('rows').value),pad=$('padding').value;
+  $('rowsValue').textContent=`${rows} filas`;
+  if(!source){
+    render({matrix:[Array(rows).fill('·')],padded:'',rows,cols:1,padCount:0,order:[],result:''});
+    return;
+  }
+  render(state.mode==='encode'?encrypt(source,rows,pad):decrypt(source,rows));
+}
+function renderMatrix(matrix,active=-1){
+  const cols=matrix[0]?.length||1;
+  $('matrix').style.gridTemplateColumns=`repeat(${cols},48px)`;
+  let index=0;
+  $('matrix').innerHTML=matrix.flatMap((row,r)=>row.map((ch,c)=>{
+    const html=`<div class="matrix-cell ${index===active?'active':''} ${ch!=='·'?'written':''}" data-pos="${r},${c}">${ch}<small>${r+1},${c+1}</small></div>`;
+    index++;return html;
+  })).join('');
+}
+function renderRod(matrix,active=-1){
+  const cols=matrix[0]?.length||1;
+  $('bandGrid').innerHTML=matrix.map((row,r)=>`<div class="band-row" style="grid-template-columns:repeat(${cols},minmax(24px,1fr))">${row.map((ch,c)=>`<span class="band-letter ${r*cols+c===active?'active':''}">${ch}</span>`).join('')}</div>`).join('');
+}
+function renderStrip(text,active=-1){
+  $('strip').innerHTML=[...text].map((ch,i)=>`<span class="strip-cell ${i===active?'active':''}">${ch}</span>`).join('')||'<span class="muted">Sin datos</span>';
+}
+function renderPath(matrix,active=-1){
+  const groups=groupedFromMatrix(matrix);
+  $('pathList').innerHTML=groups.map((g,i)=>`<span class="path-token ${i===active?'active':''}">${g}</span>`).join('');
+}
+function histogram(text,id){
+  const freq={};[...normalizeText(text)].forEach(ch=>freq[ch]=(freq[ch]||0)+1);
+  const entries=Object.entries(freq).sort(([a],[b])=>a.localeCompare(b,'es'));
+  const max=Math.max(1,...entries.map(([,n])=>n));
+  $(id).innerHTML=entries.map(([ch,n])=>`<div class="bar-wrap" title="${ch}: ${n}"><span class="bar-value">${n}</span><span class="bar" style="height:${18+125*n/max}px"></span><span class="bar-label">${ch}</span></div>`).join('')||'<span class="muted">Sin datos</span>';
+}
+function renderFrequencies(){
+  histogram(state.mode==='encode'?state.plain:state.cipher,'freq1');
+  histogram(state.mode==='encode'?state.cipher:state.plain,'freq2');
+  $('freqTitle1').textContent=state.mode==='encode'?'Texto claro':'Criptograma';
+  $('freqTitle2').textContent=state.mode==='encode'?'Texto cifrado':'Mensaje recuperado';
+}
+function activateStep(index){
+  document.querySelectorAll('[data-step-card]').forEach((card,i)=>card.classList.toggle('active',i===index));
+}
+async function animate(){
+  const token=++state.animationToken;
+  const prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wait=ms=>new Promise(resolve=>setTimeout(resolve,prefersReduced?0:ms));
+  const rows=state.matrix.length,cols=state.matrix[0]?.length||0;
+  activateStep(0);await wait(500);if(token!==state.animationToken)return;
+  activateStep(1);
+  for(let i=0;i<rows*cols;i++){
+    if(token!==state.animationToken)return;
+    renderMatrix(state.matrix,i);renderRod(state.matrix,i);await wait(95);
+  }
+  activateStep(2);
+  const groups=groupedFromMatrix(state.matrix),result=state.mode==='encode'?state.cipher:state.plain;
+  for(let i=0;i<groups.length;i++){
+    if(token!==state.animationToken)return;
+    renderPath(state.matrix,i);await wait(180);
+  }
+  for(let i=0;i<result.length;i++){
+    if(token!==state.animationToken)return;
+    renderStrip(result,i);await wait(60);
+  }
+  activateStep(3);await wait(550);
+  renderMatrix(state.matrix);renderRod(state.matrix);renderPath(state.matrix);renderStrip(result);activateStep(-1);
+}
+function loadPdfExample(){
+  $('rows').value='3';$('padding').value='X';
+  if(state.mode==='encode')$('text').value='ASI CIFRABAN CON LA ESCITALA';
+  else $('text').value='ABESASINCCCIIOTFNARLLAAA';
+  run();
+}
+function scoreSpanish(text){
+  const s=text;
+  let score=0;
+  ['QUE','DE','LA','EL','EN','CON','LOS','LAS','DEL','POR','PARA','CION','ESTA','ASI','CIFRA','ESCITALA'].forEach(x=>{score+=(s.split(x).length-1)*x.length*2});
+  ['ES','EN','LA','DE','RA','AR','ON','AN','CO','CI','TA'].forEach(x=>{score+=(s.split(x).length-1)});
+  const vowels=(s.match(/[AEIOU]/g)||[]).length/Math.max(1,s.length);
+  score-=Math.abs(vowels-.45)*20;
+  return score;
+}
+function attackCandidates(){
+  const cipher=normalizeText($('attackCipher').value);
+  if(cipher.length<4){$('attackList').innerHTML='<div class="status warn">Ingresá un criptograma de al menos cuatro letras.</div>';return}
+  const candidates=[];
+  for(let rows=2;rows<=Math.min(12,cipher.length);rows++){
+    const result=decrypt(cipher,rows).result;
+    candidates.push({rows,result,score:scoreSpanish(result),divides:cipher.length%rows===0});
+  }
+  candidates.sort((a,b)=>b.score-a.score);
+  $('attackList').innerHTML=candidates.map((c,i)=>`<article class="candidate ${i===0?'best':''}"><div class="candidate-key">r=${c.rows}</div><div><strong>${i===0?'Mejor candidato estimado':'Candidato'}</strong><div class="candidate-text">${c.result}</div></div><div class="candidate-score">puntaje ${c.score.toFixed(1)}${c.divides?' · divisor exacto':''}</div></article>`).join('');
+}
+$('modeEncode').onclick=()=>setMode('encode');
+$('modeDecode').onclick=()=>setMode('decode');
+$('run').onclick=run;
+$('animate').onclick=animate;
+$('pdfExample').onclick=loadPdfExample;
+$('clear').onclick=()=>{$('text').value='';run();$('text').focus()};
+$('rows').oninput=run;
+$('padding').onchange=run;
+$('copy').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('output').textContent);$('copyStatus').textContent='Resultado copiado.'}
+  catch{$('copyStatus').textContent='No fue posible copiar automáticamente.'}
+  setTimeout(()=>$('copyStatus').textContent='',2200);
+};
+$('attack').onclick=attackCandidates;
+document.querySelectorAll('.quiz-card button').forEach(btn=>btn.onclick=()=>btn.closest('.quiz-card').classList.toggle('revealed'));
+run();
+attackCandidates();
+</script>
+</body>
+</html>
