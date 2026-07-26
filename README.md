@@ -47,6 +47,7 @@ Cada módulo posee una **página propia** que organiza su laboratorio integral, 
 <div align="center">
 
 [![Fundamentos matemáticos](https://img.shields.io/badge/BASE-FUNDAMENTOS%20MATEMÁTICOS-334155?style=for-the-badge&logo=wolframmathematica&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/fundamentos-matematicos/)
+[![Glosario general](https://img.shields.io/badge/BASE-GLOSARIO%20GENERAL-6d28d9?style=for-the-badge&logo=bookstack&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/glosario-general.html)
 
 </div>
 
