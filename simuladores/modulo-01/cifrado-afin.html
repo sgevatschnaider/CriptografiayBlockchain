@@ -1,452 +1,64 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Simulador interactivo del cifrado afín con inversos modulares, restauración heurística de espacios y ataque exhaustivo.">
-  <title>Cifrado afín | Laboratorio interactivo</title>
-  <link rel="stylesheet" href="../assets/lab.css">
-  <style>
-    .map{display:grid;grid-template-columns:repeat(13,minmax(56px,1fr));gap:7px}
-    .cell{padding:9px;border:1px solid var(--border);border-radius:10px;text-align:center;background:#071625}
-    .cell b{display:block;color:var(--accent)}
-    .candidates{display:grid;gap:10px}
-    .candidate{display:grid;grid-template-columns:130px minmax(0,1fr) 120px;gap:10px;padding:12px;border:1px solid var(--border);border-radius:13px;background:rgba(7,22,37,.72)}
-    .candidate:first-child{border-color:var(--border-strong);background:rgba(74,222,163,.07)}
-    .candidate-text{overflow-wrap:anywhere;line-height:1.55}
-    .candidate-text strong{color:#e8f7ff}
-    .candidate-score{text-align:right;color:var(--muted)}
-    .candidate details,.literal-details{margin-top:8px}
-    .candidate summary,.literal-details summary{cursor:pointer;color:var(--accent);font-size:.82rem;font-weight:800}
-    .literal{display:block;margin-top:7px;padding:9px;border:1px dashed var(--border);border-radius:9px;background:#050f1b;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
-    .format-row{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(99,213,255,.06)}
-    .format-row input{width:20px;min-height:20px;margin-top:2px;accent-color:var(--accent)}
-    .format-row label{cursor:pointer}
-    .format-row small{display:block;color:var(--muted);font-weight:400;margin-top:3px}
-    .output-label{display:block;margin-top:14px;color:var(--muted);font-size:.78rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
-    .confidence{display:inline-flex;margin-left:8px;padding:3px 8px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.72rem}
-    .ok{color:var(--good)}.bad{color:var(--bad)}.warn-text{color:var(--warn)}
-    @media(max-width:760px){.map{grid-template-columns:repeat(5,1fr)}.candidate{grid-template-columns:1fr}.candidate-score{text-align:left}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Simulador interactivo del cifrado afín con búsqueda automática de clave y restauración heurística de espacios.">
+<title>Cifrado afín | Laboratorio interactivo</title>
+<link rel="stylesheet" href="../assets/lab.css">
+<style>
+.map{display:grid;grid-template-columns:repeat(13,minmax(52px,1fr));gap:7px}.cell{padding:9px;border:1px solid var(--border);border-radius:10px;text-align:center;background:#071625}.cell b{display:block;color:var(--accent)}.note{padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(99,213,255,.06)}.check{display:flex;gap:10px;align-items:flex-start;margin-top:14px}.check input{width:20px;min-height:20px;accent-color:var(--accent)}.check small{display:block;color:var(--muted)}.output-label{display:block;margin-top:14px;color:var(--muted);font-size:.78rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}.literal{display:block;margin-top:7px;padding:9px;border:1px dashed var(--border);border-radius:9px;background:#050f1b;color:var(--muted);font-family:ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.candidates{display:grid;gap:10px}.candidate{display:grid;grid-template-columns:120px minmax(0,1fr) 100px 140px;gap:10px;align-items:start;padding:12px;border:1px solid var(--border);border-radius:13px;background:rgba(7,22,37,.72)}.candidate:first-child{border-color:var(--border-strong);background:rgba(74,222,163,.07)}.candidate-text{overflow-wrap:anywhere;line-height:1.5}.candidate-score{color:var(--muted);text-align:right}.candidate button{min-height:38px;padding:8px 10px;font-size:.8rem}.confidence{display:inline-flex;margin-left:8px;padding:3px 8px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.72rem}.ok{color:var(--good)}.bad{color:var(--bad)}.warn-text{color:var(--warn)}details summary{cursor:pointer;color:var(--accent);font-weight:800}@media(max-width:900px){.candidate{grid-template-columns:110px 1fr}.candidate-score{text-align:left}.candidate button{grid-column:2}}@media(max-width:760px){.map{grid-template-columns:repeat(5,1fr)}.candidate{grid-template-columns:1fr}.candidate button{grid-column:auto}.candidate-score{text-align:left}}
+</style>
 </head>
 <body>
 <main class="shell">
-  <header class="topbar">
-    <div class="brand"><a href="index.html">⛓️ Módulo 1</a></div>
-    <nav class="nav">
-      <a href="../index.html">Campus</a>
-      <a href="ruta-guiada.html?paso=3">Ruta guiada</a>
-      <a href="../01-criptografia-clasica.html">Laboratorio integral</a>
-    </nav>
-  </header>
-
-  <section class="hero">
-    <div class="eyebrow">Criptografía clásica</div>
-    <h1>Cifrado afín</h1>
-    <p>Explorá la transformación <strong>E(x)=(ax+b) mod 26</strong>, verificá cuándo existe el inverso y ejecutá un ataque exhaustivo sobre las 312 claves válidas. Al descifrar textos sin separadores, el laboratorio puede proponer una restauración heurística de palabras en castellano.</p>
-  </section>
-
-  <section class="grid">
-    <article class="card">
-      <h2>Configuración</h2>
-      <div class="controls">
-        <div class="control full">
-          <label for="text">Texto</label>
-          <textarea id="text">LA CRIPTOGRAFIA EXPLICA COMO TRANSFORMAR Y ANALIZAR MENSAJES</textarea>
-        </div>
-        <div class="control">
-          <label for="a">Multiplicador a</label>
-          <select id="a"></select>
-        </div>
-        <div class="control">
-          <label for="b">Desplazamiento b</label>
-          <input id="b" type="number" min="0" max="25" value="3">
-        </div>
-      </div>
-
-      <div class="format-row">
-        <input id="auto-space" type="checkbox" checked>
-        <label for="auto-space">
-          Restaurar espacios automáticamente al descifrar
-          <small>Es una estimación lingüística. El cifrado no permite recuperar de manera exacta espacios que fueron eliminados antes de cifrar.</small>
-        </label>
-      </div>
-
-      <div class="actions">
-        <button id="enc">Cifrar</button>
-        <button id="dec" class="secondary">Descifrar</button>
-        <button id="attack" class="warn">Ataque exhaustivo</button>
-      </div>
-
-      <div id="valid" class="status"></div>
-      <div id="format-status" class="status" aria-live="polite"></div>
-      <span class="output-label">Resultado mostrado</span>
-      <div id="out" class="output" aria-live="polite"></div>
-      <details id="literal-details" class="literal-details" hidden>
-        <summary>Ver descifrado literal, sin restaurar espacios</summary>
-        <code id="literal-out" class="literal"></code>
-      </details>
-    </article>
-
-    <article class="card">
-      <h2>Mapa de sustitución</h2>
-      <p class="muted">Cada letra clara se transforma mediante la función afín.</p>
-      <div id="map" class="map"></div>
-    </article>
-
-    <article class="card full">
-      <h2>Mejores candidatos del ataque</h2>
-      <p class="muted">Se prueban los 12 multiplicadores coprimos con 26. El ranking combina frecuencias, n-gramas, palabras frecuentes y, cuando corresponde, una segmentación heurística del castellano.</p>
-      <div id="attack-status" class="status" aria-live="polite"></div>
-      <div id="candidates" class="candidates"></div>
-    </article>
-
-    <article class="card full">
-      <h2>Interpretación</h2>
-      <p>Un multiplicador sin inverso no define una permutación y hace imposible recuperar unívocamente el texto. En módulo 26 hay 12 valores válidos para <code>a</code> y 26 valores para <code>b</code>: 312 claves.</p>
-      <p class="status warn"><strong>Importante:</strong> los espacios no forman parte del alfabeto matemático del cifrado. Si se eliminan antes de cifrar, el descifrado recupera correctamente las letras, pero la separación entre palabras debe inferirse por contexto o mediante un modelo lingüístico.</p>
-    </article>
-  </section>
-
-  <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p></footer>
+<header class="topbar"><div class="brand"><a href="index.html">⛓️ Módulo 1</a></div><nav class="nav"><a href="../index.html">Campus</a><a href="ruta-guiada.html?paso=3">Ruta guiada</a><a href="../01-criptografia-clasica.html">Laboratorio integral</a></nav></header>
+<section class="hero"><div class="eyebrow">Criptografía clásica</div><h1>Cifrado afín</h1><p>Al <strong>cifrar</strong>, elegís la clave <strong>(a,b)</strong>. Al <strong>descifrar automáticamente</strong>, el sistema prueba las 312 claves válidas, ordena los resultados por plausibilidad lingüística y carga la clave más probable.</p></section>
+<section class="grid">
+<article class="card">
+<h2>Cifrar o recuperar la clave</h2>
+<div class="controls">
+<div class="control full"><label for="text">Texto claro o criptograma</label><textarea id="text">LA CRIPTOGRAFIA EXPLICA COMO TRANSFORMAR Y ANALIZAR MENSAJES</textarea></div>
+<div class="control"><label for="a">Multiplicador a <span class="muted">(para cifrar)</span></label><select id="a"></select></div>
+<div class="control"><label for="b">Desplazamiento b <span class="muted">(para cifrar)</span></label><input id="b" type="number" min="0" max="25" value="3"></div>
+</div>
+<div class="check"><input id="auto-space" type="checkbox" checked><label for="auto-space">Restaurar espacios al descifrar<small>Es una estimación lingüística: los espacios eliminados antes del cifrado no pueden recuperarse con certeza matemática.</small></label></div>
+<div class="actions"><button id="enc">Cifrar con a y b</button><button id="dec" class="warn">Descifrar automáticamente</button><button id="manual-dec" class="secondary">Comprobar con la clave actual</button></div>
+<div id="valid" class="status"></div><div id="key-status" class="status" aria-live="polite">Elegí la clave para cifrar o pegá un criptograma y pulsá <strong>Descifrar automáticamente</strong>.</div><div id="format-status" class="status" aria-live="polite"></div>
+<span class="output-label">Resultado</span><div id="out" class="output" aria-live="polite"></div>
+<details id="literal-details" hidden><summary>Ver salida literal sin restaurar espacios</summary><code id="literal-out" class="literal"></code></details>
+</article>
+<article class="card"><h2>Mapa de sustitución</h2><p class="muted">El mapa corresponde a la clave visible. Después del ataque, se actualiza con la clave seleccionada.</p><div id="map" class="map"></div></article>
+<article class="card full"><h2>Candidatos del descifrado automático</h2><p class="muted">El primer candidato se aplica automáticamente. En textos cortos o poco habituales, revisá las alternativas y elegí otra clave cuando corresponda.</p><div id="attack-status" class="status" aria-live="polite"></div><div id="candidates" class="candidates"></div></article>
+<article class="card full"><h2>Interpretación</h2><p>En módulo 26 existen 12 multiplicadores invertibles y 26 desplazamientos: <strong>12 × 26 = 312 claves válidas</strong>. El ataque exhaustivo recupera todas las posibilidades; el orden depende de un análisis estadístico del castellano.</p><p class="status warn"><strong>Importante:</strong> la clave propuesta es la más probable, no una demostración absoluta. La confianza aumenta con textos largos.</p></article>
+</section>
+<footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p></footer>
 </main>
-
 <script>
 'use strict';
-
-const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ',VALID_A=[1,3,5,7,9,11,15,17,19,21,23,25];
 const FREQ={E:13.68,A:12.53,O:8.68,S:7.98,R:6.87,N:6.71,I:6.25,D:5.86,L:4.97,C:4.68,T:4.63,U:3.93,M:3.15,P:2.51,B:1.42,G:1.01,V:.9,Y:.9,Q:.88,H:.7,F:.69,Z:.52,J:.44,X:.22,K:.02,W:.01};
-const WORD_WEIGHTS=new Map([
-  ['A',5],['AL',6],['ALGUN',3],['ALGUNA',3],['ALGUNOS',3],['ALGUNAS',3],
-  ['AQUEL',4],['AQUELLA',4],['AQUELLOS',7],['AQUELLAS',4],
-  ['ARCHIVO',5],['ARCHIVOS',8],['ALTERAR',7],['ANALIZAR',7],
-  ['AUTORIZADO',6],['AUTORIZADA',6],['AUTORIZADOS',9],['AUTORIZADAS',7],
-  ['CIFRADO',8],['CIFRAR',7],['CLAVE',7],['COMO',14],['CON',10],['CONJUNTO',9],
-  ['CRIPTOGRAFIA',20],['DE',10],['DEL',9],['DESARROLLO',10],['DESCIFRAR',8],
-  ['EL',9],['ELLA',5],['ELLOS',5],['EN',8],['ES',9],['ESTA',6],['ESTAN',6],['ESTEN',7],['ESTE',6],['ESTOS',5],
-  ['HACER',6],['HACERLO',8],['HOLA',26],['INFORMACION',9],
-  ['LA',9],['LAS',8],['LEIDO',5],['LEIDOS',7],['LO',5],['LOS',8],
-  ['MENSAJE',10],['MENSAJES',18],['MODIFICAR',9],['MUNDO',26],
-  ['NO',8],['OBJETIVO',9],['O',5],['PARA',12],['PERMITE',7],['PERMITEN',9],
-  ['POR',8],['PUEDA',6],['PUEDAN',8],['QUE',12],['SE',6],['SER',7],['SI',5],
-  ['SISTEMA',8],['TECNICA',7],['TECNICAS',10],['TEXTO',7],['TODO',6],['TODOS',8],
-  ['TRANSFORMAR',18],['UN',8],['UNA',8],['USUARIO',7],['USUARIOS',9],['Y',6]
-]);
-const BIGRAMS=new Set(['DE','EN','ES','LA','EL','OS','AS','RA','RE','ER','ON','NT','TE','CO','AR','AL','OR','CI','ST','UN','HO','OL','MU','ND','DO','QU','UE']);
-const TRIGRAMS=new Set(['QUE','ENT','EST','CON','DEL','LOS','LAS','ION','PAR','TRA','MEN','MUN','HOL','OLA','UND','NDO','CRI','GRA','FIA']);
-
-const $=id=>document.getElementById(id);
-const mod=(n,m)=>((n%m)+m)%m;
-const gcd=(x,y)=>y?gcd(y,x%y):Math.abs(x);
-
-let lastResult='';
-let lastAction=null;
-let lastInputSnapshot='';
-
-function inv(n){
-  for(let i=1;i<26;i++)if(mod(n*i,26)===1)return i;
-  return null;
-}
-
-function norm(s){
-  return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
-}
-
-function transform(s,a,b,decrypt=false){
-  const ai=decrypt?inv(a):a;
-  if(decrypt&&ai===null)throw Error('a no tiene inverso módulo 26');
-  return [...norm(s)].map(ch=>{
-    const i=ABC.indexOf(ch);
-    if(i<0)return ch;
-    return ABC[decrypt?mod(ai*(i-b),26):mod(a*i+b,26)];
-  }).join('');
-}
-
-function needsSegmentation(text){
-  const runs=norm(text).match(/[A-Z]+/g)||[];
-  if(!runs.length)return false;
-  const longest=Math.max(...runs.map(x=>x.length));
-  return runs.length===1||longest>20;
-}
-
-function segmentSpanish(text){
-  const letters=norm(text).replace(/[^A-Z]/g,'');
-  const n=letters.length;
-  if(!n)return{text:'',confidence:0,recognized:0};
-
-  const maxWord=Math.max(...[...WORD_WEIGHTS.keys()].map(w=>w.length),12);
-  const dp=Array(n+1).fill(null);
-  dp[n]={score:0,tokens:[],recognized:0};
-
-  for(let i=n-1;i>=0;i--){
-    let best=null;
-
-    for(let len=1;len<=Math.min(maxWord,n-i);len++){
-      const word=letters.slice(i,i+len);
-      const next=dp[i+len];
-      if(!next||!WORD_WEIGHTS.has(word))continue;
-      const weight=WORD_WEIGHTS.get(word)||0;
-      const score=next.score+len*len+weight+(len===1?-2:0);
-      const candidate={score,tokens:[word,...next.tokens],recognized:next.recognized+len};
-      if(!best||candidate.score>best.score)best=candidate;
-    }
-
-    for(let len=1;len<=Math.min(12,n-i);len++){
-      const next=dp[i+len];
-      if(!next)continue;
-      const token=letters.slice(i,i+len);
-      const score=next.score-(7*len+10);
-      const candidate={score,tokens:[token,...next.tokens],recognized:next.recognized};
-      if(!best||candidate.score>best.score)best=candidate;
-    }
-
-    dp[i]=best;
-  }
-
-  const result=dp[0];
-  return{
-    text:result.tokens.join(' '),
-    confidence:result.recognized/n,
-    recognized:result.recognized
-  };
-}
-
-function formattedDecryption(raw){
-  if(!$('auto-space').checked||!needsSegmentation(raw)){
-    return{text:raw,raw,changed:false,confidence:1};
-  }
-  const segmented=segmentSpanish(raw);
-  if(segmented.confidence<0.55){
-    return{text:raw,raw,changed:false,confidence:segmented.confidence};
-  }
-  return{text:segmented.text,raw,changed:segmented.text!==raw,confidence:segmented.confidence};
-}
-
-function score(text){
-  const normalized=norm(text);
-  const letters=[...normalized].filter(c=>ABC.includes(c)).join('');
-  const n=letters.length;
-  if(!n)return Infinity;
-
-  const counts=Object.fromEntries([...ABC].map(c=>[c,0]));
-  for(const c of letters)counts[c]++;
-
-  let chi=0;
-  for(const c of ABC){
-    const expected=FREQ[c]*n/100;
-    chi+=(counts[c]-expected)**2/Math.max(expected,.01);
-  }
-
-  let result=chi*Math.min(1,n/35);
-  const words=normalized.match(/[A-Z]+/g)||[];
-
-  for(const word of words){
-    result-=WORD_WEIGHTS.get(word)||0;
-    if(word.length>=3&&!/[AEIOU]/.test(word))result+=18;
-    if(/[BCDFGHJKLMNPQRSTVWXYZ]{4,}/.test(word))result+=14;
-    if(/[AEIOU]{4,}/.test(word))result+=8;
-  }
-
-  let bi=0,tri=0;
-  for(let i=0;i<n-1;i++)if(BIGRAMS.has(letters.slice(i,i+2)))bi++;
-  for(let i=0;i<n-2;i++)if(TRIGRAMS.has(letters.slice(i,i+3)))tri++;
-
-  result-=bi*(n<15?1.8:.8);
-  result-=tri*(n<15?4.5:1.5);
-
-  const vowels=[...letters].filter(c=>'AEIOU'.includes(c)).length/n;
-  result+=Math.abs(vowels-.45)*(n<15?28:12);
-  return result;
-}
-
-function refresh(){
-  const a=+$('a').value;
-  const b=mod(+$('b').value,26);
-  const ii=inv(a);
-
-  $('valid').innerHTML=ii!==null
-    ?`<span class="ok">Clave válida:</span> mcd(${a},26)=1 e inverso=${ii}.`
-    :`<span class="bad">Clave inválida:</span> ${a} no tiene inverso módulo 26.`;
-
-  $('map').innerHTML=[...ABC].map((c,i)=>`<div class="cell"><b>${c}</b>${ABC[mod(a*i+b,26)]}</div>`).join('');
-}
-
-function showResult(raw,decrypt){
-  $('literal-details').hidden=true;
-  $('literal-out').textContent='';
-
-  if(!decrypt){
-    $('out').textContent=raw;
-    $('format-status').innerHTML='<span class="ok">Formato conservado:</span> los espacios, signos y saltos de línea presentes en el texto original no se cifran y se mantienen.';
-    return;
-  }
-
-  const formatted=formattedDecryption(raw);
-  $('out').textContent=formatted.text;
-
-  if(formatted.changed){
-    const pct=Math.round(formatted.confidence*100);
-    $('format-status').innerHTML=`<span class="ok">Separación heurística aplicada.</span> Cobertura del diccionario: <strong>${pct}%</strong>. Revisá el resultado porque los espacios no pueden recuperarse con certeza matemática.`;
-    $('literal-details').hidden=false;
-    $('literal-out').textContent=raw;
-  }else if($('auto-space').checked&&needsSegmentation(raw)){
-    $('format-status').innerHTML='<span class="warn-text">No se aplicó separación automática:</span> la confianza lingüística fue insuficiente. Se muestra el descifrado literal.';
-  }else{
-    $('format-status').innerHTML='<span class="ok">Descifrado literal.</span> Se conservaron los separadores existentes en el criptograma.';
-  }
-}
-
-function run(decrypt=false){
-  try{
-    const input=$('text').value;
-    const result=transform(input,+$('a').value,+$('b').value,decrypt);
-    lastResult=result;
-    lastAction=decrypt?'decrypt':'encrypt';
-    lastInputSnapshot=input;
-    showResult(result,decrypt);
-  }catch(e){
-    lastResult='';
-    lastAction=null;
-    $('out').textContent=e.message;
-    $('format-status').textContent='';
-    $('literal-details').hidden=true;
-  }
-}
-
-function attackSource(){
-  const input=$('text').value;
-  if(lastAction==='encrypt'&&lastResult.trim()&&input===lastInputSnapshot){
-    return{text:lastResult,description:'Se analiza el último resultado cifrado mostrado arriba.'};
-  }
-  return{text:input,description:'Se analiza el contenido del campo Texto como criptograma.'};
-}
-
-function prepareCandidate(raw){
-  if(!$('auto-space').checked||!needsSegmentation(raw)){
-    return{display:raw,raw,changed:false,confidence:0,scoreText:raw};
-  }
-  const segmented=segmentSpanish(raw);
-  const changed=segmented.confidence>=0.55;
-  return{
-    display:changed?segmented.text:raw,
-    raw,
-    changed,
-    confidence:segmented.confidence,
-    scoreText:changed?segmented.text:raw
-  };
-}
-
-function render(results){
-  const container=$('candidates');
-  container.replaceChildren();
-
-  for(const r of results.slice(0,12)){
-    const row=document.createElement('div');
-    const key=document.createElement('b');
-    const plain=document.createElement('div');
-    const points=document.createElement('span');
-
-    row.className='candidate';
-    key.textContent=`a=${r.a}, b=${r.b}`;
-    plain.className='candidate-text';
-
-    const main=document.createElement('strong');
-    main.textContent=r.display;
-    plain.append(main);
-
-    if(r.changed){
-      const confidence=document.createElement('span');
-      confidence.className='confidence';
-      confidence.textContent=`segmentación ${Math.round(r.confidence*100)}%`;
-      plain.append(confidence);
-
-      const details=document.createElement('details');
-      const summary=document.createElement('summary');
-      const literal=document.createElement('code');
-      summary.textContent='Ver salida literal';
-      literal.className='literal';
-      literal.textContent=r.raw;
-      details.append(summary,literal);
-      plain.append(details);
-    }
-
-    points.className='candidate-score';
-    points.textContent=`Puntaje ${r.score.toFixed(1)}`;
-
-    row.append(key,plain,points);
-    container.append(row);
-  }
-}
-
-function attack(){
-  const source=attackSource();
-  const cipher=source.text;
-
-  if(!cipher.trim()){
-    $('attack-status').innerHTML='<span class="bad">No hay texto para analizar.</span>';
-    $('candidates').replaceChildren();
-    return;
-  }
-
-  const results=[];
-  for(let a=1;a<26;a++){
-    if(gcd(a,26)!==1)continue;
-    for(let b=0;b<26;b++){
-      const raw=transform(cipher,a,b,true);
-      const prepared=prepareCandidate(raw);
-      const linguisticBonus=prepared.changed?prepared.confidence*35:0;
-      results.push({
-        a,b,
-        raw,
-        display:prepared.display,
-        changed:prepared.changed,
-        confidence:prepared.confidence,
-        score:score(prepared.scoreText)-linguisticBonus
-      });
-    }
-  }
-
-  results.sort((x,y)=>x.score-y.score);
-  render(results);
-
-  const letters=[...norm(cipher)].filter(c=>ABC.includes(c)).length;
-  const warning=letters<15
-    ?' <span class="bad">Advertencia:</span> el texto es muy corto y el ranking es orientativo.'
-    :'';
-
-  const spacing=$('auto-space').checked
-    ?' La separación de palabras es heurística y puede requerir corrección manual.'
-    :' La salida se muestra literalmente, sin intentar recuperar espacios.';
-
-  $('attack-status').innerHTML=`<span class="ok">312 claves evaluadas.</span> ${source.description}${warning}${spacing}`;
-}
-
-$('enc').addEventListener('click',()=>run(false));
-$('dec').addEventListener('click',()=>run(true));
-$('attack').addEventListener('click',attack);
-$('auto-space').addEventListener('change',()=>{
-  if(lastAction==='decrypt'&&lastResult)showResult(lastResult,true);
-  if($('candidates').children.length)attack();
-});
-
-for(let i=1;i<26;i++){
-  const option=document.createElement('option');
-  option.value=option.textContent=String(i);
-  option.selected=i===5;
-  $('a').append(option);
-}
-
-$('a').addEventListener('change',refresh);
-$('b').addEventListener('input',refresh);
-$('text').addEventListener('input',()=>{
-  $('attack-status').textContent='';
-  $('candidates').replaceChildren();
-  $('format-status').textContent='';
-  $('literal-details').hidden=true;
-});
-
-refresh();
-run(false);
+const WORDS=`A AL ALGUN ALGUNA ALGUNOS AQUEL AQUELLOS ARCHIVO ARCHIVOS ALTERAR ANALIZAR AUTORIZADO AUTORIZADOS CIFRADO CIFRAR CLAVE COMO CON CONJUNTO CRIPTOGRAFIA DE DEL DESARROLLO DESCIFRAR EL EN ES ESTA ESTAN ESTEN ESTE HACER HACERLO INFORMACION LA LAS LEIDO LEIDOS LO LOS MENSAJE MENSAJES MODIFICAR NO OBJETIVO O PARA PERMITE PERMITEN POR PUEDA PUEDAN QUE SE SER SI SISTEMA TECNICA TECNICAS TEXTO TODO TODOS TRANSFORMAR UN UNA USUARIO USUARIOS Y SEGURIDAD DEPENDER SECRETO ALGORITMO SOLAMENTE ENTIDADES PUEDAN LEER DATOS CIENCIA OCULTAR`.split(' ');
+const WORD_SET=new Set(WORDS),MAX_WORD=Math.max(...WORDS.map(w=>w.length));
+const BIGRAMS=new Set('DE EN ES LA EL OS AS RA RE ER ON NT TE CO AR AL OR CI ST UN QU UE AD DA DO ID RI CR GR AF FI IA'.split(' '));
+const TRIGRAMS=new Set('QUE ENT EST CON DEL LOS LAS ION PAR TRA MEN CRI GRA FIA DES SAR ROL LLO SEG URI DAD'.split(' '));
+const $=id=>document.getElementById(id),mod=(n,m)=>((n%m)+m)%m;
+let lastCipher='',lastInput='',lastMode='';
+function inv(a){for(let i=1;i<26;i++)if(mod(a*i,26)===1)return i;return null}
+function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()}
+function transform(s,a,b,decrypt=false){const ai=decrypt?inv(a):a;if(decrypt&&!ai)throw Error('La clave no tiene inverso.');return[...norm(s)].map(ch=>{const x=ABC.indexOf(ch);return x<0?ch:ABC[decrypt?mod(ai*(x-b),26):mod(a*x+b,26)]}).join('')}
+function segment(raw){const letters=norm(raw).replace(/[^A-Z]/g,''),n=letters.length;if(!n)return{text:'',coverage:0};const dp=Array(n+1).fill(null);dp[n]={score:0,tokens:[],known:0};for(let i=n-1;i>=0;i--){let best=null;for(let len=1;len<=Math.min(MAX_WORD,n-i);len++){const w=letters.slice(i,i+len),next=dp[i+len];if(!next||!WORD_SET.has(w))continue;const c={score:next.score+len*len+6,tokens:[w,...next.tokens],known:next.known+len};if(!best||c.score>best.score)best=c}for(let len=1;len<=Math.min(10,n-i);len++){const next=dp[i+len];if(!next)continue;const w=letters.slice(i,i+len),c={score:next.score-(8*len+12),tokens:[w,...next.tokens],known:next.known};if(!best||c.score>best.score)best=c}dp[i]=best}return{text:dp[0].tokens.join(' '),coverage:dp[0].known/n}}
+function format(raw){if(!$('auto-space').checked||!/^[A-Z\s\n]+$/.test(norm(raw))||norm(raw).match(/[A-Z]+/g)?.length>1)return{text:raw,changed:false,coverage:1};const s=segment(raw);return s.coverage>=.5?{text:s.text,changed:true,coverage:s.coverage}:{text:raw,changed:false,coverage:s.coverage}}
+function languageScore(raw){const letters=norm(raw).replace(/[^A-Z]/g,''),n=letters.length;if(!n)return Infinity;const counts=Object.fromEntries([...ABC].map(c=>[c,0]));for(const c of letters)counts[c]++;let chi=0;for(const c of ABC){const e=FREQ[c]*n/100;chi+=(counts[c]-e)**2/Math.max(e,.01)}let bi=0,tri=0;for(let i=0;i<n-1;i++)if(BIGRAMS.has(letters.slice(i,i+2)))bi++;for(let i=0;i<n-2;i++)if(TRIGRAMS.has(letters.slice(i,i+3)))tri++;const s=segment(raw),v=[...letters].filter(c=>'AEIOU'.includes(c)).length/n;return chi-bi*.9-tri*2.1-s.coverage*55+Math.abs(v-.45)*15}
+function refresh(){const a=+$('a').value,b=mod(+$('b').value,26),ai=inv(a);$('valid').innerHTML=`<span class="ok">Clave válida:</span> mcd(${a},26)=1; inverso de a=${ai}.`;$('map').innerHTML=[...ABC].map((c,i)=>`<div class="cell"><b>${c}</b>${ABC[mod(a*i+b,26)]}</div>`).join('')}
+function show(raw,decrypt=false){const f=decrypt?format(raw):{text:raw,changed:false,coverage:1};$('out').textContent=f.text;$('literal-details').hidden=!f.changed;$('literal-out').textContent=f.changed?raw:'';$('format-status').innerHTML=decrypt?(f.changed?`<span class="ok">Espacios estimados.</span> Cobertura del diccionario: <strong>${Math.round(f.coverage*100)}%</strong>.`:'<span class="warn-text">Salida literal:</span> no hubo confianza suficiente para separar palabras.'):'<span class="ok">Formato conservado:</span> los separadores presentes no se cifran.'}
+function encrypt(){const input=$('text').value,a=+$('a').value,b=mod(+$('b').value,26);lastCipher=transform(input,a,b);lastInput=input;lastMode='encrypt';show(lastCipher);$('key-status').innerHTML=`<span class="ok">Cifrado:</span> clave utilizada <strong>a=${a}, b=${b}</strong>.`}
+function manualDecrypt(){try{const a=+$('a').value,b=mod(+$('b').value,26),raw=transform($('text').value,a,b,true);show(raw,true);$('key-status').innerHTML=`<span class="warn-text">Comprobación manual:</span> se aplicó <strong>a=${a}, b=${b}</strong>; no se buscó la clave.`}catch(e){$('key-status').innerHTML=`<span class="bad">${e.message}</span>`}}
+function sourceCipher(){return lastMode==='encrypt'&&$('text').value===lastInput?lastCipher:$('text').value}
+function applyCandidate(r,rank=1){$('a').value=r.a;$('b').value=r.b;refresh();show(r.raw,true);$('key-status').innerHTML=`<span class="ok">${rank===1?'Clave más probable':'Candidato seleccionado'}:</span> <strong>a=${r.a}, b=${r.b}</strong>. Puntaje ${r.score.toFixed(1)}.`}
+function render(results){const box=$('candidates');box.replaceChildren();results.slice(0,12).forEach((r,i)=>{const row=document.createElement('div');row.className='candidate';const key=document.createElement('b');key.textContent=`${i+1}. a=${r.a}, b=${r.b}`;const text=document.createElement('div');text.className='candidate-text';const f=format(r.raw);const strong=document.createElement('strong');strong.textContent=f.text;text.append(strong);if(f.changed){const badge=document.createElement('span');badge.className='confidence';badge.textContent=`espacios ${Math.round(f.coverage*100)}%`;text.append(badge)}const points=document.createElement('span');points.className='candidate-score';points.textContent=r.score.toFixed(1);const use=document.createElement('button');use.className='secondary';use.textContent=i?'Usar candidato':'Usar mejor clave';use.onclick=()=>applyCandidate(r,i+1);row.append(key,text,points,use);box.append(row)})}
+function autoDecrypt(){const cipher=sourceCipher();if(!cipher.trim()){$('key-status').innerHTML='<span class="bad">Pegá un criptograma.</span>';return}const results=[];for(const a of VALID_A)for(let b=0;b<26;b++){const raw=transform(cipher,a,b,true);results.push({a,b,raw,score:languageScore(raw)})}results.sort((x,y)=>x.score-y.score);render(results);applyCandidate(results[0]);const n=norm(cipher).replace(/[^A-Z]/g,'').length;$('attack-status').innerHTML=`<span class="ok">312 claves evaluadas.</span> Se aplicó el candidato mejor puntuado.${n<20?' <span class="bad">Texto breve:</span> revisá las alternativas.':''}`}
+VALID_A.forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;o.selected=v===5;$('a').append(o)});$('a').onchange=refresh;$('b').oninput=refresh;$('enc').onclick=encrypt;$('dec').onclick=autoDecrypt;$('manual-dec').onclick=manualDecrypt;$('auto-space').onchange=()=>{if($('candidates').children.length)autoDecrypt()};$('text').oninput=()=>{$('candidates').replaceChildren();$('attack-status').textContent='';$('key-status').innerHTML='Elegí la clave para cifrar o pulsá <strong>Descifrar automáticamente</strong> para buscarla.';lastMode=''};refresh();encrypt();
 </script>
 </body>
 </html>
