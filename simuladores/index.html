@@ -8,7 +8,7 @@
   <title>Campus de laboratorios de criptografía</title>
   <link rel="stylesheet" href="assets/lab.css">
   <style>
-    .module-hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:18px}.hub-card{padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--panel)}.hub-card h2{margin:10px 0 8px;font-size:1.2rem}.hub-card p{color:var(--muted);min-height:70px}.hub-actions{display:flex;flex-wrap:wrap;gap:9px}.hub-actions a{flex:1 1 150px;text-align:center}.tag{display:inline-flex;padding:5px 9px;border-radius:999px;background:rgba(72,229,255,.09);color:#bdf7ff;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+    .module-hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:18px}.hub-card{padding:22px;border:1px solid var(--border);border-radius:20px;background:var(--surface)}.hub-card h2{margin:10px 0 8px;font-size:1.2rem}.hub-card p{color:var(--muted);min-height:70px}.hub-actions{display:flex;flex-wrap:wrap;gap:9px}.hub-actions a{flex:1 1 145px;text-align:center}.tag{display:inline-flex;padding:5px 9px;border-radius:999px;background:rgba(72,229,255,.09);color:#bdf7ff;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.featured-route{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}@media(max-width:720px){.featured-route{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -26,29 +26,19 @@
     <section class="hero">
       <div class="eyebrow">Aprender haciendo</div>
       <h1>Campus modular de laboratorios</h1>
-      <p>Cada módulo combina un laboratorio integral con una colección creciente de simulaciones especializadas, documentación, notebooks y desafíos.</p>
-      <div class="pill-row" style="margin-top:18px">
-        <span class="pill">HTML + CSS + JavaScript</span>
-        <span class="pill">Sin instalación</span>
-        <span class="pill">GitHub Pages</span>
-        <span class="pill">Métricas, ataques y límites</span>
-      </div>
+      <p>Cada módulo combina una ruta pedagógica, simulaciones especializadas, documentación, ataques guiados y herramientas de síntesis.</p>
+      <div class="pill-row" style="margin-top:18px"><span class="pill">HTML + CSS + JavaScript</span><span class="pill">Sin instalación</span><span class="pill">GitHub Pages</span><span class="pill">Métricas, ataques y límites</span></div>
     </section>
 
-    <section class="grid" aria-label="Laboratorio destacado">
-      <article class="card full">
-        <div class="eyebrow">Disponible</div>
-        <h2>Cifrado César para el alfabeto castellano</h2>
-        <p class="muted">Simulación independiente con Ñ, módulo 27, traza carácter por carácter, fuerza bruta y ranking estadístico χ².</p>
-        <div class="actions">
-          <a class="button" href="01a-cifrado-cesar-castellano.html">Abrir simulador</a>
-          <a class="button secondary" href="modulo-01/index.html">Ver Módulo 1</a>
-        </div>
+    <section class="grid" aria-label="Ruta destacada">
+      <article class="card full featured-route">
+        <div><div class="eyebrow">Ruta destacada</div><h2>De César a Colossus</h2><p class="muted">Dieciséis simulaciones ordenadas en seis etapas: sustituciones, representación, bloques, polialfabetismo, XOR y máquinas criptográficas.</p></div>
+        <div class="actions"><a class="button" href="modulo-01/ruta-guiada.html">Comenzar ruta guiada</a><a class="button secondary" href="modulo-01/index.html">Ver índice</a></div>
       </article>
     </section>
 
     <section id="modulos" class="module-hub" aria-label="Módulos interactivos">
-      <article class="hub-card"><span class="tag">Módulo 1</span><h2>Criptografía clásica y criptoanálisis</h2><p>César, afín, transposición, Vigenère, Kasiski, Vernam y Enigma.</p><div class="hub-actions"><a class="button" href="modulo-01/index.html">Explorar módulo</a><a class="button secondary" href="01-criptografia-clasica.html">Laboratorio integral</a></div></article>
+      <article class="hub-card"><span class="tag">Módulo 1</span><h2>Criptografía clásica y criptoanálisis</h2><p>Desde César, afín y transposición hasta Vigenère, Vernam, One-Time Pad, Enigma, Lorenz y Colossus.</p><div class="hub-actions"><a class="button" href="modulo-01/ruta-guiada.html">Ruta guiada</a><a class="button secondary" href="modulo-01/index.html">Índice</a><a class="button secondary" href="01-criptografia-clasica.html">Laboratorio integral</a></div></article>
       <article class="hub-card"><span class="tag">Módulo 2</span><h2>Fundamentos matemáticos</h2><p>Aritmética modular, inversos, Euclides, Diffie–Hellman y entropía.</p><div class="hub-actions"><a class="button" href="modulo-02/index.html">Explorar módulo</a><a class="button secondary" href="02-fundamentos-matematicos.html">Laboratorio integral</a></div></article>
       <article class="hub-card"><span class="tag">Módulo 3</span><h2>Criptografía moderna</h2><p>Hashes, KDF, AES-GCM, firmas y cifrado híbrido.</p><div class="hub-actions"><a class="button" href="modulo-03/index.html">Explorar módulo</a><a class="button secondary" href="03-criptografia-moderna.html">Laboratorio integral</a></div></article>
       <article class="hub-card"><span class="tag">Módulo 4</span><h2>Esteganografía digital</h2><p>LSB, capacidad, PSNR, distorsión y estegoanálisis.</p><div class="hub-actions"><a class="button" href="modulo-04/index.html">Explorar módulo</a><a class="button secondary" href="04-esteganografia.html">Laboratorio integral</a></div></article>
@@ -60,7 +50,7 @@
 
     <section class="grid" style="margin-top:24px">
       <article class="card full"><h2>Secuencia pedagógica</h2><ol class="steps"><li><strong>Predecir:</strong> anticipar el resultado.</li><li><strong>Experimentar:</strong> cambiar una variable por vez.</li><li><strong>Explicar:</strong> relacionar observación y objetivo de seguridad.</li><li><strong>Atacar:</strong> identificar el supuesto débil.</li><li><strong>Transferir:</strong> conectar con un sistema real.</li></ol></article>
-      <article class="card"><h2>Para estudiantes</h2><p class="muted">Cada módulo ofrece una ruta ordenada desde los conceptos hasta el ataque y la interpretación.</p></article>
+      <article class="card"><h2>Para estudiantes</h2><p class="muted">Las rutas guiadas guardan el progreso localmente y mantienen visible el orden recomendado.</p></article>
       <article class="card"><h2>Para docentes</h2><p class="muted">Los recursos pueden utilizarse como demostración, práctica guiada, trabajo grupal o evaluación oral.</p><div class="actions"><a class="button secondary" href="../docs/criptografia/guia-docente-simuladores.md">Abrir guía docente</a></div></article>
     </section>
 
