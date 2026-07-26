@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio visual de Lorenz SZ40/42, Tunny y Colossus: ITA2, XOR, doce ruedas, depths, delta y búsqueda estadística.">
+  <title>Lorenz, Tunny y Colossus | Laboratorio visual</title>
+  <link rel="stylesheet" href="../../assets/lab.css">
+  <link rel="stylesheet" href="assets/lorenz.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<main class="shell" id="main">
+<header class="topbar"><div class="brand"><a href="../index.html">← Módulo 1</a></div><nav class="nav"><a href="../enigma/index.html">Enigma</a><a href="../vernam.html">Vernam</a><a href="../one-time-pad.html">One-Time Pad</a></nav></header>
+
+<section class="hero lorenz-hero">
+  <div>
+    <div class="eyebrow">Teleimpresora · cifrado de flujo · criptoanálisis electrónico</div>
+    <h1>Lorenz SZ40/42, Tunny y Colossus</h1>
+    <p>Del carácter ITA2 de cinco impulsos al flujo binario generado por doce ruedas. El laboratorio conecta XOR, reutilización de clave, diferencias estadísticas y automatización electrónica.</p>
+    <div class="actions"><button data-open="teleprinter">Comenzar con ITA2</button><button class="secondary" data-open="colossus">Ir a Mini-Colossus</button></div>
+  </div>
+  <div class="tape-hero" aria-hidden="true"><div class="tape-row">● ○ ○ ● ●</div><div class="tape-row">○ ● ○ ○ ○</div><div class="tape-row">● ○ ● ● ○</div><div class="tape-label">5 impulsos · XOR · 12 ruedas</div></div>
+</section>
+
+<section class="concept-ribbon lorenz-ribbon">
+  <div><b>1</b><span>Teleimpresora</span></div><div><b>2</b><span>XOR</span></div><div><b>3</b><span>Ruedas χ ψ μ</span></div><div><b>4</b><span>Depth</span></div><div><b>5</b><span>Tutte</span></div><div><b>6</b><span>Delta</span></div><div><b>7</b><span>Colossus</span></div>
+</section>
+
+<section class="card full">
+  <h2>Arquitectura criptográfica</h2>
+  <div class="lorenz-formulas"><code>K<sub>t</sub> = χ<sub>t</sub> ⊕ ψ′<sub>t</sub></code><code>Z<sub>t</sub> = P<sub>t</sub> ⊕ K<sub>t</sub></code><code>P<sub>t</sub> = Z<sub>t</sub> ⊕ K<sub>t</sub></code></div>
+  <p class="muted">Las cinco ruedas χ avanzan regularmente. Las cinco ψ avanzan juntas de forma intermitente, bajo control de μ61 y μ37. Los patrones utilizados aquí son didácticos y reproducibles; las configuraciones históricas cambiaban operativamente.</p>
+</section>
+
+<nav class="lab-tabs">
+  <button class="active" data-tab="teleprinter">1. ITA2 y cinta</button><button data-tab="xor">2. XOR y flujo</button><button data-tab="wheels">3. Doce ruedas</button><button data-tab="depth">4. Reutilización</button><button data-tab="tutte">5. Deducción de Tutte</button><button data-tab="delta">6. Diferencias Δ</button><button data-tab="colossus">7. Mini-Colossus</button>
+</nav>
+
+<section class="lab-panel active" id="panel-teleprinter"><div class="grid">
+  <article class="card"><h2>Texto a impulsos</h2><div class="control"><label for="ita-text">Mensaje</label><textarea id="ita-text">ATAQUE AL AMANECER</textarea></div><div class="actions"><button id="encode-ita">Perforar cinta</button></div><div id="ita-summary" class="status-panel"></div></article>
+  <article class="card"><h2>Tabla ITA2 reducida</h2><p class="muted">Se usan letras A–Z y espacio. Los cambios LTRS/FIGS se explican, pero esta práctica permanece en modo letras.</p><div id="ita-table" class="ita-table"></div></article>
+  <article class="card full"><h2>Cinta perforada de cinco canales</h2><div id="paper-tape" class="paper-tape"></div></article>
+  <article class="card full notice"><strong>Idea central</strong><p>Lorenz no sustituye directamente letras como Enigma. Cada carácter llega como cinco bits paralelos y la máquina combina cada canal con un bit de clave mediante suma módulo 2.</p></article>
+</div></section>
+
+<section class="lab-panel" id="panel-xor"><div class="grid">
+  <article class="card"><h2>Explorador XOR de cinco bits</h2><div class="controls"><div class="control"><label for="xor-char">Carácter</label><input id="xor-char" maxlength="1" value="A"></div><div class="control"><label for="xor-key">Clave de 5 bits</label><input id="xor-key" maxlength="5" value="10101"></div></div><div class="actions"><button id="run-xor">Calcular</button></div><div id="xor-equation" class="bit-equation"></div></article>
+  <article class="card"><h2>Reversibilidad</h2><div id="xor-proof" class="bit-equation"></div><p class="muted">La misma operación cifra y descifra porque K ⊕ K = 0.</p></article>
+  <article class="card full"><h2>Mensaje completo con flujo de ruedas</h2><div class="control"><label for="stream-text">Texto</label><textarea id="stream-text">SECRETO</textarea></div><div class="actions"><button id="run-stream">Generar flujo y cifrar</button><button id="prove-stream" class="secondary">Descifrar con el mismo inicio</button></div><div id="stream-trace" class="stream-trace"></div></article>
+</div></section>
+
+<section class="lab-panel" id="panel-wheels"><div class="grid">
+  <article class="card full"><h2>Las doce ruedas</h2><div class="wheel-legend"><span class="chi">χ: avance regular</span><span class="mu">μ: motor</span><span class="psi">ψ: avance irregular</span></div><div class="actions"><button id="wheel-step">Avanzar un carácter</button><button id="wheel-ten" class="secondary">Avanzar 10</button><button id="wheel-reset" class="secondary">Restablecer</button><button id="wheel-patterns" class="warn">Nuevos patrones didácticos</button></div></article>
+  <article class="card full"><div id="wheel-board" class="wheel-board"></div></article>
+  <article class="card"><h2>Salida actual</h2><div id="wheel-output" class="wheel-output"></div></article>
+  <article class="card"><h2>Decisión de movimiento</h2><div id="motor-decision" class="status-panel"></div></article>
+  <article class="card full notice warn"><strong>Modelo SZ40 básico</strong><p>μ61 avanza en cada carácter; un pin activo permite avanzar μ37. El estado de μ37 gobierna el avance conjunto de ψ. Las variantes SZ42 añadieron limitaciones adicionales que aquí no se simulan.</p></article>
+</div></section>
+
+<section class="lab-panel" id="panel-depth"><div class="grid">
+  <article class="card full"><h2>El error de reutilizar la misma configuración</h2><div class="controls"><div class="control full"><label for="depth-one">Mensaje 1</label><textarea id="depth-one">ATAQUE PROGRAMADO PARA LAS CERO SEIS</textarea></div><div class="control full"><label for="depth-two">Mensaje 2</label><textarea id="depth-two">ATAQUE PREVISTO PARA 0600</textarea></div></div><div class="actions"><button id="run-depth">Cifrar ambos con el mismo inicio</button></div></article>
+  <article class="card"><h2>Criptogramas</h2><pre id="depth-ciphers" class="output"></pre></article>
+  <article class="card"><h2>Cancelación de la clave</h2><pre id="depth-cancel" class="output"></pre></article>
+  <article class="card full"><h2>Comparación carácter a carácter</h2><div id="depth-grid" class="depth-grid"></div></article>
+  <article class="card full notice danger"><strong>Depth</strong><p>Si C₁=P₁⊕K y C₂=P₂⊕K, entonces C₁⊕C₂=P₁⊕P₂. El flujo desaparece. En 1941, una retransmisión relacionada con los mismos ajustes proporcionó material decisivo para Tiltman y Tutte.</p></article>
+</div></section>
+
+<section class="lab-panel" id="panel-tutte"><div class="grid">
+  <article class="card"><h2>Deducir una longitud de rueda</h2><p class="muted">Modelo reducido: se observa una secuencia binaria repetida y se mide su autocoincidencia para desplazamientos candidatos.</p><div class="controls"><div class="control"><label for="tutte-wheel">Rueda oculta</label><select id="tutte-wheel"><option value="chi1">χ1 · 41</option><option value="chi2">χ2 · 31</option><option value="chi3">χ3 · 29</option><option value="psi1">ψ1 · 43</option><option value="mu37">μ37 · 37</option></select></div><div class="control"><label for="tutte-noise">Ruido (%)</label><input id="tutte-noise" type="range" min="0" max="20" value="4"></div></div><div class="actions"><button id="run-tutte">Analizar periodicidad</button></div><div id="tutte-result" class="status-panel"></div></article>
+  <article class="card"><h2>Secuencia observada</h2><div id="tutte-sequence" class="binary-strip"></div></article>
+  <article class="card full"><h2>Puntuación por período candidato</h2><div id="period-bars" class="score-bars"></div></article>
+  <article class="card full notice"><strong>Contexto</strong><p>La deducción real de Bill Tutte fue mucho más profunda: reconstruyó la arquitectura lógica de doce ruedas sin ver la máquina. Esta práctica aísla la intuición de que longitudes coprimas y secuencias periódicas dejan estructura mensurable.</p></article>
+</div></section>
+
+<section class="lab-panel" id="panel-delta"><div class="grid">
+  <article class="card full"><h2>Operación de diferencias binarias</h2><div class="control"><label for="delta-text">Secuencia de bits</label><textarea id="delta-text">10110010111000101101</textarea></div><div class="actions"><button id="run-delta">Calcular Δ</button></div><div id="delta-view" class="delta-view"></div></article>
+  <article class="card"><h2>Comparar un candidato χ</h2><div class="controls"><div class="control"><label for="delta-start1">Inicio χ1</label><input id="delta-start1" type="number" min="0" max="40" value="0"></div><div class="control"><label for="delta-start2">Inicio χ2</label><input id="delta-start2" type="number" min="0" max="30" value="0"></div></div><div class="actions"><button id="score-delta">Puntuar candidato</button></div><div id="delta-score" class="status-panel"></div></article>
+  <article class="card"><h2>Intuición estadística</h2><p>Al retirar un χ correcto, ciertas relaciones entre cambios sucesivos dejan de parecer perfectamente uniformes. Colossus contaba estas coincidencias para muchos inicios candidatos.</p><div class="metric-stack"><div><b id="delta-count">—</b><span>coincidencias</span></div><div><b id="delta-rate">—</b><span>proporción</span></div><div><b id="delta-z">—</b><span>desvío normalizado</span></div></div></article>
+</div></section>
+
+<section class="lab-panel" id="panel-colossus"><div class="grid">
+  <article class="card full"><h2>Mini-Colossus: búsqueda χ1 × χ2</h2><p>Modelo reducido con patrones conocidos y canales χ3–χ5 ya retirados. Se prueban 41×31=1.271 posiciones y se puntúa la plausibilidad lingüística del resultado.</p><div class="controls"><div class="control full"><label for="colossus-plain">Mensaje de entrenamiento</label><textarea id="colossus-plain">EL ALTO MANDO ENVIA EL INFORME SECRETO PARA LA OPERACION DE MANANA</textarea></div><div class="control"><label for="secret-chi1">Inicio secreto χ1</label><input id="secret-chi1" type="number" min="0" max="40" value="17"></div><div class="control"><label for="secret-chi2">Inicio secreto χ2</label><input id="secret-chi2" type="number" min="0" max="30" value="9"></div></div><div class="actions"><button id="prepare-colossus">Preparar cinta</button><button id="run-colossus" class="danger">Ejecutar 1.271 pruebas</button></div><div id="colossus-status" class="status-panel"></div></article>
+  <article class="card"><h2>Cinta de entrada</h2><div id="colossus-tape" class="binary-strip"></div></article>
+  <article class="card"><h2>Mejores candidatos</h2><div id="colossus-candidates" class="candidate-list"></div></article>
+  <article class="card full"><h2>Conteos</h2><div id="colossus-bars" class="score-bars"></div></article>
+  <article class="card full notice warn"><strong>Qué hacía Colossus</strong><p>Colossus no imprimía automáticamente todo el texto claro. Leía cinta perforada, generaba patrones de ruedas, evaluaba funciones booleanas y contaba resultados para localizar ajustes prometedores, especialmente de las ruedas χ.</p></article>
+</div></section>
+
+<footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Simulación educativa: patrones de pines y análisis reducidos, no una reproducción operativa completa de Lorenz SZ42 ni Colossus.</p></footer>
+</main>
+<script src="assets/lorenz.js"></script>
+</body></html>
