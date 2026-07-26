@@ -1,0 +1,1 @@
+(()=>{const files=['lorenz-core.js','lorenz-ui.js','lorenz-analysis.js'];let i=0;const load=()=>{if(i>=files.length)return;const s=document.createElement('script');s.src=`assets/${files[i++]}`;s.onload=load;document.body.append(s)};load()})();
