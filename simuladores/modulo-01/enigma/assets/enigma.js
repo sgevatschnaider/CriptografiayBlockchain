@@ -1,0 +1,1 @@
+(()=>{const core=document.createElement('script');core.src='assets/enigma-core.js';core.onload=()=>{const ui=document.createElement('script');ui.src='assets/enigma-ui.js';document.body.append(ui)};document.body.append(core)})();
