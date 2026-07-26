@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Ruta guiada de 16 simulaciones del Módulo 1, desde César y afín hasta Enigma, Lorenz y Colossus.">
+  <title>Ruta guiada | Criptografía clásica y criptoanálisis</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/ruta-guiada.css">
+</head>
+<body>
+<main class="route-shell">
+  <header class="route-top">
+    <div class="route-title">
+      <div class="eyebrow">Módulo 1 · recorrido completo</div>
+      <h1>Ruta guiada de criptografía clásica y criptoanálisis</h1>
+      <p>Dieciséis pasos ordenados desde la sustitución modular hasta el criptoanálisis electromecánico y electrónico.</p>
+    </div>
+    <div class="route-actions">
+      <a href="index.html">Índice del módulo</a>
+      <a href="../index.html">Campus</a>
+      <button id="mark-done" type="button">Marcar paso completado</button>
+      <button id="reset-progress" type="button">Reiniciar progreso</button>
+    </div>
+  </header>
+
+  <div class="route-progress-wrap" aria-label="Progreso">
+    <span id="progress-label">Paso 1 de 16</span>
+    <div class="route-track"><div id="route-progress" class="route-progress"></div></div>
+    <span id="progress-percent">6%</span>
+  </div>
+
+  <div class="route-layout">
+    <aside class="route-sidebar">
+      <h2>Índice de simulaciones</h2>
+      <div id="route-list" class="route-list"></div>
+    </aside>
+
+    <section class="route-main">
+      <article class="step-card">
+        <div>
+          <div class="eyebrow" id="step-family">Sustituciones elementales</div>
+          <h2 id="step-title">Cifrado César</h2>
+          <p id="step-objective">Comprender el desplazamiento modular.</p>
+          <div class="step-meta"><span id="step-level">Inicial</span><span id="step-time">15 min</span><a id="open-direct" href="#" target="_blank" rel="noopener">Abrir en página completa ↗</a></div>
+        </div>
+        <div id="step-number" class="step-badge">01</div>
+      </article>
+
+      <div class="frame-wrap">
+        <div id="frame-loading" class="frame-loading">Cargando simulación…</div>
+        <iframe id="sim-frame" title="Simulación de la ruta guiada"></iframe>
+      </div>
+
+      <nav class="route-bottom" aria-label="Navegación entre simulaciones">
+        <button id="prev" type="button">Anterior</button>
+        <a class="center" href="index.html">Volver al índice</a>
+        <button id="next" class="next" type="button">Siguiente</button>
+      </nav>
+    </section>
+  </div>
+</main>
+<script src="assets/ruta-guiada.js"></script>
+</body>
+</html>
