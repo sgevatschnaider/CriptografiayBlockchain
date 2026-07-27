@@ -1,68 +1,139 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Simulador interactivo del cifrado afín con búsqueda automática de clave y restauración de palabras.">
-<title>Cifrado afín | Laboratorio interactivo</title>
-<link rel="stylesheet" href="../assets/lab.css">
-<style>
-.map{display:grid;grid-template-columns:repeat(13,minmax(52px,1fr));gap:7px}.cell{padding:9px;border:1px solid var(--border);border-radius:10px;text-align:center;background:#071625}.cell b{display:block;color:var(--accent)}.check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(99,213,255,.06)}.check input{width:20px;min-height:20px;accent-color:var(--accent)}.check small{display:block;color:var(--muted)}.output-label{display:block;margin-top:14px;color:var(--muted);font-size:.78rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}.literal{display:block;margin-top:7px;padding:9px;border:1px dashed var(--border);border-radius:9px;background:#050f1b;color:var(--muted);font-family:ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.candidates{display:grid;gap:10px}.candidate{display:grid;grid-template-columns:120px minmax(0,1fr) 100px 140px;gap:10px;align-items:start;padding:12px;border:1px solid var(--border);border-radius:13px;background:rgba(7,22,37,.72)}.candidate:first-child{border-color:var(--border-strong);background:rgba(74,222,163,.07)}.candidate-text{overflow-wrap:anywhere;line-height:1.5}.candidate-score{color:var(--muted);text-align:right}.candidate button{min-height:38px;padding:8px 10px;font-size:.8rem}.confidence{display:inline-flex;margin-left:8px;padding:3px 8px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.72rem}.ok{color:var(--good)}.bad{color:var(--bad)}.warn-text{color:var(--warn)}details summary{cursor:pointer;color:var(--accent);font-weight:800}@media(max-width:900px){.candidate{grid-template-columns:110px 1fr}.candidate-score{text-align:left}.candidate button{grid-column:2}}@media(max-width:760px){.map{grid-template-columns:repeat(5,1fr)}.candidate{grid-template-columns:1fr}.candidate button{grid-column:auto}.candidate-score{text-align:left}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Simulador visual del cifrado afín con reloj modular para alfabetos de 26 y 27 letras.">
+  <title>Cifrado afín con reloj modular | Laboratorio interactivo</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    :root{--plain:#63d5ff;--cipher:#ffc766;--good2:#4adea3;--danger2:#ff7383}
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:24px;align-items:center}
+    .hero-clock{display:grid;place-items:center;min-height:250px}
+    .hero-ring{position:relative;width:min(260px,75vw);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(99,213,255,.12) 0 34%,transparent 35%),conic-gradient(from -90deg,rgba(99,213,255,.35),rgba(179,140,255,.35),rgba(74,222,163,.32),rgba(99,213,255,.35));box-shadow:0 0 65px rgba(99,213,255,.16)}
+    .hero-ring::before{content:"C=(aM+b) mod n";display:grid;place-items:center;width:57%;aspect-ratio:1;border-radius:50%;padding:10px;text-align:center;background:#071625;border:1px solid var(--border-strong);font:800 .9rem/1.4 ui-monospace,monospace}
+    .layout{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(360px,1.1fr);gap:18px;align-items:start}
+    .clock-stage{position:relative;min-height:610px;display:grid;place-items:center;border:1px solid var(--border);border-radius:20px;background:radial-gradient(circle,rgba(99,213,255,.1),transparent 56%),#071625;overflow:hidden}
+    #affineClock{width:min(100%,620px);height:auto;overflow:visible}
+    .clock-node circle{fill:#102943;stroke:rgba(190,211,232,.35);stroke-width:1.5;transition:.18s}
+    .clock-node text{fill:#e5f2ff;text-anchor:middle;dominant-baseline:middle;pointer-events:none;font-weight:850}
+    .clock-node .idx{fill:var(--muted);font-size:8px;font-weight:700}
+    .clock-node.input circle{fill:rgba(99,213,255,.25);stroke:var(--plain);stroke-width:4;filter:drop-shadow(0 0 8px rgba(99,213,255,.65))}
+    .clock-node.output circle{fill:rgba(255,199,102,.24);stroke:var(--cipher);stroke-width:4;filter:drop-shadow(0 0 8px rgba(255,199,102,.6))}
+    .clock-node.collision circle{stroke:var(--danger2);stroke-width:4}
+    .clock-center{fill:#071625;stroke:var(--border-strong);stroke-width:2}
+    .center-title{fill:#fff;text-anchor:middle;font-size:18px;font-weight:900}.center-sub{fill:var(--muted);text-anchor:middle;font-size:11px}
+    .arrow-input{stroke:var(--plain);stroke-width:4;stroke-linecap:round}.arrow-output{stroke:var(--cipher);stroke-width:5;stroke-linecap:round}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.legend span{padding:6px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.78rem}.legend .plain{color:var(--plain)}.legend .cipher{color:var(--cipher)}.legend .collision{color:var(--danger2)}
+    .formula{padding:14px;border:1px solid var(--border);border-radius:14px;background:#071625;font:800 clamp(.95rem,2vw,1.16rem)/1.7 ui-monospace,monospace;overflow-wrap:anywhere}
+    .status.good{border-color:rgba(74,222,163,.55);color:#caffea}.status.bad{border-color:rgba(255,115,131,.55);color:#ffe4e8}.status.warn{border-color:rgba(255,199,102,.55);color:#fff0c2}
+    .map{display:grid;grid-template-columns:repeat(9,minmax(64px,1fr));gap:7px}.cell{padding:8px;border:1px solid var(--border);border-radius:10px;text-align:center;background:#071625}.cell strong{display:block;color:var(--plain)}.cell span{color:var(--cipher);font-weight:850}
+    .worked{display:grid;gap:8px;margin-top:12px}.worked div{padding:10px 12px;border-left:3px solid var(--accent);background:rgba(99,213,255,.06);border-radius:0 10px 10px 0}
+    .collision-box{margin-top:12px;padding:13px;border:1px solid var(--border);border-radius:13px;background:#071625}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    textarea{min-height:125px}
+    @media(max-width:960px){.hero-grid,.layout{grid-template-columns:1fr}.hero-clock{order:-1}.clock-stage{min-height:540px}.map{grid-template-columns:repeat(7,1fr)}}
+    @media(max-width:620px){.map{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:1fr}.clock-stage{min-height:430px}.hero-ring{width:210px}}
+  </style>
 </head>
 <body>
+<a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
 <main class="shell">
-<header class="topbar"><div class="brand"><a href="index.html">⛓️ Módulo 1</a></div><nav class="nav"><a href="../index.html">Campus</a><a href="ruta-guiada.html?paso=3">Ruta guiada</a><a href="../01-criptografia-clasica.html">Laboratorio integral</a></nav></header>
-<section class="hero"><div class="eyebrow">Criptografía clásica</div><h1>Cifrado afín</h1><p>Al <strong>cifrar</strong>, elegís la clave <strong>(a,b)</strong>. Al <strong>descifrar automáticamente</strong>, el sistema prueba las 312 claves válidas, selecciona la más probable y reconstruye las palabras aunque el criptograma esté agrupado en bloques o líneas.</p></section>
-<section class="grid">
-<article class="card">
-<h2>Cifrar o recuperar la clave</h2>
-<div class="controls">
-<div class="control full"><label for="text">Texto claro o criptograma</label><textarea id="text">LA CRIPTOGRAFIA EXPLICA COMO TRANSFORMAR Y ANALIZAR MENSAJES</textarea></div>
-<div class="control"><label for="a">Multiplicador a <span class="muted">(para cifrar)</span></label><select id="a"></select></div>
-<div class="control"><label for="b">Desplazamiento b <span class="muted">(para cifrar)</span></label><input id="b" type="number" min="0" max="25" value="3"></div>
-</div>
-<div class="check"><input id="auto-space" type="checkbox" checked><label for="auto-space">Reconstruir palabras al descifrar<small>El sistema elimina los espacios de agrupación del criptograma y propone una segmentación en castellano. Es una inferencia lingüística, no parte de la fórmula matemática.</small></label></div>
-<div class="actions"><button id="enc">Cifrar con a y b</button><button id="dec" class="warn">Descifrar automáticamente</button><button id="manual-dec" class="secondary">Comprobar con la clave actual</button></div>
-<div id="valid" class="status"></div><div id="key-status" class="status" aria-live="polite">Elegí una clave para cifrar o pegá un criptograma y pulsá <strong>Descifrar automáticamente</strong>.</div><div id="format-status" class="status" aria-live="polite"></div>
-<span class="output-label">Resultado</span><div id="out" class="output" aria-live="polite"></div>
-<details id="literal-details" hidden><summary>Ver salida literal y agrupación original</summary><code id="literal-out" class="literal"></code></details>
-</article>
-<article class="card"><h2>Mapa de sustitución</h2><p class="muted">El mapa corresponde a la clave visible. Después del ataque se actualiza con la clave seleccionada.</p><div id="map" class="map"></div></article>
-<article class="card full"><h2>Candidatos del descifrado automático</h2><p class="muted">El primer candidato se aplica automáticamente. Podés seleccionar otra alternativa cuando el texto sea breve o especializado.</p><div id="attack-status" class="status" aria-live="polite"></div><div id="candidates" class="candidates"></div></article>
-<article class="card full"><h2>Interpretación</h2><p>En módulo 26 existen 12 multiplicadores invertibles y 26 desplazamientos: <strong>12 × 26 = 312 claves válidas</strong>. El ataque exhaustivo recupera todas las posibilidades y las ordena mediante frecuencias, n-gramas y segmentación del castellano.</p><p class="status warn"><strong>Importante:</strong> los espacios pueden ser separadores reales o simples bloques de transmisión. Por eso, al reconstruir palabras, el laboratorio une primero todas las letras y luego estima nuevamente sus límites.</p></article>
-</section>
-<footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Uso exclusivamente educativo.</p></footer>
+  <header class="topbar">
+    <div class="brand"><a href="index.html">⛓️ Módulo 1</a></div>
+    <nav class="nav" aria-label="Navegación principal">
+      <a href="../index.html">Campus</a>
+      <a href="ruta-guiada.html?paso=3">Ruta guiada</a>
+      <a href="../01-criptografia-clasica.html">Laboratorio integral</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Criptografía clásica · visualización circular</div>
+        <h1>Cifrado afín con reloj modular</h1>
+        <p>Observá cómo cada letra ocupa una posición del reloj y cómo la transformación <strong>C=(aM+b) mod n</strong> la lleva a otra posición. Podés comparar los alfabetos de <strong>26</strong> y <strong>27 letras</strong> y comprobar por qué <em>a</em> debe ser coprimo con el módulo.</p>
+        <div class="pill-row" style="margin-top:16px"><span class="pill">Reloj modular</span><span class="pill">mcd e inverso</span><span class="pill">26 y 27 letras</span><span class="pill">Colisiones visibles</span></div>
+      </div>
+      <div class="hero-clock" aria-hidden="true"><div class="hero-ring"></div></div>
+    </div>
+  </section>
+
+  <section class="layout" id="laboratorio">
+    <article class="card">
+      <h2>Configuración</h2>
+      <div class="controls">
+        <div class="control"><label for="modulus">Alfabeto y módulo</label><select id="modulus"><option value="26">26 letras · A–Z</option><option value="27">27 letras · A–N, Ñ, O–Z</option></select></div>
+        <div class="control"><label for="a">Multiplicador a</label><input id="a" type="number" value="5"></div>
+        <div class="control"><label for="b">Desplazamiento b</label><input id="b" type="number" value="8"></div>
+        <div class="control"><label for="focus">Letra observada</label><select id="focus"></select></div>
+      </div>
+      <div id="keyStatus" class="status" aria-live="polite"></div>
+      <div id="formula" class="formula"></div>
+      <div id="worked" class="worked"></div>
+      <div id="collision" class="collision-box"></div>
+      <div class="legend"><span class="plain">● mensaje M</span><span class="cipher">● criptograma C</span><span class="collision">● colisión si a no es coprimo</span></div>
+    </article>
+
+    <article class="card">
+      <h2>Reloj del cifrado</h2>
+      <p class="muted">La flecha celeste señala la posición inicial y la amarilla el resultado de la función afín.</p>
+      <div class="clock-stage"><svg id="affineClock" viewBox="0 0 660 660" role="img" aria-label="Reloj modular del cifrado afín"></svg></div>
+    </article>
+  </section>
+
+  <section class="grid" style="margin-top:18px">
+    <article class="card full">
+      <h2>Cifrar y descifrar texto</h2>
+      <div class="two">
+        <div class="control"><label for="input">Texto de entrada</label><textarea id="input">DABALE ARROZ A LA ZORRA EL ABAD</textarea></div>
+        <div class="control"><label for="output">Resultado</label><textarea id="output" readonly></textarea></div>
+      </div>
+      <div class="actions"><button id="encrypt" type="button">Cifrar</button><button id="decrypt" class="secondary" type="button">Descifrar</button><button id="swap" class="secondary" type="button">Usar salida como entrada</button></div>
+      <div id="textStatus" class="status" aria-live="polite"></div>
+    </article>
+
+    <article class="card full">
+      <h2>Mapa completo de sustitución</h2>
+      <p class="muted">Cada casilla muestra la letra clara, su índice y la letra cifrada obtenida con la clave actual.</p>
+      <div id="map" class="map"></div>
+    </article>
+
+    <article class="card full">
+      <h2>Idea matemática central</h2>
+      <p>El descifrado exige el inverso modular de <em>a</em>. Ese inverso existe exactamente cuando <strong>mcd(a,n)=1</strong>. Cuando el máximo común divisor es mayor que 1, varias letras caen en la misma posición del reloj: la transformación deja de ser biyectiva y el mensaje no puede recuperarse de forma única.</p>
+      <div class="status warn"><strong>Ejemplos:</strong> en módulo 26, a=2 produce colisiones; en módulo 27, a=3 produce colisiones. En ambos módulos, a=5 es válido.</div>
+    </article>
+  </section>
+
+  <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Modelo educativo: no utilizar para proteger información real.</p></footer>
 </main>
 <script>
 'use strict';
-const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ',VALID_A=[1,3,5,7,9,11,15,17,19,21,23,25];
-const FREQ={E:13.68,A:12.53,O:8.68,S:7.98,R:6.87,N:6.71,I:6.25,D:5.86,L:4.97,C:4.68,T:4.63,U:3.93,M:3.15,P:2.51,B:1.42,G:1.01,V:.9,Y:.9,Q:.88,H:.7,F:.69,Z:.52,J:.44,X:.22,K:.02,W:.01};
-const WORD_WEIGHTS=new Map([
-['A',4],['AL',7],['ALGUN',4],['ALGUNA',4],['AQUEL',5],['AQUELLOS',9],['ARCHIVO',7],['ARCHIVOS',10],['ALTERAR',9],['ANALIZAR',9],['AUTORIZADO',8],['AUTORIZADOS',11],['CIFRADO',10],['CIFRAR',9],['CLAVE',9],['COMO',14],['CON',12],['CONJUNTO',12],['CRIPTOGRAFIA',22],['DE',12],['DEL',10],['DESARROLLO',13],['DESCIFRAR',10],['EL',11],['EN',9],['ES',11],['ESTA',7],['ESTAN',7],['ESTEN',9],['HACER',8],['HACERLO',11],['INFORMACION',11],['LA',11],['LAS',9],['LEER',8],['LEIDO',7],['LEIDOS',10],['LO',7],['LOS',9],['MENSAJE',12],['MENSAJES',20],['MODIFICAR',12],['NO',10],['OBJETIVO',12],['O',6],['OCULTAR',9],['PARA',13],['PERMITE',9],['PERMITEN',12],['POR',10],['PUEDA',8],['PUEDAN',10],['QUE',14],['SE',8],['SER',9],['SI',6],['SISTEMA',10],['TECNICA',9],['TECNICAS',12],['TEXTO',9],['TODO',8],['TODOS',10],['TRANSFORMAR',18],['UN',10],['UNA',9],['USUARIO',9],['USUARIOS',12],['Y',7],['SEGURIDAD',12],['DEPENDER',10],['SECRETO',10],['ALGORITMO',11],['SOLAMENTE',10],['ENTIDADES',10],['DATOS',8],['CIENCIA',8]
-]);
-const WORD_SET=new Set(WORD_WEIGHTS.keys()),MAX_WORD=Math.max(...[...WORD_SET].map(w=>w.length));
-const BIGRAMS=new Set('DE EN ES LA EL OS AS RA RE ER ON NT TE CO AR AL OR CI ST UN QU UE AD DA DO ID RI CR GR AF FI IA'.split(' '));
-const TRIGRAMS=new Set('QUE ENT EST CON DEL LOS LAS ION PAR TRA MEN CRI GRA FIA DES SAR ROL LLO SEG URI DAD'.split(' '));
-const $=id=>document.getElementById(id),mod=(n,m)=>((n%m)+m)%m;
-let lastCipher='',lastInput='',lastMode='';
-function inv(a){for(let i=1;i<26;i++)if(mod(a*i,26)===1)return i;return null}
-function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()}
-function transform(s,a,b,decrypt=false){const ai=decrypt?inv(a):a;if(decrypt&&!ai)throw Error('La clave no tiene inverso.');return[...norm(s)].map(ch=>{const x=ABC.indexOf(ch);return x<0?ch:ABC[decrypt?mod(ai*(x-b),26):mod(a*x+b,26)]}).join('')}
-function cleanLetters(raw){return norm(raw).replace(/[^A-Z]/g,'')}
-function existingSpacing(raw){const tokens=norm(raw).match(/[A-Z]+/g)||[],letters=tokens.join('');if(tokens.length<2||!letters.length)return{plausible:false,coverage:0};const known=tokens.reduce((n,w)=>n+(WORD_SET.has(w)?w.length:0),0),coverage=known/letters.length;return{plausible:coverage>=.88&&!tokens.some(w=>w.length>18),coverage}}
-function segment(raw){const letters=cleanLetters(raw),n=letters.length;if(!n)return{text:'',coverage:0};const dp=Array(n+1).fill(null);dp[n]={score:0,tokens:[],known:0};for(let i=n-1;i>=0;i--){let best=null;for(let len=1;len<=Math.min(MAX_WORD,n-i);len++){const w=letters.slice(i,i+len),next=dp[i+len];if(!next||!WORD_SET.has(w))continue;const weight=WORD_WEIGHTS.get(w)||0,c={score:next.score+len*len+weight+(len===1?-5:0),tokens:[w,...next.tokens],known:next.known+len};if(!best||c.score>best.score)best=c}for(let len=1;len<=Math.min(12,n-i);len++){const next=dp[i+len];if(!next)continue;const w=letters.slice(i,i+len),c={score:next.score-(9*len+18),tokens:[w,...next.tokens],known:next.known};if(!best||c.score>best.score)best=c}dp[i]=best}return{text:dp[0].tokens.join(' '),coverage:dp[0].known/n}}
-function format(raw){if(!$('auto-space').checked)return{text:raw,changed:false,coverage:1};const existing=existingSpacing(raw);if(existing.plausible)return{text:raw,changed:false,coverage:existing.coverage};const s=segment(raw);return s.coverage>=.45?{text:s.text,changed:s.text!==raw,coverage:s.coverage}:{text:raw,changed:false,coverage:s.coverage}}
-function languageScore(raw){const letters=cleanLetters(raw),n=letters.length;if(!n)return Infinity;const counts=Object.fromEntries([...ABC].map(c=>[c,0]));for(const c of letters)counts[c]++;let chi=0;for(const c of ABC){const e=FREQ[c]*n/100;chi+=(counts[c]-e)**2/Math.max(e,.01)}let bi=0,tri=0;for(let i=0;i<n-1;i++)if(BIGRAMS.has(letters.slice(i,i+2)))bi++;for(let i=0;i<n-2;i++)if(TRIGRAMS.has(letters.slice(i,i+3)))tri++;const s=segment(raw),v=[...letters].filter(c=>'AEIOU'.includes(c)).length/n;return chi-bi*.9-tri*2.1-s.coverage*70+Math.abs(v-.45)*15}
-function refresh(){const a=+$('a').value,b=mod(+$('b').value,26),ai=inv(a);$('valid').innerHTML=`<span class="ok">Clave válida:</span> mcd(${a},26)=1; inverso de a=${ai}.`;$('map').innerHTML=[...ABC].map((c,i)=>`<div class="cell"><b>${c}</b>${ABC[mod(a*i+b,26)]}</div>`).join('')}
-function show(raw,decrypt=false){const f=decrypt?format(raw):{text:raw,changed:false,coverage:1};$('out').textContent=f.text;$('literal-details').hidden=!f.changed;$('literal-out').textContent=f.changed?raw:'';$('format-status').innerHTML=decrypt?(f.changed?`<span class="ok">Palabras reconstruidas.</span> Cobertura del diccionario: <strong>${Math.round(f.coverage*100)}%</strong>. Se ignoraron los espacios y saltos usados como agrupación.`:'<span class="warn-text">Salida literal:</span> no hubo confianza suficiente para reconstruir palabras.'):'<span class="ok">Formato conservado:</span> los separadores presentes no se cifran.'}
-function encrypt(){const input=$('text').value,a=+$('a').value,b=mod(+$('b').value,26);lastCipher=transform(input,a,b);lastInput=input;lastMode='encrypt';show(lastCipher);$('key-status').innerHTML=`<span class="ok">Cifrado:</span> clave utilizada <strong>a=${a}, b=${b}</strong>.`}
-function manualDecrypt(){try{const a=+$('a').value,b=mod(+$('b').value,26),raw=transform($('text').value,a,b,true);show(raw,true);$('key-status').innerHTML=`<span class="warn-text">Comprobación manual:</span> se aplicó <strong>a=${a}, b=${b}</strong>; no se buscó la clave.`}catch(e){$('key-status').innerHTML=`<span class="bad">${e.message}</span>`}}
-function sourceCipher(){return lastMode==='encrypt'&&$('text').value===lastInput?lastCipher:$('text').value}
-function applyCandidate(r,rank=1){$('a').value=r.a;$('b').value=r.b;refresh();show(r.raw,true);$('key-status').innerHTML=`<span class="ok">${rank===1?'Clave más probable':'Candidato seleccionado'}:</span> <strong>a=${r.a}, b=${r.b}</strong>. Puntaje ${r.score.toFixed(1)}.`}
-function render(results){const box=$('candidates');box.replaceChildren();results.slice(0,12).forEach((r,i)=>{const row=document.createElement('div');row.className='candidate';const key=document.createElement('b');key.textContent=`${i+1}. a=${r.a}, b=${r.b}`;const text=document.createElement('div');text.className='candidate-text';const f=format(r.raw);const strong=document.createElement('strong');strong.textContent=f.text;text.append(strong);if(f.changed){const badge=document.createElement('span');badge.className='confidence';badge.textContent=`palabras ${Math.round(f.coverage*100)}%`;text.append(badge)}const points=document.createElement('span');points.className='candidate-score';points.textContent=r.score.toFixed(1);const use=document.createElement('button');use.className='secondary';use.textContent=i?'Usar candidato':'Usar mejor clave';use.onclick=()=>applyCandidate(r,i+1);row.append(key,text,points,use);box.append(row)})}
-function autoDecrypt(){const cipher=sourceCipher();if(!cipher.trim()){$('key-status').innerHTML='<span class="bad">Pegá un criptograma.</span>';return}const results=[];for(const a of VALID_A)for(let b=0;b<26;b++){const raw=transform(cipher,a,b,true);results.push({a,b,raw,score:languageScore(raw)})}results.sort((x,y)=>x.score-y.score);render(results);applyCandidate(results[0]);const n=cleanLetters(cipher).length;$('attack-status').innerHTML=`<span class="ok">312 claves evaluadas.</span> Se aplicó el candidato mejor puntuado y se reconstruyeron sus palabras.${n<20?' <span class="bad">Texto breve:</span> revisá las alternativas.':''}`}
-VALID_A.forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;o.selected=v===5;$('a').append(o)});$('a').onchange=refresh;$('b').oninput=refresh;$('enc').onclick=encrypt;$('dec').onclick=autoDecrypt;$('manual-dec').onclick=manualDecrypt;$('auto-space').onchange=()=>{if($('candidates').children.length)autoDecrypt()};$('text').oninput=()=>{$('candidates').replaceChildren();$('attack-status').textContent='';$('key-status').innerHTML='Elegí la clave para cifrar o pulsá <strong>Descifrar automáticamente</strong> para buscarla.';lastMode=''};refresh();encrypt();
+const ABC26='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const ABC27='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
+const $=id=>document.getElementById(id);
+const mod=(x,n)=>((x%n)+n)%n;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b)[a,b]=[b,a%b];return a}
+function inverse(a,n){a=mod(a,n);for(let x=1;x<n;x++)if(mod(a*x,n)===1)return x;return null}
+function alphabet(){return $('modulus').value==='27'?ABC27:ABC26}
+function state(){const abc=alphabet(),n=abc.length,a=mod(Number($('a').value)||0,n),b=mod(Number($('b').value)||0,n),x=Number($('focus').value)||0;return{abc,n,a,b,x,y:mod(a*x+b,n),d:gcd(a,n),ai:inverse(a,n)}}
+function populateFocus(){const abc=alphabet(),old=Number($('focus').value)||0;$('focus').innerHTML=[...abc].map((c,i)=>`<option value="${i}">${c} = ${i}</option>`).join('');$('focus').value=Math.min(old,abc.length-1)}
+function nodePoint(i,n,r=270){const angle=-Math.PI/2+2*Math.PI*i/n;return{x:330+r*Math.cos(angle),y:330+r*Math.sin(angle)}}
+function line(x1,y1,x2,y2,cls){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}"/>`}
+function collisionExample(a,b,n){const seen=new Map();for(let x=0;x<n;x++){const y=mod(a*x+b,n);if(seen.has(y))return{x1:seen.get(y),x2:x,y};seen.set(y,x)}return null}
+function drawClock(){const s=state(),svg=$('affineClock'),pIn=nodePoint(s.x,s.n,205),pOut=nodePoint(s.y,s.n,205);let html='<defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+html+='<circle cx="330" cy="330" r="285" fill="#06111e" stroke="rgba(168,194,220,.25)" stroke-width="3"/>';
+html+=line(330,330,pIn.x,pIn.y,'arrow-input')+line(330,330,pOut.x,pOut.y,'arrow-output');
+const col=s.d===1?null:collisionExample(s.a,s.b,s.n);
+for(let i=0;i<s.n;i++){const p=nodePoint(i,s.n),classes=['clock-node'];if(i===s.x)classes.push('input');if(i===s.y)classes.push('output');if(col&&(i===col.x1||i===col.x2))classes.push('collision');const fs=s.n===27?12:13;html+=`<g class="${classes.join(' ')}" transform="translate(${p.x} ${p.y})"><circle r="22"/><text y="-3" style="font-size:${fs}px">${s.abc[i]}</text><text class="idx" y="11">${i}</text></g>`}
+html+=`<circle class="clock-center" cx="330" cy="330" r="92"/><text class="center-title" x="330" y="310">${s.abc[s.x]} → ${s.abc[s.y]}</text><text class="center-sub" x="330" y="334">(${s.a}·${s.x}+${s.b}) mod ${s.n} = ${s.y}</text><text class="center-sub" x="330" y="354">mcd(${s.a},${s.n}) = ${s.d}</text>`;svg.innerHTML=html}
+function update(){const s=state(),valid=s.d===1;$('keyStatus').className=`status ${valid?'good':'bad'}`;$('keyStatus').innerHTML=valid?`<strong>Clave válida.</strong> mcd(${s.a},${s.n})=1 y a⁻¹=${s.ai}.`:`<strong>Clave inválida.</strong> mcd(${s.a},${s.n})=${s.d}; a no tiene inverso módulo ${s.n}.`;$('formula').innerHTML=`C = (${s.a}·M + ${s.b}) mod ${s.n}<br>${valid?`M = ${s.ai}·(C − ${s.b}) mod ${s.n}`:'No existe una fórmula de descifrado única.'}`;$('worked').innerHTML=`<div>${s.abc[s.x]} se representa por M=${s.x}.</div><div>C=(${s.a}·${s.x}+${s.b}) mod ${s.n}=${s.y}.</div><div>Por lo tanto, <strong>${s.abc[s.x]} → ${s.abc[s.y]}</strong>.</div>`;const col=valid?null:collisionExample(s.a,s.b,s.n);$('collision').innerHTML=valid?'<strong>Sin colisiones:</strong> cada letra llega a una posición distinta del reloj.':`<strong>Colisión visible:</strong> M=${col.x1} (${s.abc[col.x1]}) y M=${col.x2} (${s.abc[col.x2]}) producen C=${col.y} (${s.abc[col.y]}).`;$('map').innerHTML=[...s.abc].map((c,i)=>`<div class="cell"><strong>${c} <small>${i}</small></strong><span>→ ${s.abc[mod(s.a*i+s.b,s.n)]}</span></div>`).join('');drawClock()}
+function normalizeText(text,abc){let s=text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();if(abc===ABC26)s=s.replace(/Ñ/g,'N');return s}
+function transform(text,decrypt=false){const s=state();if(decrypt&&!s.ai)throw new Error(`No se puede descifrar: a=${s.a} no tiene inverso módulo ${s.n}.`);return[...normalizeText(text,s.abc)].map(ch=>{const x=s.abc.indexOf(ch);if(x<0)return ch;const y=decrypt?mod(s.ai*(x-s.b),s.n):mod(s.a*x+s.b,s.n);return s.abc[y]}).join('')}
+function run(decrypt=false){try{$('output').value=transform($('input').value,decrypt);$('textStatus').className='status good';$('textStatus').textContent=decrypt?'Texto descifrado con el inverso modular.':'Texto cifrado con la función afín.'}catch(e){$('output').value='';$('textStatus').className='status bad';$('textStatus').textContent=e.message}}
+$('modulus').onchange=()=>{populateFocus();update()};$('a').oninput=update;$('b').oninput=update;$('focus').onchange=update;$('encrypt').onclick=()=>run(false);$('decrypt').onclick=()=>run(true);$('swap').onclick=()=>{$('input').value=$('output').value;$('output').value=''};populateFocus();$('focus').value=3;update();run(false);
 </script>
 </body>
 </html>
