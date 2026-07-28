@@ -45,12 +45,12 @@
     },
     {
       id: 'pseudoaleatoriedad',
-      title: 'PRNG frente a CSPRNG',
+      title: 'Aleatoriedad criptográfica',
       family: 'Aleatoriedad',
       level: 'Intermedio',
-      time: '25 min',
-      objective: 'Separar apariencia estadística, reproducibilidad e impredecibilidad.',
-      evidence: 'Comparás balance, corridas y correlación sin presentar pruebas simples como garantía criptográfica.',
+      time: '35 min',
+      objective: 'Conectar fuente de entropía, semilla, estado, PRNG y CSPRNG con usos criptográficos concretos.',
+      evidence: 'Comparás muestras, predecís un generador débil y justificás qué propiedad exige cada clave, nonce, salt o token.',
       url: 'flujo-pseudoaleatorio.html'
     },
     {

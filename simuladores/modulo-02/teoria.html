@@ -100,6 +100,24 @@
             <li><strong>Difusión:</strong> propaga la influencia de cada bit sobre muchas posiciones de salida; permutaciones y mezclas lineales colaboran con ella.</li>
           </ul>
           <p>El efecto avalancha —un bit de entrada provoca aproximadamente la mitad de bits de salida distintos— es una evidencia útil, pero <strong>no constituye una prueba de seguridad</strong>.</p>
+
+          <h3>Fuentes de entropía, PRNG y CSPRNG</h3>
+          <p>Un sistema real comienza con una <strong>fuente de entropía</strong>: observaciones del entorno y del sistema operativo que aportan incertidumbre. Esa entropía inicializa o actualiza un estado interno. A partir de allí, un generador puede expandir el estado determinísticamente para producir muchos bytes.</p>
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <h3>PRNG de propósito general</h3>
+              <p>Prioriza velocidad y propiedades estadísticas útiles para simulación. Conocer su estado puede permitir reproducir o anticipar toda la secuencia.</p>
+            </article>
+            <article class="comparison-card">
+              <h3>CSPRNG o DRBG</h3>
+              <p>Está diseñado frente a un adversario: sin el estado, las salidas observadas no deberían permitir predecir eficientemente las siguientes.</p>
+            </article>
+          </div>
+          <p>La diferencia no es simplemente «determinista frente a no determinista». Muchos CSPRNG son deterministas después de sembrarse; la seguridad depende de la calidad de la entropía, la construcción, la protección y actualización del estado y el uso correcto de la salida.</p>
+          <p>Las claves requieren impredecibilidad y secreto; los nonces e IV exigen unicidad o impredecibilidad según el esquema; las sales suelen ser públicas y aleatorias; los tokens deben ser impracticables de adivinar. Una clave de 256 bits derivada de un PIN de cuatro cifras sigue teniendo, como máximo bajo ese modelo, unas 13,3 bits de incertidumbre.</p>
+          <div class="example-box">
+            <p><strong>Exploración recomendada:</strong> el <a href="flujo-pseudoaleatorio.html">laboratorio de aleatoriedad criptográfica</a> permite comparar muestras, predecir un generador débil y medir el efecto de una semilla con poca entropía.</p>
+          </div>
           <details class="checkpoint">
             <summary>Comprobación conceptual: ¿entropía alta implica impredecibilidad criptográfica?</summary>
             <p>No. Una secuencia determinista puede tener frecuencias equilibradas y entropía empírica cercana al máximo, pero ser totalmente reproducible si se conoce la semilla o el estado.</p>

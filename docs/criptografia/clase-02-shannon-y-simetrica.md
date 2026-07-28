@@ -75,9 +75,11 @@ Deben distinguirse:
 
 ## 5. PRNG y CSPRNG
 
-Un PRNG produce secuencias reproducibles a partir de un estado o semilla. Un CSPRNG agrega requisitos de impredecibilidad y resistencia a reconstrucción del estado.
+Un PRNG produce secuencias reproducibles a partir de un estado o semilla. Un CSPRNG agrega requisitos adversariales de impredecibilidad y resistencia a reconstrucción del estado. Muchos CSPRNG son deterministas después de recibir entropía suficiente: la distinción correcta no es «determinista o aleatorio», sino «apto o no apto frente al adversario definido».
 
 Las simulaciones del repositorio usan generadores didácticos para estudiar distribución y reproducibilidad. No deben utilizarse para generar claves, nonces o secretos.
+
+El [laboratorio de aleatoriedad criptográfica](../../simuladores/modulo-02/flujo-pseudoaleatorio.html) organiza la explicación en cinco pasos: fuente de entropía, semilla y estado, expansión, predicción adversarial y aplicación a claves, nonces, sales y tokens.
 
 ## 6. Cifrado simétrico
 

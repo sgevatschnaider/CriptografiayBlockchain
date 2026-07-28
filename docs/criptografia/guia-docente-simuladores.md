@@ -42,6 +42,7 @@ Una sesión de 75 a 90 minutos puede organizarse así:
 
 - Distinguir seguridad informal, secreto perfecto y seguridad computacional.
 - Relacionar entropía, redundancia e información mutua con el modelo de Shannon.
+- Distinguir fuente de entropía, PRNG de propósito general y CSPRNG o DRBG.
 - Formular propiedad, adversario, condición de victoria y recursos.
 - Explicar la reversibilidad de XOR y diferenciar desplazamiento, bloques y flujo.
 - Comprobar por qué reutilizar un contador o keystream expone relaciones entre mensajes.
@@ -52,11 +53,13 @@ Una sesión de 75 a 90 minutos puede organizarse así:
 1. Comparar el mismo mensaje con César, one-time pad y AES-GCM.
 2. Antes de revelar la respuesta, predecir cuál puede ofrecer secreto perfecto y bajo qué condiciones.
 3. Enumerar las 25 claves de César y discutir por qué “parece ilegible” no es una definición.
-4. Manipular dos bytes con AND, OR y XOR; aplicar XOR por segunda vez para recuperar el mensaje.
-5. Ejecutar AES-CTR con el mismo contador para dos mensajes y verificar \(C_1 \oplus C_2 = M_1 \oplus M_2\).
-6. Repetir con contadores distintos y separar confidencialidad de autenticación.
+4. Comparar un PRNG lineal con un CSPRNG, repetir la semilla y predecir la salida del generador débil.
+5. Contrastar la entropía efectiva de un PIN, una marca temporal y 128 bits producidos por el sistema.
+6. Manipular dos bytes con AND, OR y XOR; aplicar XOR por segunda vez para recuperar el mensaje.
+7. Ejecutar AES-CTR con el mismo contador para dos mensajes y verificar \(C_1 \oplus C_2 = M_1 \oplus M_2\).
+8. Repetir con contadores distintos y separar confidencialidad de autenticación.
 
-**Evidencia de aprendizaje:** explicación oral o escrita que compare César, OTP y AES-GCM mediante cuatro elementos explícitos —propiedad, adversario, victoria y recursos— e interprete la igualdad observada al reutilizar el contador.
+**Evidencia de aprendizaje:** explicación oral o escrita que compare César, OTP y AES-GCM mediante cuatro elementos explícitos —propiedad, adversario, victoria y recursos—, distinga apariencia estadística de impredecibilidad e interprete la igualdad observada al reutilizar el contador.
 
 **Extensión:** la ruta guiada de trece estaciones permite distribuir teoría, simulaciones, mapas, glosario y cuestionario en varias clases o utilizarlos como trabajo autónomo.
 
