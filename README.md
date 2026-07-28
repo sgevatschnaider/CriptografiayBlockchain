@@ -56,7 +56,9 @@ Cada módulo posee una **página propia** que organiza su laboratorio integral, 
 <div align="center">
 
 [![César castellano](https://img.shields.io/badge/LAB-CÉSAR%20CASTELLANO-00a6a6?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01a-cifrado-cesar-castellano.html)
+[![Salto clásico–moderno](https://img.shields.io/badge/LAB-SALTO%20CLÁSICO–MODERNO-0f766e?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/introduccion-interactiva.html)
 [![Shannon y entropía](https://img.shields.io/badge/LAB-SHANNON%20Y%20ENTROPÍA-1d4ed8?style=for-the-badge&logo=python&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/entropia-shannon.html)
+[![XOR y AES-CTR](https://img.shields.io/badge/LAB-XOR%20Y%20AES--CTR-0891b2?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/laboratorio-xor-flujo.html)
 [![AES y AEAD](https://img.shields.io/badge/LAB-AES%20Y%20AEAD-6d28d9?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/modos-aes-aead.html)
 [![Blockchain y Merkle](https://img.shields.io/badge/LAB-BLOCKCHAIN%20Y%20MERKLE-111827?style=for-the-badge&logo=bitcoin&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html)
 

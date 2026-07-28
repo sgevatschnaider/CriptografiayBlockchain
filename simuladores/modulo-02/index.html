@@ -26,7 +26,7 @@
         <a href="cuestionario.html">Evaluación</a>
       </nav>
       <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo">
-        <span data-progress-count>0/11</span>
+        <span data-progress-count>0/13</span>
         <span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span>
         <span data-progress-label>0%</span>
       </div>
@@ -44,7 +44,7 @@
         </div>
         <div class="hero-stats" role="group" aria-label="Contenido del módulo">
           <div class="hero-stat"><strong>3</strong><span>pilares teóricos</span></div>
-          <div class="hero-stat"><strong>7</strong><span>laboratorios interactivos</span></div>
+          <div class="hero-stat"><strong>9</strong><span>experiencias interactivas</span></div>
           <div class="hero-stat"><strong>72 + 36</strong><span>términos y preguntas</span></div>
         </div>
       </div>
@@ -159,13 +159,21 @@
         <div>
           <div class="section-kicker">Ruta de aprendizaje</div>
           <h2 id="ruta">De la definición al experimento</h2>
-          <p>Once estaciones ordenadas. Podés seguirlas en secuencia o abrir cada recurso de forma independiente.</p>
+          <p>Trece estaciones ordenadas. Podés seguirlas en secuencia o abrir cada recurso de forma independiente.</p>
         </div>
         <div class="section-index" aria-hidden="true">03</div>
       </header>
       <div class="route-grid">
-        <a class="route-card" href="teoria.html" data-route-page="teoria">
+        <a class="route-card" href="introduccion-interactiva.html" data-route-page="salto-moderno">
           <span class="route-step">01</span>
+          <div class="route-card-copy">
+            <h3>Del cifrado clásico al modelo moderno</h3>
+            <p>Comparador real entre César, OTP y AES-GCM mediante propiedad, adversario, victoria y recursos.</p>
+            <span class="route-meta"><span>Apertura</span><span>20 min</span><span>Comparación</span></span>
+          </div>
+        </a>
+        <a class="route-card" href="teoria.html" data-route-page="teoria">
+          <span class="route-step">02</span>
           <div class="route-card-copy">
             <h3>Teoría integrada</h3>
             <p>El cambio metodológico y los tres pilares, con precisiones conceptuales y fuentes primarias.</p>
@@ -173,7 +181,7 @@
           </div>
         </a>
         <a class="route-card" href="entropia-shannon.html" data-route-page="entropia">
-          <span class="route-step">02</span>
+          <span class="route-step">03</span>
           <div class="route-card-copy">
             <h3>Entropía de Shannon</h3>
             <p>Curva H(p), sorpresa, redundancia, muestra empírica y convergencia.</p>
@@ -181,7 +189,7 @@
           </div>
         </a>
         <a class="route-card" href="secreto-perfecto.html" data-route-page="secreto-perfecto">
-          <span class="route-step">03</span>
+          <span class="route-step">04</span>
           <div class="route-card-copy">
             <h3>Secreto perfecto y OTP</h3>
             <p>Distribuciones a priori y a posteriori, información mutua y reutilización de clave.</p>
@@ -189,7 +197,7 @@
           </div>
         </a>
         <a class="route-card" href="flujo-pseudoaleatorio.html" data-route-page="pseudoaleatoriedad">
-          <span class="route-step">04</span>
+          <span class="route-step">05</span>
           <div class="route-card-copy">
             <h3>PRNG frente a CSPRNG</h3>
             <p>Reproducibilidad, distribución, corridas, correlación y predicción de estado.</p>
@@ -197,7 +205,7 @@
           </div>
         </a>
         <a class="route-card" href="confusion-difusion.html" data-route-page="confusion-difusion">
-          <span class="route-step">05</span>
+          <span class="route-step">06</span>
           <div class="route-card-copy">
             <h3>Confusión, difusión y avalancha</h3>
             <p>Red de sustitución–permutación didáctica, capas y distancia de Hamming por ronda.</p>
@@ -205,7 +213,7 @@
           </div>
         </a>
         <a class="route-card" href="juego-seguridad.html" data-route-page="juego-seguridad">
-          <span class="route-step">06</span>
+          <span class="route-step">07</span>
           <div class="route-card-copy">
             <h3>Juego de indistinguibilidad</h3>
             <p>Desafiante, adversario, oráculo y ventaja al comparar aleatorización con reutilización.</p>
@@ -213,7 +221,7 @@
           </div>
         </a>
         <a class="route-card" href="espacio-claves-complejidad.html" data-route-page="complejidad">
-          <span class="route-step">07</span>
+          <span class="route-step">08</span>
           <div class="route-card-copy">
             <h3>Espacio de claves y costo</h3>
             <p>Fuerza bruta clásica, idealización de Grover, paralelización y escalas temporales.</p>
@@ -221,15 +229,23 @@
           </div>
         </a>
         <a class="route-card" href="estructuras-algebraicas.html" data-route-page="algebra">
-          <span class="route-step">08</span>
+          <span class="route-step">09</span>
           <div class="route-card-copy">
             <h3>Laboratorio de estructuras</h3>
             <p>GF(2⁸), grupos cíclicos, una curva elíptica pequeña y ecuaciones LWE con ruido.</p>
             <span class="route-meta"><span>Laboratorio</span><span>35 min</span><span>Álgebra</span></span>
           </div>
         </a>
+        <a class="route-card" href="laboratorio-xor-flujo.html" data-route-page="xor-flujo">
+          <span class="route-step">10</span>
+          <div class="route-card-copy">
+            <h3>XOR y cifrado por flujo</h3>
+            <p>Bits manipulables, tabla de verdad, AES-CTR y ataque observable por reutilización de contador.</p>
+            <span class="route-meta"><span>Laboratorio</span><span>30 min</span><span>Puente aplicado</span></span>
+          </div>
+        </a>
         <a class="route-card" href="mapas-mentales.html" data-route-page="mapas">
-          <span class="route-step">09</span>
+          <span class="route-step">11</span>
           <div class="route-card-copy">
             <h3>Mapas mentales interactivos</h3>
             <p>Relaciones entre pilares, modelos de seguridad, primitivas y amenaza cuántica.</p>
@@ -237,7 +253,7 @@
           </div>
         </a>
         <a class="route-card" href="glosario.html" data-route-page="glosario">
-          <span class="route-step">10</span>
+          <span class="route-step">12</span>
           <div class="route-card-copy">
             <h3>Glosario de 72 conceptos</h3>
             <p>Búsqueda, filtros, ejemplos, relaciones y progreso de dominio local.</p>
@@ -245,7 +261,7 @@
           </div>
         </a>
         <a class="route-card" href="cuestionario.html" data-route-page="cuestionario">
-          <span class="route-step">11</span>
+          <span class="route-step">13</span>
           <div class="route-card-copy">
             <h3>Evaluación formativa</h3>
             <p>Treinta y seis preguntas con niveles, explicaciones y retroalimentación inmediata.</p>

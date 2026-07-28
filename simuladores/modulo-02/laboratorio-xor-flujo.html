@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio visual de operaciones binarias, XOR, cifrado simétrico y reutilización de contador en un flujo AES-CTR ejecutado mediante Web Crypto.">
+  <meta name="theme-color" content="#061322">
+  <title>XOR y cifrado por flujo | Módulo 2</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+  <link rel="stylesheet" href="assets/introducciones.css">
+</head>
+<body class="module-02" data-module-page="xor-flujo">
+  <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/13</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Puente al Módulo 3 · de la operación al protocolo</div>
+        <h1>XOR, keystream y cifrado por flujo</h1>
+        <p>Manipulá bits, comprobá por qué XOR permite cifrar y descifrar, y observá con AES-CTR real cómo reutilizar un contador expone una relación entre dos mensajes.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">⊕</div>
+    </section>
+
+    <section class="lab-grid" id="laboratorio" aria-label="Laboratorio de XOR y cifrado por flujo">
+      <article class="lab-panel span-eight">
+        <h2>1. Microscopio de ocho bits</h2>
+        <p>Activá o desactivá bits en las dos entradas. La salida se recalcula con la operación seleccionada.</p>
+        <div class="xor-workbench">
+          <div class="operation-switch" role="group" aria-label="Operación binaria">
+            <button class="button secondary" type="button" data-operation="xor" aria-pressed="true">XOR</button>
+            <button class="button secondary" type="button" data-operation="and" aria-pressed="false">AND</button>
+            <button class="button secondary" type="button" data-operation="or" aria-pressed="false">OR</button>
+          </div>
+          <div class="bit-equation">
+            <div class="bit-row">
+              <span class="bit-row-label">Mensaje M</span>
+              <div class="bit-buttons" id="message-bits" role="group" aria-label="Bits del mensaje"></div>
+              <span class="bit-row-result" id="message-value">72 · 0x48</span>
+            </div>
+            <div class="bit-row">
+              <span class="bit-row-label">Clave K</span>
+              <div class="bit-buttons" id="key-bits" role="group" aria-label="Bits de la clave"></div>
+              <span class="bit-row-result" id="key-value">181 · 0xb5</span>
+            </div>
+            <div class="bit-row">
+              <span class="bit-row-label">Salida</span>
+              <div class="bit-buttons" id="result-bits" role="img" aria-label="Bits del resultado"></div>
+              <span class="bit-row-result" id="result-value">253 · 0xfd</span>
+            </div>
+          </div>
+          <p class="formula" id="bit-equation-output">01001000 XOR 10110101 = 11111101</p>
+          <p class="status" id="bit-status" role="status" aria-live="polite">Con XOR, aplicar la misma clave otra vez recupera M.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>2. Tabla de verdad</h2>
+        <p>AND y OR introducen la lógica binaria. XOR es central porque es reversible cuando se conoce la misma segunda entrada.</p>
+        <table class="truth-table">
+          <caption class="sr-only">Tabla de verdad de la operación seleccionada</caption>
+          <thead><tr><th>A</th><th>B</th><th id="truth-operation">A XOR B</th></tr></thead>
+          <tbody id="truth-body"></tbody>
+        </table>
+        <div class="definition">
+          <p id="operation-rule"><strong>XOR:</strong> produce 1 cuando los bits son diferentes.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>3. Del byte al flujo con AES-CTR</h2>
+        <p>AES-CTR transforma un cifrador por bloques en una construcción que genera keystream. La demostración deriva una clave de laboratorio con SHA-256 y utiliza Web Crypto; no es una receta de producción.</p>
+        <div class="definition">
+          <p><strong>Precisión terminológica:</strong> el cifrado César es un cifrado <em>por desplazamiento</em>; no es un cifrador <em>por flujo</em>. En un cifrador por flujo moderno, un estado secreto produce una secuencia de bytes que se combina con el mensaje, normalmente mediante XOR.</p>
+        </div>
+        <div class="stream-form">
+          <div>
+            <label for="stream-message-a">Mensaje 1</label>
+            <input id="stream-message-a" type="text" maxlength="80" value="TRANSFERIR 1000" autocomplete="off">
+          </div>
+          <div>
+            <label for="stream-message-b">Mensaje 2</label>
+            <input id="stream-message-b" type="text" maxlength="80" value="TRANSFERIR 9000" autocomplete="off">
+          </div>
+          <div>
+            <label for="stream-key">Secreto compartido de laboratorio</label>
+            <input id="stream-key" type="text" maxlength="80" value="clave-compartida-aula" autocomplete="off">
+          </div>
+          <div>
+            <label for="stream-counter">Contador inicial, 16 bytes en hexadecimal</label>
+            <input id="stream-counter" class="mono" type="text" maxlength="32" value="00112233445566778899aabb00000000" spellcheck="false" autocomplete="off">
+          </div>
+          <label class="switch-row full-row">
+            <input id="reuse-counter" type="checkbox" checked>
+            <span><strong>Reutilizar contador para ambos mensajes</strong><br><span class="muted">Activalo para observar el fallo; desactivalo para generar un contador independiente.</span></span>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="button" id="run-stream" type="button">Cifrar y comparar</button>
+          <button class="button secondary" id="random-counter" type="button">Generar contador</button>
+        </div>
+        <p class="status" id="stream-status" role="status" aria-live="polite">Preparado para ejecutar AES-CTR.</p>
+        <div class="counter-strip" role="group" aria-label="Contadores utilizados por AES-CTR">
+          <div><strong>CTR₁</strong><code id="counter-a-output">—</code></div>
+          <span aria-hidden="true">↔</span>
+          <div><strong>CTR₂</strong><code id="counter-b-output">—</code></div>
+        </div>
+
+        <div class="stream-console" role="group" aria-label="Representación hexadecimal del primer cifrado">
+          <div class="stream-lane"><strong>Mensaje M₁</strong><div class="byte-ribbon" id="lane-message">—</div></div>
+          <div class="stream-lane"><strong>Keystream KS₁</strong><div class="byte-ribbon" id="lane-keystream">—</div></div>
+          <div class="stream-lane"><strong>Criptograma C₁</strong><div class="byte-ribbon" id="lane-cipher">—</div></div>
+          <div class="stream-lane"><strong>Recuperado</strong><div class="byte-ribbon" id="lane-recovered">—</div></div>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>4. Evidencia del ataque por reutilización</h2>
+        <p>Cuando ambos mensajes reciben el mismo keystream, este se cancela al hacer XOR entre los criptogramas.</p>
+        <div class="attack-proof">
+          <div class="proof-card" id="proof-ciphers">
+            <strong>C₁ XOR C₂</strong>
+            <code id="cipher-xor">Ejecutá la simulación.</code>
+          </div>
+          <div class="proof-card" id="proof-messages">
+            <strong>M₁ XOR M₂</strong>
+            <code id="message-xor">Ejecutá la simulación.</code>
+          </div>
+        </div>
+        <p class="formula" id="reuse-equation">C₁ ⊕ C₂ = M₁ ⊕ M₂ solo cuando KS₁ = KS₂</p>
+        <div class="warning-box">
+          <p><strong>No confundas:</strong> CTR proporciona confidencialidad, pero no autenticación. En sistemas nuevos se prefieren construcciones AEAD, como AES-GCM o ChaCha20-Poly1305, con gestión correcta de nonces.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>5. Clasificá las afirmaciones</h2>
+        <p>Separá características, ventajas, requisitos, desafíos y errores conceptuales. Después comprobá el conjunto.</p>
+        <div class="classification-grid" id="classification-grid">
+          <div class="classification-card" data-answer="caracteristica">
+            <p>Emisor y receptor comparten un secreto para proteger la comunicación.</p>
+            <select aria-label="Clasificación: secreto compartido"><option value="">Elegí…</option><option value="caracteristica">Característica</option><option value="ventaja">Ventaja</option><option value="requisito">Requisito</option><option value="desafio">Desafío</option><option value="error">Error conceptual</option></select>
+          </div>
+          <div class="classification-card" data-answer="ventaja">
+            <p>Es eficiente para cifrar grandes volúmenes de datos.</p>
+            <select aria-label="Clasificación: eficiencia"><option value="">Elegí…</option><option value="caracteristica">Característica</option><option value="ventaja">Ventaja</option><option value="requisito">Requisito</option><option value="desafio">Desafío</option><option value="error">Error conceptual</option></select>
+          </div>
+          <div class="classification-card" data-answer="desafio">
+            <p>Distribuir y custodiar la clave sin exponerla.</p>
+            <select aria-label="Clasificación: distribución de clave"><option value="">Elegí…</option><option value="caracteristica">Característica</option><option value="ventaja">Ventaja</option><option value="requisito">Requisito</option><option value="desafio">Desafío</option><option value="error">Error conceptual</option></select>
+          </div>
+          <div class="classification-card" data-answer="requisito">
+            <p>No reutilizar nonce o contador con la misma clave cuando la construcción exige unicidad.</p>
+            <select aria-label="Clasificación: no reutilizar nonce"><option value="">Elegí…</option><option value="caracteristica">Característica</option><option value="ventaja">Ventaja</option><option value="requisito">Requisito</option><option value="desafio">Desafío</option><option value="error">Error conceptual</option></select>
+          </div>
+          <div class="classification-card" data-answer="error">
+            <p>Todo cifrado simétrico garantiza automáticamente integridad.</p>
+            <select aria-label="Clasificación: integridad automática"><option value="">Elegí…</option><option value="caracteristica">Característica</option><option value="ventaja">Ventaja</option><option value="requisito">Requisito</option><option value="desafio">Desafío</option><option value="error">Error conceptual</option></select>
+          </div>
+          <div class="classification-card" data-answer="error">
+            <p>Un cifrador por flujo es inherentemente menos seguro que uno por bloques.</p>
+            <select aria-label="Clasificación: flujo menos seguro"><option value="">Elegí…</option><option value="caracteristica">Característica</option><option value="ventaja">Ventaja</option><option value="requisito">Requisito</option><option value="desafio">Desafío</option><option value="error">Error conceptual</option></select>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="button" id="check-classification" type="button">Comprobar clasificación</button>
+          <button class="button secondary" id="reset-classification" type="button">Reiniciar</button>
+        </div>
+        <p class="status" id="classification-status" role="status" aria-live="polite">Todavía no comprobaste las respuestas.</p>
+      </article>
+    </section>
+
+    <aside class="bridge-banner" aria-label="Continuación en el Módulo 3">
+      <div class="bridge-icon" aria-hidden="true">03</div>
+      <div><h2>El fundamento ya está listo</h2><p>En el Módulo 3 podés comparar bloques y flujo, analizar padding, estudiar modos y comprobar autenticación con AES-GCM.</p></div>
+      <a class="button" href="../modulo-03/bloques-vs-flujo.html">Abrir bloques vs. flujo →</a>
+    </aside>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>De la operación a la decisión de diseño</h2><p>Usá los mapas mentales para integrar XOR, estructuras, modelos y primitivas antes del repaso final.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="estructuras-algebraicas.html">← Estructuras</a>
+        <button class="button secondary" type="button" data-complete-page="xor-flujo" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="mapas-mentales.html">Siguiente: mapas mentales →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>AES-CTR se ejecuta localmente mediante Web Crypto. La derivación SHA-256 utilizada aquí es didáctica; una implementación real debe emplear una KDF apropiada y cifrado autenticado.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/xor-flujo.js"></script>
+</body>
+</html>

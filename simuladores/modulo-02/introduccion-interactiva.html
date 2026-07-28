@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Introducción interactiva que compara cifrado César, secreto perfecto y criptografía moderna mediante definiciones, adversarios y experimentos reales en el navegador.">
+  <meta name="theme-color" content="#061322">
+  <title>Del cifrado clásico al modelo moderno | Módulo 2</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+  <link rel="stylesheet" href="assets/introducciones.css">
+</head>
+<body class="module-02" data-module-page="salto-moderno">
+  <a class="skip-link" href="#comparador">Saltar al comparador</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/13</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Apertura interactiva · una pregunta antes que un algoritmo</div>
+        <h1>¿Qué hace moderna a la criptografía?</h1>
+        <p>Compará tres formas de ocultar el mismo mensaje. La apariencia del resultado es apenas el comienzo: la diferencia decisiva está en la propiedad, el adversario, los recursos y el supuesto.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">→</div>
+    </section>
+
+    <section class="lab-grid" id="comparador" aria-label="Comparador entre criptografía clásica, secreto perfecto y criptografía moderna">
+      <article class="lab-panel full intro-stage">
+        <h2>1. Un mensaje, tres preguntas de seguridad</h2>
+        <p>Escribí un mensaje breve. El comparador ejecuta César, construye un one-time pad del mismo tamaño y cifra dos veces con AES-GCM usando nonces diferentes.</p>
+        <div class="intro-controls">
+          <div>
+            <label for="intro-message">Mensaje de prueba</label>
+            <input id="intro-message" type="text" maxlength="72" value="LA SEGURIDAD NECESITA UN MODELO" autocomplete="off">
+          </div>
+          <div>
+            <label for="caesar-shift">Desplazamiento César</label>
+            <input id="caesar-shift" type="number" min="1" max="25" value="3" inputmode="numeric">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="button" id="run-comparison" type="button">Comparar los tres modelos</button>
+          <button class="button secondary" id="new-example" type="button">Cambiar ejemplo</button>
+        </div>
+        <p class="status" id="comparison-status" role="status" aria-live="polite">Preparado para comparar.</p>
+      </article>
+
+      <article class="lab-panel full">
+        <div class="era-track">
+          <section class="era-card" data-era="classical" aria-labelledby="era-classical-title">
+            <div class="era-head"><span class="era-index" aria-hidden="true">A</span><span class="era-label">Seguridad informal</span></div>
+            <h2 id="era-classical-title">César</h2>
+            <pre class="era-output" id="caesar-output">Ejecutá la comparación.</pre>
+            <ul class="era-facts">
+              <li><span>El algoritmo y su pequeño espacio de claves permiten enumerar todas las posibilidades.</span></li>
+              <li><span>Las frecuencias y la estructura del lenguaje siguen presentes.</span></li>
+              <li><span>Que el texto no sea legible a primera vista no constituye una definición de seguridad.</span></li>
+            </ul>
+            <button class="button secondary" id="crack-caesar" type="button">Mostrar las 25 alternativas</button>
+          </section>
+
+          <section class="era-card" data-era="perfect" aria-labelledby="era-perfect-title">
+            <div class="era-head"><span class="era-index" aria-hidden="true">B</span><span class="era-label">Garantía incondicional</span></div>
+            <h2 id="era-perfect-title">One-time pad</h2>
+            <pre class="era-output" id="otp-output">Ejecutá la comparación.</pre>
+            <ul class="era-facts">
+              <li><span>La clave es uniforme, secreta, independiente y tan larga como el mensaje.</span></li>
+              <li><span>Se utiliza exactamente una vez.</span></li>
+              <li><span>Bajo esas condiciones, observar el criptograma no cambia las probabilidades sobre el mensaje.</span></li>
+            </ul>
+          </section>
+
+          <section class="era-card" data-era="modern" aria-labelledby="era-modern-title">
+            <div class="era-head"><span class="era-index" aria-hidden="true">C</span><span class="era-label">Modelo computacional</span></div>
+            <h2 id="era-modern-title">AES-GCM</h2>
+            <pre class="era-output" id="modern-output">Ejecutá la comparación.</pre>
+            <ul class="era-facts">
+              <li><span>El algoritmo puede ser público; la clave permanece secreta.</span></li>
+              <li><span>El nonce evita repetir la misma aleatorización con una clave.</span></li>
+              <li><span>La construcción busca confidencialidad e integridad frente a adversarios eficientes.</span></li>
+            </ul>
+          </section>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>2. La lente metodológica</h2>
+        <p>La criptografía moderna transforma una intuición —«parece oculto»— en un experimento que otra persona puede analizar, refutar o implementar.</p>
+        <div class="method-lens">
+          <div class="lens-card"><span>Propiedad</span><strong>¿Qué se protege?</strong><p>Confidencialidad, integridad, autenticidad u otra meta explícita.</p></div>
+          <div class="lens-card"><span>Adversario</span><strong>¿Qué puede hacer?</strong><p>Observar, elegir mensajes, consultar oráculos o modificar paquetes.</p></div>
+          <div class="lens-card"><span>Victoria</span><strong>¿Cuándo rompe?</strong><p>Cuando satisface una condición medible, no cuando «entiende algo» vagamente.</p></div>
+          <div class="lens-card"><span>Recursos</span><strong>¿Cuánto puede gastar?</strong><p>Tiempo, memoria, consultas, datos, energía y capacidad de paralelización.</p></div>
+        </div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>3. Predecí antes de revelar</h2>
+        <p>¿Cuál de estos casos puede ofrecer secreto perfecto frente a un adversario con capacidad de cómputo ilimitada?</p>
+        <div class="prediction-options" role="group" aria-label="Opciones sobre secreto perfecto">
+          <button type="button" data-prediction="caesar">César con desplazamiento secreto</button>
+          <button type="button" data-prediction="otp">OTP bajo todas sus condiciones</button>
+          <button type="button" data-prediction="aes">AES-GCM con clave de 256 bits</button>
+        </div>
+        <p class="status" id="prediction-feedback" role="status" aria-live="polite">Elegí una respuesta y justificála antes de leer la devolución.</p>
+      </article>
+
+      <article class="lab-panel">
+        <h2>4. Qué demuestra el experimento</h2>
+        <ol class="steps">
+          <li>César puede recorrerse completamente porque su espacio de claves es minúsculo.</li>
+          <li>El OTP alcanza una garantía ideal, pero paga una exigencia logística extrema.</li>
+          <li>AES-GCM produce criptogramas diferentes con nonces distintos y añade autenticación.</li>
+          <li>Ninguna salida visualmente caótica prueba por sí sola que una construcción sea segura.</li>
+        </ol>
+        <div class="warning-box">
+          <p><strong>Precisión:</strong> el ejemplo AES-GCM usa Web Crypto del navegador. Es una demostración conceptual; una aplicación real también necesita generación, almacenamiento, rotación y control de acceso de claves.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <p>Dos algoritmos generan criptogramas que parecen igualmente aleatorios. Uno carece de definición formal y el otro posee una reducción de seguridad. Explicá por qué un histograma de bytes no alcanza para decidir cuál es más seguro.</p>
+        <details class="checkpoint">
+          <summary>Ver orientación</summary>
+          <p>El histograma solo observa una característica estadística de una muestra. La seguridad requiere un modelo del adversario, una condición de victoria y un límite cuantitativo sobre su ventaja.</p>
+        </details>
+      </article>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>Ya formulaste la pregunta correcta</h2><p>La teoría integrada organiza ahora las respuestas en información, complejidad y álgebra.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="index.html">← Índice</a>
+        <button class="button secondary" type="button" data-complete-page="salto-moderno" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="teoria.html">Siguiente: teoría integrada →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>Los valores del OTP y los nonces de AES-GCM se generan localmente. No se envían mensajes ni claves a ningún servidor.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/introduccion.js"></script>
+</body>
+</html>

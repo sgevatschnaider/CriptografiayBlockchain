@@ -430,6 +430,22 @@ body.module-02::before {
   box-shadow: 0 24px 55px rgba(0, 0, 0, 0.28);
 }
 
+.route-card[data-route-page="salto-moderno"],
+.route-card[data-route-page="xor-flujo"] {
+  border-color: rgba(99, 213, 255, 0.36);
+  background:
+    radial-gradient(circle at 100% 0, rgba(179, 148, 255, 0.16), transparent 42%),
+    linear-gradient(145deg, rgba(12, 54, 78, 0.96), rgba(5, 21, 37, 0.98));
+}
+
+.route-card[data-route-page="salto-moderno"] .route-step,
+.route-card[data-route-page="xor-flujo"] .route-step {
+  color: #03131d;
+  border-color: var(--m2-cyan);
+  background: linear-gradient(135deg, var(--m2-cyan), #91a7ff);
+  box-shadow: 0 0 24px rgba(99, 213, 255, 0.18);
+}
+
 .route-step {
   display: grid;
   width: 48px;
@@ -1502,6 +1518,20 @@ canvas.chart {
   .study-panel {
     color: #111;
     border-color: #bbb;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .route-card[data-route-page="salto-moderno"],
+  .route-card[data-route-page="xor-flujo"] {
+    border-color: #bbb;
+    background: #fff;
+  }
+
+  .route-card[data-route-page="salto-moderno"] .route-step,
+  .route-card[data-route-page="xor-flujo"] .route-step {
+    color: #111;
+    border-color: #999;
     background: #fff;
     box-shadow: none;
   }

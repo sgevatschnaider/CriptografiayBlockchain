@@ -6,6 +6,7 @@ const root = process.cwd();
 const moduleDir = path.join(root, 'simuladores', 'modulo-02');
 const errors = [];
 const expectedCurriculum = [
+  'salto-moderno',
   'teoria',
   'entropia',
   'secreto-perfecto',
@@ -14,6 +15,7 @@ const expectedCurriculum = [
   'juego-seguridad',
   'complejidad',
   'algebra',
+  'xor-flujo',
   'mapas',
   'glosario',
   'cuestionario'
@@ -21,6 +23,7 @@ const expectedCurriculum = [
 const requiredPages = [
   'index.html',
   'ruta-guiada.html',
+  'introduccion-interactiva.html',
   'teoria.html',
   'entropia-shannon.html',
   'secreto-perfecto.html',
@@ -29,6 +32,7 @@ const requiredPages = [
   'juego-seguridad.html',
   'espacio-claves-complejidad.html',
   'estructuras-algebraicas.html',
+  'laboratorio-xor-flujo.html',
   'mapas-mentales.html',
   'glosario.html',
   'cuestionario.html'
@@ -36,6 +40,9 @@ const requiredPages = [
 const requiredAssets = [
   'assets/module.css',
   'assets/module.js',
+  'assets/introducciones.css',
+  'assets/introduccion.js',
+  'assets/xor-flujo.js',
   'assets/ruta-guiada.css',
   'assets/ruta-guiada.js',
   'assets/tres-pilares.svg',
@@ -139,13 +146,50 @@ for (const absolute of collectFiles(path.join(moduleDir, 'assets'), '.js')) {
   validateJavaScript(absolute);
 }
 
+const experienceContracts = [
+  {
+    file: 'introduccion-interactiva.html',
+    snippets: [
+      'data-module-page="salto-moderno"',
+      'id="caesar-output"',
+      'id="otp-output"',
+      'id="modern-output"',
+      'data-prediction="otp"',
+      'assets/introduccion.js'
+    ]
+  },
+  {
+    file: 'laboratorio-xor-flujo.html',
+    snippets: [
+      'data-module-page="xor-flujo"',
+      'data-operation="xor"',
+      'id="reuse-counter"',
+      'id="cipher-xor"',
+      'id="message-xor"',
+      'id="classification-grid"',
+      'assets/xor-flujo.js'
+    ]
+  }
+];
+
+for (const contract of experienceContracts) {
+  const absolute = path.join(moduleDir, contract.file);
+  if (!fs.existsSync(absolute)) continue;
+  const html = fs.readFileSync(absolute, 'utf8');
+  for (const snippet of contract.snippets) {
+    if (!html.includes(snippet)) {
+      fail(`simuladores/modulo-02/${contract.file}: falta el contrato interactivo ${snippet}`);
+    }
+  }
+}
+
 const indexPath = path.join(moduleDir, 'index.html');
 if (fs.existsSync(indexPath)) {
   const indexHtml = fs.readFileSync(indexPath, 'utf8');
   const routeCards = [...indexHtml.matchAll(/\bdata-route-page=["']([^"']+)["']/g)]
     .map((match) => match[1]);
   if (routeCards.length !== expectedCurriculum.length) {
-    fail(`simuladores/modulo-02/index.html: se esperaban 11 estaciones y hay ${routeCards.length}`);
+    fail(`simuladores/modulo-02/index.html: se esperaban 13 estaciones y hay ${routeCards.length}`);
   }
   if (routeCards.join('|') !== expectedCurriculum.join('|')) {
     fail('simuladores/modulo-02/index.html: las estaciones no coinciden con el currículo esperado');
@@ -168,7 +212,7 @@ if (fs.existsSync(routeJsPath)) {
   const routeBlock = routeJs.match(/const route = Object\.freeze\(\[([\s\S]+?)\]\);/)?.[1] || '';
   const routeIds = [...routeBlock.matchAll(/\bid:\s*'([^']+)'/g)].map((match) => match[1]);
   if (routeIds.join('|') !== expectedCurriculum.join('|')) {
-    fail('simuladores/modulo-02/assets/ruta-guiada.js: la ruta no contiene las 11 estaciones esperadas en orden');
+    fail('simuladores/modulo-02/assets/ruta-guiada.js: la ruta no contiene las 13 estaciones esperadas en orden');
   }
 }
 
@@ -233,4 +277,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Módulo 2 validado: ${htmlFiles.length} páginas, 11 estaciones, 72 términos y 36 preguntas.`);
+console.log(`Módulo 2 validado: ${htmlFiles.length} páginas, 13 estaciones, 72 términos y 36 preguntas.`);
