@@ -166,6 +166,10 @@
   background: rgba(99, 213, 255, 0.11);
 }
 
+.rng-lab .lab-panel[id] {
+  scroll-margin-top: 150px;
+}
+
 .rng-section-heading {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
@@ -1174,6 +1178,10 @@
 }
 
 @media (max-width: 1120px) {
+  .rng-lab .lab-panel[id] {
+    scroll-margin-top: 84px;
+  }
+
   .rng-pipeline {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
