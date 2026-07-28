@@ -90,7 +90,7 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 | Etapa | Núcleo conceptual | Contenidos principales | Resultado esperado |
 |---|---|---|---|
 | **1** | Criptografía clásica | Sustitución, transposición, César, Vigenère y criptoanálisis | Entender la relación entre diseño y ataque |
-| **2** | Fundamentos de la criptografía moderna | Shannon, entropía, pseudoaleatoriedad, complejidad, bloques, flujos y AEAD | Comprender el salto desde los cifrados históricos hacia modelos computacionales |
+| **2** | Fundamentos de la criptografía moderna | Shannon, secreto perfecto, juegos de seguridad, complejidad, grupos, cuerpos, curvas y retículos | Razonar con definiciones, adversarios, costos y supuestos explícitos |
 | **Base transversal** | Fundamentos matemáticos | Aritmética modular, grupos, cuerpos finitos, probabilidad y teoría de números | Dominar el lenguaje matemático de la criptografía |
 | **3** | Criptografía moderna aplicada | AES, ChaCha20, hashes, MAC, RSA, DH, ECC, firmas y PKI | Diferenciar primitivas y combinarlas correctamente |
 | **4** | Esteganografía | LSB, imágenes, audio, canales encubiertos y estegoanálisis | Separar ocultamiento de existencia y cifrado de contenido |

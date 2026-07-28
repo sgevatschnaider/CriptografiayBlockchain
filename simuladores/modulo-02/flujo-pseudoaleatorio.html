@@ -1,1 +1,144 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flujo pseudoaleatorio</title><link rel="stylesheet" href="../assets/lab.css"><style>.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.p{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--panel)}textarea{width:100%;min-height:220px}.mono{font-family:ui-monospace,monospace;word-break:break-all}.m{font-size:1.2rem;font-weight:700}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">← Módulo 2</a></div><nav class="nav"><a href="../index.html">Campus</a></nav></header><section class="hero"><div class="eyebrow">Aleatoriedad y PRNG</div><h1>Flujo pseudoaleatorio de bits y caracteres</h1><p>Reproduce el objetivo pedagógico de las demostraciones vistas en clase: visualizar distribución, sesgo, semilla y reproducibilidad sin confundir un PRNG didáctico con un CSPRNG.</p></section><section class="g"><article class="p"><h2>Configuración</h2><label>Modo</label><select id="mode"><option value="bits">Bits</option><option value="chars">Caracteres</option></select><label>Longitud</label><input id="n" type="number" value="2000" min="10" max="100000"><label>Probabilidad de 1 (solo bits)</label><input id="prob" type="range" min="0.01" max="0.99" step="0.01" value="0.50"><span id="pv">0.50</span><label>Semilla reproducible</label><input id="seed" value="12345"><label><input type="checkbox" id="letters" checked> Letras</label><label><input type="checkbox" id="digits" checked> Dígitos</label><label><input type="checkbox" id="punct"> Puntuación</label><div class="actions"><button class="button" id="go">Generar</button><button class="button secondary" id="download">Descargar</button></div></article><article class="p"><h2>Salida</h2><textarea id="out" class="mono" readonly></textarea><p class="m" id="summary"></p><p><b>Advertencia:</b> este generador es reproducible y educativo. No debe utilizarse para crear claves, nonces o secretos.</p></article></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main><script>let data='';function rng(seed){let x=(Number(seed)||1)>>>0;return()=>((x=(1664525*x+1013904223)>>>0)/4294967296)}const prob=document.querySelector('#prob');prob.oninput=()=>document.querySelector('#pv').textContent=(+prob.value).toFixed(2);document.querySelector('#go').onclick=()=>{const r=rng(document.querySelector('#seed').value),n=Math.max(10,Math.min(100000,+document.querySelector('#n').value||1000)),mode=document.querySelector('#mode').value;if(mode==='bits'){const p=+prob.value;let one=0,a=[];for(let i=0;i<n;i++){const b=r()<p?'1':'0';one+=b==='1';a.push(b)}data=a.join('');document.querySelector('#summary').textContent=`0: ${n-one} | 1: ${one} | p̂(1)=${(one/n).toFixed(4)}`}else{let abc='';if(letters.checked)abc+='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';if(digits.checked)abc+='0123456789';if(punct.checked)abc+='.,;:!?-_@#$%&*';if(!abc)abc=' ';let a=[];for(let i=0;i<n;i++)a.push(abc[Math.floor(r()*abc.length)]);data=a.join('');document.querySelector('#summary').textContent=`${n} caracteres | alfabeto: ${abc.length} símbolos`}document.querySelector('#out').value=data};document.querySelector('#download').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'text/plain'}));a.download='flujo-pseudoaleatorio.txt';a.click()};document.querySelector('#go').click();</script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Comparador interactivo entre un PRNG lineal reproducible y valores criptográficamente fuertes del navegador.">
+  <meta name="theme-color" content="#061322">
+  <title>PRNG frente a CSPRNG | Módulo 2</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+</head>
+<body class="module-02" data-module-page="pseudoaleatoriedad">
+  <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Aleatoriedad · estado · predicción</div>
+        <h1>PRNG frente a CSPRNG</h1>
+        <p>Dos secuencias pueden verse equilibradas, pero solo una está diseñada para resistir predicción. Compará reproducibilidad, métricas simples y evolución del estado.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">RNG</div>
+    </section>
+
+    <section class="lab-grid" id="laboratorio" aria-label="Comparador de generadores">
+      <article class="lab-panel full">
+        <h2>1. Configuración común</h2>
+        <div class="controls">
+          <div class="control">
+            <label for="seed">Semilla del PRNG didáctico</label>
+            <input id="seed" type="text" value="SHANNON-1949" autocomplete="off">
+          </div>
+          <div class="control">
+            <label for="stream-length">Cantidad de bits</label>
+            <input id="stream-length" type="number" min="64" max="20000" step="64" value="4096" inputmode="numeric">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="button" id="generate-streams" type="button">Generar ambos flujos</button>
+          <button class="button secondary" id="repeat-experiment" type="button">Repetir con la misma semilla</button>
+        </div>
+        <p class="status" id="rng-status" role="status" aria-live="polite">El PRNG permite fijar la semilla; la API criptográfica del navegador no expone ese control.</p>
+      </article>
+
+      <article class="lab-panel">
+        <div class="tag-row"><span>Modelo educativo</span><span>Determinista</span></div>
+        <h2>2. PRNG lineal congruencial</h2>
+        <p>El estado evoluciona con una recurrencia pública. La misma semilla produce exactamente la misma secuencia.</p>
+        <div class="formula">xₙ₊₁ = (1664525·xₙ + 1013904223) mod 2³²</div>
+        <div class="metric-strip">
+          <div class="metric-tile"><strong id="lcg-balance">—</strong><span>proporción de unos</span></div>
+          <div class="metric-tile"><strong id="lcg-entropy">—</strong><span>entropía empírica</span></div>
+          <div class="metric-tile"><strong id="lcg-runs">—</strong><span>corridas</span></div>
+          <div class="metric-tile"><strong id="lcg-correlation">—</strong><span>correlación lag 1</span></div>
+        </div>
+        <h3>Primeros bits</h3>
+        <div class="bits-output" id="lcg-output">—</div>
+        <h3>Traza de estado</h3>
+        <div class="bits-output" id="lcg-state-output">—</div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="tag-row"><span>API del navegador</span><span>Uso criptográfico</span></div>
+        <h2>3. CSPRNG del entorno</h2>
+        <p><span class="mono">crypto.getRandomValues()</span> obtiene valores criptográficamente fuertes. La implementación concreta y su estado permanecen bajo control del navegador y del sistema.</p>
+        <div class="formula">bytes ← crypto.getRandomValues(buffer)</div>
+        <div class="metric-strip">
+          <div class="metric-tile"><strong id="crypto-balance">—</strong><span>proporción de unos</span></div>
+          <div class="metric-tile"><strong id="crypto-entropy">—</strong><span>entropía empírica</span></div>
+          <div class="metric-tile"><strong id="crypto-runs">—</strong><span>corridas</span></div>
+          <div class="metric-tile"><strong id="crypto-correlation">—</strong><span>correlación lag 1</span></div>
+        </div>
+        <h3>Primeros bits</h3>
+        <div class="bits-output" id="crypto-output">—</div>
+        <h3>Estado</h3>
+        <div class="bits-output">No expuesto. El usuario no puede reconstruirlo a partir de una semilla ingresada en esta página.</div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>4. Distribución observada</h2>
+        <div class="comparison-grid">
+          <div class="comparison-card">
+            <h3>PRNG didáctico</h3>
+            <div class="probability-bars">
+              <div class="probability-row"><strong>0</strong><span class="probability-track"><span id="lcg-zero-bar"></span></span><span id="lcg-zero-value">—</span></div>
+              <div class="probability-row"><strong>1</strong><span class="probability-track"><span id="lcg-one-bar"></span></span><span id="lcg-one-value">—</span></div>
+            </div>
+          </div>
+          <div class="comparison-card">
+            <h3>CSPRNG</h3>
+            <div class="probability-bars">
+              <div class="probability-row"><strong>0</strong><span class="probability-track"><span id="crypto-zero-bar"></span></span><span id="crypto-zero-value">—</span></div>
+              <div class="probability-row"><strong>1</strong><span class="probability-track"><span id="crypto-one-bar"></span></span><span id="crypto-one-value">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="warning-box">
+          <p><strong>Un gráfico parecido no implica seguridad parecida.</strong> Estas métricas detectan algunos sesgos, pero no prueban resistencia a predicción ni recuperación de estado.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>5. Reproducibilidad y predicción</h2>
+        <div class="metric-strip two-columns">
+          <div class="metric-tile"><strong id="lcg-repeat">—</strong><span>PRNG respecto de la ejecución previa</span></div>
+          <div class="metric-tile"><strong id="crypto-repeat">—</strong><span>CSPRNG respecto de la ejecución previa</span></div>
+        </div>
+        <h3>Predicción con estado conocido</h3>
+        <div class="formula" id="prediction-output">Generá una secuencia.</div>
+        <p>Conocer el algoritmo y el estado del LCG basta para calcular el siguiente valor. Un CSPRNG agrega propiedades de seguridad y mecanismos de estado que este modelo no posee.</p>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <p>Dos generadores aprueban una prueba de balance 0/1. Uno repite toda su salida con la misma semilla pública. ¿Por qué la prueba estadística no puede decidir cuál es apto para claves?</p>
+        <details class="checkpoint">
+          <summary>Ver orientación</summary>
+          <p>Las pruebas estadísticas analizan la muestra; la seguridad criptográfica exige además impredecibilidad y resistencia frente a un adversario que conoce el algoritmo y quizá parte del estado o de la salida.</p>
+        </details>
+      </article>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>La apariencia ya no alcanza</h2><p>La siguiente estación desarma una red por capas para separar no linealidad, dispersión y efecto avalancha.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="secreto-perfecto.html">← Secreto perfecto</a>
+        <button class="button secondary" type="button" data-complete-page="pseudoaleatoriedad" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="confusion-difusion.html">Siguiente: confusión y difusión →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>El LCG se incluye deliberadamente como contraejemplo. Nunca debe emplearse para claves, semillas secretas, nonces ni tokens.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/pseudoaleatoriedad.js"></script>
+</body>
+</html>

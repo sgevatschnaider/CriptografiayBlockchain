@@ -8,12 +8,13 @@ Este campus complementa —sin reemplazar— los contenidos existentes del repos
 
 <p align="center">
   <a href="./01-criptografia-clasica.md"><img src="https://img.shields.io/badge/01-Criptografía_clásica-8B5CF6?style=for-the-badge" alt="Criptografía clásica"></a>
-  <a href="./02-fundamentos-matematicos.md"><img src="https://img.shields.io/badge/02-Fundamentos_matemáticos-2563EB?style=for-the-badge" alt="Fundamentos matemáticos"></a>
+  <a href="./02-fundamentos-criptografia-moderna.md"><img src="https://img.shields.io/badge/02-Fundamentos_modernos-2563EB?style=for-the-badge" alt="Fundamentos de la criptografía moderna"></a>
   <a href="./03-criptografia-moderna.md"><img src="https://img.shields.io/badge/03-Criptografía_moderna-059669?style=for-the-badge" alt="Criptografía moderna"></a>
   <a href="./04-esteganografia.md"><img src="https://img.shields.io/badge/04-Esteganografía-D97706?style=for-the-badge" alt="Esteganografía"></a>
 </p>
 
 <p align="center">
+  <a href="./02-fundamentos-matematicos.md"><img src="https://img.shields.io/badge/BASE-Fundamentos_matemáticos-475569?style=for-the-badge" alt="Base de fundamentos matemáticos"></a>
   <a href="./05-criptografia-blockchain.md"><img src="https://img.shields.io/badge/05-Criptografía_y_blockchain-111827?style=for-the-badge&logo=ethereum" alt="Criptografía y blockchain"></a>
   <a href="./06-protocolos-privacidad.md"><img src="https://img.shields.io/badge/06-Privacidad_y_protocolos-DB2777?style=for-the-badge" alt="Privacidad y protocolos"></a>
   <a href="./07-poscuantica-y-cuantica.md"><img src="https://img.shields.io/badge/07-Poscuántica_y_cuántica-0891B2?style=for-the-badge" alt="Criptografía poscuántica y cuántica"></a>
@@ -32,7 +33,7 @@ Los enlaces siguientes apuntan a **GitHub Pages**. Al abrirlos, el navegador eje
 | Módulo | Simulación web | Pregunta experimental |
 |---|---|---|
 | 1 | [César, Vigenère y frecuencias](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) | ¿Por qué un texto ilegible puede seguir siendo fácil de atacar? |
-| 2 | [Aritmética modular y Diffie–Hellman](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/02-fundamentos-matematicos.html) | ¿Qué propiedades matemáticas hacen reversible una operación para quien posee la clave? |
+| 2 | [Fundamentos modernos: ruta guiada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) | ¿Cómo se transforma la incertidumbre en seguridad frente a un adversario definido? |
 | 3 | [SHA-256, AES-GCM y ECDSA](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/03-criptografia-moderna.html) | ¿Qué objetivo de seguridad aporta cada primitiva? |
 | 4 | [Ocultamiento LSB](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) | ¿Ocultar la existencia equivale a proteger el contenido? |
 | 5 | [Blockchain y Merkle trees](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) | ¿Qué detecta el encadenamiento y qué no garantiza? |
@@ -45,7 +46,8 @@ Los enlaces siguientes apuntan a **GitHub Pages**. Al abrirlos, el navegador eje
 | Etapa | Pregunta rectora | Contenidos centrales | Resultado esperado |
 |---|---|---|---|
 | 1. Historia y criptoanálisis | ¿Cómo se ocultaba información antes de la computación? | Sustitución, transposición, César, afín, Vigenère, análisis de frecuencias | Comprender la relación entre diseño y ataque |
-| 2. Matemática | ¿Qué estructuras hacen posible la criptografía? | Aritmética modular, grupos, campos finitos, probabilidad, entropía | Leer algoritmos con rigor conceptual |
+| 2. Fundamentos modernos | ¿Qué significa seguridad y cuánto cuesta romperla? | Shannon, secreto perfecto, juegos, complejidad, grupos, cuerpos, curvas y retículos | Razonar con definiciones, adversarios, supuestos y estructuras |
+| Base transversal | ¿Qué lenguaje matemático requiere cada módulo? | Aritmética modular, Euclides, inversos, grupos y probabilidad | Reforzar herramientas antes o durante la ruta |
 | 3. Criptografía moderna | ¿Cómo se protege información en sistemas reales? | AES, AEAD, hashes, MAC, KDF, RSA, DH, ECC, firmas | Elegir primitivas según el objetivo de seguridad |
 | 4. Esteganografía | ¿Cómo se oculta la existencia de un mensaje? | LSB, transformadas, estegoanálisis, marcas de agua | Distinguir secreto criptográfico de ocultamiento |
 | 5. Blockchain | ¿Cómo se construye confianza sin autoridad central? | Hashes, Merkle, firmas, wallets, consenso, ZK | Relacionar primitivas con protocolos descentralizados |

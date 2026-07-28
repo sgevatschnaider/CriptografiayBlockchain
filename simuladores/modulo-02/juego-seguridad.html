@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Juego interactivo de indistinguibilidad para comprender adversarios, oráculos, mensajes desafío y ventaja.">
+  <meta name="theme-color" content="#061322">
+  <title>Juego de indistinguibilidad | Módulo 2</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+</head>
+<body class="module-02" data-module-page="juego-seguridad">
+  <a class="skip-link" href="#laboratorio">Saltar al juego</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Modelos de seguridad · adversario y ventaja</div>
+        <h1>Juego de indistinguibilidad</h1>
+        <p>Elegí dos mensajes, consultá un oráculo y tratá de identificar cuál fue cifrado. La diferencia entre aleatorización fresca y reutilización se vuelve medible.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">b?</div>
+    </section>
+
+    <section class="lab-grid" id="laboratorio" aria-label="Juego de indistinguibilidad">
+      <article class="lab-panel full">
+        <h2>1. Reglas del experimento</h2>
+        <div class="learning-grid">
+          <div class="learning-card"><div class="card-icon" aria-hidden="true">A</div><h3>Adversario</h3><p>Elige M₀ y M₁ de igual longitud y consulta el cifrado de una cadena de ceros.</p></div>
+          <div class="learning-card"><div class="card-icon" aria-hidden="true">C</div><h3>Desafiante</h3><p>Elige un bit secreto b y devuelve el cifrado desafío C*=Enc(M<sub>b</sub>).</p></div>
+          <div class="learning-card"><div class="card-icon" aria-hidden="true">b′</div><h3>Decisión</h3><p>El adversario devuelve b′. La ventaja mide cuánto supera la probabilidad ½.</p></div>
+        </div>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>2. Prepará el desafío</h2>
+        <label for="challenge-zero">Mensaje M₀</label>
+        <input id="challenge-zero" type="text" value="PAGAR!" autocomplete="off">
+        <label for="challenge-one">Mensaje M₁</label>
+        <input id="challenge-one" type="text" value="NEGAR!" autocomplete="off">
+        <label for="security-scenario">Escenario</label>
+        <select id="security-scenario">
+          <option value="fresh">Aleatorización fresca en cada cifrado</option>
+          <option value="reuse">Keystream reutilizado</option>
+        </select>
+        <div class="actions"><button class="button" id="new-challenge" type="button">Crear desafío</button></div>
+        <p class="status" id="game-status" role="status" aria-live="polite">Elegí mensajes de igual longitud.</p>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>3. Vista del adversario</h2>
+        <p><strong>Consulta al oráculo:</strong> cifrar ceros.</p>
+        <div class="bits-output" id="oracle-output">—</div>
+        <p><strong>Criptograma desafío C*:</strong></p>
+        <div class="bits-output" id="challenge-output">—</div>
+        <p><strong>C* ⊕ respuesta del oráculo:</strong></p>
+        <div class="bits-output" id="derived-output">—</div>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>4. Tu decisión</h2>
+        <p>¿Qué mensaje creés que cifró el desafiante?</p>
+        <div class="actions">
+          <button class="button secondary guess-button" type="button" data-guess="0">Elegir M₀</button>
+          <button class="button secondary guess-button" type="button" data-guess="1">Elegir M₁</button>
+        </div>
+        <div class="metric-strip two-columns">
+          <div class="metric-tile"><strong id="manual-result">—</strong><span>resultado de esta ronda</span></div>
+          <div class="metric-tile"><strong id="secret-bit">?</strong><span>bit b, revelado al responder</span></div>
+        </div>
+        <div class="definition"><p>Si el valor derivado coincide con uno de los mensajes, el oráculo reveló demasiado. Si parece independiente, solo queda adivinar.</p></div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>5. Simulación repetida</h2>
+        <label for="auto-rounds">Cantidad de rondas automáticas</label>
+        <input id="auto-rounds" type="number" min="10" max="2000" step="10" value="200">
+        <div class="actions"><button class="button" id="run-auto" type="button">Ejecutar adversario automático</button></div>
+        <p>La estrategia compara el valor derivado con M₀ y M₁; si no coincide, decide al azar.</p>
+      </article>
+
+      <article class="lab-panel">
+        <h2>6. Resultado estadístico</h2>
+        <div class="metric-strip">
+          <div class="metric-tile"><strong id="auto-correct">—</strong><span>aciertos</span></div>
+          <div class="metric-tile"><strong id="auto-rate">—</strong><span>tasa de éxito</span></div>
+          <div class="metric-tile"><strong id="auto-advantage">—</strong><span>|P(acierto)−½|</span></div>
+          <div class="metric-tile"><strong id="auto-verdict">—</strong><span>lectura del escenario</span></div>
+        </div>
+        <div class="round-track top-gap-compact" aria-hidden="true"><span id="success-bar"></span></div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Alcance del modelo</h2>
+        <div class="comparison-grid">
+          <div class="example-box"><p><strong>Aporta:</strong> vuelve visible la lógica de un juego, una consulta al oráculo, un bit secreto y una ventaja medible.</p></div>
+          <div class="warning-box"><p><strong>Simplifica:</strong> la «aleatorización fresca» usa pads independientes para mostrar el principio. Un esquema real seguro usa una clave persistente con nonces y una construcción analizada.</p></div>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <p>Explicá por qué un cifrado determinista puede filtrar información incluso si el adversario nunca recupera la clave: ¿qué aprende al cifrar dos veces el mismo mensaje?</p>
+        <details class="checkpoint">
+          <summary>Ver orientación</summary>
+          <p>Si iguales entradas bajo la misma clave producen iguales salidas, el adversario puede reconocer repeticiones o verificar hipótesis mediante consultas. La seguridad CPA requiere aleatorización efectiva o nonces correctamente administrados.</p>
+        </details>
+      </article>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>La seguridad ya tiene un adversario</h2><p>Ahora cuantificá cuánto cuesta buscar una clave y cómo cambia el exponente bajo distintos modelos.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="confusion-difusion.html">← Confusión y difusión</a>
+        <button class="button secondary" type="button" data-complete-page="juego-seguridad" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="espacio-claves-complejidad.html">Siguiente: costo de ataque →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>El juego es una introducción conceptual a indistinguibilidad. Las definiciones IND-CPA e IND-CCA completas especifican con precisión consultas, oráculos y fases.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/juego-seguridad.js"></script>
+</body>
+</html>

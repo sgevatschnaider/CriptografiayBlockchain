@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio visual de estructuras algebraicas para criptografía: GF(2^8), grupos cíclicos, curvas elípticas y Learning With Errors.">
+  <meta name="theme-color" content="#061322">
+  <title>Estructuras algebraicas | Módulo 2</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+  <style>
+    .algebra-plot{width:100%;min-height:380px;border:1px solid var(--m2-line);border-radius:16px;background:#f8fbff}.algebra-plot text{font-family:system-ui,sans-serif}.equation-chip{display:inline-flex;margin:3px;padding:6px 8px;border:1px solid var(--m2-line);border-radius:9px;color:#d9edff;background:#04121f;font-family:monospace}.point-infinity{font-size:1.3rem;font-weight:900}
+  </style>
+</head>
+<body class="module-02" data-module-page="algebra">
+  <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Pilar III · estructuras y problemas difíciles</div>
+        <h1>Laboratorio de estructuras algebraicas</h1>
+        <p>Operá en un cuerpo binario, recorré un grupo cíclico, multiplicá un punto de una curva y agregá ruido a ecuaciones lineales.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">𝔽</div>
+    </section>
+
+    <section class="content-section" id="laboratorio">
+      <div class="study-panel" data-tabs>
+        <div class="tabs" role="tablist" aria-label="Estructuras algebraicas">
+          <button class="tab-button" id="tab-field" type="button" role="tab" aria-selected="true" aria-controls="panel-field">GF(2⁸)</button>
+          <button class="tab-button" id="tab-group" type="button" role="tab" aria-selected="false" aria-controls="panel-group" tabindex="-1">Grupo cíclico</button>
+          <button class="tab-button" id="tab-ecc" type="button" role="tab" aria-selected="false" aria-controls="panel-ecc" tabindex="-1">Curva elíptica</button>
+          <button class="tab-button" id="tab-lwe" type="button" role="tab" aria-selected="false" aria-controls="panel-lwe" tabindex="-1">LWE con ruido</button>
+        </div>
+
+        <section class="tab-panel" id="panel-field" role="tabpanel" aria-labelledby="tab-field">
+          <div class="lab-grid">
+            <article class="lab-panel third">
+              <h2>Cuerpo finito GF(2⁸)</h2>
+              <p>Cada byte representa un polinomio con coeficientes en GF(2). La suma es XOR y la multiplicación se reduce módulo <span class="mono">x⁸+x⁴+x³+x+1</span> (0x11B).</p>
+              <label for="field-a">Byte A (hex)</label>
+              <input id="field-a" type="text" value="57" maxlength="2" inputmode="text">
+              <label for="field-b">Byte B (hex)</label>
+              <input id="field-b" type="text" value="83" maxlength="2" inputmode="text">
+              <div class="actions"><button class="button" id="calculate-field" type="button">Calcular</button></div>
+              <p class="status" id="field-status" role="status" aria-live="polite">Ejemplo clásico: 0x57·0x83 = 0xC1 en GF(2⁸).</p>
+            </article>
+            <article class="lab-panel third">
+              <h2>Representación polinómica</h2>
+              <div class="formula" id="field-a-polynomial">—</div>
+              <div class="formula" id="field-b-polynomial">—</div>
+              <p>Los coeficientes solo pueden ser 0 o 1. Por eso sumar polinomios equivale a XOR: no hay acarreo.</p>
+            </article>
+            <article class="lab-panel third">
+              <h2>Operaciones</h2>
+              <div class="metric-strip two-columns">
+                <div class="metric-tile"><strong id="field-xor">—</strong><span>A+B = A⊕B</span></div>
+                <div class="metric-tile"><strong id="field-xtime">—</strong><span>x·A reducido</span></div>
+                <div class="metric-tile"><strong id="field-product">—</strong><span>A·B reducido</span></div>
+                <div class="metric-tile"><strong id="field-inverse">—</strong><span>A⁻¹ si A≠0</span></div>
+              </div>
+              <div class="example-box"><p>La inversión multiplicativa aporta no linealidad a la S-box de AES; MixColumns usa multiplicaciones y sumas en este cuerpo.</p></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="panel-group" role="tabpanel" aria-labelledby="tab-group" hidden>
+          <div class="lab-grid">
+            <article class="lab-panel third">
+              <h2>Grupo multiplicativo módulo p</h2>
+              <label for="group-prime">Primo p</label>
+              <select id="group-prime"><option value="23">23</option><option value="47">47</option><option value="59">59</option></select>
+              <label for="group-generator">Candidato g</label>
+              <input id="group-generator" type="number" min="2" value="5">
+              <label for="group-exponent">Exponente x: <strong id="group-exponent-value">7</strong></label>
+              <input id="group-exponent" type="range" min="0" max="21" value="7">
+              <div class="actions"><button class="button secondary" id="find-generator" type="button">Buscar generador</button></div>
+              <p class="status" id="group-status" role="status" aria-live="polite">Validando orden.</p>
+            </article>
+            <article class="lab-panel third">
+              <h2>Resultado</h2>
+              <div class="metric-strip two-columns">
+                <div class="metric-tile"><strong id="group-result">—</strong><span>gˣ mod p</span></div>
+                <div class="metric-tile"><strong id="group-order">—</strong><span>orden de g</span></div>
+                <div class="metric-tile"><strong id="group-size">—</strong><span>|ℤ*p| = p−1</span></div>
+                <div class="metric-tile"><strong id="group-generator-verdict">—</strong><span>¿g genera todo?</span></div>
+              </div>
+              <h3>Órbita</h3>
+              <div class="bits-output" id="group-orbit">—</div>
+            </article>
+            <article class="lab-panel third">
+              <h2>Mapa circular</h2>
+              <svg class="algebra-plot" id="group-plot" viewBox="0 0 420 420" role="img" aria-label="Órbita de potencias de g módulo p"></svg>
+            </article>
+          </div>
+          <div class="warning-box"><p><strong>Precisión:</strong> ℤ<sub>p</sub><sup>*</sup> tiene p−1 elementos. Diffie–Hellman suele trabajar en un subgrupo cíclico grande de orden primo q que divide p−1.</p></div>
+        </section>
+
+        <section class="tab-panel" id="panel-ecc" role="tabpanel" aria-labelledby="tab-ecc" hidden>
+          <div class="lab-grid">
+            <article class="lab-panel third">
+              <h2>Curva pequeña</h2>
+              <div class="formula">E: y² = x³ + 2x + 2 (mod 17)</div>
+              <p>Punto base P=(5,1). La curva posee un grupo pequeño que puede enumerarse por completo.</p>
+              <label for="ecc-scalar">Escalar k: <strong id="ecc-scalar-value">7</strong></label>
+              <input id="ecc-scalar" type="range" min="0" max="19" value="7">
+              <div class="metric-strip two-columns">
+                <div class="metric-tile"><strong id="ecc-result">—</strong><span>Q=kP</span></div>
+                <div class="metric-tile"><strong id="ecc-order">—</strong><span>orden de P</span></div>
+              </div>
+              <p class="status good" id="ecc-status" role="status" aria-live="polite">Todos los puntos se calculan exactamente en módulo 17.</p>
+            </article>
+            <article class="lab-panel span-eight">
+              <h2>Puntos de la curva</h2>
+              <svg class="algebra-plot" id="ecc-plot" viewBox="0 0 540 540" role="img" aria-label="Puntos de la curva elíptica sobre el cuerpo finito de 17 elementos"></svg>
+            </article>
+          </div>
+          <div class="insight-box"><p>En curvas reales, p y el orden del subgrupo tienen cientos de bits. La operación kP es eficiente; recuperar k a partir de P y Q es el ECDLP.</p></div>
+        </section>
+
+        <section class="tab-panel" id="panel-lwe" role="tabpanel" aria-labelledby="tab-lwe" hidden>
+          <div class="lab-grid">
+            <article class="lab-panel third">
+              <h2>Ecuaciones modulares</h2>
+              <p>Secreto fijo s=(3,5), módulo q=17. Cada muestra cumple:</p>
+              <div class="formula">bᵢ = aᵢ·s + eᵢ (mod 17)</div>
+              <label for="lwe-noise">Ruido</label>
+              <select id="lwe-noise"><option value="on">Pequeño: e∈{−1,0,1}</option><option value="off">Sin ruido: e=0</option></select>
+              <label for="lwe-samples">Cantidad de ecuaciones</label>
+              <input id="lwe-samples" type="number" min="3" max="20" value="8">
+              <div class="actions"><button class="button" id="generate-lwe" type="button">Generar sistema</button></div>
+              <p class="status" id="lwe-status" role="status" aria-live="polite">Preparando ecuaciones.</p>
+            </article>
+            <article class="lab-panel third">
+              <h2>Diagnóstico</h2>
+              <div class="metric-strip two-columns">
+                <div class="metric-tile"><strong id="lwe-exact-count">—</strong><span>soluciones exactas</span></div>
+                <div class="metric-tile"><strong id="lwe-best">—</strong><span>mejor ajuste exhaustivo</span></div>
+                <div class="metric-tile"><strong id="lwe-score">—</strong><span>error cuadrático modular</span></div>
+                <div class="metric-tile"><strong id="lwe-recovered">—</strong><span>¿recuperó s?</span></div>
+              </div>
+              <p>En este espacio de 17² candidatos podemos probar todo. En dimensiones y módulos criptográficos, esa enumeración deja de ser viable.</p>
+            </article>
+            <article class="lab-panel third">
+              <h2>Muestras</h2>
+              <div class="table-wrap">
+                <table>
+                  <caption class="sr-only">Ecuaciones LWE generadas</caption>
+                  <thead><tr><th>i</th><th>aᵢ</th><th>eᵢ</th><th>bᵢ</th></tr></thead>
+                  <tbody id="lwe-table"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+          <div class="warning-box"><p>El juguete muestra el efecto del ruido, no la seguridad de ML-KEM. Los esquemas reales usan dimensiones, distribuciones, módulos y estructuras cuidadosamente especificados.</p></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <header class="section-head"><div><div class="section-kicker">Puente a las primitivas</div><h2>Dónde aparece cada estructura</h2></div><div class="section-index" aria-hidden="true">↗</div></header>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">Relación entre estructuras, problemas y aplicaciones</caption>
+          <thead><tr><th>Estructura</th><th>Operación fácil</th><th>Problema difícil o función</th><th>Aplicación</th></tr></thead>
+          <tbody>
+            <tr><td>GF(2⁸)</td><td>XOR y multiplicación polinómica</td><td>Diseño no lineal y mezcla</td><td>AES</td></tr>
+            <tr><td>Grupo cíclico</td><td>Exponenciación gˣ</td><td>Logaritmo discreto</td><td>Diffie–Hellman, firmas</td></tr>
+            <tr><td>Curva elíptica</td><td>Multiplicación kP</td><td>ECDLP</td><td>ECDH, ECDSA</td></tr>
+            <tr><td>Retículo / Module-LWE</td><td>Operaciones lineales con ruido</td><td>Recuperación del secreto</td><td>ML-KEM, ML-DSA</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <article class="study-panel">
+        <h2>Desafío de transferencia</h2>
+        <p>¿Por qué Shor obliga a reemplazar RSA y ECC, mientras que agregar margen de clave puede ayudar frente a Grover en criptografía simétrica?</p>
+        <details class="checkpoint"><summary>Ver orientación</summary><p>Shor ofrece algoritmos polinomiales para los problemas algebraicos que sostienen RSA y ECC. Grover acelera de forma cuadrática una búsqueda genérica; no elimina la exponencialidad y puede compensarse parcialmente con más bits, sujeto a costos reales.</p></details>
+      </article>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>Los tres pilares ya están conectados</h2><p>Usá los mapas mentales para condensar relaciones y preparar el repaso final.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="espacio-claves-complejidad.html">← Complejidad</a>
+        <button class="button secondary" type="button" data-complete-page="algebra" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="mapas-mentales.html">Siguiente: mapas mentales →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>Todos los parámetros de esta página son pequeños y enumerables para fines educativos. No se deben reutilizar en sistemas reales.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/estructuras-algebraicas.js"></script>
+</body>
+</html>

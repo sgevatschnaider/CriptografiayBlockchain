@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Mapas mentales interactivos sobre los tres pilares, modelos de seguridad y relación entre estructuras, algoritmos y amenaza cuántica.">
+  <meta name="theme-color" content="#061322">
+  <title>Mapas mentales | Fundamentos de la criptografía moderna</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+  <style>
+    .map-line{fill:none;stroke:#47657f;stroke-width:2.2}.map-line.info{stroke:#63d5ff}.map-line.complexity{stroke:#b394ff}.map-line.algebra{stroke:#ffc766}.map-node text{font-family:Inter,system-ui,sans-serif;pointer-events:none}.map-node .title{fill:#f4f9ff;font-size:14px;font-weight:850}.map-node .sub{fill:#b9cce0;font-size:10px}.map-node rect{fill:#0a2136;stroke:#53728e;stroke-width:1.6}.map-node.info rect{fill:#0b3348;stroke:#63d5ff}.map-node.complexity rect{fill:#2b2450;stroke:#b394ff}.map-node.algebra rect{fill:#3b301b;stroke:#ffc766}.map-node.core rect{fill:#123550;stroke:#d8f5ff;stroke-width:2.5}.map-arrow{fill:#7891a8}.map-legend{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}.map-legend span{padding:6px 9px;border:1px solid var(--m2-line);border-radius:999px;color:var(--muted);font-size:.75rem}
+  </style>
+</head>
+<body class="module-02" data-module-page="mapas">
+  <a class="skip-link" href="#mapas">Saltar a los mapas</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html" aria-current="page">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Síntesis visual · relaciones, no listas</div>
+        <h1>Mapas mentales interactivos</h1>
+        <p>Seleccioná cada nodo para recuperar su función dentro del sistema. Los tres mapas responden: qué sostiene la seguridad, cómo se prueba y qué cambia con un adversario cuántico.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">⌘</div>
+    </section>
+
+    <section class="content-section" id="mapas" aria-labelledby="mapa-pilares-titulo">
+      <header class="section-head">
+        <div><div class="section-kicker">Mapa 1</div><h2 id="mapa-pilares-titulo">Los tres pilares y sus dependencias</h2><p>Usá clic, Enter o barra espaciadora sobre los nodos. El mapa diferencia definición, costo y estructura.</p></div>
+        <div class="section-index" aria-hidden="true">01</div>
+      </header>
+      <div class="map-legend" role="note" aria-label="Leyenda"><span>Celeste: información</span><span>Violeta: complejidad</span><span>Ámbar: álgebra</span></div>
+      <div class="map-board" data-map="pillars">
+        <svg viewBox="0 0 1000 650" role="group" aria-labelledby="pillars-title pillars-desc">
+          <title id="pillars-title">Mapa mental de los tres pilares de la criptografía moderna</title>
+          <desc id="pillars-desc">Seguridad en el centro, conectada con teoría de la información, complejidad computacional y estructuras algebraicas, junto con conceptos derivados.</desc>
+          <path class="map-line info" d="M500 310 C380 290 330 210 270 165"/>
+          <path class="map-line complexity" d="M500 310 C620 285 680 210 730 165"/>
+          <path class="map-line algebra" d="M500 335 C500 420 500 470 500 515"/>
+          <path class="map-line info" d="M265 165 C190 145 145 110 110 82"/><path class="map-line info" d="M265 165 C180 205 150 245 110 270"/><path class="map-line info" d="M265 165 C305 95 330 77 370 64"/>
+          <path class="map-line complexity" d="M735 165 C805 120 845 97 895 75"/><path class="map-line complexity" d="M735 165 C805 205 845 245 893 272"/><path class="map-line complexity" d="M735 165 C690 92 660 72 620 62"/>
+          <path class="map-line algebra" d="M500 515 C390 540 340 572 292 602"/><path class="map-line algebra" d="M500 515 C605 540 660 572 711 601"/><path class="map-line algebra" d="M500 515 C500 570 500 600 500 625"/>
+
+          <g class="map-node core" tabindex="0" role="button" data-map-node="security" aria-label="Seguridad criptográfica">
+            <rect x="408" y="274" width="184" height="84" rx="22"/><text class="title" x="500" y="312" text-anchor="middle">SEGURIDAD</text><text class="sub" x="500" y="334" text-anchor="middle">objetivo · adversario · ventaja</text>
+          </g>
+          <g class="map-node info" tabindex="0" role="button" data-map-node="information" aria-label="Teoría de la información">
+            <rect x="170" y="126" width="200" height="78" rx="19"/><text class="title" x="270" y="159" text-anchor="middle">INFORMACIÓN</text><text class="sub" x="270" y="181" text-anchor="middle">¿qué revela C sobre M?</text>
+          </g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="complexity" aria-label="Complejidad computacional">
+            <rect x="630" y="126" width="210" height="78" rx="19"/><text class="title" x="735" y="159" text-anchor="middle">COMPLEJIDAD</text><text class="sub" x="735" y="181" text-anchor="middle">¿qué recursos necesita A?</text>
+          </g>
+          <g class="map-node algebra" tabindex="0" role="button" data-map-node="algebra" aria-label="Teoría de números y álgebra">
+            <rect x="394" y="478" width="212" height="76" rx="19"/><text class="title" x="500" y="510" text-anchor="middle">ÁLGEBRA</text><text class="sub" x="500" y="532" text-anchor="middle">¿dónde vive el problema?</text>
+          </g>
+
+          <g class="map-node info" tabindex="0" role="button" data-map-node="entropy" aria-label="Entropía e información mutua"><rect x="25" y="43" width="170" height="62" rx="15"/><text class="title" x="110" y="70" text-anchor="middle">Entropía</text><text class="sub" x="110" y="90" text-anchor="middle">H, H|C, I(M;C)</text></g>
+          <g class="map-node info" tabindex="0" role="button" data-map-node="perfect" aria-label="Secreto perfecto"><rect x="22" y="239" width="176" height="62" rx="15"/><text class="title" x="110" y="266" text-anchor="middle">Secreto perfecto</text><text class="sub" x="110" y="286" text-anchor="middle">posterior = prior</text></g>
+          <g class="map-node info" tabindex="0" role="button" data-map-node="design" aria-label="Confusión y difusión"><rect x="284" y="34" width="176" height="62" rx="15"/><text class="title" x="372" y="61" text-anchor="middle">Diseño por rondas</text><text class="sub" x="372" y="81" text-anchor="middle">confusión · difusión</text></g>
+
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="ppt" aria-label="Adversario probabilístico polinomial"><rect x="535" y="30" width="172" height="62" rx="15"/><text class="title" x="621" y="57" text-anchor="middle">Adversario PPT</text><text class="sub" x="621" y="77" text-anchor="middle">tiempo y azar acotados</text></g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="reductions" aria-label="Reducciones de seguridad"><rect x="805" y="43" width="176" height="62" rx="15"/><text class="title" x="893" y="70" text-anchor="middle">Reducciones</text><text class="sub" x="893" y="90" text-anchor="middle">romper ⇒ resolver</text></g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="classes" aria-label="Clases P NP y BQP"><rect x="805" y="240" width="176" height="62" rx="15"/><text class="title" x="893" y="267" text-anchor="middle">P · NP · BQP</text><text class="sub" x="893" y="287" text-anchor="middle">modelo de cómputo</text></g>
+
+          <g class="map-node algebra" tabindex="0" role="button" data-map-node="groups" aria-label="Grupos y cuerpos finitos"><rect x="204" y="575" width="176" height="60" rx="15"/><text class="title" x="292" y="601" text-anchor="middle">Grupos y cuerpos</text><text class="sub" x="292" y="621" text-anchor="middle">DH · AES</text></g>
+          <g class="map-node algebra" tabindex="0" role="button" data-map-node="curves" aria-label="Curvas elípticas"><rect x="414" y="584" width="172" height="56" rx="15"/><text class="title" x="500" y="609" text-anchor="middle">Curvas elípticas</text><text class="sub" x="500" y="628" text-anchor="middle">ECDLP</text></g>
+          <g class="map-node algebra" tabindex="0" role="button" data-map-node="lattices" aria-label="Retículos y LWE"><rect x="622" y="575" width="178" height="60" rx="15"/><text class="title" x="711" y="601" text-anchor="middle">Retículos y LWE</text><text class="sub" x="711" y="621" text-anchor="middle">ML-KEM · ML-DSA</text></g>
+        </svg>
+      </div>
+      <aside class="map-detail" id="pillars-detail" aria-label="Detalle del mapa de pilares" aria-live="polite"><h3>Seguridad criptográfica</h3><p>Seleccioná un nodo para explorar su papel y su relación con los demás.</p></aside>
+    </section>
+
+    <section class="content-section" aria-labelledby="mapa-modelos-titulo">
+      <header class="section-head">
+        <div><div class="section-kicker">Mapa 2</div><h2 id="mapa-modelos-titulo">Del ideal de Shannon a los juegos de seguridad</h2><p>El mapa separa garantías, capacidades del adversario y propiedades de una construcción práctica.</p></div>
+        <div class="section-index" aria-hidden="true">02</div>
+      </header>
+      <div class="map-board" data-map="models">
+        <svg viewBox="0 0 1000 560" role="group" aria-labelledby="models-title models-desc">
+          <title id="models-title">Mapa de modelos de seguridad</title>
+          <desc id="models-desc">Ramas de seguridad perfecta y computacional, juegos CPA y CCA, e ingeniería con AEAD, nonces y gestión de claves.</desc>
+          <path class="map-line info" d="M500 88 L290 180"/><path class="map-line complexity" d="M500 88 L710 180"/>
+          <path class="map-line info" d="M290 230 L155 340"/><path class="map-line info" d="M290 230 L360 340"/>
+          <path class="map-line complexity" d="M710 230 L615 340"/><path class="map-line complexity" d="M710 230 L820 340"/>
+          <path class="map-line" d="M155 392 L300 485"/><path class="map-line" d="M360 392 L430 485"/><path class="map-line" d="M615 392 L570 485"/><path class="map-line" d="M820 392 L700 485"/>
+          <g class="map-node core" tabindex="0" role="button" data-map-node="goal"><rect x="390" y="45" width="220" height="80" rx="20"/><text class="title" x="500" y="78" text-anchor="middle">OBJETIVO</text><text class="sub" x="500" y="100" text-anchor="middle">¿qué no debe aprender A?</text></g>
+          <g class="map-node info" tabindex="0" role="button" data-map-node="unconditional"><rect x="185" y="177" width="210" height="68" rx="18"/><text class="title" x="290" y="206" text-anchor="middle">Incondicional</text><text class="sub" x="290" y="226" text-anchor="middle">sin límite de cómputo</text></g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="computational"><rect x="605" y="177" width="210" height="68" rx="18"/><text class="title" x="710" y="206" text-anchor="middle">Computacional</text><text class="sub" x="710" y="226" text-anchor="middle">adversario eficiente</text></g>
+          <g class="map-node info" tabindex="0" role="button" data-map-node="otp"><rect x="70" y="337" width="170" height="60" rx="15"/><text class="title" x="155" y="363" text-anchor="middle">OTP</text><text class="sub" x="155" y="383" text-anchor="middle">I(M;C)=0</text></g>
+          <g class="map-node info" tabindex="0" role="button" data-map-node="key-cost"><rect x="275" y="337" width="170" height="60" rx="15"/><text class="title" x="360" y="363" text-anchor="middle">Costo logístico</text><text class="sub" x="360" y="383" text-anchor="middle">|K| ≥ |M| · un uso</text></g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="ind-cpa"><rect x="530" y="337" width="170" height="60" rx="15"/><text class="title" x="615" y="363" text-anchor="middle">IND-CPA</text><text class="sub" x="615" y="383" text-anchor="middle">texto claro elegido</text></g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="ind-cca"><rect x="735" y="337" width="170" height="60" rx="15"/><text class="title" x="820" y="363" text-anchor="middle">IND-CCA</text><text class="sub" x="820" y="383" text-anchor="middle">texto cifrado elegido</text></g>
+          <g class="map-node core" tabindex="0" role="button" data-map-node="engineering"><rect x="250" y="476" width="500" height="62" rx="18"/><text class="title" x="500" y="502" text-anchor="middle">INGENIERÍA SEGURA</text><text class="sub" x="500" y="522" text-anchor="middle">AEAD · nonce único · claves · errores · implementación</text></g>
+        </svg>
+      </div>
+      <aside class="map-detail" id="models-detail" aria-label="Detalle del mapa de modelos" aria-live="polite"><h3>Objetivo de seguridad</h3><p>Una definición útil especifica qué información o capacidad se niega al adversario y bajo qué reglas.</p></aside>
+    </section>
+
+    <section class="content-section" aria-labelledby="mapa-transicion-titulo">
+      <header class="section-head">
+        <div><div class="section-kicker">Mapa 3</div><h2 id="mapa-transicion-titulo">Estructuras, primitivas y transición cuántica</h2><p>La amenaza cuántica no afecta a todas las familias de la misma manera.</p></div>
+        <div class="section-index" aria-hidden="true">03</div>
+      </header>
+      <div class="map-board" data-map="quantum">
+        <svg viewBox="0 0 1000 540" role="group" aria-labelledby="quantum-title quantum-desc">
+          <title id="quantum-title">Mapa de algoritmos, estructuras y amenaza cuántica</title>
+          <desc id="quantum-desc">AES se conecta con cuerpos finitos y Grover; RSA y ECC con Shor; ML-KEM y ML-DSA con Module-LWE y transición poscuántica.</desc>
+          <path class="map-line info" d="M500 95 L190 210"/><path class="map-line complexity" d="M500 95 L500 210"/><path class="map-line algebra" d="M500 95 L810 210"/>
+          <path class="map-line info" d="M190 265 L190 390"/><path class="map-line complexity" d="M500 265 L420 390"/><path class="map-line complexity" d="M500 265 L580 390"/><path class="map-line algebra" d="M810 265 L810 390"/>
+          <path class="map-line" d="M190 440 L500 505"/><path class="map-line" d="M420 440 L500 505"/><path class="map-line" d="M580 440 L500 505"/><path class="map-line" d="M810 440 L500 505"/>
+          <g class="map-node core" tabindex="0" role="button" data-map-node="primitives"><rect x="375" y="52" width="250" height="74" rx="20"/><text class="title" x="500" y="83" text-anchor="middle">PRIMITIVAS</text><text class="sub" x="500" y="104" text-anchor="middle">estructura + problema + construcción</text></g>
+          <g class="map-node info" tabindex="0" role="button" data-map-node="aes"><rect x="105" y="207" width="170" height="62" rx="16"/><text class="title" x="190" y="233" text-anchor="middle">AES</text><text class="sub" x="190" y="253" text-anchor="middle">GF(2⁸) · SPN</text></g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="classical-public"><rect x="405" y="207" width="190" height="62" rx="16"/><text class="title" x="500" y="233" text-anchor="middle">Clave pública clásica</text><text class="sub" x="500" y="253" text-anchor="middle">RSA · DH · ECC</text></g>
+          <g class="map-node algebra" tabindex="0" role="button" data-map-node="pqc"><rect x="715" y="207" width="190" height="62" rx="16"/><text class="title" x="810" y="233" text-anchor="middle">Poscuántica</text><text class="sub" x="810" y="253" text-anchor="middle">Module-LWE · hashes</text></g>
+          <g class="map-node info" tabindex="0" role="button" data-map-node="grover"><rect x="100" y="387" width="180" height="62" rx="16"/><text class="title" x="190" y="413" text-anchor="middle">Grover</text><text class="sub" x="190" y="433" text-anchor="middle">aceleración cuadrática</text></g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="shor-rsa"><rect x="335" y="387" width="170" height="62" rx="16"/><text class="title" x="420" y="413" text-anchor="middle">Shor / RSA</text><text class="sub" x="420" y="433" text-anchor="middle">factorización</text></g>
+          <g class="map-node complexity" tabindex="0" role="button" data-map-node="shor-ecc"><rect x="495" y="387" width="170" height="62" rx="16"/><text class="title" x="580" y="413" text-anchor="middle">Shor / ECC</text><text class="sub" x="580" y="433" text-anchor="middle">logaritmo discreto</text></g>
+          <g class="map-node algebra" tabindex="0" role="button" data-map-node="nist-pqc"><rect x="705" y="387" width="210" height="62" rx="16"/><text class="title" x="810" y="413" text-anchor="middle">ML-KEM · ML-DSA</text><text class="sub" x="810" y="433" text-anchor="middle">estándares NIST</text></g>
+          <g class="map-node core" tabindex="0" role="button" data-map-node="agility"><rect x="385" y="482" width="230" height="48" rx="15"/><text class="title" x="500" y="512" text-anchor="middle">CRIPTOAGILIDAD</text></g>
+        </svg>
+      </div>
+      <aside class="map-detail" id="quantum-detail" aria-label="Detalle del mapa de transición cuántica" aria-live="polite"><h3>Primitivas y supuestos</h3><p>Cada familia combina operaciones eficientes con un supuesto de dificultad y una construcción que debe analizarse.</p></aside>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>Usá los mapas como recuperación activa</h2><p>Intentá reconstruir cada rama sin mirar y verificá después con el glosario.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="estructuras-algebraicas.html">← Estructuras</a>
+        <button class="button secondary" type="button" data-complete-page="mapas" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="glosario.html">Siguiente: glosario →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>Los mapas condensan relaciones; no reemplazan las definiciones formales ni los parámetros de los estándares.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/mapas.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 560" role="img" aria-labelledby="title desc">
+  <title id="title">Los tres pilares de la criptografía moderna</title>
+  <desc id="desc">Un núcleo central de seguridad conectado con teoría de la información, complejidad computacional y estructuras algebraicas.</desc>
+  <defs>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#63d5ff"/>
+      <stop offset=".55" stop-color="#8f9eff"/>
+      <stop offset="1" stop-color="#b394ff"/>
+    </linearGradient>
+    <linearGradient id="info" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0f526f"/>
+      <stop offset="1" stop-color="#0a293e"/>
+    </linearGradient>
+    <linearGradient id="complexity" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#513b82"/>
+      <stop offset="1" stop-color="#221c43"/>
+    </linearGradient>
+    <linearGradient id="algebra" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#745628"/>
+      <stop offset="1" stop-color="#302817"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M380 269 C260 245 216 178 171 132" stroke="#63d5ff" stroke-width="4" opacity=".72"/>
+    <path d="M405 285 C532 249 585 184 616 128" stroke="#b394ff" stroke-width="4" opacity=".72"/>
+    <path d="M388 312 C410 396 381 432 379 464" stroke="#ffc766" stroke-width="4" opacity=".72"/>
+    <path d="M187 150 C282 203 321 234 363 267" stroke="#63d5ff" stroke-width="1.5" stroke-dasharray="6 10" opacity=".55"/>
+    <path d="M596 151 C517 205 468 242 420 273" stroke="#b394ff" stroke-width="1.5" stroke-dasharray="6 10" opacity=".55"/>
+    <path d="M391 447 C393 392 394 356 393 319" stroke="#ffc766" stroke-width="1.5" stroke-dasharray="6 10" opacity=".55"/>
+  </g>
+
+  <g opacity=".28" fill="#d9f5ff">
+    <circle cx="78" cy="250" r="3"/><circle cx="111" cy="292" r="2"/><circle cx="676" cy="253" r="3"/>
+    <circle cx="644" cy="331" r="2"/><circle cx="246" cy="493" r="3"/><circle cx="520" cy="469" r="2"/>
+    <text x="62" y="230" font-family="monospace" font-size="13">01101001</text>
+    <text x="610" y="283" font-family="monospace" font-size="13">2^λ</text>
+    <text x="497" y="503" font-family="monospace" font-size="13">GF(2⁸)</text>
+  </g>
+
+  <g filter="url(#glow)">
+    <circle cx="390" cy="286" r="91" fill="url(#core)" opacity=".16"/>
+    <circle cx="390" cy="286" r="69" fill="#071625" stroke="url(#core)" stroke-width="4"/>
+    <circle cx="390" cy="286" r="52" fill="url(#core)" opacity=".12"/>
+  </g>
+  <text x="390" y="278" fill="#effaff" font-family="Inter,Segoe UI,sans-serif" font-size="18" font-weight="900" text-anchor="middle" letter-spacing="2">SEGURIDAD</text>
+  <text x="390" y="304" fill="#9edfff" font-family="Inter,Segoe UI,sans-serif" font-size="12" font-weight="700" text-anchor="middle">definición · costo · estructura</text>
+
+  <g>
+    <rect x="55" y="47" width="252" height="124" rx="25" fill="url(#info)" stroke="#63d5ff" stroke-width="2"/>
+    <circle cx="92" cy="84" r="18" fill="#63d5ff" opacity=".18" stroke="#63d5ff"/>
+    <text x="92" y="90" fill="#b9efff" font-family="monospace" font-size="17" font-weight="900" text-anchor="middle">H</text>
+    <text x="121" y="83" fill="#f2fbff" font-family="Inter,Segoe UI,sans-serif" font-size="16" font-weight="900">INFORMACIÓN</text>
+    <text x="78" y="117" fill="#afd4e7" font-family="Inter,Segoe UI,sans-serif" font-size="12">Entropía · secreto perfecto</text>
+    <text x="78" y="139" fill="#afd4e7" font-family="Inter,Segoe UI,sans-serif" font-size="12">confusión · difusión</text>
+  </g>
+
+  <g>
+    <rect x="472" y="45" width="242" height="126" rx="25" fill="url(#complexity)" stroke="#b394ff" stroke-width="2"/>
+    <circle cx="509" cy="83" r="18" fill="#b394ff" opacity=".18" stroke="#b394ff"/>
+    <text x="509" y="89" fill="#e2d6ff" font-family="monospace" font-size="16" font-weight="900" text-anchor="middle">P</text>
+    <text x="538" y="82" fill="#f8f3ff" font-family="Inter,Segoe UI,sans-serif" font-size="16" font-weight="900">COMPLEJIDAD</text>
+    <text x="495" y="117" fill="#d0c4e8" font-family="Inter,Segoe UI,sans-serif" font-size="12">PPT · reducciones · λ</text>
+    <text x="495" y="139" fill="#d0c4e8" font-family="Inter,Segoe UI,sans-serif" font-size="12">P · NP · BQP</text>
+  </g>
+
+  <g>
+    <rect x="259" y="420" width="266" height="112" rx="25" fill="url(#algebra)" stroke="#ffc766" stroke-width="2"/>
+    <circle cx="297" cy="458" r="18" fill="#ffc766" opacity=".18" stroke="#ffc766"/>
+    <text x="297" y="464" fill="#ffe5aa" font-family="serif" font-size="19" font-weight="900" text-anchor="middle">𝔽</text>
+    <text x="326" y="458" fill="#fff8e8" font-family="Inter,Segoe UI,sans-serif" font-size="16" font-weight="900">ÁLGEBRA</text>
+    <text x="282" y="490" fill="#dfd1ad" font-family="Inter,Segoe UI,sans-serif" font-size="12">grupos · cuerpos · curvas</text>
+    <text x="282" y="511" fill="#dfd1ad" font-family="Inter,Segoe UI,sans-serif" font-size="12">retículos · LWE</text>
+  </g>
+
+  <g fill="#061321" stroke-width="2">
+    <circle cx="277" cy="227" r="18" stroke="#63d5ff"/><text x="277" y="232" fill="#b9efff" font-family="monospace" font-size="11" text-anchor="middle">I=0</text>
+    <circle cx="507" cy="229" r="18" stroke="#b394ff"/><text x="507" y="234" fill="#e2d6ff" font-family="monospace" font-size="11" text-anchor="middle">negl</text>
+    <circle cx="391" cy="383" r="18" stroke="#ffc766"/><text x="391" y="388" fill="#ffe5aa" font-family="monospace" font-size="11" text-anchor="middle">LWE</text>
+  </g>
+</svg>

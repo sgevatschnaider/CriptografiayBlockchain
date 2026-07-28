@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Evaluación formativa de 36 preguntas sobre fundamentos de la criptografía moderna, con filtros, explicaciones y progreso.">
+  <meta name="theme-color" content="#061322">
+  <title>Evaluación formativa | Fundamentos de la criptografía moderna</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+</head>
+<body class="module-02" data-module-page="cuestionario">
+  <a class="skip-link" href="#evaluacion">Saltar a la evaluación</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html" aria-current="page">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Evaluación formativa · 36 preguntas</div>
+        <h1>Comprobá lo que realmente comprendiste</h1>
+        <p>Configurá una práctica breve o el banco completo. El modo estudio explica cada respuesta; el modo examen reserva la devolución para el final.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">✓</div>
+    </section>
+
+    <section class="content-section" id="evaluacion" aria-labelledby="evaluacion-titulo">
+      <header class="section-head">
+        <div><div class="section-kicker">Configuración</div><h2 id="evaluacion-titulo">Armá tu recorrido</h2><p>La mejor marca se conserva en este navegador y una puntuación de 70% completa la estación.</p></div>
+        <div class="section-index" id="best-score" role="status" aria-label="Mejor puntuación">0%</div>
+      </header>
+
+      <div class="quiz-toolbar">
+        <div>
+          <label for="quiz-category">Categoría</label>
+          <select id="quiz-category"><option value="all">Todas las categorías</option></select>
+        </div>
+        <div>
+          <label for="quiz-level">Nivel</label>
+          <select id="quiz-level"><option value="all">Todos los niveles</option><option value="Inicial">Inicial</option><option value="Intermedio">Intermedio</option><option value="Avanzado">Avanzado</option></select>
+        </div>
+        <div>
+          <label for="quiz-size">Cantidad</label>
+          <select id="quiz-size"><option value="10">10 preguntas</option><option value="20">20 preguntas</option><option value="36">Banco completo</option></select>
+        </div>
+        <div>
+          <label for="quiz-mode">Modo</label>
+          <select id="quiz-mode"><option value="study">Estudio con explicación</option><option value="exam">Examen sin pistas</option></select>
+        </div>
+      </div>
+      <div class="actions"><button class="button" id="start-quiz" type="button">Iniciar nueva evaluación</button><button class="button secondary" id="reset-quiz" type="button">Reiniciar intento</button></div>
+      <p class="status" id="quiz-status" role="status" aria-live="polite">Elegí una configuración y comenzá.</p>
+
+      <div class="quiz-shell top-gap">
+        <section class="quiz-card" id="quiz-card">
+          <div class="empty-state">La primera pregunta aparecerá aquí.</div>
+        </section>
+        <aside class="quiz-sidebar" aria-label="Progreso de la evaluación">
+          <h2>Progreso</h2>
+          <div class="metric-strip two-columns">
+            <div class="metric-tile"><strong id="question-progress">0/0</strong><span>pregunta actual</span></div>
+            <div class="metric-tile"><strong id="live-score">0%</strong><span>aciertos verificados</span></div>
+          </div>
+          <div class="quiz-dots" id="quiz-dots" role="group" aria-label="Preguntas"></div>
+          <div class="actions">
+            <button class="button secondary" id="previous-question" type="button">← Anterior</button>
+            <button class="button" id="next-question" type="button">Siguiente →</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="content-section" id="quiz-summary" hidden>
+      <article class="study-panel">
+        <div class="section-kicker">Resultado del intento</div>
+        <h2 id="summary-title">Evaluación finalizada</h2>
+        <div class="metric-strip">
+          <div class="metric-tile"><strong id="summary-score">—</strong><span>puntuación</span></div>
+          <div class="metric-tile"><strong id="summary-correct">—</strong><span>respuestas correctas</span></div>
+          <div class="metric-tile"><strong id="summary-best">—</strong><span>mejor marca</span></div>
+          <div class="metric-tile"><strong id="summary-verdict">—</strong><span>lectura</span></div>
+        </div>
+        <div id="summary-review"></div>
+        <div class="actions"><button class="button" id="try-again" type="button">Nuevo intento</button><a class="button secondary" href="glosario.html">Repasar glosario</a></div>
+      </article>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la evaluación">
+      <div><h2>Cierre del módulo</h2><p>Una buena puntuación importa menos que poder justificar cada decisión y reconocer los límites del modelo.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="glosario.html">← Glosario</a>
+        <button class="button secondary" type="button" data-complete-page="cuestionario" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="index.html">Volver al índice →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>Las respuestas se procesan localmente. La evaluación no envía datos ni sustituye una instancia formal de acreditación.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/cuestionario-data.js"></script>
+  <script src="assets/cuestionario.js"></script>
+</body>
+</html>

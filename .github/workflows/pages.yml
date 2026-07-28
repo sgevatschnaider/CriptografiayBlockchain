@@ -4,7 +4,8 @@ on:
   pull_request:
     paths:
       - 'simuladores/**'
-      - 'scripts/validate-simulators.mjs'
+      - 'docs/criptografia/**'
+      - 'scripts/validate-*.mjs'
       - '.github/workflows/pages.yml'
       - 'index.html'
       - 'README.md'
@@ -35,7 +36,9 @@ jobs:
           node-version: '22'
 
       - name: Validar HTML, JavaScript y enlaces locales
-        run: node scripts/validate-simulators.mjs
+        run: |
+          node scripts/validate-simulators.mjs
+          node scripts/validate-module-02.mjs
 
   deploy:
     name: Publicar GitHub Pages

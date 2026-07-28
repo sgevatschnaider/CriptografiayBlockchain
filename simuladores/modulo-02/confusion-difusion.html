@@ -1,1 +1,133 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Confusión y difusión</title><link rel="stylesheet" href="../assets/lab.css"><style>.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.p{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--panel)}textarea,input{width:100%}.bits{font-family:ui-monospace,monospace;word-break:break-all}.metric{font-size:1.6rem;font-weight:800}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">← Módulo 2</a></div><nav class="nav"><a href="../index.html">Campus</a></nav></header><section class="hero"><div class="eyebrow">Shannon</div><h1>Confusión, difusión y efecto avalancha</h1><p>Observa cómo una sustitución introduce no linealidad y una permutación dispersa cambios. El modelo es didáctico: no implementa AES.</p></section><section class="g"><article class="p"><h2>Entrada</h2><label>Mensaje</label><input id="msg" value="CRIPTOGRAFIA"><label>Clave didáctica</label><input id="key" value="SHANNON"><div class="actions"><button class="button" id="run">Procesar</button><button class="button secondary" id="flip">Cambiar un bit</button></div><p class="bits" id="plain"></p></article><article class="p"><h2>Transformación</h2><p><b>Confusión:</b> sustitución no lineal dependiente de la clave.</p><p class="bits" id="sub"></p><p><b>Difusión:</b> permutación de posiciones.</p><p class="bits" id="perm"></p></article><article class="p"><h2>Avalancha</h2><div class="metric" id="dist">0%</div><p id="detail"></p><p>Un cambio pequeño debe propagarse ampliamente. Sin embargo, una buena avalancha no demuestra por sí sola seguridad criptográfica.</p></article></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main><script>const te=new TextEncoder();function bits(a){return[...a].map(x=>x.toString(2).padStart(8,'0')).join(' ')}function transform(bytes,key){let s=new Uint8Array(bytes.length);for(let i=0;i<bytes.length;i++){const k=key[i%key.length];s[i]=((bytes[i]^k)*197+101)&255}s=Uint8Array.from(s,(v,i)=>v^((s[(i+1)%s.length]>>>1)|((s[(i+1)%s.length]&1)<<7)));let p=new Uint8Array(s.length);for(let i=0;i<s.length;i++)p[(i*5)%s.length]=s[i];return{s,p}}function hd(a,b){let d=0;for(let i=0;i<a.length;i++){let x=a[i]^b[i];while(x){d+=x&1;x>>=1}}return d}function calc(flip=false){let m=te.encode(msg.value),k=te.encode(key.value||'K');if(flip&&m.length)m[0]^=1;const base=transform(te.encode(msg.value),k),res=transform(m,k);plain.textContent=bits(m);sub.textContent=bits(res.s);perm.textContent=bits(res.p);const d=hd(base.p,res.p),total=res.p.length*8;dist.textContent=(100*d/total).toFixed(1)+'%';detail.textContent=`${d} de ${total} bits cambiaron respecto de la entrada original.`}run.onclick=()=>calc(false);flip.onclick=()=>calc(true);calc(false);</script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Red de sustitución-permutación didáctica para visualizar confusión, difusión y efecto avalancha por rondas.">
+  <meta name="theme-color" content="#061322">
+  <title>Confusión, difusión y avalancha | Módulo 2</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+</head>
+<body class="module-02" data-module-page="confusion-difusion">
+  <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Diseño de cifradores · red por rondas</div>
+        <h1>Confusión, difusión y efecto avalancha</h1>
+        <p>Invertí un solo bit y seguí su propagación. Activá capas para distinguir no linealidad, movimiento de posiciones y mezcla entre bytes.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">≈½</div>
+    </section>
+
+    <section class="lab-grid" id="laboratorio" aria-label="Red de sustitución y permutación didáctica">
+      <article class="lab-panel third">
+        <h2>1. Entrada</h2>
+        <label for="spn-message">Mensaje (primeros 16 bytes UTF-8)</label>
+        <input id="spn-message" type="text" value="CRIPTOGRAFIA" autocomplete="off">
+        <label for="spn-key">Clave didáctica</label>
+        <input id="spn-key" type="text" value="SHANNON" autocomplete="off">
+        <label for="flip-bit">Bit que se invierte: <strong id="flip-bit-value">0</strong></label>
+        <input id="flip-bit" type="range" min="0" max="127" value="0">
+        <p class="small muted">Bit 0 es el más significativo del primer byte del bloque.</p>
+        <div class="bits-output" id="input-bytes">—</div>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>2. Capas activas</h2>
+        <label for="layer-mode">Profundidad de la transformación</label>
+        <select id="layer-mode">
+          <option value="key">Solo XOR con subclave</option>
+          <option value="sub">XOR + S-box</option>
+          <option value="perm">XOR + S-box + ShiftRows</option>
+          <option value="full" selected>Red completa + MixColumns</option>
+        </select>
+        <label for="round-count">Cantidad de rondas: <strong id="round-count-value">4</strong></label>
+        <input id="round-count" type="range" min="1" max="8" value="4">
+        <ol class="steps">
+          <li><strong>AddRoundKey:</strong> combina datos y subclave con XOR.</li>
+          <li><strong>S-box:</strong> agrega no linealidad y confusión.</li>
+          <li><strong>ShiftRows:</strong> permuta posiciones entre columnas.</li>
+          <li><strong>MixColumns:</strong> mezcla bytes en GF(2⁸).</li>
+        </ol>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>3. Resultado global</h2>
+        <div class="metric-strip two-columns">
+          <div class="metric-tile"><strong id="hamming-distance">—</strong><span>bits diferentes</span></div>
+          <div class="metric-tile"><strong id="avalanche-percent">—</strong><span>avalancha final</span></div>
+          <div class="metric-tile"><strong id="changed-bytes">—</strong><span>bytes modificados</span></div>
+          <div class="metric-tile"><strong id="distance-to-half">—</strong><span>distancia respecto de 50%</span></div>
+        </div>
+        <p class="status" id="spn-status" role="status" aria-live="polite">Procesando el bloque.</p>
+      </article>
+
+      <article class="lab-panel">
+        <h2>4. Estado final original</h2>
+        <p class="muted">Matriz de 16 bytes después de la última ronda.</p>
+        <div class="state-matrix" id="state-original" role="img" aria-label="Matriz final para la entrada original"></div>
+        <h3>Hexadecimal lineal</h3>
+        <div class="bits-output" id="hex-original">—</div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>5. Estado con un bit invertido</h2>
+        <p class="muted">Las celdas resaltadas no coinciden con el estado original.</p>
+        <div class="state-matrix" id="state-flipped" role="img" aria-label="Matriz final para la entrada modificada"></div>
+        <h3>Hexadecimal lineal</h3>
+        <div class="bits-output" id="hex-flipped">—</div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>6. Propagación por ronda</h2>
+        <p>La distancia de Hamming mide cuántos bits difieren entre ambos estados después de cada ronda.</p>
+        <div class="round-bars" id="round-bars"></div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Qué demuestra y qué no</h2>
+        <div class="comparison-grid">
+          <div class="example-box">
+            <p><strong>Demuestra visualmente:</strong> cómo la no linealidad y la mezcla hacen que una modificación local se propague por el estado.</p>
+          </div>
+          <div class="warning-box">
+            <p><strong>No demuestra:</strong> resistencia frente a criptoanálisis diferencial, lineal, algebraico, ataques de canal lateral o fallas de protocolo.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <p>Compará «solo XOR» con cuatro rondas completas. ¿Por qué una salida con 50% de bits cambiados sigue sin alcanzar para afirmar que la construcción es un cifrado seguro?</p>
+        <details class="checkpoint">
+          <summary>Ver orientación</summary>
+          <p>La avalancha es una propiedad estadística local. La seguridad moderna exige un modelo de ataque, indistinguibilidad, análisis de la estructura completa, un key schedule adecuado y resistencia de la implementación.</p>
+        </details>
+      </article>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>De la estructura al adversario</h2><p>La próxima estación convierte «parece aleatorio» en un juego formal entre desafiante y adversario.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="flujo-pseudoaleatorio.html">← PRNG y CSPRNG</a>
+        <button class="button secondary" type="button" data-complete-page="confusion-difusion" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="juego-seguridad.html">Siguiente: juego de seguridad →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>La red usa la S-box y la mezcla de columnas de AES como componentes didácticos, pero posee un calendario de claves simplificado y no implementa AES.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/confusion-difusion.js"></script>
+</body>
+</html>
