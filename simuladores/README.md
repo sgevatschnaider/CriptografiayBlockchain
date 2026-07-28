@@ -14,6 +14,10 @@ Esta carpeta reúne el campus ejecutable del repositorio. Cada módulo posee:
 
 ## Catálogos por módulo
 
+### Área transversal
+
+- [Fundamentos matemáticos](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/fundamentos-matematicos/): representación digital, UTF-8, binario, hexadecimal, XOR, aritmética modular, álgebra, entropía y complejidad.
+
 | Módulo | Catálogo | Laboratorio integral |
 |---|---|---|
 | 1 | [Criptografía clásica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-01/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) |
@@ -41,6 +45,11 @@ simuladores/
 ├── 06-protocolos-privacidad.html
 ├── 07-poscuantica-cuantica.html
 ├── 08-seguridad-aplicada.html
+├── fundamentos-matematicos/
+│   ├── index.html
+│   ├── representacion-digital-xor.html
+│   ├── aritmetica-modular-visual.html
+│   └── assets/
 ├── modulo-01/
 │   └── index.html
 ├── modulo-02/
@@ -112,7 +121,7 @@ Los laboratorios comparten `assets/lab.css` y `assets/lab.js`, que proporcionan 
 
 ## Validación
 
-El script `scripts/validate-simulators.mjs` revisa la estructura común de los laboratorios. `scripts/validate-module-02.mjs` recorre todas las páginas y recursos del Módulo 2, verifica enlaces, sintaxis, identificadores, ruta, glosario y banco de preguntas. La acción `.github/workflows/pages.yml` ejecuta ambas validaciones en cada Pull Request y publica el sitio después de actualizar `main`.
+El script `scripts/validate-simulators.mjs` revisa la estructura común de los laboratorios. `scripts/validate-module-02.mjs` recorre todas las páginas y recursos del Módulo 2, mientras que `scripts/validate-fundamentos-matematicos.mjs` comprueba el laboratorio de representación digital, su contenido, enlaces, sintaxis, accesibilidad e integración en el catálogo. La acción `.github/workflows/pages.yml` ejecuta las validaciones en cada Pull Request y publica el sitio después de actualizar `main`.
 
 ## Alcance de seguridad
 

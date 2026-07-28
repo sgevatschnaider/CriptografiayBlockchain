@@ -1,1 +1,84 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fundamentos matemáticos de la criptografía</title><link rel="stylesheet" href="../assets/lab.css"><style>.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.item{display:flex;flex-direction:column;gap:9px;padding:22px;border:1px solid var(--border);border-radius:18px;background:var(--panel);text-decoration:none;color:var(--text)}.item:hover{transform:translateY(-3px);border-color:var(--border-strong)}.badge{align-self:flex-start;padding:5px 9px;border-radius:999px;background:rgba(74,222,163,.12);color:var(--good);font-size:.72rem;font-weight:800;text-transform:uppercase}.item p{color:var(--muted)}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="../index.html">⛓️ Campus</a></div><nav class="nav"><a href="../../index.html">Portada</a><a href="../../docs/criptografia/lector.html?modulo=02-fundamentos-matematicos">Teoría matemática</a></nav></header><section class="hero"><div class="eyebrow">Área transversal</div><h1>Fundamentos matemáticos de la criptografía</h1><p>Un módulo independiente para estudiar el lenguaje matemático que sostiene la criptografía: congruencias, divisibilidad, inversos, grupos, cuerpos finitos, probabilidad, entropía y problemas computacionalmente difíciles.</p><div class="actions"><a class="button" href="aritmetica-modular-visual.html">Comenzar con aritmética modular</a><a class="button secondary" href="../02-fundamentos-matematicos.html">Abrir laboratorio integral</a><a class="button secondary" href="../../docs/criptografia/lector.html?modulo=02-fundamentos-matematicos">Leer teoría matemática</a></div></section><section class="cards"><a class="item" href="aritmetica-modular-visual.html"><span class="badge">Nueva experiencia visual</span><h2>Aritmética modular</h2><p>Reloj modular, división con resto, congruencias, operaciones, tablas y puente interactivo al cifrado César.</p></a><a class="item" href="../02-fundamentos-matematicos.html#euclides"><span class="badge">Disponible</span><h2>Euclides extendido</h2><p>MCD, identidad de Bézout e inversos modulares.</p></a><a class="item" href="../02-fundamentos-matematicos.html#grupos"><span class="badge">Disponible</span><h2>Grupos y generadores</h2><p>Unidades módulo n, orden multiplicativo y subgrupos.</p></a><a class="item" href="../02-fundamentos-matematicos.html#dh"><span class="badge">Disponible</span><h2>Diffie–Hellman</h2><p>Exponenciación modular, claves públicas y secreto compartido.</p></a><a class="item" href="../modulo-02/entropia-shannon.html"><span class="badge">Disponible</span><h2>Probabilidad y entropía</h2><p>Fuentes, distribuciones, incertidumbre y redundancia.</p></a><a class="item" href="../modulo-02/espacio-claves-complejidad.html"><span class="badge">Disponible</span><h2>Complejidad y bits de seguridad</h2><p>Espacios de búsqueda, fuerza bruta y costo computacional.</p></a></section><section class="card" style="margin-top:22px"><h2>Función dentro del repositorio</h2><p>Este espacio no representa una clase particular. Es una base transversal para comprender cifrados clásicos, AES, RSA, ECC, firmas, protocolos, blockchain y criptografía poscuántica.</p></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Índice de laboratorios de fundamentos matemáticos y representación digital para criptografía.">
+  <title>Fundamentos matemáticos de la criptografía</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.item{display:flex;flex-direction:column;gap:9px;padding:22px;border:1px solid var(--border);border-radius:18px;background:var(--surface);text-decoration:none;color:var(--text);transition:transform .16s ease,border-color .16s ease}.item:hover{transform:translateY(-3px);border-color:var(--border-strong)}.badge{align-self:flex-start;padding:5px 9px;border-radius:999px;background:rgba(74,222,163,.12);color:var(--good);font-size:.72rem;font-weight:800;text-transform:uppercase}.item p{color:var(--muted)}.featured{grid-column:span 2;background:radial-gradient(circle at 100% 0,rgba(74,222,163,.12),transparent 42%),var(--surface);border-color:rgba(74,222,163,.32)}.featured .badge{background:rgba(99,213,255,.12);color:var(--accent)}.topic-row{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}.topic-row li{padding:7px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);background:#071625;font-size:.8rem}.role-panel{margin-top:22px}@media(max-width:760px){.featured{grid-column:auto}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <a class="skip-link" href="#recursos">Saltar a los recursos</a>
+    <header class="topbar">
+      <div class="brand"><a href="../index.html">Campus de laboratorios</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="../../index.html">Portada</a>
+        <a href="../../docs/criptografia/lector.html?modulo=02-fundamentos-matematicos">Teoría matemática</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Área transversal</div>
+      <h1>Fundamentos matemáticos de la criptografía</h1>
+      <p>Un espacio independiente para estudiar el lenguaje que sostiene la criptografía: representación binaria, álgebra booleana, congruencias, divisibilidad, inversos, grupos, probabilidad, entropía y problemas computacionalmente difíciles.</p>
+      <ul class="topic-row">
+        <li>bits y bytes</li><li>UTF-8</li><li>hexadecimal</li><li>XOR</li><li>aritmética modular</li><li>grupos</li><li>entropía</li><li>complejidad</li>
+      </ul>
+      <div class="actions">
+        <a class="button" href="representacion-digital-xor.html">Comenzar por bits y XOR</a>
+        <a class="button secondary" href="aritmetica-modular-visual.html">Explorar aritmética modular</a>
+        <a class="button secondary" href="../02-fundamentos-matematicos.html">Abrir laboratorio integral</a>
+      </div>
+    </section>
+
+    <section class="cards" id="recursos" aria-label="Laboratorios de fundamentos">
+      <a class="item featured" href="representacion-digital-xor.html">
+        <span class="badge">Laboratorio visual</span>
+        <h2>Representación digital y XOR</h2>
+        <p>Convertí mensajes entre Unicode, UTF-8, decimal, binario, hexadecimal y Base64; editá bits, compará AND, OR, XOR y NOT, y recuperá un mensaje byte por byte.</p>
+      </a>
+      <a class="item" href="aritmetica-modular-visual.html">
+        <span class="badge">Experiencia visual</span>
+        <h2>Aritmética modular</h2>
+        <p>Reloj modular, división con resto, congruencias, operaciones, tablas y puente interactivo al cifrado César.</p>
+      </a>
+      <a class="item" href="../02-fundamentos-matematicos.html#euclides">
+        <span class="badge">Disponible</span>
+        <h2>Euclides extendido</h2>
+        <p>MCD, identidad de Bézout e inversos modulares.</p>
+      </a>
+      <a class="item" href="../02-fundamentos-matematicos.html#grupos">
+        <span class="badge">Disponible</span>
+        <h2>Grupos y generadores</h2>
+        <p>Unidades módulo n, orden multiplicativo y subgrupos.</p>
+      </a>
+      <a class="item" href="../02-fundamentos-matematicos.html#dh">
+        <span class="badge">Disponible</span>
+        <h2>Diffie–Hellman</h2>
+        <p>Exponenciación modular, claves públicas y secreto compartido.</p>
+      </a>
+      <a class="item" href="../modulo-02/entropia-shannon.html">
+        <span class="badge">Disponible</span>
+        <h2>Probabilidad y entropía</h2>
+        <p>Fuentes, distribuciones, incertidumbre y redundancia.</p>
+      </a>
+      <a class="item" href="../modulo-02/espacio-claves-complejidad.html">
+        <span class="badge">Disponible</span>
+        <h2>Complejidad y bits de seguridad</h2>
+        <p>Espacios de búsqueda, fuerza bruta y costo computacional.</p>
+      </a>
+    </section>
+
+    <section class="card full role-panel">
+      <h2>Función dentro del repositorio</h2>
+      <p>Esta base transversal conecta la representación de datos con cifrados clásicos, AES, ChaCha20, RSA, ECC, funciones hash, firmas, protocolos, blockchain y criptografía poscuántica.</p>
+    </section>
+
+    <footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer>
+  </main>
+</body>
+</html>
