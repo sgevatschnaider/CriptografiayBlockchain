@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -7,7 +7,24 @@
       "titulo": "Fundamentos matemáticos de la criptografía",
       "pagina": "fundamentos-matematicos/index.html",
       "laboratorio_integral": "02-fundamentos-matematicos.html",
+      "simulaciones": [
+        {
+          "titulo": "Representación digital y XOR",
+          "archivo": "fundamentos-matematicos/representacion-digital-xor.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Aritmética modular visual",
+          "archivo": "fundamentos-matematicos/aritmetica-modular-visual.html",
+          "estado": "disponible"
+        }
+      ],
       "temas": [
+        "representación digital",
+        "Unicode y UTF-8",
+        "binario y hexadecimal",
+        "álgebra booleana",
+        "XOR",
         "aritmética modular",
         "Euclides extendido",
         "inversos",

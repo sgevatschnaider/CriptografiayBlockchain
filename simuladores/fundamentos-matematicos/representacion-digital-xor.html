@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio visual para convertir mensajes entre Unicode, UTF-8, decimal, binario, hexadecimal y Base64, y comprender operaciones AND, OR, XOR y NOT.">
+  <meta name="theme-color" content="#071321">
+  <title>Representación digital y XOR | Fundamentos de criptografía</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/representacion-digital.css">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <main class="shell" id="contenido">
+    <header class="topbar">
+      <div class="brand"><a href="./index.html">Fundamentos matemáticos</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="../index.html">Campus</a>
+        <a href="../modulo-02/laboratorio-xor-flujo.html">XOR y flujo</a>
+        <a href="../../index.html">Portada</a>
+      </nav>
+    </header>
+
+    <section class="hero representation-hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Laboratorio de representación digital</div>
+        <h1>Del carácter al bit: el idioma que procesa la criptografía</h1>
+        <p>Un mensaje no entra a un algoritmo como letras: primero se convierte en números y después en bytes. Explorá esa transformación, cambiá bits y comprobá por qué XOR puede cifrar y recuperar información.</p>
+        <div class="actions">
+          <a class="button" href="#conversor">Convertir un mensaje</a>
+          <a class="button secondary" href="#laboratorio-xor">Experimentar con XOR</a>
+        </div>
+      </div>
+
+      <div class="pipeline-demo" role="img" aria-label="Ejemplo de transformación de la letra A">
+        <div class="pipeline-node node-character"><span>carácter</span><strong>A</strong></div>
+        <div class="pipeline-arrow" aria-hidden="true">→</div>
+        <div class="pipeline-node node-codepoint"><span>Unicode</span><strong>U+0041</strong></div>
+        <div class="pipeline-arrow pipeline-arrow-down" aria-hidden="true">↓</div>
+        <div class="pipeline-node node-byte"><span>byte UTF-8</span><strong>01000001</strong></div>
+        <div class="pipeline-bases">
+          <span><b>65</b> decimal</span>
+          <span><b>41</b> hexadecimal</span>
+        </div>
+      </div>
+    </section>
+
+    <nav class="lesson-nav" aria-label="Secciones del laboratorio">
+      <a href="#mapa">Mapa conceptual</a>
+      <a href="#conversor">Conversor</a>
+      <a href="#microscopio">Microscopio de byte</a>
+      <a href="#operaciones">AND, OR, XOR y NOT</a>
+      <a href="#laboratorio-xor">XOR aplicado</a>
+      <a href="#decodificador">Decodificador</a>
+      <a href="#endianness">Orden de bytes</a>
+      <a href="#desafios">Desafíos</a>
+      <a href="#glosario">Glosario</a>
+    </nav>
+
+    <section class="concept-map" id="mapa" aria-labelledby="mapa-title">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Primero, una distinción esencial</div>
+          <h2 id="mapa-title">Representar no es cifrar</h2>
+        </div>
+        <p>Los mismos bits pueden escribirse en distintas bases. Cambiar la representación no agrega secreto.</p>
+      </div>
+      <div class="concept-flow">
+        <article class="concept-card">
+          <span class="concept-number">1</span>
+          <h3>Símbolo</h3>
+          <p>Unicode asigna un punto de código a cada carácter, por ejemplo A → U+0041.</p>
+        </article>
+        <div class="flow-link" aria-hidden="true"></div>
+        <article class="concept-card">
+          <span class="concept-number">2</span>
+          <h3>Codificación</h3>
+          <p>UTF-8 transforma los puntos de código en una secuencia concreta de bytes.</p>
+        </article>
+        <div class="flow-link" aria-hidden="true"></div>
+        <article class="concept-card">
+          <span class="concept-number">3</span>
+          <h3>Representación</h3>
+          <p>Binario, decimal y hexadecimal muestran los mismos valores con distintas bases.</p>
+        </article>
+        <div class="flow-link" aria-hidden="true"></div>
+        <article class="concept-card">
+          <span class="concept-number">4</span>
+          <h3>Transformación</h3>
+          <p>Un cifrado opera sobre esos bytes con una clave para producir un criptograma.</p>
+        </article>
+      </div>
+      <div class="distinction-grid">
+        <div class="distinction encoding">
+          <strong>Hexadecimal y Base64</strong>
+          <span>Son representaciones reversibles y públicas. No necesitan una clave.</span>
+        </div>
+        <div class="distinction encryption">
+          <strong>Cifrado</strong>
+          <span>Busca confidencialidad. Requiere un algoritmo, una clave y supuestos de seguridad.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" id="conversor">
+      <article class="card full">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Estación 1</div>
+            <h2>Conversor de mensaje a datos</h2>
+          </div>
+          <p>Probá letras, tildes, signos y emojis. La cantidad de caracteres visibles no siempre coincide con la cantidad de puntos de código ni de bytes.</p>
+        </div>
+
+        <div class="message-workbench">
+          <div class="message-editor">
+            <label for="messageInput">Mensaje de entrada</label>
+            <textarea id="messageInput" maxlength="256" spellcheck="false">CRIPTO ✓</textarea>
+            <div class="preset-row" role="group" aria-label="Ejemplos rápidos">
+              <button class="preset-button" type="button" data-preset="A">A simple</button>
+              <button class="preset-button" type="button" data-preset="Criptografía">Con tilde</button>
+              <button class="preset-button" type="button" data-preset="🔐">Emoji</button>
+              <button class="preset-button" type="button" data-preset="á|á">Normalización</button>
+              <button class="preset-button" type="button" data-preset="CLAVE 2026">Mensaje</button>
+            </div>
+            <div class="actions">
+              <button id="encodeButton" type="button">Analizar mensaje</button>
+              <button id="clearMessageButton" class="secondary" type="button">Limpiar</button>
+            </div>
+            <div class="status good" id="encodingStatus" role="status" aria-live="polite">El mensaje está listo para ser analizado.</div>
+          </div>
+
+          <div class="metric-grid message-metrics" role="group" aria-label="Métricas del mensaje">
+            <div class="metric"><strong id="graphemeCount">—</strong><span>caracteres percibidos</span></div>
+            <div class="metric"><strong id="codePointCount">—</strong><span>puntos de código</span></div>
+            <div class="metric"><strong id="byteCount">—</strong><span>bytes UTF-8</span></div>
+            <div class="metric"><strong id="bitCount">—</strong><span>bits</span></div>
+          </div>
+        </div>
+
+        <div class="representation-grid" role="group" aria-label="Representaciones del mensaje">
+          <article class="representation-card unicode">
+            <div class="representation-title"><span>Unicode</span><small>puntos de código</small></div>
+            <output id="unicodeOutput" class="representation-output mono">—</output>
+          </article>
+          <article class="representation-card decimal">
+            <div class="representation-title"><span>Decimal</span><small>bytes en base 10</small></div>
+            <output id="decimalOutput" class="representation-output mono">—</output>
+          </article>
+          <article class="representation-card hexadecimal">
+            <div class="representation-title"><span>Hexadecimal</span><small>dos dígitos por byte</small></div>
+            <output id="hexOutput" class="representation-output mono">—</output>
+          </article>
+          <article class="representation-card binary">
+            <div class="representation-title"><span>Binario</span><small>ocho bits por byte</small></div>
+            <output id="binaryOutput" class="representation-output mono">—</output>
+          </article>
+          <article class="representation-card base64">
+            <div class="representation-title"><span>Base64</span><small>texto que representa bytes</small></div>
+            <output id="base64Output" class="representation-output mono">—</output>
+          </article>
+        </div>
+
+        <div class="table-intro">
+          <div>
+            <h3>Radiografía por punto de código</h3>
+            <p class="muted">Cada fila muestra el camino desde un símbolo hasta sus bytes UTF-8. Un carácter fuera del rango ASCII puede ocupar entre dos y cuatro bytes.</p>
+          </div>
+          <span class="legend-chip"><i class="legend-dot multi"></i>más de un byte</span>
+        </div>
+        <div class="table-wrap">
+          <table class="character-table">
+            <thead>
+              <tr>
+                <th scope="col">Posición</th>
+                <th scope="col">Carácter</th>
+                <th scope="col">Unicode</th>
+                <th scope="col">Bytes UTF-8</th>
+                <th scope="col">Decimal</th>
+                <th scope="col">Binario</th>
+              </tr>
+            </thead>
+            <tbody id="characterRows"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid" id="microscopio">
+      <article class="card full">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Estación 2</div>
+            <h2>Microscopio de un byte</h2>
+          </div>
+          <p>Un byte contiene ocho posiciones. Cada bit encendido aporta su peso, desde 128 hasta 1.</p>
+        </div>
+
+        <div class="byte-lab">
+          <div class="byte-controls">
+            <div class="control">
+              <label for="byteRange">Valor decimal entre 0 y 255</label>
+              <input id="byteRange" type="range" min="0" max="255" value="65">
+            </div>
+            <div class="byte-inputs">
+              <div class="control">
+                <label for="byteDecimal">Decimal</label>
+                <input id="byteDecimal" type="number" min="0" max="255" value="65" inputmode="numeric">
+              </div>
+              <div class="control">
+                <label for="byteHex">Hexadecimal</label>
+                <div class="prefixed-input"><span>0x</span><input id="byteHex" type="text" value="41" maxlength="2" spellcheck="false" aria-label="Valor hexadecimal del byte"></div>
+              </div>
+            </div>
+            <div class="byte-character" aria-live="polite">
+              <span>Interpretación visible</span>
+              <strong id="byteCharacter">A</strong>
+              <small id="byteCharacterLabel">ASCII imprimible</small>
+            </div>
+          </div>
+
+          <div class="bit-board">
+            <p class="bit-board-hint">Pulsá cualquier bit para encenderlo o apagarlo.</p>
+            <div class="bit-strip interactive" id="byteBitStrip" role="group" aria-label="Ocho bits editables"></div>
+            <div class="weight-strip" aria-hidden="true">
+              <span>128</span><span>64</span><span>32</span><span>16</span><span>8</span><span>4</span><span>2</span><span>1</span>
+            </div>
+            <output id="byteEquation" class="byte-equation mono">64 + 1 = 65</output>
+            <div class="radix-summary">
+              <span><b id="byteBinarySummary">01000001</b> base 2</span>
+              <span><b id="byteDecimalSummary">65</b> base 10</span>
+              <span><b id="byteHexSummary">41</b> base 16</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid" id="operaciones">
+      <article class="card full">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Estación 3</div>
+            <h2>Álgebra booleana sobre bytes</h2>
+          </div>
+          <p>Las operaciones se calculan columna por columna. No transportan valores entre posiciones como una suma decimal.</p>
+        </div>
+
+        <div class="boolean-layout">
+          <div class="boolean-controls">
+            <div class="controls">
+              <div class="control">
+                <label for="operandA">Operando A</label>
+                <input id="operandA" type="number" min="0" max="255" value="90">
+              </div>
+              <div class="control">
+                <label for="operandB">Operando B</label>
+                <input id="operandB" type="number" min="0" max="255" value="51">
+              </div>
+              <div class="control full">
+                <label for="operationSelect">Operación bit a bit</label>
+                <select id="operationSelect">
+                  <option value="xor">XOR: 1 cuando son diferentes</option>
+                  <option value="and">AND: 1 cuando ambos son 1</option>
+                  <option value="or">OR: 1 cuando al menos uno es 1</option>
+                  <option value="not">NOT A: invierte cada bit de A</option>
+                </select>
+              </div>
+            </div>
+            <div class="operation-explanation" id="operationExplanation"></div>
+            <div class="status" id="operationStatus" role="status" aria-live="polite"></div>
+          </div>
+
+          <div class="bit-calculation" role="group" aria-label="Cálculo bit a bit">
+            <div class="calculation-row">
+              <span class="row-label">A</span>
+              <div class="bit-strip compact" id="operandABits"></div>
+              <span class="row-value mono" id="operandAValue">90</span>
+            </div>
+            <div class="calculation-row" id="operandBRow">
+              <span class="row-label">B</span>
+              <div class="bit-strip compact" id="operandBBits"></div>
+              <span class="row-value mono" id="operandBValue">51</span>
+            </div>
+            <div class="operation-rule"><span id="operationSymbol">⊕</span></div>
+            <div class="calculation-row result-row">
+              <span class="row-label">R</span>
+              <div class="bit-strip compact" id="operationResultBits"></div>
+              <span class="row-value mono" id="operationResultValue">105</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-workbench">
+          <div>
+            <h3>Tabla de verdad</h3>
+            <p class="muted">La tabla contiene todas las entradas posibles para un único bit.</p>
+          </div>
+          <div class="truth-table-wrap">
+            <table class="truth-table">
+              <thead><tr><th scope="col">A</th><th scope="col">B</th><th scope="col" id="truthResultHeader">A XOR B</th></tr></thead>
+              <tbody id="truthTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid" id="laboratorio-xor">
+      <article class="card full xor-card">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Estación 4</div>
+            <h2>XOR aplicado a un mensaje</h2>
+          </div>
+          <p>Combiná los bytes del mensaje con un flujo de clave y verificá la propiedad que hace reversible la operación.</p>
+        </div>
+
+        <div class="xor-formula" role="img" aria-label="Fórmula de cifrado y recuperación con XOR">
+          <div><span>Mensaje</span><strong>M</strong></div>
+          <b>⊕</b>
+          <div><span>Flujo de clave</span><strong>K</strong></div>
+          <b>=</b>
+          <div class="cipher-node"><span>Criptograma</span><strong>C</strong></div>
+          <b>y</b>
+          <div class="recover-node"><strong>(M ⊕ K) ⊕ K = M</strong></div>
+        </div>
+
+        <div class="xor-input-grid">
+          <div class="control">
+            <label for="xorMessage">Mensaje</label>
+            <textarea id="xorMessage" maxlength="128" spellcheck="false">SECRETO</textarea>
+          </div>
+          <div>
+            <div class="control">
+              <label for="xorKey">Clave o flujo de clave</label>
+              <textarea id="xorKey" maxlength="384" spellcheck="false">CLAVE</textarea>
+            </div>
+            <div class="key-options">
+              <div class="control">
+                <label for="keyFormat">Formato de la clave</label>
+                <select id="keyFormat">
+                  <option value="text">Texto UTF-8</option>
+                  <option value="hex">Hexadecimal</option>
+                </select>
+              </div>
+              <label class="check-control"><input id="repeatKey" type="checkbox" checked><span>Repetir si es corta</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="runXorButton" type="button">Aplicar XOR</button>
+          <button id="randomKeyButton" class="secondary" type="button">Generar clave aleatoria del mismo largo</button>
+        </div>
+        <div class="status warn" id="xorStatus" role="status" aria-live="polite">Una clave corta repetida sirve para observar el mecanismo, pero no es segura.</div>
+
+        <div class="xor-results">
+          <article>
+            <span>Criptograma hexadecimal</span>
+            <output id="xorCipherHex" class="mono">—</output>
+          </article>
+          <article>
+            <span>Mensaje recuperado</span>
+            <output id="xorRecoveredText">—</output>
+          </article>
+          <article>
+            <span>Identidad comprobada</span>
+            <output id="xorIdentity" class="mono">—</output>
+          </article>
+        </div>
+
+        <div class="byte-inspector">
+          <div class="inspector-head">
+            <div>
+              <h3>Inspección byte por byte</h3>
+              <p class="muted">Mové el selector para seguir una columna completa del cálculo.</p>
+            </div>
+            <div class="control byte-position-control">
+              <label for="xorByteIndex">Byte <span id="xorByteIndexLabel">1</span></label>
+              <input id="xorByteIndex" type="range" min="0" max="0" value="0">
+            </div>
+          </div>
+          <div class="xor-bit-stack">
+            <div class="calculation-row message-row"><span class="row-label">M</span><div class="bit-strip compact" id="xorMessageBits"></div><span class="row-value mono" id="xorMessageByte">—</span></div>
+            <div class="calculation-row key-row"><span class="row-label">K</span><div class="bit-strip compact" id="xorKeyBits"></div><span class="row-value mono" id="xorKeyByte">—</span></div>
+            <div class="operation-rule"><span>⊕</span></div>
+            <div class="calculation-row cipher-row"><span class="row-label">C</span><div class="bit-strip compact" id="xorCipherBits"></div><span class="row-value mono" id="xorCipherByte">—</span></div>
+          </div>
+          <p class="inspector-equation mono" id="xorByteEquation">—</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="xor-byte-table">
+            <thead>
+              <tr>
+                <th scope="col">i</th>
+                <th scope="col">M</th>
+                <th scope="col">K</th>
+                <th scope="col">M ⊕ K</th>
+                <th scope="col">C ⊕ K</th>
+              </tr>
+            </thead>
+            <tbody id="xorRows"></tbody>
+          </table>
+        </div>
+
+        <div class="security-note">
+          <strong>XOR no aporta seguridad por sí solo.</strong>
+          <p>La protección depende de cómo se genera y utiliza K. Si se reutiliza el mismo flujo, dos criptogramas revelan C₁ ⊕ C₂ = M₁ ⊕ M₂. En sistemas reales se emplean construcciones revisadas, claves secretas y nonces que no se repiten.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid" id="decodificador">
+      <article class="card">
+        <div class="eyebrow">Estación 5</div>
+        <h2>Volver de números a texto</h2>
+        <p class="muted">Ingresá bytes en cualquiera de estos formatos. El laboratorio los interpreta y después intenta decodificarlos como UTF-8.</p>
+        <div class="controls">
+          <div class="control">
+            <label for="decodeFormat">Formato de entrada</label>
+            <select id="decodeFormat">
+              <option value="hex">Hexadecimal</option>
+              <option value="binary">Binario</option>
+              <option value="decimal">Decimal</option>
+              <option value="base64">Base64</option>
+            </select>
+          </div>
+          <div class="control full">
+            <label for="decodeInput">Datos</label>
+            <textarea id="decodeInput" class="mono" spellcheck="false">43 52 49 50 54 4f</textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="decodeButton" type="button">Decodificar UTF-8</button>
+          <button id="useCurrentButton" class="secondary" type="button">Usar el mensaje actual</button>
+        </div>
+        <div class="decode-result">
+          <span>Texto reconstruido</span>
+          <output id="decodedText">—</output>
+        </div>
+        <div class="status" id="decodeStatus" role="status" aria-live="polite">Cada grupo hexadecimal debe representar un byte entre 00 y FF.</div>
+      </article>
+
+      <article class="card" id="endianness">
+        <div class="eyebrow">Estación 6</div>
+        <h2>El orden de los bytes</h2>
+        <p class="muted">Una secuencia de cuatro bytes puede representar números distintos según cuál se considere primero.</p>
+        <div class="control">
+          <label for="endianInput">Cuatro bytes hexadecimales</label>
+          <input id="endianInput" class="mono" type="text" value="12 34 56 78" maxlength="11" spellcheck="false">
+        </div>
+        <div class="actions"><button id="calculateEndianButton" type="button">Interpretar orden</button></div>
+        <div class="endian-visual">
+          <article>
+            <span>Big-endian</span>
+            <div class="endian-bytes" id="bigEndianBytes"></div>
+            <strong id="bigEndianValue">—</strong>
+            <small>El byte más significativo aparece primero.</small>
+          </article>
+          <article>
+            <span>Little-endian</span>
+            <div class="endian-bytes reversed" id="littleEndianBytes"></div>
+            <strong id="littleEndianValue">—</strong>
+            <small>El byte menos significativo aparece primero.</small>
+          </article>
+        </div>
+        <div class="status" id="endianStatus" role="status" aria-live="polite">Los protocolos criptográficos especifican el orden exacto para que todos interpreten los mismos bytes.</div>
+      </article>
+    </section>
+
+    <section class="grid" id="desafios">
+      <article class="card full">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Comprobación formativa</div>
+            <h2>Desafíos de comprensión</h2>
+          </div>
+          <p>Respondé a partir de lo observado. Podés revisar cada explicación de manera independiente.</p>
+        </div>
+        <div class="challenge-grid">
+          <article class="challenge" data-answer="encoding">
+            <h3>1. ¿Cuál opción oculta un mensaje?</h3>
+            <label><input type="radio" name="challenge-1" value="hex"> Pasarlo a hexadecimal</label>
+            <label><input type="radio" name="challenge-1" value="base64"> Pasarlo a Base64</label>
+            <label><input type="radio" name="challenge-1" value="encoding"> Ninguna de las dos</label>
+            <button class="secondary check-challenge" type="button">Comprobar</button>
+            <p class="challenge-feedback" aria-live="polite"></p>
+          </article>
+          <article class="challenge" data-answer="four">
+            <h3>2. ¿Cuántos bytes UTF-8 suele ocupar 🔐?</h3>
+            <label><input type="radio" name="challenge-2" value="one"> Uno</label>
+            <label><input type="radio" name="challenge-2" value="two"> Dos</label>
+            <label><input type="radio" name="challenge-2" value="four"> Cuatro</label>
+            <button class="secondary check-challenge" type="button">Comprobar</button>
+            <p class="challenge-feedback" aria-live="polite"></p>
+          </article>
+          <article class="challenge" data-answer="different">
+            <h3>3. ¿Cuándo produce 1 la operación XOR?</h3>
+            <label><input type="radio" name="challenge-3" value="both"> Cuando ambos bits son 1</label>
+            <label><input type="radio" name="challenge-3" value="different"> Cuando los bits son diferentes</label>
+            <label><input type="radio" name="challenge-3" value="either"> Cuando al menos uno es 1</label>
+            <button class="secondary check-challenge" type="button">Comprobar</button>
+            <p class="challenge-feedback" aria-live="polite"></p>
+          </article>
+          <article class="challenge" data-answer="recover">
+            <h3>4. Si C = M ⊕ K, ¿cómo se recupera M?</h3>
+            <label><input type="radio" name="challenge-4" value="add"> C + K</label>
+            <label><input type="radio" name="challenge-4" value="recover"> C ⊕ K</label>
+            <label><input type="radio" name="challenge-4" value="encode"> Base64(C)</label>
+            <button class="secondary check-challenge" type="button">Comprobar</button>
+            <p class="challenge-feedback" aria-live="polite"></p>
+          </article>
+        </div>
+        <div class="challenge-score" aria-live="polite">
+          <span>Progreso</span>
+          <div class="progress"><div id="challengeProgress"></div></div>
+          <strong id="challengeScore">0 de 4</strong>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid" id="glosario">
+      <article class="card full">
+        <div class="eyebrow">Conceptos para conservar</div>
+        <h2>Glosario esencial</h2>
+        <div class="glossary-grid">
+          <details><summary>Bit</summary><p>Unidad binaria con dos estados posibles: 0 o 1.</p></details>
+          <details><summary>Byte</summary><p>Grupo de ocho bits. Puede representar valores entre 0 y 255.</p></details>
+          <details><summary>Unicode</summary><p>Estándar que asigna puntos de código a caracteres de múltiples sistemas de escritura.</p></details>
+          <details><summary>UTF-8</summary><p>Codificación variable que representa cada punto de código Unicode mediante uno a cuatro bytes.</p></details>
+          <details><summary>Hexadecimal</summary><p>Sistema en base 16. Dos dígitos hexadecimales representan exactamente un byte.</p></details>
+          <details><summary>Base64</summary><p>Codificación textual de datos binarios. Facilita transporte y almacenamiento, pero no cifra.</p></details>
+          <details><summary>XOR</summary><p>Operación bit a bit que vale 1 cuando las entradas son diferentes. Aplicar dos veces la misma K recupera M.</p></details>
+          <details><summary>Endianness</summary><p>Convención que establece el orden con el que se interpretan los bytes de un valor de varias posiciones.</p></details>
+        </div>
+      </article>
+    </section>
+
+    <section class="transfer-panel" aria-labelledby="transfer-title">
+      <div>
+        <div class="eyebrow">Puente hacia la criptografía moderna</div>
+        <h2 id="transfer-title">Estos fundamentos aparecen en todo el recorrido</h2>
+        <p>AES procesa bloques de bytes, ChaCha20 combina datos y keystream mediante XOR, las funciones hash reciben secuencias de bits y los protocolos definen formatos binarios precisos. Comprender la representación permite distinguir qué pertenece al mensaje, qué pertenece al formato y qué aporta realmente seguridad.</p>
+      </div>
+      <div class="transfer-links">
+        <a class="button" href="../modulo-02/laboratorio-xor-flujo.html">Continuar con XOR y AES-CTR</a>
+        <a class="button secondary" href="../modulo-01/vernam.html">Ver Vernam</a>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Laboratorio educativo.</strong> Las operaciones y ejemplos permiten comprender representaciones y propiedades; no deben utilizarse como un esquema de cifrado propio.</p>
+      <p>Material elaborado por el profesor Sergio Gevatschnaider.</p>
+    </footer>
+  </main>
+
+  <script src="../assets/lab.js"></script>
+  <script src="assets/representacion-digital.js"></script>
+</body>
+</html>
