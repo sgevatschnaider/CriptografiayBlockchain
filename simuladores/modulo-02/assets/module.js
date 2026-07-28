@@ -3,6 +3,7 @@
 
   const STORAGE_KEY = 'criptografia-modulo-02-progreso';
   const CURRICULUM = Object.freeze([
+    'salto-moderno',
     'teoria',
     'entropia',
     'secreto-perfecto',
@@ -11,6 +12,7 @@
     'juego-seguridad',
     'complejidad',
     'algebra',
+    'xor-flujo',
     'mapas',
     'glosario',
     'cuestionario'

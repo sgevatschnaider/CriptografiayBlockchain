@@ -4,6 +4,16 @@
   const LAST_STEP_KEY = 'criptografia-modulo-02-ruta-ultimo-paso';
   const route = Object.freeze([
     {
+      id: 'salto-moderno',
+      title: 'Del cifrado clásico al modelo moderno',
+      family: 'Apertura comparativa',
+      level: 'Inicial',
+      time: '20 min',
+      objective: 'Distinguir apariencia, garantía ideal y seguridad computacional mediante tres experimentos.',
+      evidence: 'Comparás César, OTP y AES-GCM usando propiedad, adversario, victoria y recursos.',
+      url: 'introduccion-interactiva.html'
+    },
+    {
       id: 'teoria',
       title: 'Teoría integrada',
       family: 'Marco conceptual',
@@ -82,6 +92,16 @@
       objective: 'Reconocer operaciones y problemas difíciles en cuatro estructuras finitas.',
       evidence: 'Relacionás GF(2⁸), grupos, curvas y LWE con familias concretas de primitivas.',
       url: 'estructuras-algebraicas.html'
+    },
+    {
+      id: 'xor-flujo',
+      title: 'XOR y cifrado por flujo',
+      family: 'Puente a la aplicación',
+      level: 'Intermedio',
+      time: '30 min',
+      objective: 'Comprobar la reversibilidad de XOR y el riesgo de reutilizar un contador o keystream.',
+      evidence: 'Manipulás bits, ejecutás AES-CTR y verificás cuándo C₁⊕C₂ coincide con M₁⊕M₂.',
+      url: 'laboratorio-xor-flujo.html'
     },
     {
       id: 'mapas',
@@ -201,7 +221,7 @@
   byId('next').addEventListener('click', () => completeCurrent(true));
   byId('mark-done').addEventListener('click', () => completeCurrent(false));
   byId('reset-progress').addEventListener('click', () => {
-    const confirmed = window.confirm('¿Reiniciar el progreso de las once estaciones y el mejor puntaje?');
+    const confirmed = window.confirm('¿Reiniciar el progreso de las trece estaciones y el mejor puntaje?');
     if (!confirmed) return;
     Module02.writeProgress({ visited: [], completed: [], bestQuiz: 0, updatedAt: null });
     localStorage.removeItem(LAST_STEP_KEY);

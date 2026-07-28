@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -34,6 +34,11 @@
       "teoria": "modulo-02/teoria.html",
       "simulaciones": [
         {
+          "titulo": "Del cifrado clásico al modelo moderno",
+          "archivo": "modulo-02/introduccion-interactiva.html",
+          "estado": "disponible"
+        },
+        {
           "titulo": "Entropía de Shannon",
           "archivo": "modulo-02/entropia-shannon.html",
           "estado": "disponible"
@@ -66,6 +71,11 @@
         {
           "titulo": "Estructuras algebraicas",
           "archivo": "modulo-02/estructuras-algebraicas.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "XOR y cifrado por flujo",
+          "archivo": "modulo-02/laboratorio-xor-flujo.html",
           "estado": "disponible"
         },
         {

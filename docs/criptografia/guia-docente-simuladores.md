@@ -34,24 +34,31 @@ Una sesión de 75 a 90 minutos puede organizarse así:
 
 **Evidencia de aprendizaje:** explicación escrita de por qué preservar frecuencias debilita una sustitución simple.
 
-## Módulo 2 — Fundamentos matemáticos
+## Módulo 2 — Fundamentos de la criptografía moderna
 
-**Pregunta rectora:** ¿qué estructuras convierten operaciones reversibles para el dueño de una clave en problemas difíciles para un atacante?
+**Pregunta rectora:** ¿cómo se transforma una intuición de secreto en una propiedad medible frente a un adversario definido?
 
 **Objetivos**
 
-- Operar con congruencias e inversos.
-- Reconocer la condición de coprimalidad.
-- Comprender el flujo lógico de Diffie–Hellman.
-- Diferenciar entropía estadística y seguridad efectiva.
+- Distinguir seguridad informal, secreto perfecto y seguridad computacional.
+- Relacionar entropía, redundancia e información mutua con el modelo de Shannon.
+- Formular propiedad, adversario, condición de victoria y recursos.
+- Explicar la reversibilidad de XOR y diferenciar desplazamiento, bloques y flujo.
+- Comprobar por qué reutilizar un contador o keystream expone relaciones entre mensajes.
+- Conectar complejidad y estructuras algebraicas con primitivas modernas.
 
-**Actividad central**
+**Actividad central — apertura y puente aplicado**
 
-- Encontrar inversos módulo 26.
-- Simular Diffie–Hellman con un primo pequeño.
-- Cambiar parámetros y detectar configuraciones problemáticas.
+1. Comparar el mismo mensaje con César, one-time pad y AES-GCM.
+2. Antes de revelar la respuesta, predecir cuál puede ofrecer secreto perfecto y bajo qué condiciones.
+3. Enumerar las 25 claves de César y discutir por qué “parece ilegible” no es una definición.
+4. Manipular dos bytes con AND, OR y XOR; aplicar XOR por segunda vez para recuperar el mensaje.
+5. Ejecutar AES-CTR con el mismo contador para dos mensajes y verificar \(C_1 \oplus C_2 = M_1 \oplus M_2\).
+6. Repetir con contadores distintos y separar confidencialidad de autenticación.
 
-**Evidencia de aprendizaje:** justificar por qué un multiplicador no coprimo invalida un cifrado afín.
+**Evidencia de aprendizaje:** explicación oral o escrita que compare César, OTP y AES-GCM mediante cuatro elementos explícitos —propiedad, adversario, victoria y recursos— e interprete la igualdad observada al reutilizar el contador.
+
+**Extensión:** la ruta guiada de trece estaciones permite distribuir teoría, simulaciones, mapas, glosario y cuestionario en varias clases o utilizarlos como trabajo autónomo.
 
 ## Módulo 3 — Criptografía moderna
 

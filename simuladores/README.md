@@ -46,7 +46,10 @@ simuladores/
 ├── modulo-02/
 │   ├── index.html
 │   ├── ruta-guiada.html
+│   ├── introduccion-interactiva.html
 │   ├── teoria.html
+│   ├── laboratorio-xor-flujo.html
+│   ├── mapas-mentales.html
 │   ├── glosario.html
 │   ├── cuestionario.html
 │   └── assets/

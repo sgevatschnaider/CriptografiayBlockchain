@@ -23,6 +23,10 @@ Este módulo organiza esa forma de pensar en tres pilares:
 - Comprender qué demuestra una reducción y por qué P frente a NP no “prueba” la seguridad de los cifrados.
 - Reconocer grupos, cuerpos finitos, curvas elípticas y retículos en primitivas reales.
 - Analizar con cuidado el impacto de Grover y Shor.
+- Distinguir cifrado por desplazamiento, cifrado por bloques y cifrado por flujo.
+- Comprobar la reversibilidad de XOR y el fallo producido por reutilizar un contador en CTR.
+
+> **Recorrido interactivo:** la [ruta guiada del Módulo 2](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) organiza estos contenidos en trece estaciones. La apertura compara César, OTP y AES-GCM; el laboratorio de cierre conecta XOR con AES-CTR y prepara el paso al Módulo 3.
 
 ## 1. El cambio metodológico
 
