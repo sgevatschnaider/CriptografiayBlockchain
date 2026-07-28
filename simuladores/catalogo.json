@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -66,7 +66,7 @@
           "estado": "disponible"
         },
         {
-          "titulo": "PRNG frente a CSPRNG",
+          "titulo": "Aleatoriedad criptográfica: PRNG y CSPRNG",
           "archivo": "modulo-02/flujo-pseudoaleatorio.html",
           "estado": "disponible"
         },

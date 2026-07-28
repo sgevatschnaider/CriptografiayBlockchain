@@ -40,6 +40,8 @@ const requiredPages = [
 const requiredAssets = [
   'assets/module.css',
   'assets/module.js',
+  'assets/pseudoaleatoriedad.css',
+  'assets/pseudoaleatoriedad.js',
   'assets/introducciones.css',
   'assets/introduccion.js',
   'assets/xor-flujo.js',
@@ -159,6 +161,21 @@ const experienceContracts = [
     ]
   },
   {
+    file: 'flujo-pseudoaleatorio.html',
+    snippets: [
+      'data-module-page="pseudoaleatoriedad"',
+      'id="entropy-source"',
+      'id="generate-streams"',
+      'id="lcg-pair-chart"',
+      'id="crypto-pair-chart"',
+      'id="weak-observations"',
+      'id="predict-weak"',
+      'id="rng-quiz"',
+      'assets/pseudoaleatoriedad.css',
+      'assets/pseudoaleatoriedad.js'
+    ]
+  },
+  {
     file: 'laboratorio-xor-flujo.html',
     snippets: [
       'data-module-page="xor-flujo"',
@@ -179,6 +196,19 @@ for (const contract of experienceContracts) {
   for (const snippet of contract.snippets) {
     if (!html.includes(snippet)) {
       fail(`simuladores/modulo-02/${contract.file}: falta el contrato interactivo ${snippet}`);
+    }
+  }
+}
+
+const pseudoScriptPath = path.join(moduleDir, 'assets', 'pseudoaleatoriedad.js');
+if (fs.existsSync(pseudoScriptPath)) {
+  const pseudoScript = fs.readFileSync(pseudoScriptPath, 'utf8');
+  if (/\bMath\.random\s*\(/.test(pseudoScript)) {
+    fail('simuladores/modulo-02/assets/pseudoaleatoriedad.js: no usar Math.random para material criptográfico');
+  }
+  for (const concept of ['getRandomValues', 'predictedState', 'entropyModels', 'evaluateQuiz']) {
+    if (!pseudoScript.includes(concept)) {
+      fail(`simuladores/modulo-02/assets/pseudoaleatoriedad.js: falta el concepto verificable ${concept}`);
     }
   }
 }

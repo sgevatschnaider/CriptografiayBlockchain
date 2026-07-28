@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Comparador interactivo entre un PRNG lineal reproducible y valores criptográficamente fuertes del navegador.">
+  <meta name="description" content="Laboratorio interactivo sobre fuentes de entropía, PRNG, CSPRNG, predicción de estado y usos de la aleatoriedad en criptografía moderna.">
   <meta name="theme-color" content="#061322">
-  <title>PRNG frente a CSPRNG | Módulo 2</title>
+  <title>Laboratorio de aleatoriedad criptográfica | Módulo 2</title>
   <link rel="stylesheet" href="../assets/lab.css">
   <link rel="stylesheet" href="assets/module.css">
+  <link rel="stylesheet" href="assets/pseudoaleatoriedad.css">
 </head>
-<body class="module-02" data-module-page="pseudoaleatoriedad">
+<body class="module-02 rng-lab" data-module-page="pseudoaleatoriedad">
   <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
   <main class="module-shell">
     <header class="module-topbar">
@@ -20,115 +21,433 @@
       <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/13</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
     </header>
 
-    <section class="page-hero">
+    <section class="page-hero rng-hero">
       <div>
-        <div class="hero-kicker">Aleatoriedad · estado · predicción</div>
-        <h1>PRNG frente a CSPRNG</h1>
-        <p>Dos secuencias pueden verse equilibradas, pero solo una está diseñada para resistir predicción. Compará reproducibilidad, métricas simples y evolución del estado.</p>
+        <div class="hero-kicker">Entropía · semilla · estado · predicción</div>
+        <h1>Laboratorio de aleatoriedad criptográfica</h1>
+        <p>Una secuencia no es segura porque “parece desordenada”. Explorá de dónde nace la incertidumbre, cómo un generador la expande y qué cambia cuando un adversario intenta predecir la próxima salida.</p>
+        <div class="hero-question">
+          <span aria-hidden="true">?</span>
+          <p><strong>Pregunta guía:</strong> si dos secuencias tienen casi la misma cantidad de ceros y unos, ¿por qué una puede servir para crear claves y la otra no?</p>
+        </div>
       </div>
-      <div class="page-badge" aria-hidden="true">RNG</div>
+      <div class="rng-hero-visual" aria-hidden="true">
+        <div class="rng-orbit orbit-one"></div>
+        <div class="rng-orbit orbit-two"></div>
+        <div class="rng-core">RNG</div>
+        <span class="rng-particle particle-one">0</span>
+        <span class="rng-particle particle-two">1</span>
+        <span class="rng-particle particle-three">A7</span>
+        <span class="rng-particle particle-four">⊕</span>
+      </div>
     </section>
 
-    <section class="lab-grid" id="laboratorio" aria-label="Comparador de generadores">
-      <article class="lab-panel full">
-        <h2>1. Configuración común</h2>
-        <div class="controls">
+    <nav class="rng-local-nav" aria-label="Etapas del laboratorio">
+      <a href="#mapa">1. Mapa</a>
+      <a href="#comparador">2. Comparar</a>
+      <a href="#ataque">3. Predecir</a>
+      <a href="#entropia-semilla">4. Medir</a>
+      <a href="#aplicaciones">5. Aplicar</a>
+      <a href="#comprobacion">6. Comprobar</a>
+    </nav>
+
+    <section class="lab-grid" id="laboratorio" aria-label="Laboratorio de aleatoriedad criptográfica">
+      <article class="lab-panel full rng-concept-panel" id="mapa">
+        <div class="rng-section-heading">
+          <div>
+            <span class="rng-step">01 · Construir el modelo mental</span>
+            <h2 id="pipeline-title">La aleatoriedad criptográfica es una cadena</h2>
+          </div>
+          <p>El generador no crea incertidumbre de la nada: recibe entropía, establece un estado secreto y lo expande en bytes útiles.</p>
+        </div>
+
+        <ol class="rng-pipeline">
+          <li class="pipeline-node" data-kind="source">
+            <span class="pipeline-icon" aria-hidden="true">≈</span>
+            <span class="pipeline-number">1</span>
+            <h3>Fuente de entropía</h3>
+            <p>Eventos físicos y del sistema operativo difíciles de anticipar.</p>
+          </li>
+          <li class="pipeline-node" data-kind="pool">
+            <span class="pipeline-icon" aria-hidden="true">Σ</span>
+            <span class="pipeline-number">2</span>
+            <h3>Acondicionamiento</h3>
+            <p>Combina observaciones y concentra la incertidumbre disponible.</p>
+          </li>
+          <li class="pipeline-node" data-kind="state">
+            <span class="pipeline-icon" aria-hidden="true">S</span>
+            <span class="pipeline-number">3</span>
+            <h3>Semilla y estado</h3>
+            <p>Inicializan la memoria interna que debe permanecer protegida.</p>
+          </li>
+          <li class="pipeline-node" data-kind="generator">
+            <span class="pipeline-icon" aria-hidden="true">G</span>
+            <span class="pipeline-number">4</span>
+            <h3>CSPRNG / DRBG</h3>
+            <p>Expande el estado y puede resembrarse con entropía nueva.</p>
+          </li>
+          <li class="pipeline-node" data-kind="use">
+            <span class="pipeline-icon" aria-hidden="true">K</span>
+            <span class="pipeline-number">5</span>
+            <h3>Valores criptográficos</h3>
+            <p>Claves, nonces, IV, sales, desafíos y tokens.</p>
+          </li>
+        </ol>
+
+        <div class="rng-definition-grid">
+          <article>
+            <span class="definition-label">Fuente aleatoria</span>
+            <h3>Entropía real</h3>
+            <p>Aporta incertidumbre desde fenómenos no controlados por el algoritmo. Puede ser lenta, sesgada o depender del entorno.</p>
+          </article>
+          <article>
+            <span class="definition-label">PRNG general</span>
+            <h3>Pseudoaleatoriedad</h3>
+            <p>Expande un estado de forma determinista. Es útil en simulación, pero no necesariamente resiste a un adversario.</p>
+          </article>
+          <article>
+            <span class="definition-label">CSPRNG / DRBG</span>
+            <h3>Pseudoaleatoriedad criptográfica</h3>
+            <p>También suele ser determinista una vez sembrado, pero está diseñado para que sus salidas resulten impredecibles sin conocer el estado.</p>
+          </article>
+        </div>
+
+        <div class="insight-box rng-key-idea">
+          <p><strong>Distinción esencial:</strong> “verdaderamente aleatorio” y “criptográficamente seguro” no son sinónimos de “sin algoritmo” y “con algoritmo”. Un CSPRNG moderno combina una fuente de entropía con una expansión determinista segura; su fortaleza depende de ambos componentes y de proteger el estado.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel full" id="comparador">
+        <div class="rng-section-heading">
+          <div>
+            <span class="rng-step">02 · Observar sin sacar conclusiones apresuradas</span>
+            <h2>Dos flujos que parecen aleatorios</h2>
+          </div>
+          <p>Compará un LCG educativo con la API criptográfica del navegador. Las métricas describen la muestra; no certifican seguridad.</p>
+        </div>
+
+        <div class="rng-controls">
           <div class="control">
-            <label for="seed">Semilla del PRNG didáctico</label>
-            <input id="seed" type="text" value="SHANNON-1949" autocomplete="off">
+            <label for="seed">Semilla pública del PRNG didáctico</label>
+            <input id="seed" type="text" value="SHANNON-1949" maxlength="80" autocomplete="off" spellcheck="false">
+            <small>El texto se normaliza a un estado de 32 bits.</small>
           </div>
           <div class="control">
-            <label for="stream-length">Cantidad de bits</label>
-            <input id="stream-length" type="number" min="64" max="20000" step="64" value="4096" inputmode="numeric">
+            <label for="stream-length">Cantidad de bits analizados</label>
+            <input id="stream-length" type="number" min="256" max="20000" step="256" value="4096" inputmode="numeric">
+            <small>Una muestra mayor estabiliza frecuencias, no vuelve seguro al generador.</small>
+          </div>
+          <div class="rng-control-actions">
+            <button class="button" id="generate-streams" type="button">Generar muestras nuevas</button>
+            <button class="button secondary" id="repeat-experiment" type="button">Repetir sin cambiar datos</button>
           </div>
         </div>
-        <div class="actions">
-          <button class="button" id="generate-streams" type="button">Generar ambos flujos</button>
-          <button class="button secondary" id="repeat-experiment" type="button">Repetir con la misma semilla</button>
-        </div>
-        <p class="status" id="rng-status" role="status" aria-live="polite">El PRNG permite fijar la semilla; la API criptográfica del navegador no expone ese control.</p>
-      </article>
+        <p class="status" id="rng-status" role="status" aria-live="polite">Preparando la primera comparación.</p>
 
-      <article class="lab-panel">
-        <div class="tag-row"><span>Modelo educativo</span><span>Determinista</span></div>
-        <h2>2. PRNG lineal congruencial</h2>
-        <p>El estado evoluciona con una recurrencia pública. La misma semilla produce exactamente la misma secuencia.</p>
-        <div class="formula">xₙ₊₁ = (1664525·xₙ + 1013904223) mod 2³²</div>
-        <div class="metric-strip">
-          <div class="metric-tile"><strong id="lcg-balance">—</strong><span>proporción de unos</span></div>
-          <div class="metric-tile"><strong id="lcg-entropy">—</strong><span>entropía empírica</span></div>
-          <div class="metric-tile"><strong id="lcg-runs">—</strong><span>corridas</span></div>
-          <div class="metric-tile"><strong id="lcg-correlation">—</strong><span>correlación lag 1</span></div>
-        </div>
-        <h3>Primeros bits</h3>
-        <div class="bits-output" id="lcg-output">—</div>
-        <h3>Traza de estado</h3>
-        <div class="bits-output" id="lcg-state-output">—</div>
-      </article>
-
-      <article class="lab-panel">
-        <div class="tag-row"><span>API del navegador</span><span>Uso criptográfico</span></div>
-        <h2>3. CSPRNG del entorno</h2>
-        <p><span class="mono">crypto.getRandomValues()</span> obtiene valores criptográficamente fuertes. La implementación concreta y su estado permanecen bajo control del navegador y del sistema.</p>
-        <div class="formula">bytes ← crypto.getRandomValues(buffer)</div>
-        <div class="metric-strip">
-          <div class="metric-tile"><strong id="crypto-balance">—</strong><span>proporción de unos</span></div>
-          <div class="metric-tile"><strong id="crypto-entropy">—</strong><span>entropía empírica</span></div>
-          <div class="metric-tile"><strong id="crypto-runs">—</strong><span>corridas</span></div>
-          <div class="metric-tile"><strong id="crypto-correlation">—</strong><span>correlación lag 1</span></div>
-        </div>
-        <h3>Primeros bits</h3>
-        <div class="bits-output" id="crypto-output">—</div>
-        <h3>Estado</h3>
-        <div class="bits-output">No expuesto. El usuario no puede reconstruirlo a partir de una semilla ingresada en esta página.</div>
-      </article>
-
-      <article class="lab-panel">
-        <h2>4. Distribución observada</h2>
-        <div class="comparison-grid">
-          <div class="comparison-card">
-            <h3>PRNG didáctico</h3>
-            <div class="probability-bars">
-              <div class="probability-row"><strong>0</strong><span class="probability-track"><span id="lcg-zero-bar"></span></span><span id="lcg-zero-value">—</span></div>
-              <div class="probability-row"><strong>1</strong><span class="probability-track"><span id="lcg-one-bar"></span></span><span id="lcg-one-value">—</span></div>
+        <div class="rng-generators">
+          <section class="generator-card weak-generator" aria-labelledby="lcg-title">
+            <div class="generator-card-head">
+              <div>
+                <div class="tag-row"><span>Modelo educativo</span><span>Estado visible</span></div>
+                <h3 id="lcg-title">PRNG lineal congruencial</h3>
+              </div>
+              <span class="security-badge insecure">No criptográfico</span>
             </div>
+            <p class="generator-description">Su recurrencia es pública y reproducible. Se usa aquí como contraejemplo deliberado.</p>
+            <div class="formula compact-formula">x<sub>n+1</sub> = (1664525 · x<sub>n</sub> + 1013904223) mod 2<sup>32</sup></div>
+            <div class="metric-strip">
+              <div class="metric-tile"><strong id="lcg-balance">—</strong><span>proporción de unos</span></div>
+              <div class="metric-tile"><strong id="lcg-entropy">—</strong><span>entropía binaria empírica</span></div>
+              <div class="metric-tile"><strong id="lcg-runs">—</strong><span>corridas observadas</span></div>
+              <div class="metric-tile"><strong id="lcg-correlation">—</strong><span>correlación lag 1</span></div>
+            </div>
+            <h4>Primeros bits</h4>
+            <output class="bits-output" id="lcg-output" aria-label="Primeros bits del PRNG">—</output>
+            <h4>Estado que determina el futuro</h4>
+            <output class="state-trace" id="lcg-state-output">—</output>
+            <div class="plot-card">
+              <div>
+                <h4>Pares de bytes consecutivos</h4>
+                <p>Cada punto representa (byte<sub>n</sub>, byte<sub>n+1</sub>).</p>
+              </div>
+              <canvas id="lcg-pair-chart" width="560" height="250" role="img" aria-label="Diagrama de pares de bytes consecutivos del PRNG didáctico"></canvas>
+              <p class="sr-only" id="lcg-plot-summary">Gráfico pendiente.</p>
+            </div>
+          </section>
+
+          <section class="generator-card secure-generator" aria-labelledby="crypto-title">
+            <div class="generator-card-head">
+              <div>
+                <div class="tag-row"><span>API del navegador</span><span>Estado protegido</span></div>
+                <h3 id="crypto-title">CSPRNG del entorno</h3>
+              </div>
+              <span class="security-badge secure">Uso criptográfico</span>
+            </div>
+            <p class="generator-description"><span class="mono">crypto.getRandomValues()</span> solicita bytes criptográficamente fuertes al entorno; esta página no controla ni expone su estado.</p>
+            <div class="formula compact-formula">bytes ← crypto.getRandomValues(buffer)</div>
+            <div class="metric-strip">
+              <div class="metric-tile"><strong id="crypto-balance">—</strong><span>proporción de unos</span></div>
+              <div class="metric-tile"><strong id="crypto-entropy">—</strong><span>entropía binaria empírica</span></div>
+              <div class="metric-tile"><strong id="crypto-runs">—</strong><span>corridas observadas</span></div>
+              <div class="metric-tile"><strong id="crypto-correlation">—</strong><span>correlación lag 1</span></div>
+            </div>
+            <h4>Primeros bits</h4>
+            <output class="bits-output" id="crypto-output" aria-label="Primeros bits del CSPRNG">—</output>
+            <h4>Estado que determina el futuro</h4>
+            <div class="state-protected">
+              <span aria-hidden="true">●</span>
+              <p><strong>No expuesto:</strong> observar esta salida no revela directamente la semilla ni el estado interno administrado por el navegador y el sistema operativo.</p>
+            </div>
+            <div class="plot-card">
+              <div>
+                <h4>Pares de bytes consecutivos</h4>
+                <p>El mismo gráfico describe la muestra, no demuestra su origen.</p>
+              </div>
+              <canvas id="crypto-pair-chart" width="560" height="250" role="img" aria-label="Diagrama de pares de bytes consecutivos del CSPRNG del navegador"></canvas>
+              <p class="sr-only" id="crypto-plot-summary">Gráfico pendiente.</p>
+            </div>
+          </section>
+        </div>
+
+        <div class="rng-comparison-summary">
+          <div>
+            <span>PRNG al repetir</span>
+            <strong id="lcg-repeat">—</strong>
           </div>
-          <div class="comparison-card">
-            <h3>CSPRNG</h3>
-            <div class="probability-bars">
-              <div class="probability-row"><strong>0</strong><span class="probability-track"><span id="crypto-zero-bar"></span></span><span id="crypto-zero-value">—</span></div>
-              <div class="probability-row"><strong>1</strong><span class="probability-track"><span id="crypto-one-bar"></span></span><span id="crypto-one-value">—</span></div>
-            </div>
+          <div>
+            <span>CSPRNG al repetir</span>
+            <strong id="crypto-repeat">—</strong>
+          </div>
+          <div>
+            <span>Próximo estado del LCG</span>
+            <strong id="lcg-next-state">—</strong>
           </div>
         </div>
         <div class="warning-box">
-          <p><strong>Un gráfico parecido no implica seguridad parecida.</strong> Estas métricas detectan algunos sesgos, pero no prueban resistencia a predicción ni recuperación de estado.</p>
+          <p><strong>Lo que este experimento sí muestra:</strong> balance, entropía empírica, corridas, correlación, reproducibilidad y exposición de estado.</p>
+          <p><strong>Lo que no demuestra:</strong> que una muestra sea “auténticamente aleatoria” ni que un generador resista criptoanálisis. La seguridad criptográfica es una propiedad adversarial, no una inspección visual.</p>
         </div>
       </article>
 
-      <article class="lab-panel">
-        <h2>5. Reproducibilidad y predicción</h2>
-        <div class="metric-strip two-columns">
-          <div class="metric-tile"><strong id="lcg-repeat">—</strong><span>PRNG respecto de la ejecución previa</span></div>
-          <div class="metric-tile"><strong id="crypto-repeat">—</strong><span>CSPRNG respecto de la ejecución previa</span></div>
+      <article class="lab-panel full attack-panel" id="ataque">
+        <div class="rng-section-heading">
+          <div>
+            <span class="rng-step">03 · Pensar como adversario</span>
+            <h2>Capturá una salida y predecí la siguiente</h2>
+          </div>
+          <p>Este LCG de 8 bits revela el estado completo en cada salida. Es pequeño a propósito para que el ataque pueda seguirse sin ocultar ningún cálculo.</p>
         </div>
-        <h3>Predicción con estado conocido</h3>
-        <div class="formula" id="prediction-output">Generá una secuencia.</div>
-        <p>Conocer el algoritmo y el estado del LCG basta para calcular el siguiente valor. Un CSPRNG agrega propiedades de seguridad y mecanismos de estado que este modelo no posee.</p>
+
+        <div class="attack-layout">
+          <section class="attack-console" aria-labelledby="toy-title">
+            <div class="attack-console-top">
+              <div>
+                <span class="console-light" aria-hidden="true"></span>
+                <span class="console-light" aria-hidden="true"></span>
+                <span class="console-light" aria-hidden="true"></span>
+              </div>
+              <span>generador-débil.log</span>
+            </div>
+            <h3 id="toy-title">LCG de juguete</h3>
+            <div class="formula compact-formula">x<sub>n+1</sub> = (5 · x<sub>n</sub> + 1) mod 256</div>
+            <label for="toy-seed">Estado inicial: <span id="toy-seed-value">73</span></label>
+            <input id="toy-seed" type="range" min="0" max="255" value="73">
+            <div class="actions">
+              <button class="button secondary" id="new-toy-seed" type="button">Elegir otro estado</button>
+              <button class="button" id="predict-weak" type="button">Atacar y predecir</button>
+            </div>
+          </section>
+
+          <section class="attack-observation" aria-labelledby="capture-title">
+            <h3 id="capture-title">Salida interceptada</h3>
+            <div class="observation-stream" id="weak-observations" role="group" aria-label="Tres salidas observadas y una salida por predecir">
+              <span>—</span><span>—</span><span>—</span><span class="unknown">?</span>
+            </div>
+            <div class="attack-calculation">
+              <span class="calculation-label">Cálculo del adversario</span>
+              <output id="weak-calculation">Mové el estado o iniciá el ataque.</output>
+            </div>
+            <p class="status" id="prediction-status" role="status" aria-live="polite">Todavía no se reveló la cuarta salida.</p>
+          </section>
+        </div>
+
+        <div class="attack-conclusion">
+          <article>
+            <span class="conclusion-mark bad" aria-hidden="true">×</span>
+            <div><h3>Generador débil</h3><p>Si la salida permite recuperar el estado, el futuro queda determinado aunque el histograma se vea equilibrado.</p></div>
+          </article>
+          <article>
+            <span class="conclusion-mark good" aria-hidden="true">✓</span>
+            <div><h3>Objetivo de un CSPRNG</h3><p>Conocer salidas anteriores no debería permitir predecir eficientemente la próxima sin comprometer el estado.</p></div>
+          </article>
+        </div>
+        <p class="rng-caveat"><strong>Alcance del modelo:</strong> no todo PRNG revela literalmente su estado en un byte. El ejemplo aísla la idea de predictibilidad; los ataques reales dependen de la construcción, la cantidad de salida observada y el modelo de amenaza.</p>
       </article>
 
-      <article class="lab-panel full">
-        <h2>Desafío de transferencia</h2>
-        <p>Dos generadores aprueban una prueba de balance 0/1. Uno repite toda su salida con la misma semilla pública. ¿Por qué la prueba estadística no puede decidir cuál es apto para claves?</p>
+      <article class="lab-panel span-eight entropy-panel" id="entropia-semilla">
+        <div class="rng-section-heading compact-heading">
+          <div>
+            <span class="rng-step">04 · Medir la semilla</span>
+            <h2>¿Cuánta incertidumbre aportó la fuente?</h2>
+          </div>
+        </div>
+        <p>Una clave larga no compensa una semilla fácil de adivinar. Elegí un modelo y observá el máximo teórico de incertidumbre bajo sus supuestos.</p>
+        <div class="control">
+          <label for="entropy-source">Modelo de origen de la semilla</label>
+          <select id="entropy-source">
+            <option value="public">Frase pública conocida</option>
+            <option value="pin">PIN uniforme de 4 dígitos</option>
+            <option value="timestamp">Milisegundo uniforme dentro de un día conocido</option>
+            <option value="dice">Veinte tiradas independientes de un dado justo</option>
+            <option value="os128" selected>128 bits de una fuente segura del sistema</option>
+          </select>
+        </div>
+        <div class="entropy-meter" aria-hidden="true">
+          <span id="entropy-meter-fill"></span>
+          <i class="entropy-mark mark-32">32</i><i class="entropy-mark mark-64">64</i><i class="entropy-mark mark-128">128 bits</i>
+        </div>
+        <div class="entropy-readout">
+          <div><strong id="entropy-bits">—</strong><span>bits máximos del modelo</span></div>
+          <div><strong id="entropy-candidates">—</strong><span>candidatos posibles</span></div>
+          <div><strong id="entropy-search-time">—</strong><span>tiempo medio a 10⁶ pruebas/s</span></div>
+        </div>
+        <div class="entropy-verdict" id="entropy-verdict">
+          <span id="entropy-level">—</span>
+          <p id="entropy-explanation">Seleccioná una fuente.</p>
+        </div>
+        <p class="rng-caveat">La entropía calculada es una cota del modelo, no una medición automática de una fuente real. Si existen sesgos, filtraciones o conocimiento lateral, la incertidumbre efectiva puede ser menor.</p>
+      </article>
+
+      <article class="lab-panel third state-panel">
+        <span class="rng-step">Compromiso de estado</span>
+        <h2>Sembrar bien no alcanza</h2>
+        <div class="state-scenario">
+          <span aria-hidden="true">S₀</span>
+          <p><strong>Estado inicial seguro</strong><br>Recibe suficiente entropía.</p>
+        </div>
+        <div class="state-arrow" aria-hidden="true">↓</div>
+        <div class="state-scenario compromised">
+          <span aria-hidden="true">!</span>
+          <p><strong>Estado copiado o filtrado</strong><br>El adversario puede reproducir salidas.</p>
+        </div>
+        <div class="state-arrow" aria-hidden="true">↓</div>
+        <div class="state-scenario">
+          <span aria-hidden="true">R</span>
+          <p><strong>Actualización y resembrado</strong><br>Limitan el daño según el diseño.</p>
+        </div>
+        <p class="rng-caveat">Duplicar una máquina virtual con el mismo estado o exponer memoria puede comprometer la secuencia aunque la semilla original haya sido fuerte.</p>
+      </article>
+
+      <article class="lab-panel full applications-panel" id="aplicaciones">
+        <div class="rng-section-heading">
+          <div>
+            <span class="rng-step">05 · Transferir a criptografía moderna</span>
+            <h2>No todos los valores aleatorios cumplen el mismo papel</h2>
+          </div>
+          <p>“Usar azar” es una instrucción incompleta. Cada protocolo exige secreto, unicidad o impredecibilidad en combinaciones diferentes.</p>
+        </div>
+
+        <div class="use-case-grid">
+          <article class="use-case-card" data-accent="cyan">
+            <div class="use-case-icon" aria-hidden="true">K</div>
+            <h3>Clave de sesión</h3>
+            <p>Debe ser impredecible y mantenerse secreta. Su seguridad real no supera la entropía con la que fue generada.</p>
+            <dl><div><dt>¿Pública?</dt><dd>No</dd></div><div><dt>Exigencia</dt><dd>Impredecibilidad</dd></div></dl>
+          </article>
+          <article class="use-case-card" data-accent="violet">
+            <div class="use-case-icon" aria-hidden="true">N</div>
+            <h3>Nonce o IV</h3>
+            <p>Suele ser público. Según el esquema debe ser único, impredecible o ambas cosas; repetirlo con la misma clave puede ser crítico.</p>
+            <dl><div><dt>¿Público?</dt><dd>Generalmente</dd></div><div><dt>Exigencia</dt><dd>Depende del esquema</dd></div></dl>
+          </article>
+          <article class="use-case-card" data-accent="green">
+            <div class="use-case-icon" aria-hidden="true">S</div>
+            <h3>Salt de contraseña</h3>
+            <p>Es público y se almacena con el derivado. Debe evitar que usuarios con la misma contraseña compartan el mismo resultado.</p>
+            <dl><div><dt>¿Público?</dt><dd>Sí</dd></div><div><dt>Exigencia</dt><dd>Único y aleatorio</dd></div></dl>
+          </article>
+          <article class="use-case-card" data-accent="amber">
+            <div class="use-case-icon" aria-hidden="true">T</div>
+            <h3>Token de recuperación</h3>
+            <p>Debe resultar impracticable de adivinar mientras sea válido. Una salida de <span class="mono">Math.random()</span> no ofrece esa garantía.</p>
+            <dl><div><dt>¿Público?</dt><dd>No mientras vale</dd></div><div><dt>Exigencia</dt><dd>Impredecibilidad</dd></div></dl>
+          </article>
+          <article class="use-case-card wide-case" data-accent="rose">
+            <div class="use-case-icon" aria-hidden="true">r</div>
+            <div>
+              <h3>Nonce efímero de una firma</h3>
+              <p>En esquemas como ECDSA, repetir o sesgar el valor efímero puede revelar la clave privada. Puede generarse con un CSPRNG seguro o derivarse de forma determinista mediante una construcción específica y segura; “determinista” no significa automáticamente “débil”.</p>
+            </div>
+            <dl><div><dt>¿Público?</dt><dd>El valor secreto, no</dd></div><div><dt>Exigencia</dt><dd>Nunca repetir ni sesgar</dd></div></dl>
+          </article>
+        </div>
+
+        <div class="failure-strip" role="group" aria-label="Errores frecuentes">
+          <div><strong>Semilla predecible</strong><span>Fecha, PID o PIN reducen la búsqueda.</span></div>
+          <div><strong>Estado duplicado</strong><span>Dos instancias pueden repetir salidas.</span></div>
+          <div><strong>Nonce reutilizado</strong><span>Puede romper confidencialidad o autenticidad.</span></div>
+          <div><strong>API incorrecta</strong><span>Azar para simulación no equivale a azar criptográfico.</span></div>
+        </div>
+      </article>
+
+      <article class="lab-panel full quiz-panel" id="comprobacion">
+        <div class="rng-section-heading">
+          <div>
+            <span class="rng-step">06 · Comprobar la comprensión</span>
+            <h2>Diagnóstico rápido</h2>
+          </div>
+          <p>Elegí una respuesta en cada caso. La devolución explica el criterio, no solo el resultado.</p>
+        </div>
+
+        <form id="rng-quiz">
+          <fieldset class="rng-question" data-answer="b">
+            <legend><span>1</span>Un generador produce aproximadamente 50 % de ceros y 50 % de unos. ¿Eso basta para generar claves?</legend>
+            <label><input type="radio" name="q1" value="a"> Sí, porque la entropía empírica será máxima.</label>
+            <label><input type="radio" name="q1" value="b"> No, todavía debe resistir predicción y recuperación de estado.</label>
+            <label><input type="radio" name="q1" value="c"> Sí, si la muestra contiene más de mil bits.</label>
+            <p class="question-feedback" id="q1-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="rng-question" data-answer="a">
+            <legend><span>2</span>¿Un CSPRNG puede ser determinista después de recibir su semilla?</legend>
+            <label><input type="radio" name="q2" value="a"> Sí; la seguridad depende de la entropía inicial, el diseño y la protección del estado.</label>
+            <label><input type="radio" name="q2" value="b"> No; todo algoritmo determinista es inseguro.</label>
+            <label><input type="radio" name="q2" value="c"> Solo si produce exactamente la mitad de unos.</label>
+            <p class="question-feedback" id="q2-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="rng-question" data-answer="c">
+            <legend><span>3</span>¿Qué afirmación describe mejor un nonce de AES-GCM?</legend>
+            <label><input type="radio" name="q3" value="a"> Debe mantenerse siempre secreto.</label>
+            <label><input type="radio" name="q3" value="b"> Puede repetirse si el mensaje es diferente.</label>
+            <label><input type="radio" name="q3" value="c"> No debe repetirse con la misma clave.</label>
+            <p class="question-feedback" id="q3-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="rng-question" data-answer="b">
+            <legend><span>4</span>Una aplicación crea tokens con una semilla pública y fija para poder depurarlos. ¿Cuál es el problema?</legend>
+            <label><input type="radio" name="q4" value="a"> Los tokens tendrán demasiada entropía.</label>
+            <label><input type="radio" name="q4" value="b"> Un adversario puede reproducir la secuencia y anticipar tokens.</label>
+            <label><input type="radio" name="q4" value="c"> El único problema es que ocupan más memoria.</label>
+            <p class="question-feedback" id="q4-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <div class="quiz-actions">
+            <button class="button" type="submit">Evaluar respuestas</button>
+            <button class="button secondary" id="reset-rng-quiz" type="button">Reiniciar</button>
+            <output class="quiz-result" id="rng-quiz-result" aria-live="polite">Respondé las cuatro situaciones.</output>
+          </div>
+        </form>
+
         <details class="checkpoint">
-          <summary>Ver orientación</summary>
-          <p>Las pruebas estadísticas analizan la muestra; la seguridad criptográfica exige además impredecibilidad y resistencia frente a un adversario que conoce el algoritmo y quizá parte del estado o de la salida.</p>
+          <summary>Pregunta de transferencia para discutir en clase</summary>
+          <p>Una aplicación genera una clave AES-256 a partir de un PIN uniforme de cuatro cifras y después utiliza un cifrado correctamente implementado. ¿Qué buscaría primero el adversario: romper AES o probar los 10 000 PIN posibles? Justificá la respuesta distinguiendo longitud de clave y entropía efectiva.</p>
         </details>
       </article>
     </section>
 
     <aside class="lesson-footer" aria-label="Navegación de la lección">
-      <div><h2>La apariencia ya no alcanza</h2><p>La siguiente estación desarma una red por capas para separar no linealidad, dispersión y efecto avalancha.</p></div>
+      <div><h2>Del azar aparente a una propiedad adversarial</h2><p>La siguiente estación muestra cómo sustituciones y mezclas dispersan estructura, sin confundir avalancha con una prueba completa de seguridad.</p></div>
       <div class="lesson-footer-actions">
         <a class="button secondary" href="secreto-perfecto.html">← Secreto perfecto</a>
         <button class="button secondary" type="button" data-complete-page="pseudoaleatoriedad" aria-pressed="false">Marcar como completada</button>
@@ -136,7 +455,9 @@
       </div>
     </aside>
 
-    <footer class="module-footer"><p>El LCG se incluye deliberadamente como contraejemplo. Nunca debe emplearse para claves, semillas secretas, nonces ni tokens.</p></footer>
+    <footer class="module-footer">
+      <p>Los generadores lineales de este laboratorio son modelos educativos y nunca deben emplearse para claves, nonces, IV, sales o tokens. Para profundizar: <a href="https://csrc.nist.gov/pubs/sp/800/90/a/r1/final" target="_blank" rel="noopener noreferrer">NIST SP 800-90A Rev. 1 sobre DRBG ↗</a>.</p>
+    </footer>
   </main>
   <script src="assets/module.js"></script>
   <script src="assets/pseudoaleatoriedad.js"></script>

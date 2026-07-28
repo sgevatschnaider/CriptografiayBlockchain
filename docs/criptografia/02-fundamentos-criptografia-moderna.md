@@ -137,12 +137,24 @@ La avalancha es deseable, pero no es una prueba de seguridad. Una función defec
 
 ### 2.7 PRNG y CSPRNG
 
-Un generador pseudoaleatorio es determinista: una semilla y un estado producen una secuencia reproducible.
+La cadena comienza antes del generador. Una **fuente de entropía** aporta incertidumbre a partir de observaciones del entorno y del sistema operativo; un proceso de acondicionamiento combina esas observaciones; la semilla inicializa el estado y el generador lo expande en una secuencia más larga.
 
-- Un **PRNG** puede servir para simulación o muestreo.
-- Un **CSPRNG** está diseñado para resistir predicción de salidas y reconstrucción del estado bajo un modelo criptográfico.
+- Un **PRNG de propósito general** prioriza velocidad y propiedades estadísticas para simulación o muestreo. No tiene por qué resistir a un adversario que conoce el algoritmo y observa salidas.
+- Un **CSPRNG o DRBG** suele ser determinista una vez sembrado, pero está diseñado para que resulte computacionalmente inviable predecir salidas futuras o reconstruir el estado a partir de la salida disponible.
+- El **resembrado** incorpora entropía nueva. La protección y actualización del estado buscan limitar el impacto de una exposición, aunque las garantías exactas dependen de la construcción.
 
-Las pruebas simples de frecuencia, corridas o correlación detectan defectos obvios. Aprobarlas no certifica seguridad.
+Por lo tanto, la diferencia no es simplemente «determinista frente a no determinista». La seguridad depende de la calidad y cantidad de entropía inicial, el diseño del generador, la protección del estado y el uso correcto de los bytes producidos.
+
+Las pruebas simples de frecuencia, corridas o correlación detectan defectos obvios. Aprobarlas no certifica seguridad: una secuencia puede estar perfectamente balanceada y ser completamente predecible.
+
+Los requisitos también dependen del objeto:
+
+- una **clave** debe ser impredecible y secreta;
+- un **nonce o IV** suele ser público y debe ser único, impredecible o ambas cosas según el esquema;
+- un **salt** es público y debe evitar repeticiones entre derivaciones;
+- un **token** debe ser impracticable de adivinar mientras sea válido.
+
+Una salida de 256 bits creada desde un PIN uniforme de cuatro cifras no posee 256 bits reales de incertidumbre: el adversario puede enumerar solo 10 000 semillas posibles. Esta diferencia entre longitud y entropía efectiva se explora en el [laboratorio de aleatoriedad criptográfica](../../simuladores/modulo-02/flujo-pseudoaleatorio.html).
 
 ## 3. Pilar II · Complejidad computacional
 
