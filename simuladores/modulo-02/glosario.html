@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Glosario interactivo de 72 conceptos sobre información, seguridad computacional, complejidad, álgebra y criptografía moderna.">
+  <meta name="theme-color" content="#061322">
+  <title>Glosario interactivo | Fundamentos de la criptografía moderna</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+</head>
+<body class="module-02" data-module-page="glosario">
+  <a class="skip-link" href="#glosario">Saltar al glosario</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html" aria-current="page">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Recuperación activa · 72 conceptos</div>
+        <h1>Glosario interactivo</h1>
+        <p>Buscá por término, definición, ejemplo o relación. Marcá lo que ya dominás y usá el modo aleatorio para estudiar sin seguir el orden de la página.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">A–Z</div>
+    </section>
+
+    <section class="content-section" id="glosario" aria-labelledby="glosario-titulo">
+      <header class="section-head">
+        <div><div class="section-kicker">Banco conceptual</div><h2 id="glosario-titulo">Definiciones, ejemplos y conexiones</h2><p>El progreso se guarda únicamente en este navegador.</p></div>
+        <div class="section-index" id="known-count" role="status" aria-label="Términos dominados">0/72</div>
+      </header>
+
+      <div class="glossary-toolbar">
+        <div>
+          <label class="sr-only" for="glossary-search">Buscar en el glosario</label>
+          <input id="glossary-search" type="search" placeholder="Buscar: entropía, adversario, LWE…" autocomplete="off">
+        </div>
+        <div>
+          <label class="sr-only" for="glossary-category">Filtrar por categoría</label>
+          <select id="glossary-category"><option value="all">Todas las categorías</option></select>
+        </div>
+        <div>
+          <label class="sr-only" for="glossary-status">Filtrar por progreso</label>
+          <select id="glossary-status"><option value="all">Todos los términos</option><option value="pending">Pendientes</option><option value="known">Dominados</option></select>
+        </div>
+        <button class="button secondary" id="random-term" type="button">Término aleatorio</button>
+      </div>
+
+      <div class="metric-strip">
+        <div class="metric-tile"><strong id="total-terms">72</strong><span>términos totales</span></div>
+        <div class="metric-tile"><strong id="visible-terms">72</strong><span>resultados visibles</span></div>
+        <div class="metric-tile"><strong id="known-terms">0</strong><span>dominados</span></div>
+        <div class="metric-tile"><strong id="known-percent">0%</strong><span>progreso del glosario</span></div>
+      </div>
+
+      <p class="status" id="glossary-status-text" role="status" aria-live="polite">Mostrando los 72 términos.</p>
+      <div class="glossary-grid" id="glossary-grid"></div>
+      <div class="empty-state" id="glossary-empty" hidden>No hay términos que coincidan con estos filtros.</div>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>Pasá de reconocer a recuperar</h2><p>Marcá un concepto solo si podés explicarlo sin mirar. Después comprobalo en el cuestionario.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="mapas-mentales.html">← Mapas mentales</a>
+        <button class="button secondary" type="button" data-complete-page="glosario" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="cuestionario.html">Siguiente: evaluación →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>Las definiciones se adaptan al nivel del módulo. Para parámetros de producción deben consultarse los estándares y especificaciones vigentes.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/glosario-data.js"></script>
+  <script src="assets/glosario.js"></script>
+</body>
+</html>

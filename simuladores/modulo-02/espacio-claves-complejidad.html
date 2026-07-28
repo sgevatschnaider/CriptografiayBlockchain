@@ -1,1 +1,136 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Espacio de claves y complejidad</title><link rel="stylesheet" href="../assets/lab.css"><style>.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.p{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--panel)}input{width:100%}.metric{font-size:1.45rem;font-weight:800}.table{width:100%;border-collapse:collapse}.table td,.table th{padding:8px;border-bottom:1px solid var(--border)}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">← Módulo 2</a></div><nav class="nav"><a href="../index.html">Campus</a></nav></header><section class="hero"><div class="eyebrow">Seguridad computacional</div><h1>Espacio de claves, bits de seguridad y costo de ataque</h1><p>Distingue longitud de clave, número de candidatos y tiempo de fuerza bruta. Big-O y bits de seguridad están relacionados, pero no son equivalentes.</p></section><section class="g"><article class="p"><h2>Parámetros</h2><label>Bits de clave: <b id="kv">56</b></label><input id="k" type="range" min="8" max="256" value="56"><label>Intentos por segundo</label><input id="rate" type="number" value="1000000000" min="1"><label>Atacantes paralelos</label><input id="workers" type="number" value="1" min="1" max="1000000000"><p>Se usa el costo medio de búsqueda: la mitad del espacio.</p></article><article class="p"><h2>Resultado</h2><p>Espacio de claves</p><div class="metric" id="space"></div><p>Tiempo medio estimado</p><div class="metric" id="time"></div><p id="years"></p><p>Una implementación vulnerable puede reducir drásticamente este costo; por eso tamaño de clave y seguridad real no son sinónimos.</p></article><article class="p"><h2>Escalas de referencia</h2><table class="table"><tr><th>Bits</th><th>Espacio</th></tr><tr><td>40</td><td>≈10¹²</td></tr><tr><td>56</td><td>≈7,2×10¹⁶</td></tr><tr><td>80</td><td>≈1,2×10²⁴</td></tr><tr><td>112</td><td>≈5,2×10³³</td></tr><tr><td>128</td><td>≈3,4×10³⁸</td></tr><tr><td>256</td><td>≈1,2×10⁷⁷</td></tr></table></article></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main><script>function sci(x){if(!isFinite(x))return'≈1,16 × 10⁷⁷';const e=Math.floor(Math.log10(x)),m=x/10**e;return`${m.toFixed(2)} × 10^${e}`}function human(sec){if(sec<1)return(sec*1000).toFixed(2)+' ms';if(sec<60)return sec.toFixed(2)+' s';if(sec<3600)return(sec/60).toFixed(2)+' min';if(sec<86400)return(sec/3600).toFixed(2)+' h';if(sec<31557600)return(sec/86400).toFixed(2)+' días';return(sec/31557600).toExponential(3)+' años'}function calc(){const b=+k.value,r=Math.max(1,+rate.value||1),w=Math.max(1,+workers.value||1);kv.textContent=b;const log10=b*Math.LOG10E*Math.LN2;space.textContent=`2^${b} ≈ ${Math.pow(10,log10-Math.floor(log10)).toFixed(2)} × 10^${Math.floor(log10)}`;const logSec=(b-1)*Math.LN2-Math.log(r)-Math.log(w);const sec=logSec>709?Infinity:Math.exp(logSec);time.textContent=human(sec);years.textContent=`Costo medio con ${r.toExponential()} intentos/s y ${w.toLocaleString()} atacante(s).`}k.oninput=calc;rate.oninput=calc;workers.oninput=calc;calc();</script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Simulador de espacio de claves, bits de seguridad, fuerza bruta, paralelización y búsqueda cuántica idealizada.">
+  <meta name="theme-color" content="#061322">
+  <title>Espacio de claves y complejidad | Módulo 2</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+</head>
+<body class="module-02" data-module-page="complejidad">
+  <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Pilar II · recursos del adversario</div>
+        <h1>Espacio de claves y costo de ataque</h1>
+        <p>Separá tamaño nominal, bits efectivos, tasa de prueba, paralelización y modelo de cómputo. El cálculo se realiza en escala logarítmica para no desbordar.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">2<sup>λ</sup></div>
+    </section>
+
+    <section class="lab-grid" id="laboratorio" aria-label="Estimador de fuerza bruta">
+      <article class="lab-panel third">
+        <h2>1. Parámetros criptográficos</h2>
+        <label for="key-bits">Longitud nominal: <strong id="key-bits-value">128 bits</strong></label>
+        <input id="key-bits" type="range" min="16" max="256" step="1" value="128">
+        <label for="bits-loss">Pérdida por mejor ataque conocido: <strong id="bits-loss-value">0 bits</strong></label>
+        <input id="bits-loss" type="range" min="0" max="80" step="1" value="0">
+        <p class="small muted">No representa una vulnerabilidad concreta: permite observar por qué longitud nominal y seguridad efectiva pueden diferir.</p>
+        <label for="compute-model">Modelo del atacante</label>
+        <select id="compute-model">
+          <option value="classical">Búsqueda exhaustiva clásica</option>
+          <option value="grover">Grover idealizado (consultas cuánticas)</option>
+        </select>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>2. Capacidad de prueba</h2>
+        <label for="attempt-rate">Pruebas o consultas por segundo</label>
+        <input id="attempt-rate" type="number" min="1" value="1000000000000" inputmode="decimal">
+        <label for="workers">Unidades paralelas</label>
+        <input id="workers" type="number" min="1" value="1000000" inputmode="numeric">
+        <label for="energy-per-test">Energía por prueba clásica (joules)</label>
+        <input id="energy-per-test" type="number" min="0" step="any" value="0.000000000001" inputmode="decimal">
+        <p class="small muted">La energía es una hipótesis ilustrativa. No se aplica al modo Grover porque una «consulta» cuántica no equivale a una prueba clásica independiente.</p>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>3. Resultado</h2>
+        <div class="metric-strip two-columns">
+          <div class="metric-tile"><strong id="key-space">—</strong><span>espacio total</span></div>
+          <div class="metric-tile"><strong id="effective-security">—</strong><span>bits efectivos</span></div>
+          <div class="metric-tile"><strong id="work-factor">—</strong><span>trabajo medio</span></div>
+          <div class="metric-tile"><strong id="attack-time">—</strong><span>tiempo estimado</span></div>
+        </div>
+        <div class="formula" id="attack-formula">—</div>
+        <p class="status" id="complexity-status" role="status" aria-live="polite">Ajustá los controles para explorar escalas.</p>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>4. Cómo crece el tiempo</h2>
+        <p class="muted">Eje vertical: log₁₀ de años. Cada incremento lineal de bits produce crecimiento exponencial del trabajo.</p>
+        <div class="chart-shell">
+          <canvas id="complexity-chart" class="chart" role="img" aria-label="Tiempo de ataque en escala logarítmica según los bits efectivos"></canvas>
+        </div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>5. Escala física ilustrativa</h2>
+        <div class="metric-strip two-columns">
+          <div class="metric-tile"><strong id="energy-output">—</strong><span>energía total estimada</span></div>
+          <div class="metric-tile"><strong id="universe-comparison">—</strong><span>comparación temporal</span></div>
+        </div>
+        <p>La edad del universo se toma solo como referencia de escala (aproximadamente 1,38×10¹⁰ años), no como umbral formal de seguridad.</p>
+      </article>
+
+      <article class="lab-panel">
+        <h2>6. Valores de referencia</h2>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Espacios de claves frecuentes</caption>
+            <thead><tr><th>Bits</th><th>Candidatos aproximados</th><th>Lectura pedagógica</th></tr></thead>
+            <tbody>
+              <tr><td>40</td><td>1,10×10¹²</td><td>Pequeño para búsqueda moderna</td></tr>
+              <tr><td>56</td><td>7,21×10¹⁶</td><td>DES quedó fuera de escala segura</td></tr>
+              <tr><td>80</td><td>1,21×10²⁴</td><td>Nivel histórico, hoy insuficiente según NIST</td></tr>
+              <tr><td>112</td><td>5,19×10³³</td><td>Nivel legado mínimo en varias guías</td></tr>
+              <tr><td>128</td><td>3,40×10³⁸</td><td>Nivel moderno habitual</td></tr>
+              <tr><td>256</td><td>1,16×10⁷⁷</td><td>Margen amplio frente a búsqueda clásica</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Lectura correcta del modo Grover</h2>
+        <div class="warning-box">
+          <p>La opción cuántica muestra la complejidad asintótica ideal de aproximadamente √N consultas. No modela qubits físicos, corrección de errores, profundidad de circuito, costo de oráculos ni límites de paralelización. Es una cota conceptual, no una predicción de calendario.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <p>Un sistema anuncia «clave de 256 bits», pero la genera a partir de un PIN uniforme de 6 dígitos sin una KDF adecuada. ¿Cuál es el espacio que debería atacar primero un adversario racional?</p>
+        <details class="checkpoint">
+          <summary>Ver orientación</summary>
+          <p>El secreto inicial solo tiene 10⁶ candidatos, cerca de 20 bits. El atacante prueba PINes y reproduce la derivación; no necesita recorrer 2²⁵⁶ claves independientes.</p>
+        </details>
+      </article>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>El costo necesita una estructura</h2><p>La próxima estación muestra grupos, cuerpos, curvas y ecuaciones con ruido: los espacios donde viven los problemas difíciles.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="juego-seguridad.html">← Juego de seguridad</a>
+        <button class="button secondary" type="button" data-complete-page="complejidad" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="estructuras-algebraicas.html">Siguiente: estructuras algebraicas →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>El estimador ilustra órdenes de magnitud. La seguridad real depende del mejor ataque, el protocolo, la implementación, el hardware y el modelo de amenaza.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/complejidad.js"></script>
+</body>
+</html>

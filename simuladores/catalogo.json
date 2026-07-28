@@ -1,1 +1,148 @@
-{"version":5,"descripcion":"Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.","areas_transversales":[{"id":"fundamentos-matematicos","titulo":"Fundamentos matemáticos de la criptografía","pagina":"fundamentos-matematicos/index.html","laboratorio_integral":"02-fundamentos-matematicos.html","temas":["aritmética modular","Euclides extendido","inversos","grupos","cuerpos finitos","probabilidad","entropía","complejidad","Diffie-Hellman"]}],"modulos":[{"id":"modulo-01","titulo":"Criptografía clásica y nacimiento del criptoanálisis","laboratorio_integral":"01-criptografia-clasica.html"},{"id":"modulo-02","titulo":"Fundamentos de la criptografía moderna","pagina":"modulo-02/index.html","simulaciones":[{"titulo":"Entropía de Shannon","archivo":"modulo-02/entropia-shannon.html","estado":"disponible"},{"titulo":"Flujo pseudoaleatorio","archivo":"modulo-02/flujo-pseudoaleatorio.html","estado":"disponible"},{"titulo":"Confusión, difusión y avalancha","archivo":"modulo-02/confusion-difusion.html","estado":"disponible"},{"titulo":"Espacio de claves y complejidad","archivo":"modulo-02/espacio-claves-complejidad.html","estado":"disponible"},{"titulo":"Bloques frente a flujo","archivo":"modulo-03/bloques-vs-flujo.html","estado":"disponible"},{"titulo":"ECB, CBC, CTR y GCM","archivo":"modulo-03/modos-aes-aead.html","estado":"disponible"}]},{"id":"modulo-03","titulo":"Criptografía moderna aplicada","laboratorio_integral":"03-criptografia-moderna.html","simulaciones":[{"titulo":"Bloques frente a flujo","archivo":"modulo-03/bloques-vs-flujo.html","estado":"disponible"},{"titulo":"Modos AES y AEAD","archivo":"modulo-03/modos-aes-aead.html","estado":"disponible"},{"titulo":"Laboratorio moderno integral","archivo":"03-criptografia-moderna.html","estado":"disponible"},{"titulo":"Hash, MAC y firma","estado":"planificado"},{"titulo":"Padding PKCS#7 y oráculos","estado":"planificado"},{"titulo":"RSA, ECDH y cifrado híbrido","estado":"planificado"}]},{"id":"modulo-04","titulo":"Esteganografía digital","laboratorio_integral":"04-esteganografia.html"},{"id":"modulo-05","titulo":"Criptografía y blockchain","laboratorio_integral":"05-blockchain.html"},{"id":"modulo-06","titulo":"Protocolos y privacidad","laboratorio_integral":"06-protocolos-privacidad.html"},{"id":"modulo-07","titulo":"Criptografía poscuántica y cuántica","laboratorio_integral":"07-poscuantica-cuantica.html"},{"id":"modulo-08","titulo":"Seguridad aplicada","laboratorio_integral":"08-seguridad-aplicada.html"}]}
+{
+  "version": 6,
+  "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
+  "areas_transversales": [
+    {
+      "id": "fundamentos-matematicos",
+      "titulo": "Fundamentos matemáticos de la criptografía",
+      "pagina": "fundamentos-matematicos/index.html",
+      "laboratorio_integral": "02-fundamentos-matematicos.html",
+      "temas": [
+        "aritmética modular",
+        "Euclides extendido",
+        "inversos",
+        "grupos",
+        "cuerpos finitos",
+        "probabilidad",
+        "entropía",
+        "complejidad",
+        "Diffie-Hellman"
+      ]
+    }
+  ],
+  "modulos": [
+    {
+      "id": "modulo-01",
+      "titulo": "Criptografía clásica y nacimiento del criptoanálisis",
+      "laboratorio_integral": "01-criptografia-clasica.html"
+    },
+    {
+      "id": "modulo-02",
+      "titulo": "Fundamentos de la criptografía moderna",
+      "pagina": "modulo-02/index.html",
+      "ruta_guiada": "modulo-02/ruta-guiada.html",
+      "teoria": "modulo-02/teoria.html",
+      "simulaciones": [
+        {
+          "titulo": "Entropía de Shannon",
+          "archivo": "modulo-02/entropia-shannon.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Secreto perfecto y one-time pad",
+          "archivo": "modulo-02/secreto-perfecto.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "PRNG frente a CSPRNG",
+          "archivo": "modulo-02/flujo-pseudoaleatorio.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Confusión, difusión y avalancha",
+          "archivo": "modulo-02/confusion-difusion.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Juego de indistinguibilidad",
+          "archivo": "modulo-02/juego-seguridad.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Espacio de claves y complejidad",
+          "archivo": "modulo-02/espacio-claves-complejidad.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Estructuras algebraicas",
+          "archivo": "modulo-02/estructuras-algebraicas.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Mapas mentales interactivos",
+          "archivo": "modulo-02/mapas-mentales.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Glosario activo",
+          "archivo": "modulo-02/glosario.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Cuestionario formativo",
+          "archivo": "modulo-02/cuestionario.html",
+          "estado": "disponible"
+        }
+      ]
+    },
+    {
+      "id": "modulo-03",
+      "titulo": "Criptografía moderna aplicada",
+      "laboratorio_integral": "03-criptografia-moderna.html",
+      "simulaciones": [
+        {
+          "titulo": "Bloques frente a flujo",
+          "archivo": "modulo-03/bloques-vs-flujo.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Modos AES y AEAD",
+          "archivo": "modulo-03/modos-aes-aead.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Laboratorio moderno integral",
+          "archivo": "03-criptografia-moderna.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Hash, MAC y firma",
+          "estado": "planificado"
+        },
+        {
+          "titulo": "Padding PKCS#7 y oráculos",
+          "estado": "planificado"
+        },
+        {
+          "titulo": "RSA, ECDH y cifrado híbrido",
+          "estado": "planificado"
+        }
+      ]
+    },
+    {
+      "id": "modulo-04",
+      "titulo": "Esteganografía digital",
+      "laboratorio_integral": "04-esteganografia.html"
+    },
+    {
+      "id": "modulo-05",
+      "titulo": "Criptografía y blockchain",
+      "laboratorio_integral": "05-blockchain.html"
+    },
+    {
+      "id": "modulo-06",
+      "titulo": "Protocolos y privacidad",
+      "laboratorio_integral": "06-protocolos-privacidad.html"
+    },
+    {
+      "id": "modulo-07",
+      "titulo": "Criptografía poscuántica y cuántica",
+      "laboratorio_integral": "07-poscuantica-cuantica.html"
+    },
+    {
+      "id": "modulo-08",
+      "titulo": "Seguridad aplicada",
+      "laboratorio_integral": "08-seguridad-aplicada.html"
+    }
+  ]
+}

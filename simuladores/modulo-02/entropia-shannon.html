@@ -1,1 +1,133 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Entropía de Shannon</title><link rel="stylesheet" href="../assets/lab.css"><style>.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.panel{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--panel)}label{display:block;margin:12px 0 6px}.bar{height:22px;border-radius:8px;background:#162b43;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#8b5cf6)}input[type=range]{width:100%}.metric{font-size:1.55rem;font-weight:800}.mono{font-family:ui-monospace,monospace;word-break:break-all}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">← Módulo 2</a></div><nav class="nav"><a href="../index.html">Campus</a><a href="../../docs/criptografia/lector.html?modulo=02-fundamentos-matematicos">Teoría</a></nav></header><section class="hero"><div class="eyebrow">Teoría de la información</div><h1>Entropía de Shannon</h1><p>Experimenta cómo cambia la incertidumbre cuando una fuente binaria es equilibrada o sesgada.</p></section><section class="grid2"><article class="panel"><h2>Fuente binaria</h2><label>Probabilidad de 1: <b id="pv">0.50</b></label><input id="p" type="range" min="0.01" max="0.99" step="0.01" value="0.50"><label>Tamaño de muestra</label><input id="n" type="number" min="10" max="100000" value="1000"><div class="actions"><button class="button" id="gen">Generar muestra</button></div><p class="mono" id="sample"></p></article><article class="panel"><h2>Métricas</h2><p>Entropía teórica</p><div class="metric" id="h">1.000 bits/símbolo</div><p>Entropía máxima para dos símbolos: 1 bit.</p><div class="bar"><i id="hb" style="width:100%"></i></div><p id="counts"></p><p id="emp"></p><p><b>Interpretación:</b> una fuente equilibrada produce máxima incertidumbre; una fuente sesgada es más predecible. Entropía no equivale automáticamente a seguridad criptográfica.</p></article></section><section class="panel" style="margin-top:16px"><h2>Experimentos sugeridos</h2><ol><li>Usa p(1)=0,50 y observa H≈1.</li><li>Prueba p(1)=0,90 y compara la reducción de entropía.</li><li>Aumenta la muestra y observa cómo la frecuencia empírica se acerca a la configurada.</li><li>Explica por qué una contraseña humana puede tener menos entropía que la longitud aparente de su alfabeto.</li></ol></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main><script>const p=document.querySelector('#p'),pv=document.querySelector('#pv'),h=document.querySelector('#h'),hb=document.querySelector('#hb');function H(x){return -x*Math.log2(x)-(1-x)*Math.log2(1-x)}function update(){const x=+p.value,hh=H(x);pv.textContent=x.toFixed(2);h.textContent=hh.toFixed(3)+' bits/símbolo';hb.style.width=(hh*100).toFixed(1)+'%'}p.oninput=update;document.querySelector('#gen').onclick=()=>{const x=+p.value,n=Math.max(10,Math.min(100000,+document.querySelector('#n').value||1000));let ones=0,s='';for(let i=0;i<n;i++){const b=Math.random()<x?1:0;ones+=b;if(i<600)s+=b}document.querySelector('#sample').textContent=s+(n>600?'…':'');const q=ones/n;document.querySelector('#counts').textContent=`0: ${n-ones} | 1: ${ones} | p̂(1)=${q.toFixed(4)}`;document.querySelector('#emp').textContent=`Entropía empírica: ${(q>0&&q<1?H(q):0).toFixed(3)} bits/símbolo`};update();document.querySelector('#gen').click();</script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Simulador visual de entropía de Shannon para una fuente binaria: curva H(p), sorpresa, redundancia y convergencia empírica.">
+  <meta name="theme-color" content="#061322">
+  <title>Entropía de Shannon | Módulo 2</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+</head>
+<body class="module-02" data-module-page="entropia">
+  <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a><a href="ruta-guiada.html">Ruta guiada</a><a href="teoria.html">Teoría</a><a href="mapas-mentales.html">Mapas</a><a href="glosario.html">Glosario</a><a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo"><span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span></div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Pilar I · teoría de la información</div>
+        <h1>Entropía de Shannon</h1>
+        <p>Mové la probabilidad de una fuente binaria, observá la curva completa y compará la incertidumbre teórica con una muestra generada en el navegador.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">H</div>
+    </section>
+
+    <section class="lab-grid" id="laboratorio" aria-label="Simulador de entropía">
+      <article class="lab-panel third">
+        <h2>1. Configurá la fuente</h2>
+        <p>La variable puede producir 0 o 1. Una fuente equilibrada es más incierta; una fuente sesgada es más predecible.</p>
+        <label for="probability">Probabilidad de 1: <strong id="probability-value">0,50</strong></label>
+        <input id="probability" type="range" min="0" max="1" step="0.01" value="0.5">
+        <div class="tag-row" role="group" aria-label="Valores sugeridos">
+          <button class="button secondary" type="button" data-probability="0.5">Equilibrada</button>
+          <button class="button secondary" type="button" data-probability="0.9">Sesgo 0,90</button>
+          <button class="button secondary" type="button" data-probability="0.99">Sesgo 0,99</button>
+        </div>
+        <label for="sample-size">Tamaño de la muestra</label>
+        <input id="sample-size" type="number" min="20" max="50000" step="10" value="2000" inputmode="numeric">
+        <div class="actions">
+          <button class="button" id="generate" type="button">Generar muestra</button>
+        </div>
+        <p class="status" id="entropy-status" role="status" aria-live="polite">Lista para experimentar.</p>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>2. Distribución</h2>
+        <div class="probability-bars" role="img" aria-label="Probabilidades de la fuente">
+          <div class="probability-row"><strong>P(0)</strong><span class="probability-track"><span id="bar-zero"></span></span><span id="p-zero">0,50</span></div>
+          <div class="probability-row"><strong>P(1)</strong><span class="probability-track"><span id="bar-one"></span></span><span id="p-one">0,50</span></div>
+        </div>
+        <h3>Sorpresa por resultado</h3>
+        <p>Un resultado raro informa más cuando ocurre:</p>
+        <div class="formula" id="surprise-output">I(0)=1 bit · I(1)=1 bit</div>
+        <div class="warning-box">
+          <p><strong>No confundas:</strong> entropía describe una distribución. No demuestra que el proceso que genera la secuencia sea impredecible.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel third">
+        <h2>3. Métricas teóricas</h2>
+        <div class="metric-strip two-columns">
+          <div class="metric-tile"><strong id="theoretical-h">1,000</strong><span>bits por símbolo</span></div>
+          <div class="metric-tile"><strong id="redundancy">0,000</strong><span>redundancia respecto del máximo</span></div>
+          <div class="metric-tile"><strong id="effective-outcomes">2,00</strong><span>resultados efectivos: 2ᴴ</span></div>
+          <div class="metric-tile"><strong id="max-h">1,000</strong><span>entropía máxima binaria</span></div>
+        </div>
+        <div class="definition">
+          <p><strong>Lectura:</strong> H=1 no significa «seguridad de un bit». Significa una incertidumbre media de un bit por símbolo bajo esa distribución.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>4. Curva H(p)</h2>
+        <p class="muted">La curva alcanza su máximo en p(1)=0,5 y cae a cero cuando uno de los resultados es seguro.</p>
+        <div class="chart-shell">
+          <canvas id="entropy-chart" class="chart" role="img" aria-label="Curva de entropía binaria en función de la probabilidad de uno"></canvas>
+        </div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>5. Muestra empírica</h2>
+        <div class="metric-strip three-columns">
+          <div class="metric-tile"><strong id="count-zero">—</strong><span>ceros observados</span></div>
+          <div class="metric-tile"><strong id="count-one">—</strong><span>unos observados</span></div>
+          <div class="metric-tile"><strong id="empirical-h">—</strong><span>entropía empírica</span></div>
+        </div>
+        <h3>Primeros bits</h3>
+        <div class="bits-output" id="sample-output" aria-live="polite">Generá una muestra para verla aquí.</div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>6. Interpretá la diferencia</h2>
+        <p>La frecuencia empírica fluctúa. Al aumentar <em>n</em>, suele aproximarse a la probabilidad configurada.</p>
+        <div class="formula" id="empirical-comparison">p̂(1) = — · error = —</div>
+        <ol class="steps">
+          <li>Probá p(1)=0,50 con n=20.</li>
+          <li>Repetí varias veces y observá la variación.</li>
+          <li>Aumentá a n=10.000 y compará.</li>
+          <li>Usá p(1)=0,99: ¿puede H ser baja aunque aparezcan ambos símbolos?</li>
+        </ol>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <p>Una contraseña de 12 caracteres elegidos por una persona y una cadena de 12 caracteres uniformes pueden tener la misma longitud y el mismo alfabeto aparente. Explicá por qué su entropía real puede ser radicalmente diferente.</p>
+        <details class="checkpoint">
+          <summary>Ver orientación</summary>
+          <p>La fórmula <span class="mono">12·log₂(|alfabeto|)</span> solo vale bajo selección uniforme e independiente. Las elecciones humanas tienen sesgos, patrones y dependencia entre caracteres.</p>
+        </details>
+      </article>
+    </section>
+
+    <aside class="lesson-footer" aria-label="Navegación de la lección">
+      <div><h2>Consolidá la evidencia</h2><p>Marcá la estación y avanzá al secreto perfecto, donde la información mutua se convierte en un criterio de seguridad.</p></div>
+      <div class="lesson-footer-actions">
+        <a class="button secondary" href="teoria.html#informacion">← Volver a teoría</a>
+        <button class="button secondary" type="button" data-complete-page="entropia" aria-pressed="false">Marcar como completada</button>
+        <a class="button" href="secreto-perfecto.html">Siguiente: secreto perfecto →</a>
+      </div>
+    </aside>
+
+    <footer class="module-footer"><p>La muestra utiliza <span class="mono">crypto.getRandomValues()</span> como fuente del navegador. El laboratorio estudia distribuciones; no genera claves.</p></footer>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/entropia.js"></script>
+</body>
+</html>

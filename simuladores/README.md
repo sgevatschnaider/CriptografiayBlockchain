@@ -17,7 +17,7 @@ Esta carpeta reúne el campus ejecutable del repositorio. Cada módulo posee:
 | Módulo | Catálogo | Laboratorio integral |
 |---|---|---|
 | 1 | [Criptografía clásica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-01/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) |
-| 2 | [Fundamentos matemáticos](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/02-fundamentos-matematicos.html) |
+| 2 | [Fundamentos de la criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/) | [Ruta guiada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) |
 | 3 | [Criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/03-criptografia-moderna.html) |
 | 4 | [Esteganografía](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-04/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) |
 | 5 | [Blockchain](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-05/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) |
@@ -44,7 +44,12 @@ simuladores/
 ├── modulo-01/
 │   └── index.html
 ├── modulo-02/
-│   └── index.html
+│   ├── index.html
+│   ├── ruta-guiada.html
+│   ├── teoria.html
+│   ├── glosario.html
+│   ├── cuestionario.html
+│   └── assets/
 ├── ...
 ├── modulo-08/
 │   └── index.html
@@ -104,7 +109,7 @@ Los laboratorios comparten `assets/lab.css` y `assets/lab.js`, que proporcionan 
 
 ## Validación
 
-El script `scripts/validate-simulators.mjs` revisa la estructura HTML, la sintaxis de JavaScript, enlaces locales, identificadores duplicados y la existencia de los laboratorios obligatorios. La acción `.github/workflows/pages.yml` ejecuta la validación en cada Pull Request y publica el sitio después de actualizar `main`.
+El script `scripts/validate-simulators.mjs` revisa la estructura común de los laboratorios. `scripts/validate-module-02.mjs` recorre todas las páginas y recursos del Módulo 2, verifica enlaces, sintaxis, identificadores, ruta, glosario y banco de preguntas. La acción `.github/workflows/pages.yml` ejecuta ambas validaciones en cada Pull Request y publica el sitio después de actualizar `main`.
 
 ## Alcance de seguridad
 

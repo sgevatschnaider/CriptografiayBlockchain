@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Teoría integrada de los fundamentos de la criptografía moderna: información, seguridad computacional, complejidad, álgebra y transición poscuántica.">
+  <meta name="theme-color" content="#061322">
+  <title>Teoría integrada | Fundamentos de la criptografía moderna</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+</head>
+<body class="module-02" data-module-page="teoria">
+  <a class="skip-link" href="#articulo">Saltar a la teoría</a>
+  <main class="module-shell">
+    <header class="module-topbar">
+      <a class="module-brand" href="index.html"><span class="module-brand-mark" aria-hidden="true">02</span><span>Fundamentos modernos</span></a>
+      <nav class="module-nav" aria-label="Navegación del módulo">
+        <a href="index.html">Índice</a>
+        <a href="ruta-guiada.html">Ruta guiada</a>
+        <a href="teoria.html" aria-current="page">Teoría</a>
+        <a href="mapas-mentales.html">Mapas</a>
+        <a href="glosario.html">Glosario</a>
+        <a href="cuestionario.html">Evaluación</a>
+      </nav>
+      <div class="course-progress" data-module-progress role="group" aria-label="Progreso del módulo">
+        <span data-progress-count>0/11</span><span class="course-progress-track" aria-hidden="true"><span data-progress-bar></span></span><span data-progress-label>0%</span>
+      </div>
+    </header>
+
+    <section class="page-hero">
+      <div>
+        <div class="hero-kicker">Lectura central · tres pilares</div>
+        <h1>Por qué la criptografía necesita fundamentos más allá de los algoritmos</h1>
+        <p>AES, RSA o ML-KEM son la superficie visible. Debajo están la definición de seguridad, el costo del adversario y la estructura matemática sobre la que se apoya cada supuesto.</p>
+      </div>
+      <div class="page-badge" aria-hidden="true">Σ</div>
+    </section>
+
+    <div class="page-layout">
+      <article class="article-card" id="articulo">
+        <section id="cambio">
+          <h2>1. El verdadero salto de la criptografía clásica a la moderna</h2>
+          <p>La transición no consiste simplemente en reemplazar letras por bits. El cambio decisivo es <strong>metodológico</strong>: la seguridad deja de inferirse por la apariencia ilegible del criptograma y comienza a formularse mediante propiedades, experimentos, probabilidades, recursos y supuestos explícitos.</p>
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <h3>Enfoque clásico</h3>
+              <p>Se pregunta si un método resiste las técnicas de criptoanálisis conocidas y cuánto oculta las regularidades del lenguaje.</p>
+            </article>
+            <article class="comparison-card">
+              <h3>Enfoque moderno</h3>
+              <p>Define qué puede observar y hacer el adversario, cuál es su objetivo y con qué probabilidad y costo puede alcanzarlo.</p>
+            </article>
+          </div>
+          <div class="insight-box">
+            <p><strong>Idea central:</strong> decir «usa AES» es incompleto. También importan el modo, los nonces, la autenticación, la generación y custodia de claves, el protocolo, el modelo de amenaza y la implementación.</p>
+          </div>
+        </section>
+
+        <section id="modelo">
+          <h2>2. Modelo formal mínimo</h2>
+          <p>Un esquema de cifrado puede representarse mediante tres algoritmos: generación de clave, cifrado y descifrado. Para una clave <em>K</em>, un mensaje <em>M</em> y un criptograma <em>C</em>:</p>
+          <div class="formula" role="img" aria-label="C es igual al cifrado con clave K del mensaje M; M es igual al descifrado con K del criptograma C">
+            K ← Gen(1<sup>λ</sup>) &nbsp;&nbsp; C ← Enc<sub>K</sub>(M) &nbsp;&nbsp; M = Dec<sub>K</sub>(C)
+          </div>
+          <p>La <strong>corrección</strong> exige que el receptor legítimo recupere el mensaje. La <strong>seguridad</strong> exige algo distinto: que un adversario no alcance cierto objetivo bajo las reglas del modelo. El parámetro <em>λ</em> controla el nivel de seguridad y permite estudiar familias de instancias, no un único tamaño fijo.</p>
+          <details class="checkpoint">
+            <summary>Comprobación conceptual: ¿correcto significa seguro?</summary>
+            <p>No. Un cifrado que siempre descifra correctamente puede revelar patrones, aceptar modificaciones o reutilizar nonces. Corrección y seguridad son propiedades diferentes.</p>
+          </details>
+        </section>
+
+        <section id="informacion">
+          <h2>3. Pilar I — Teoría de la información</h2>
+          <h3>Entropía, sorpresa e información mutua</h3>
+          <p>Para una variable aleatoria discreta <em>X</em>, la entropía mide la incertidumbre media:</p>
+          <div class="formula">H(X) = − Σ<sub>x</sub> P(X=x) · log<sub>2</sub>P(X=x)</div>
+          <p>La sorpresa de un resultado concreto es <em>−log₂ p(x)</em>: un evento menos probable aporta más información cuando ocurre. La entropía condicional <em>H(M|C)</em> mide cuánta incertidumbre queda sobre el mensaje después de observar el criptograma.</p>
+          <p>La información mutua cuantifica cuánto reduce esa observación la incertidumbre:</p>
+          <div class="formula">I(M;C) = H(M) − H(M|C)</div>
+
+          <h3>Secreto perfecto</h3>
+          <p>Un esquema tiene secreto perfecto si observar <em>C</em> no cambia ninguna probabilidad sobre <em>M</em>. Son formulaciones equivalentes:</p>
+          <div class="formula">I(M;C)=0 &nbsp;&nbsp; ⇔ &nbsp;&nbsp; P(M=m | C=c)=P(M=m)</div>
+          <p>Esta garantía es <strong>incondicional</strong>: no depende del poder de cómputo del adversario. Para esquemas correctos de secreto perfecto, la incertidumbre de la clave debe ser suficiente; en el marco habitual se obtiene la cota <em>H(K) ≥ H(M)</em>.</p>
+          <div class="warning-box">
+            <p><strong>Precisión importante:</strong> el one-time pad es la construcción canónica que alcanza la cota de forma ajustada, pero no es correcto afirmar que sea literalmente el único esquema posible con secreto perfecto.</p>
+          </div>
+
+          <h3>One-time pad: ideal y costo</h3>
+          <p>Si la clave <em>K</em> es uniforme, independiente, tan larga como el mensaje y se usa una única vez, entonces:</p>
+          <div class="formula">C = M ⊕ K &nbsp;&nbsp;&nbsp; y &nbsp;&nbsp;&nbsp; M = C ⊕ K</div>
+          <p>La logística es severa: hay que generar, distribuir y destruir una clave aleatoria del mismo tamaño que cada mensaje. Si la clave se reutiliza:</p>
+          <div class="formula">C₁ ⊕ C₂ = (M₁ ⊕ K) ⊕ (M₂ ⊕ K) = M₁ ⊕ M₂</div>
+          <p>El keystream desaparece y queda una relación directa entre los textos claros. Por eso «aleatorio» y «un solo uso» son condiciones, no detalles opcionales.</p>
+
+          <h3>Confusión y difusión</h3>
+          <p>Shannon propuso dos principios de diseño para disipar estructura estadística:</p>
+          <ul>
+            <li><strong>Confusión:</strong> vuelve compleja y no lineal la relación entre clave y salida; las S-boxes son un mecanismo típico.</li>
+            <li><strong>Difusión:</strong> propaga la influencia de cada bit sobre muchas posiciones de salida; permutaciones y mezclas lineales colaboran con ella.</li>
+          </ul>
+          <p>El efecto avalancha —un bit de entrada provoca aproximadamente la mitad de bits de salida distintos— es una evidencia útil, pero <strong>no constituye una prueba de seguridad</strong>.</p>
+          <details class="checkpoint">
+            <summary>Comprobación conceptual: ¿entropía alta implica impredecibilidad criptográfica?</summary>
+            <p>No. Una secuencia determinista puede tener frecuencias equilibradas y entropía empírica cercana al máximo, pero ser totalmente reproducible si se conoce la semilla o el estado.</p>
+          </details>
+        </section>
+
+        <section id="seguridad-computacional">
+          <h2>4. Del secreto perfecto a la seguridad computacional</h2>
+          <p>La criptografía práctica relaja el ideal de Shannon. No exige que el criptograma sea matemáticamente independiente del mensaje frente a un adversario infinito; exige que cualquier adversario eficiente tenga una probabilidad de éxito apenas superior al azar.</p>
+          <h3>Indistinguibilidad y ventaja</h3>
+          <p>En un juego básico, el adversario elige dos mensajes de igual longitud. El desafiante cifra uno de ellos al azar y el adversario intenta identificar cuál fue. La ventaja se mide respecto de acertar con probabilidad ½:</p>
+          <div class="formula">Adv<sub>A</sub>(λ) = |P[b′=b] − 1/2|</div>
+          <p>Una ventaja <strong>despreciable</strong> decrece más rápido que el inverso de cualquier polinomio. La formulación obliga a indicar qué consultas puede realizar el adversario: texto claro elegido (CPA), texto cifrado elegido (CCA) u otras capacidades.</p>
+          <div class="definition">
+            <p><strong>Seguridad semántica:</strong> el criptograma no permite calcular eficientemente información relevante sobre el mensaje que no pudiera calcularse sin verlo. Bajo definiciones estándar, se relaciona estrechamente con indistinguibilidad.</p>
+          </div>
+        </section>
+
+        <section id="complejidad">
+          <h2>5. Pilar II — Complejidad computacional</h2>
+          <h3>Crecimiento y factibilidad</h3>
+          <p>Un usuario legítimo debe ejecutar generación, cifrado y descifrado eficientemente. El mejor ataque conocido debería requerir recursos prohibitivos. Para una clave ideal de <em>k</em> bits, la búsqueda exhaustiva tiene <em>2<sup>k</sup></em> candidatos y costo medio cercano a <em>2<sup>k−1</sup></em> pruebas.</p>
+          <p>Los <strong>bits de seguridad</strong> expresan el logaritmo base dos del trabajo aproximado del mejor ataque conocido. Pueden ser menores que la longitud nominal de la clave debido a estructura, algoritmos especializados o compromisos tiempo–memoria.</p>
+
+          <h3>P, NP y una precisión necesaria</h3>
+          <ul>
+            <li><strong>P:</strong> problemas de decisión resolubles en tiempo polinomial por un modelo determinista clásico.</li>
+            <li><strong>NP:</strong> problemas de decisión cuyas soluciones afirmativas pueden verificarse en tiempo polinomial.</li>
+            <li><strong>NP-completo:</strong> problemas de NP a los que todo problema de NP puede reducirse eficientemente.</li>
+          </ul>
+          <div class="warning-box">
+            <p><strong>No debe enseñarse como equivalencia simple:</strong> la criptografía no es segura «porque P ≠ NP», ni factorización y logaritmo discreto son problemas demostrados NP-completos. La existencia de primitivas criptográficas requiere supuestos más específicos sobre dificultad promedio y funciones unidireccionales.</p>
+          </div>
+
+          <h3>Funciones unidireccionales y reducciones</h3>
+          <p>Una función unidireccional es fácil de evaluar, pero difícil de invertir en una entrada aleatoria para cualquier adversario eficiente. Su existencia es un supuesto, no un teorema derivado actualmente de <em>P ≠ NP</em>.</p>
+          <p>Una reducción de seguridad adopta la forma lógica:</p>
+          <div class="formula">«Si A rompe el esquema con ventaja ε, construyo B que resuelve el problema difícil con ventaja relacionada»</div>
+          <p>La prueba es condicional y debe leerse con atención: importa si la reducción es ajustada, qué modelo de adversario usa, cuántas consultas permite y qué pérdida introduce.</p>
+
+          <h3>Modelo cuántico: BQP, Shor y Grover</h3>
+          <p>BQP reúne problemas resolubles eficientemente por un computador cuántico con error acotado. Shor proporciona algoritmos cuánticos polinomiales para factorización y logaritmo discreto, por lo que amenaza RSA, Diffie–Hellman y ECC en presencia de una máquina cuántica criptográficamente relevante.</p>
+          <p>Grover ofrece una aceleración cuadrática idealizada para búsqueda no estructurada: un espacio de <em>2<sup>k</sup></em> candidatos requiere del orden de <em>2<sup>k/2</sup></em> consultas. No equivale a «partir siempre la clave por la mitad» en la práctica: circuitos, corrección de errores, profundidad y paralelización importan.</p>
+          <details class="checkpoint">
+            <summary>Comprobación conceptual: ¿más bits siempre resuelven el riesgo cuántico?</summary>
+            <p>En criptografía simétrica pueden compensar parcialmente la aceleración de Grover. Para RSA y ECC, Shor cambia la clase del problema; se necesita cambiar de familia matemática, no solo agrandar la clave.</p>
+          </details>
+        </section>
+
+        <section id="algebra">
+          <h2>6. Pilar III — Teoría de números y álgebra abstracta</h2>
+          <h3>Grupos cíclicos y logaritmo discreto</h3>
+          <p>Diffie–Hellman se formula en un grupo cíclico finito <em>G</em> de orden <em>q</em> con generador <em>g</em>. En implementaciones clásicas puede usarse un subgrupo de <span class="mono">ℤ<sub>p</sub><sup>*</sup></span>, donde <em>q</em> divide <em>p−1</em>. Dado <em>g</em> y <em>g<sup>x</sup></em>, recuperar <em>x</em> es el problema del logaritmo discreto.</p>
+          <div class="warning-box">
+            <p><strong>Precisión importante:</strong> <span class="mono">ℤ<sub>p</sub><sup>*</sup></span> tiene orden <em>p−1</em>, no <em>p</em>. Los protocolos suelen trabajar en un subgrupo grande de orden primo <em>q</em> para evitar subgrupos pequeños.</p>
+          </div>
+
+          <h3>Cuerpos finitos y AES</h3>
+          <p>AES opera con bytes interpretados como elementos de GF(2⁸). La suma es XOR y la multiplicación polinómica se reduce mediante un polinomio irreducible. La S-box combina inversión multiplicativa con una transformación afín; MixColumns realiza mezcla lineal sobre el mismo cuerpo.</p>
+
+          <h3>Curvas elípticas</h3>
+          <p>Los puntos de una curva elíptica sobre un cuerpo finito, junto con el punto al infinito, forman un grupo abeliano. El problema ECDLP consiste en recuperar <em>k</em> dados <em>P</em> y <em>Q=kP</em>. Los mejores ataques genéricos conocidos escalan aproximadamente con la raíz cuadrada del orden del grupo, lo que permite parámetros más compactos que RSA para niveles clásicos comparables.</p>
+
+          <h3>Retículos y Learning With Errors</h3>
+          <p>Un retículo es un conjunto discreto de combinaciones enteras de vectores base. LWE presenta ecuaciones lineales modulares perturbadas por errores pequeños:</p>
+          <div class="formula">b<sub>i</sub> = ⟨a<sub>i</sub>, s⟩ + e<sub>i</sub> &nbsp; (mod q)</div>
+          <p>Sin ruido, álgebra lineal recuperaría el secreto. Con ruido apropiado, el problema se vuelve difícil y admite conexiones mediante reducciones con problemas de retículos en el peor caso. ML-KEM y ML-DSA utilizan una variante estructurada, Module-LWE, dentro de construcciones estandarizadas por NIST.</p>
+        </section>
+
+        <section id="sintesis">
+          <h2>7. Cómo se conectan los tres pilares</h2>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">Síntesis de los tres pilares teóricos</caption>
+              <thead><tr><th>Pilar</th><th>Pregunta</th><th>Objeto central</th><th>Ejemplo</th></tr></thead>
+              <tbody>
+                <tr><td>Información</td><td>¿Qué se revela?</td><td>Distribuciones y dependencia</td><td>OTP, entropía, difusión</td></tr>
+                <tr><td>Complejidad</td><td>¿Cuánto cuesta atacar?</td><td>Algoritmos, recursos y ventaja</td><td>Fuerza bruta, reducciones, BQP</td></tr>
+                <tr><td>Álgebra</td><td>¿Dónde vive la dificultad?</td><td>Grupos, cuerpos, curvas, retículos</td><td>AES, DH, ECC, ML-KEM</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>La relación no es puramente lineal. El álgebra ofrece estructuras y operaciones; la complejidad estudia qué tareas son factibles en ellas; los modelos de seguridad formulan qué debería poder o no poder deducir un adversario. La ingeniería transforma esas piezas en protocolos reales y puede fortalecerlas o arruinarlas.</p>
+          <div class="example-box">
+            <p><strong>Lectura profesional:</strong> una transición poscuántica no se reduce a reemplazar nombres de algoritmos. Requiere inventario, interoperabilidad, parámetros, formatos, gestión de claves, despliegues híbridos y criptoagilidad.</p>
+          </div>
+        </section>
+
+        <section id="errores">
+          <h2>8. Errores conceptuales que esta versión evita</h2>
+          <ol>
+            <li>Equiparar entropía empírica con impredecibilidad criptográfica.</li>
+            <li>Presentar al OTP como el único esquema imaginable con secreto perfecto.</li>
+            <li>Afirmar que P ≠ NP demuestra la seguridad de RSA o ECC.</li>
+            <li>Describir <span class="mono">ℤ<sub>p</sub><sup>*</sup></span> como un grupo de orden <em>p</em>.</li>
+            <li>Tratar el efecto avalancha como una prueba completa.</li>
+            <li>Suponer que Grover convierte automáticamente <em>k</em> bits nominales en <em>k/2</em> bits prácticos sin costos.</li>
+            <li>Confundir una reducción condicional con una prueba absoluta de imposibilidad.</li>
+          </ol>
+        </section>
+
+        <section id="fuentes">
+          <h2>9. Fuentes primarias y estándares</h2>
+          <ul class="source-list">
+            <li><a href="https://ieeexplore.ieee.org/document/6769090" target="_blank" rel="noopener noreferrer">Claude E. Shannon, “Communication Theory of Secrecy Systems” (1949) ↗</a></li>
+            <li><a href="https://www.claymath.org/wp-content/uploads/2022/06/pvsnp.pdf" target="_blank" rel="noopener noreferrer">Stephen Cook, descripción oficial del problema P versus NP ↗</a></li>
+            <li><a href="https://arxiv.org/abs/quant-ph/9508027" target="_blank" rel="noopener noreferrer">Peter Shor, algoritmos polinomiales cuánticos para factorización y logaritmo discreto ↗</a></li>
+            <li><a href="https://cims.nyu.edu/~regev/papers/qcrypto.pdf" target="_blank" rel="noopener noreferrer">Oded Regev, Learning With Errors y retículos ↗</a></li>
+            <li><a href="https://csrc.nist.gov/pubs/fips/197/final" target="_blank" rel="noopener noreferrer">NIST FIPS 197, Advanced Encryption Standard ↗</a></li>
+            <li><a href="https://csrc.nist.gov/pubs/fips/203/final" target="_blank" rel="noopener noreferrer">NIST FIPS 203, ML-KEM ↗</a></li>
+            <li><a href="https://csrc.nist.gov/pubs/fips/204/final" target="_blank" rel="noopener noreferrer">NIST FIPS 204, ML-DSA ↗</a></li>
+            <li><a href="https://csrc.nist.gov/pubs/sp/800/90/a/r1/final" target="_blank" rel="noopener noreferrer">NIST SP 800-90A Rev. 1, generadores deterministas de bits aleatorios ↗</a></li>
+          </ul>
+        </section>
+
+        <aside class="lesson-footer" aria-label="Navegación de la lección">
+          <div>
+            <h2>Primera estación completada</h2>
+            <p>El siguiente paso convierte las definiciones de Shannon en una curva y una muestra observable.</p>
+          </div>
+          <div class="lesson-footer-actions">
+            <button class="button secondary" type="button" data-complete-page="teoria" aria-pressed="false">Marcar como completada</button>
+            <a class="button" href="entropia-shannon.html">Siguiente: entropía →</a>
+          </div>
+        </aside>
+      </article>
+
+      <aside class="side-toc" aria-label="Índice de la teoría">
+        <h2>En esta lectura</h2>
+        <nav data-toc aria-label="Secciones de la teoría">
+          <a href="#cambio">1. El salto metodológico</a>
+          <a href="#modelo">2. Modelo formal</a>
+          <a href="#informacion">3. Información</a>
+          <a href="#seguridad-computacional">4. Seguridad computacional</a>
+          <a href="#complejidad">5. Complejidad</a>
+          <a href="#algebra">6. Álgebra</a>
+          <a href="#sintesis">7. Síntesis</a>
+          <a href="#errores">8. Precisiones</a>
+          <a href="#fuentes">9. Fuentes</a>
+        </nav>
+      </aside>
+    </div>
+
+    <footer class="module-footer">
+      <p>Material elaborado por el profesor Sergio Gevatschnaider. La exposición distingue modelos formales, supuestos de dificultad e implementaciones reales.</p>
+    </footer>
+  </main>
+  <script src="assets/module.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Ruta guiada de once estaciones para estudiar información, seguridad computacional y estructuras algebraicas en criptografía moderna.">
+  <meta name="theme-color" content="#061322">
+  <title>Ruta guiada | Fundamentos de la criptografía moderna</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/module.css">
+  <link rel="stylesheet" href="assets/ruta-guiada.css">
+</head>
+<body class="module-02 route-page">
+  <a class="skip-link" href="#estacion">Saltar a la estación actual</a>
+  <main class="guided-shell">
+    <header class="guided-top">
+      <a class="module-brand" href="index.html">
+        <span class="module-brand-mark" aria-hidden="true">02</span>
+        <span>Ruta de fundamentos modernos</span>
+      </a>
+      <div class="guided-actions">
+        <a href="index.html">Índice</a>
+        <a href="../index.html">Campus</a>
+        <button id="mark-done" class="primary" type="button">Completar estación</button>
+        <button id="reset-progress" type="button">Reiniciar</button>
+      </div>
+    </header>
+
+    <section class="guided-overview" aria-labelledby="titulo-ruta">
+      <div>
+        <div class="hero-kicker">Recorrido de clase · 11 estaciones</div>
+        <h1 id="titulo-ruta">De la definición de seguridad a las estructuras que la sostienen</h1>
+        <p>Cada estación propone una pregunta, una evidencia observable y un recurso interactivo. El progreso queda guardado en este navegador.</p>
+      </div>
+      <div class="guided-progress" data-module-progress role="group" aria-label="Progreso de aprendizaje">
+        <div>
+          <strong data-progress-count>0/11</strong>
+          <span>estaciones completadas</span>
+        </div>
+        <div class="guided-track" aria-hidden="true"><span data-progress-bar></span></div>
+        <strong data-progress-label>0%</strong>
+      </div>
+    </section>
+
+    <div class="guided-layout">
+      <aside class="guided-sidebar" aria-labelledby="indice-ruta">
+        <div class="sidebar-head">
+          <div>
+            <span class="section-kicker">Índice</span>
+            <h2 id="indice-ruta">Estaciones</h2>
+          </div>
+          <span id="position-label" class="position-label">1/11</span>
+        </div>
+        <div id="route-list" class="guided-list"></div>
+        <p class="keyboard-hint">Atajo: <kbd>Alt</kbd> + <kbd>←</kbd>/<kbd>→</kbd></p>
+      </aside>
+
+      <section class="guided-main" id="estacion" aria-live="polite">
+        <article class="guided-step">
+          <div class="step-number" id="step-number" aria-hidden="true">01</div>
+          <div class="step-copy">
+            <div class="step-labels">
+              <span id="step-family">Marco conceptual</span>
+              <span id="step-level">Base</span>
+              <span id="step-time">35 min</span>
+            </div>
+            <h2 id="step-title">Teoría integrada</h2>
+            <p id="step-objective">Organizar los tres pilares y distinguir qué pregunta responde cada uno.</p>
+            <div class="evidence-box">
+              <strong>Evidencia de aprendizaje</strong>
+              <span id="step-evidence">Podés explicar seguridad perfecta, computacional y concreta sin tratarlas como sinónimos.</span>
+            </div>
+          </div>
+          <a id="open-direct" class="button secondary" href="teoria.html" target="_blank" rel="noopener">Abrir aparte ↗</a>
+        </article>
+
+        <div class="guided-frame">
+          <div id="frame-loading" class="frame-loading" role="status">Cargando estación…</div>
+          <iframe id="lesson-frame" title="Estación 1: teoría integrada"></iframe>
+        </div>
+
+        <nav class="guided-bottom" aria-label="Navegación entre estaciones">
+          <button id="prev" type="button">Anterior</button>
+          <a href="index.html">Volver al índice</a>
+          <button id="next" class="primary" type="button">Completar y seguir</button>
+        </nav>
+      </section>
+    </div>
+  </main>
+  <script src="assets/module.js"></script>
+  <script src="assets/ruta-guiada.js"></script>
+</body>
+</html>

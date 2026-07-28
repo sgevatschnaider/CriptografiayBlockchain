@@ -32,15 +32,23 @@
 (() => {
   'use strict';
   const allowed = new Map([
-    ['01-criptografia-clasica','01'],['02-fundamentos-matematicos','02'],['03-criptografia-moderna','03'],['04-esteganografia','04'],['05-criptografia-blockchain','05'],['06-protocolos-privacidad','06'],['07-poscuantica-y-cuantica','07'],['08-seguridad-aplicada','08']
+    ['01-criptografia-clasica','modulo-01'],
+    ['02-fundamentos-criptografia-moderna','modulo-02'],
+    ['02-fundamentos-matematicos','fundamentos-matematicos'],
+    ['03-criptografia-moderna','modulo-03'],
+    ['04-esteganografia','modulo-04'],
+    ['05-criptografia-blockchain','modulo-05'],
+    ['06-protocolos-privacidad','modulo-06'],
+    ['07-poscuantica-y-cuantica','modulo-07'],
+    ['08-seguridad-aplicada','modulo-08']
   ]);
   const params = new URLSearchParams(location.search);
   const slug = params.get('modulo') || '01-criptografia-clasica';
   const safeSlug = allowed.has(slug) ? slug : '01-criptografia-clasica';
-  const moduleNumber = allowed.get(safeSlug);
+  const modulePath = allowed.get(safeSlug);
   const source = `${safeSlug}.md`;
   document.getElementById('sourceLink').href = `https://github.com/sgevatschnaider/CriptografiayBlockchain/blob/main/docs/criptografia/${source}`;
-  document.getElementById('moduleLink').href = `../../simuladores/modulo-${moduleNumber}/`;
+  document.getElementById('moduleLink').href = `../../simuladores/${modulePath}/`;
 
   const escapeHtml = value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
   const inline = text => escapeHtml(text)
