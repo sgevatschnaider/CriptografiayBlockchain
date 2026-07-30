@@ -1,30 +1,2649 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Simulación visual del One-Time Pad: secreto perfecto, claves equiprobables y peligro de reutilización.">
-<title>One-Time Pad | Secreto perfecto</title><link rel="stylesheet" href="../assets/lab.css">
-<style>
-:root{--m:#63d5ff;--k:#ffc766;--c:#4adea3;--danger:#ff7383;--violet:#b38cff}.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:center}.seal{width:min(310px,80vw);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;margin:auto;background:radial-gradient(circle,#091827 0 36%,transparent 37%),conic-gradient(var(--m),var(--violet),var(--c),var(--k),var(--m));box-shadow:0 0 70px rgba(74,222,163,.2);position:relative}.seal::after{content:'OTP';font-weight:950;font-size:3rem}.conditions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.condition{padding:14px;border:1px solid var(--border);border-radius:15px;background:#071625}.condition b{display:block;color:var(--c)}.formula{padding:16px;border-radius:16px;border:1px solid var(--border);background:#071625;font:700 clamp(1rem,2.5vw,1.5rem) ui-monospace,monospace;text-align:center}.three{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}.node{padding:16px;border-radius:16px;border:1px solid var(--border);background:#071625;text-align:center}.arrow{font-size:1.5rem;color:var(--muted)}.proof-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.candidate{padding:12px;border:1px solid var(--border);border-radius:14px;background:#071625;font-family:ui-monospace,monospace}.candidate b{color:var(--k)}.danger-card{border-color:rgba(255,115,131,.5)!important;background:linear-gradient(180deg,rgba(80,19,35,.55),rgba(28,12,23,.8))!important}.bytes{white-space:pre-wrap;word-break:break-word}.match{color:var(--c);font-weight:900}.leak{color:var(--danger);font-weight:900}.meter{height:14px;border-radius:99px;background:#071625;overflow:hidden;border:1px solid var(--border)}.meter span{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--danger),var(--k),var(--c));transition:width .3s}.badge-row{display:flex;flex-wrap:wrap;gap:8px}.badge-row span{padding:7px 10px;border-radius:999px;border:1px solid var(--border)}@media(max-width:820px){.hero{grid-template-columns:1fr}.conditions{grid-template-columns:1fr 1fr}.three{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}}@media(max-width:520px){.conditions{grid-template-columns:1fr}}
-</style></head><body><main class="shell">
-<header class="topbar"><div class="brand"><a href="index.html">⛓️ Módulo 1</a></div><nav class="nav"><a href="vernam.html">Vernam</a><a href="../01-criptografia-clasica.html">Laboratorio integral</a></nav></header>
-<section class="hero"><div><div class="eyebrow">Secreto perfecto · clave de un solo uso</div><h1>One-Time Pad</h1><p>El único cifrado con secreto perfecto demostrado, siempre que la clave sea aleatoria, secreta, tan larga como el mensaje y utilizada exactamente una vez.</p><div class="badge-row"><span>Información teórica: 0 bits filtrados</span><span>Clave única por mensaje</span></div></div><div class="seal" aria-label="Sello visual One-Time Pad"></div></section>
-<section class="grid">
-<article class="card full"><h2>Las cuatro condiciones son inseparables</h2><div class="conditions"><div class="condition"><b>1. Aleatoria</b><span>Cada clave posible debe ser equiprobable.</span></div><div class="condition"><b>2. Igual longitud</b><span>Un bit de clave independiente por cada bit del mensaje.</span></div><div class="condition"><b>3. Secreta</b><span>Solo emisor y receptor conocen K.</span></div><div class="condition"><b>4. Un solo uso</b><span>K se destruye después de cifrar.</span></div></div></article>
-<article class="card full"><h2>Cómo funciona</h2><div class="three"><div class="node" style="color:var(--m)"><b>Mensaje M</b></div><div class="arrow">⊕</div><div class="node" style="color:var(--k)"><b>Clave aleatoria K</b></div><div class="arrow">→</div><div class="node" style="color:var(--c)"><b>Cifrado C</b></div></div><p class="formula">C = M ⊕ K</p><p class="muted">La operación coincide con Vernam. Lo que transforma el mecanismo en OTP son las condiciones de la clave.</p></article>
-<article class="card"><h2>Laboratorio seguro</h2><div class="control full"><label for="m1">Mensaje</label><textarea id="m1">SECRETO</textarea></div><div class="actions"><button id="newKey">Nueva clave de un solo uso</button><button class="secondary" id="encrypt">Cifrar</button><button class="secondary" id="recover">Descifrar</button></div><label>Clave hexadecimal</label><div id="key" class="output mono bytes"></div></article>
-<article class="card"><h2>Resultado</h2><label>Cifrado</label><div id="cipher" class="output mono bytes"></div><label style="display:block;margin-top:12px">Recuperación</label><div id="plain" class="output mono"></div><div id="safeStatus" class="status">La clave se genera con Web Crypto.</div></article>
-<article class="card full"><h2>Demostración visual del secreto perfecto</h2><p>Elegí un cifrado corto. Para cada mensaje candidato existe exactamente una clave que lo hace compatible con ese mismo cifrado.</p><div class="controls"><div class="control"><label for="demoCipher">Cifrado binario</label><input id="demoCipher" value="1010" maxlength="8"></div><div class="control"><label>Longitud</label><input id="demoLength" value="4" disabled></div></div><div class="actions"><button id="showCandidates">Enumerar mensajes posibles</button></div><div id="candidates" class="proof-grid" style="margin-top:14px"></div><p id="proofStatus" class="status"></p></article>
-<article class="card full danger-card"><h2>Qué ocurre si reutilizás la clave</h2><p>Al cifrar dos mensajes con la misma K, la clave se cancela:</p><p class="formula">C₁ ⊕ C₂ = M₁ ⊕ M₂</p><div class="controls"><div class="control"><label for="a">Mensaje 1</label><input id="a" value="ATAQUE AL AMANECER"></div><div class="control"><label for="b">Mensaje 2</label><input id="b" value="DEFENSA AL ATARDECER"></div></div><div class="actions"><button class="danger" id="reuse">Reutilizar clave y demostrar fuga</button></div><div id="reuseOut" class="output mono bytes"></div><div id="reuseStatus" class="status"></div></article>
-<article class="card"><h2>Medidor de cumplimiento</h2><div class="meter"><span id="meterBar"></span></div><div id="checks" class="badge-row" style="margin-top:14px"></div><p class="muted">El secreto perfecto exige 4 de 4 condiciones. No existe una versión “casi OTP”.</p></article>
-<article class="card"><h2>Conclusión criptográfica</h2><p><b>Ventaja:</b> seguridad informacional, independiente de la potencia computacional del atacante.</p><p><b>Limitación:</b> distribuir y custodiar claves tan largas como todos los mensajes resulta costoso.</p><p><b>Uso correcto:</b> contextos muy controlados donde la logística de claves es viable.</p></article>
-</section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider. Simulación educativa.</p></footer></main>
-<script>
-const $=id=>document.getElementById(id),enc=new TextEncoder(),dec=new TextDecoder();let key=new Uint8Array(),cipher=new Uint8Array();
-const hex=a=>[...a].map(x=>x.toString(16).padStart(2,'0')).join(' ');const xor=(a,b)=>new Uint8Array(a.map((x,i)=>x^b[i]));
-function fresh(){const m=enc.encode($('m1').value);key=crypto.getRandomValues(new Uint8Array(m.length));$('key').textContent=hex(key);cipher=new Uint8Array();$('cipher').textContent='—';$('plain').textContent='—';statusChecks()}
-function run(){const m=enc.encode($('m1').value);if(key.length!==m.length)fresh();cipher=xor(m,key);$('cipher').textContent=hex(cipher);$('safeStatus').textContent=`Clave y mensaje: ${m.length} bytes. Longitudes idénticas.`;statusChecks()}
-function recover(){if(!cipher.length)run();$('plain').textContent=dec.decode(xor(cipher,key));$('safeStatus').textContent='C ⊕ K recupera exactamente M.'}
-function candidates(){let c=$('demoCipher').value.replace(/[^01]/g,'').slice(0,8);if(!c)c='1010';$('demoCipher').value=c;$('demoLength').value=c.length;const cv=parseInt(c,2),max=1<<c.length,rows=[];for(let m=0;m<max;m++){const k=m^cv;rows.push(`<div class="candidate">M = ${m.toString(2).padStart(c.length,'0')}<br><b>K = ${k.toString(2).padStart(c.length,'0')}</b><br>C = ${c}</div>`)}$('candidates').innerHTML=rows.join('');$('proofStatus').innerHTML=`El mismo C admite <b>${max} mensajes posibles</b>, cada uno asociado con una clave equiprobable. Sin K, C no privilegia ninguno.`}
-function reuse(){const a=enc.encode($('a').value),b=enc.encode($('b').value),n=Math.min(a.length,b.length),k=crypto.getRandomValues(new Uint8Array(n)),aa=a.slice(0,n),bb=b.slice(0,n),c1=xor(aa,k),c2=xor(bb,k),left=new Uint8Array(n),right=new Uint8Array(n);for(let i=0;i<n;i++){left[i]=c1[i]^c2[i];right[i]=aa[i]^bb[i]}const ok=hex(left)===hex(right);$('reuseOut').textContent=`C₁ ⊕ C₂ = ${hex(left)}\nM₁ ⊕ M₂ = ${hex(right)}`;$('reuseStatus').innerHTML=ok?'<span class="leak">Coinciden. La clave desapareció y se filtró la relación entre mensajes.</span>':'Error inesperado';statusChecks(false)}
-function statusChecks(oneUse=true){const m=enc.encode($('m1').value),arr=[['Aleatoria',key.length>0],['Igual longitud',key.length===m.length],['Secreta','didáctico'],['Un solo uso',oneUse]];$('checks').innerHTML=arr.map(([n,v])=>`<span style="color:${v===true?'var(--c)':v===false?'var(--danger)':'var(--k)'}">${v===true?'✓':v===false?'✕':'⚠'} ${n}</span>`).join('');const score=arr.filter(x=>x[1]===true).length;$('meterBar').style.width=`${score/4*100}%`}
-$('newKey').onclick=fresh;$('encrypt').onclick=run;$('recover').onclick=recover;$('showCandidates').onclick=candidates;$('reuse').onclick=reuse;$('m1').oninput=fresh;$('demoCipher').oninput=()=>{$('demoLength').value=$('demoCipher').value.replace(/[^01]/g,'').length};fresh();run();candidates();
-</script></body></html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    name="description"
+    content="Laboratorio interactivo del One-Time Pad: cifrado byte a byte, demostración del secreto perfecto y ataque por reutilización de clave."
+  >
+  <title>One-Time Pad | Laboratorio de secreto perfecto</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    :root {
+      --otp-cyan: #69e6ff;
+      --otp-blue: #4b8cff;
+      --otp-violet: #b78cff;
+      --otp-green: #4de7a8;
+      --otp-yellow: #ffd166;
+      --otp-red: #ff6f91;
+      --otp-ink: #030b15;
+      --otp-panel: rgba(8, 24, 42, 0.86);
+      --otp-panel-strong: rgba(11, 31, 53, 0.97);
+      --otp-line: rgba(137, 190, 226, 0.22);
+      --otp-glow: 0 0 38px rgba(105, 230, 255, 0.16);
+    }
+
+    body {
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 8% 3%, rgba(35, 125, 187, 0.3), transparent 30rem),
+        radial-gradient(circle at 94% 18%, rgba(128, 69, 194, 0.25), transparent 30rem),
+        linear-gradient(180deg, #06101d 0%, #030a13 100%);
+    }
+
+    body::before {
+      position: fixed;
+      z-index: -1;
+      inset: 0;
+      pointer-events: none;
+      content: "";
+      opacity: 0.19;
+      background-image:
+        linear-gradient(rgba(105, 230, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(105, 230, 255, 0.05) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, #000, transparent 82%);
+    }
+
+    .otp-shell {
+      width: min(1320px, calc(100% - 30px));
+      padding-top: 14px;
+    }
+
+    .topbar {
+      margin-bottom: 14px;
+    }
+
+    .brand a {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 35px;
+      height: 35px;
+      place-items: center;
+      border: 1px solid rgba(105, 230, 255, 0.36);
+      border-radius: 11px;
+      color: var(--otp-cyan);
+      background: rgba(105, 230, 255, 0.08);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.78rem;
+    }
+
+    .hero.otp-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(310px, 0.85fr);
+      gap: clamp(24px, 5vw, 58px);
+      align-items: center;
+      min-height: 470px;
+      padding: clamp(30px, 5vw, 58px);
+      background:
+        radial-gradient(circle at 82% 45%, rgba(105, 230, 255, 0.12), transparent 22rem),
+        linear-gradient(135deg, rgba(15, 48, 78, 0.98), rgba(36, 21, 69, 0.97));
+    }
+
+    .otp-hero h1 {
+      max-width: 760px;
+      margin-bottom: 18px;
+      font-size: clamp(2.35rem, 5.5vw, 4.75rem);
+    }
+
+    .gradient-text {
+      color: transparent;
+      background: linear-gradient(92deg, var(--otp-cyan), #9be8ff 42%, var(--otp-violet));
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+
+    .hero-lead {
+      max-width: 720px !important;
+      font-size: clamp(1rem, 2vw, 1.18rem) !important;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .hero-actions .button {
+      min-height: 48px;
+    }
+
+    .concept-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .concept-strip span {
+      padding: 7px 10px;
+      border: 1px solid var(--otp-line);
+      border-radius: 999px;
+      color: #cee5f6;
+      background: rgba(3, 13, 24, 0.35);
+      font-size: 0.78rem;
+      font-weight: 760;
+    }
+
+    .otp-orbit {
+      position: relative;
+      display: grid;
+      width: min(390px, 82vw);
+      aspect-ratio: 1;
+      place-items: center;
+      margin: auto;
+    }
+
+    .orbit-ring,
+    .orbit-ring::before,
+    .orbit-ring::after {
+      position: absolute;
+      inset: 12%;
+      border: 1px solid rgba(105, 230, 255, 0.23);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .orbit-ring {
+      animation: orbit-spin 22s linear infinite;
+    }
+
+    .orbit-ring::before {
+      inset: 11%;
+      border-color: rgba(183, 140, 255, 0.28);
+      transform: rotate(58deg) scaleY(0.62);
+    }
+
+    .orbit-ring::after {
+      inset: 23%;
+      border-color: rgba(77, 231, 168, 0.26);
+      transform: rotate(-35deg) scaleX(0.68);
+    }
+
+    .otp-core {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      width: 132px;
+      aspect-ratio: 1;
+      place-items: center;
+      border: 1px solid rgba(105, 230, 255, 0.56);
+      border-radius: 35px;
+      background:
+        radial-gradient(circle at 34% 25%, rgba(255, 255, 255, 0.18), transparent 25%),
+        linear-gradient(145deg, rgba(20, 73, 111, 0.98), rgba(24, 17, 60, 0.98));
+      box-shadow:
+        0 0 0 12px rgba(105, 230, 255, 0.04),
+        0 0 70px rgba(105, 230, 255, 0.26);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 2.25rem;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+    }
+
+    .otp-core small {
+      position: absolute;
+      bottom: 19px;
+      color: var(--otp-green);
+      font-size: 0.57rem;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .orbit-condition {
+      position: absolute;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border: 1px solid var(--otp-line);
+      border-radius: 999px;
+      color: #dceefe;
+      background: rgba(3, 13, 24, 0.82);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+      font-size: 0.75rem;
+      font-weight: 800;
+      backdrop-filter: blur(9px);
+    }
+
+    .orbit-condition::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--otp-green);
+      box-shadow: 0 0 12px var(--otp-green);
+      content: "";
+    }
+
+    .orbit-condition:nth-of-type(1) {
+      top: 8%;
+      left: 4%;
+    }
+
+    .orbit-condition:nth-of-type(2) {
+      top: 20%;
+      right: 0;
+    }
+
+    .orbit-condition:nth-of-type(3) {
+      right: 4%;
+      bottom: 14%;
+    }
+
+    .orbit-condition:nth-of-type(4) {
+      bottom: 6%;
+      left: 0;
+    }
+
+    .mission-nav {
+      position: sticky;
+      z-index: 20;
+      top: 8px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 15px;
+      align-items: center;
+      margin: 18px 0;
+      padding: 11px 13px;
+      border: 1px solid var(--otp-line);
+      border-radius: 17px;
+      background: rgba(3, 13, 24, 0.86);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(16px);
+    }
+
+    .mission-tabs {
+      display: flex;
+      gap: 7px;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .mission-tab {
+      flex: 0 0 auto;
+      min-height: 39px;
+      padding: 7px 11px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      background: transparent;
+      box-shadow: none;
+      font-size: 0.78rem;
+    }
+
+    .mission-tab:hover,
+    .mission-tab.active {
+      color: #fff;
+      border-color: rgba(105, 230, 255, 0.34);
+      background: rgba(105, 230, 255, 0.08);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .mission-tab strong {
+      color: var(--otp-cyan);
+    }
+
+    .mission-progress {
+      display: grid;
+      grid-template-columns: auto 92px auto;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.73rem;
+      font-weight: 800;
+    }
+
+    .mission-progress .progress {
+      height: 8px;
+    }
+
+    .mission-progress .progress > div {
+      background: linear-gradient(90deg, var(--otp-cyan), var(--otp-violet), var(--otp-green));
+    }
+
+    .lesson-section {
+      scroll-margin-top: 90px;
+      margin-top: 22px;
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 15px;
+      align-items: start;
+      margin-bottom: 14px;
+    }
+
+    .section-number {
+      display: grid;
+      width: 47px;
+      height: 47px;
+      place-items: center;
+      border: 1px solid rgba(105, 230, 255, 0.4);
+      border-radius: 15px;
+      color: var(--otp-cyan);
+      background: rgba(105, 230, 255, 0.08);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-weight: 900;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.15rem);
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+    }
+
+    .section-heading p {
+      max-width: 780px;
+      margin: 7px 0 0;
+      color: var(--muted);
+    }
+
+    .section-time {
+      padding: 6px 9px;
+      border: 1px solid var(--otp-line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .lab-card {
+      overflow: hidden;
+      border: 1px solid var(--otp-line);
+      border-radius: 23px;
+      background:
+        linear-gradient(180deg, rgba(13, 38, 63, 0.96), rgba(5, 17, 30, 0.98));
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.25);
+    }
+
+    .lab-toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: end;
+      padding: 20px;
+      border-bottom: 1px solid var(--otp-line);
+      background: rgba(2, 11, 20, 0.32);
+    }
+
+    .message-control textarea {
+      min-height: 84px;
+    }
+
+    .message-control small {
+      color: var(--muted);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 9px;
+    }
+
+    .toolbar-actions button {
+      min-width: 132px;
+    }
+
+    .button-icon {
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-weight: 950;
+    }
+
+    .key-state {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--otp-line);
+      color: #d6e8f8;
+      background: rgba(105, 230, 255, 0.045);
+    }
+
+    .state-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--muted);
+      box-shadow: 0 0 0 5px rgba(169, 187, 208, 0.08);
+    }
+
+    .key-state.fresh .state-dot {
+      background: var(--otp-green);
+      box-shadow: 0 0 0 5px rgba(77, 231, 168, 0.09), 0 0 15px rgba(77, 231, 168, 0.6);
+    }
+
+    .key-state.used .state-dot {
+      background: var(--otp-yellow);
+      box-shadow: 0 0 0 5px rgba(255, 209, 102, 0.09), 0 0 15px rgba(255, 209, 102, 0.5);
+    }
+
+    .key-state.compromised .state-dot {
+      background: var(--otp-red);
+      box-shadow: 0 0 0 5px rgba(255, 111, 145, 0.1), 0 0 15px rgba(255, 111, 145, 0.6);
+    }
+
+    .key-state strong {
+      display: block;
+      font-size: 0.88rem;
+    }
+
+    .key-state span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .state-badge {
+      padding: 5px 9px;
+      border: 1px solid var(--otp-line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .lab-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      border-bottom: 1px solid var(--otp-line);
+      background: var(--otp-line);
+    }
+
+    .lab-metric {
+      min-width: 0;
+      padding: 15px 18px;
+      background: var(--otp-panel-strong);
+    }
+
+    .lab-metric strong {
+      display: block;
+      overflow-wrap: anywhere;
+      color: var(--otp-cyan);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: clamp(1.08rem, 2.7vw, 1.45rem);
+      line-height: 1.15;
+    }
+
+    .lab-metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
+
+    .lab-workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(270px, 0.65fr);
+      gap: 18px;
+      padding: 20px;
+    }
+
+    .workspace-panel {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--otp-line);
+      border-radius: 18px;
+      background: rgba(3, 13, 24, 0.56);
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .panel-heading h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .byte-navigation {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .byte-navigation button {
+      width: 35px;
+      min-height: 35px;
+      padding: 0;
+      border: 1px solid var(--otp-line);
+      color: var(--text);
+      background: rgba(17, 47, 76, 0.82);
+      box-shadow: none;
+    }
+
+    .byte-navigation button:hover {
+      box-shadow: none;
+      transform: none;
+    }
+
+    .byte-navigation span {
+      min-width: 82px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    .bit-equation {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bit-line {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .bit-line-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .bit-line-label b {
+      display: block;
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+
+    .bits {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(25px, 1fr));
+      gap: 5px;
+    }
+
+    .bit {
+      display: grid;
+      min-height: 38px;
+      place-items: center;
+      border: 1px solid rgba(137, 190, 226, 0.18);
+      border-radius: 9px;
+      color: #b8cce0;
+      background: #061524;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.92rem;
+      font-weight: 900;
+      transition: 160ms ease;
+    }
+
+    .bit.one {
+      color: #03111d;
+      border-color: transparent;
+      background: var(--otp-cyan);
+      box-shadow: 0 0 14px rgba(105, 230, 255, 0.2);
+    }
+
+    .bit-line.key .bit.one {
+      background: var(--otp-yellow);
+      box-shadow: 0 0 14px rgba(255, 209, 102, 0.18);
+    }
+
+    .bit-line.cipher .bit.one {
+      background: var(--otp-green);
+      box-shadow: 0 0 14px rgba(77, 231, 168, 0.18);
+    }
+
+    .bit-line.cipher.pulse .bit {
+      animation: bit-resolve 560ms ease both;
+      animation-delay: calc(var(--i) * 38ms);
+    }
+
+    .byte-value {
+      min-width: 56px;
+      padding: 5px 7px;
+      border: 1px solid var(--otp-line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(3, 13, 24, 0.62);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    .xor-divider {
+      position: relative;
+      height: 15px;
+      margin-left: 102px;
+      border-top: 1px solid rgba(105, 230, 255, 0.33);
+    }
+
+    .xor-divider span {
+      position: absolute;
+      top: -14px;
+      left: -2px;
+      display: grid;
+      width: 27px;
+      height: 27px;
+      place-items: center;
+      border: 1px solid rgba(105, 230, 255, 0.42);
+      border-radius: 50%;
+      color: var(--otp-cyan);
+      background: #071625;
+      font-weight: 950;
+    }
+
+    .truth-hint {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    .truth-hint b {
+      color: var(--otp-cyan);
+    }
+
+    .conditions-panel {
+      display: grid;
+      align-content: start;
+      gap: 9px;
+    }
+
+    .condition-live {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 11px;
+      border: 1px solid var(--otp-line);
+      border-radius: 13px;
+      background: rgba(7, 23, 39, 0.78);
+    }
+
+    .condition-icon {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--muted);
+      background: rgba(169, 187, 208, 0.08);
+      font-weight: 950;
+    }
+
+    .condition-live.good .condition-icon {
+      color: #03150e;
+      background: var(--otp-green);
+    }
+
+    .condition-live.pending .condition-icon {
+      color: #261a00;
+      background: var(--otp-yellow);
+    }
+
+    .condition-live.bad .condition-icon {
+      color: #fff;
+      background: var(--otp-red);
+    }
+
+    .condition-live strong {
+      display: block;
+      font-size: 0.82rem;
+    }
+
+    .condition-live small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.71rem;
+      line-height: 1.4;
+    }
+
+    .condition-score {
+      margin-top: 4px;
+      padding: 12px;
+      border: 1px solid rgba(105, 230, 255, 0.23);
+      border-radius: 13px;
+      color: #d5effb;
+      background: rgba(105, 230, 255, 0.06);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    .condition-score strong {
+      color: var(--otp-green);
+    }
+
+    .data-console {
+      margin: 0 20px 20px;
+      overflow: hidden;
+      border: 1px solid var(--otp-line);
+      border-radius: 18px;
+      background: #020a13;
+    }
+
+    .console-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 13px;
+      border-bottom: 1px solid var(--otp-line);
+      background: rgba(12, 34, 56, 0.82);
+    }
+
+    .console-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #d5e8f8;
+      font-size: 0.78rem;
+      font-weight: 850;
+    }
+
+    .console-lights {
+      display: inline-flex;
+      gap: 5px;
+    }
+
+    .console-lights i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--otp-red);
+    }
+
+    .console-lights i:nth-child(2) {
+      background: var(--otp-yellow);
+    }
+
+    .console-lights i:nth-child(3) {
+      background: var(--otp-green);
+    }
+
+    .format-tabs {
+      display: flex;
+      gap: 5px;
+    }
+
+    .format-tab {
+      min-height: 30px;
+      padding: 4px 8px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      background: transparent;
+      box-shadow: none;
+      font-size: 0.68rem;
+    }
+
+    .format-tab.active {
+      color: var(--otp-cyan);
+      border-color: rgba(105, 230, 255, 0.28);
+      background: rgba(105, 230, 255, 0.07);
+    }
+
+    .format-tab:hover {
+      box-shadow: none;
+      transform: none;
+    }
+
+    .console-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--otp-line);
+    }
+
+    .console-cell {
+      min-width: 0;
+      padding: 13px 15px;
+      background: #030d18;
+    }
+
+    .console-cell span {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .console-cell code {
+      display: block;
+      min-height: 22px;
+      overflow-wrap: anywhere;
+      color: #d7e8f7;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.79rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .console-cell.key code {
+      color: var(--otp-yellow);
+    }
+
+    .console-cell.cipher code {
+      color: var(--otp-green);
+    }
+
+    .console-cell.recovered code {
+      color: var(--otp-cyan);
+    }
+
+    .learning-callout {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 13px;
+      align-items: start;
+      margin: 0 20px 20px;
+      padding: 14px 16px;
+      border: 1px solid rgba(105, 230, 255, 0.24);
+      border-radius: 15px;
+      color: #cde5f5;
+      background: rgba(105, 230, 255, 0.055);
+    }
+
+    .learning-callout .callout-icon {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 10px;
+      color: var(--otp-cyan);
+      background: rgba(105, 230, 255, 0.1);
+      font-weight: 950;
+    }
+
+    .learning-callout strong {
+      color: #fff;
+    }
+
+    .learning-callout p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+
+    .proof-card {
+      display: grid;
+      grid-template-columns: minmax(250px, 0.76fr) minmax(0, 1.24fr);
+      min-height: 520px;
+    }
+
+    .proof-control {
+      padding: clamp(20px, 3vw, 30px);
+      border-right: 1px solid var(--otp-line);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(183, 140, 255, 0.14), transparent 18rem),
+        rgba(5, 18, 31, 0.82);
+    }
+
+    .proof-control h3,
+    .proof-universe h3 {
+      margin-top: 0;
+    }
+
+    .formula-display {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .formula-token {
+      padding: 12px 8px;
+      border: 1px solid var(--otp-line);
+      border-radius: 12px;
+      color: var(--otp-cyan);
+      background: #061524;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      text-align: center;
+    }
+
+    .formula-token.key-token {
+      color: var(--otp-yellow);
+    }
+
+    .formula-token.cipher-token {
+      color: var(--otp-green);
+    }
+
+    .formula-symbol {
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .cipher-builder {
+      margin-top: 18px;
+    }
+
+    .cipher-builder > label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .toggle-bits {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(42px, 1fr));
+      gap: 7px;
+      max-width: 360px;
+    }
+
+    .toggle-bit {
+      min-height: 52px;
+      padding: 0;
+      border: 1px solid var(--otp-line);
+      color: var(--muted);
+      background: #061524;
+      box-shadow: none;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 1.05rem;
+    }
+
+    .toggle-bit.on {
+      color: #03111d;
+      border-color: transparent;
+      background: var(--otp-green);
+      box-shadow: 0 0 18px rgba(77, 231, 168, 0.17);
+    }
+
+    .toggle-bit:hover {
+      box-shadow: none;
+      transform: none;
+    }
+
+    .probability-card {
+      margin-top: 20px;
+      padding: 16px;
+      border: 1px solid rgba(183, 140, 255, 0.28);
+      border-radius: 15px;
+      background: rgba(183, 140, 255, 0.07);
+    }
+
+    .probability-card strong {
+      display: block;
+      color: var(--otp-violet);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 1.45rem;
+    }
+
+    .probability-card span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .probability-track {
+      height: 9px;
+      margin-top: 12px;
+      overflow: hidden;
+      border: 1px solid var(--otp-line);
+      border-radius: 99px;
+      background: #030c16;
+    }
+
+    .probability-track div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--otp-violet), var(--otp-cyan));
+      transition: width 240ms ease;
+    }
+
+    .proof-universe {
+      min-width: 0;
+      padding: clamp(20px, 3vw, 30px);
+    }
+
+    .universe-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .universe-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .candidate-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      max-height: 350px;
+      padding-right: 4px;
+      overflow: auto;
+      scrollbar-color: var(--otp-violet) #061524;
+    }
+
+    .candidate-card {
+      display: block;
+      min-height: 0;
+      padding: 10px;
+      border: 1px solid var(--otp-line);
+      border-radius: 11px;
+      color: var(--muted);
+      background: rgba(3, 13, 24, 0.7);
+      box-shadow: none;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.7rem;
+      text-align: left;
+    }
+
+    .candidate-card:hover,
+    .candidate-card.selected {
+      border-color: rgba(183, 140, 255, 0.58);
+      background: rgba(183, 140, 255, 0.1);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .candidate-card b {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--otp-cyan);
+      font-size: 0.78rem;
+    }
+
+    .candidate-card span {
+      display: block;
+      color: var(--otp-yellow);
+    }
+
+    .candidate-inspector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+      padding: 13px;
+      border: 1px solid rgba(77, 231, 168, 0.25);
+      border-radius: 14px;
+      background: rgba(77, 231, 168, 0.055);
+    }
+
+    .candidate-inspector div {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .candidate-inspector span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+    }
+
+    .candidate-inspector code {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+      color: var(--text);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.9rem;
+    }
+
+    .theorem {
+      margin-top: 14px;
+      padding: 13px 15px;
+      border-left: 3px solid var(--otp-green);
+      border-radius: 0 12px 12px 0;
+      color: #d2f7e7;
+      background: rgba(77, 231, 168, 0.06);
+      font-size: 0.82rem;
+    }
+
+    .danger-lab {
+      border-color: rgba(255, 111, 145, 0.34);
+      background:
+        radial-gradient(circle at 88% 5%, rgba(255, 111, 145, 0.13), transparent 27rem),
+        linear-gradient(180deg, rgba(48, 17, 34, 0.96), rgba(10, 13, 24, 0.99));
+    }
+
+    .danger-lab .lab-toolbar {
+      align-items: start;
+      border-color: rgba(255, 111, 145, 0.24);
+    }
+
+    .message-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .attack-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      gap: 18px;
+      padding: 20px;
+    }
+
+    .attack-equation {
+      padding: 18px;
+      border: 1px solid rgba(255, 111, 145, 0.27);
+      border-radius: 17px;
+      background: rgba(38, 10, 25, 0.5);
+    }
+
+    .attack-equation h3,
+    .crib-panel h3 {
+      margin-top: 0;
+    }
+
+    .equation-stack {
+      display: grid;
+      gap: 9px;
+      margin: 17px 0;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    }
+
+    .equation-row {
+      display: grid;
+      grid-template-columns: 106px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 111, 145, 0.18);
+      border-radius: 11px;
+      background: rgba(3, 10, 19, 0.56);
+    }
+
+    .equation-row span {
+      color: var(--otp-red);
+      font-weight: 900;
+    }
+
+    .equation-row code {
+      overflow-wrap: anywhere;
+      color: #e6d9e1;
+      font-size: 0.74rem;
+      line-height: 1.55;
+    }
+
+    .equality-verdict {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid rgba(255, 111, 145, 0.36);
+      border-radius: 12px;
+      color: #ffd7e1;
+      background: rgba(255, 111, 145, 0.09);
+      font-size: 0.82rem;
+    }
+
+    .equality-verdict .verdict-icon {
+      display: grid;
+      flex: 0 0 31px;
+      width: 31px;
+      height: 31px;
+      place-items: center;
+      border-radius: 9px;
+      color: #fff;
+      background: var(--otp-red);
+      font-weight: 950;
+    }
+
+    .leak-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(38px, 1fr));
+      gap: 5px;
+      margin-top: 14px;
+    }
+
+    .leak-byte {
+      min-width: 0;
+      padding: 7px 3px;
+      border: 1px solid rgba(255, 111, 145, 0.18);
+      border-radius: 8px;
+      background: rgba(3, 10, 19, 0.62);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.65rem;
+      text-align: center;
+    }
+
+    .leak-byte b {
+      display: block;
+      color: var(--otp-red);
+    }
+
+    .leak-byte small {
+      color: var(--muted);
+    }
+
+    .crib-panel {
+      padding: 18px;
+      border: 1px solid rgba(255, 209, 102, 0.25);
+      border-radius: 17px;
+      background: rgba(43, 29, 8, 0.25);
+    }
+
+    .crib-panel p {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .crib-output {
+      display: grid;
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    .crib-line {
+      padding: 11px;
+      border: 1px solid rgba(255, 209, 102, 0.18);
+      border-radius: 11px;
+      background: rgba(3, 10, 19, 0.62);
+    }
+
+    .crib-line span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+    }
+
+    .crib-line code {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+      color: var(--otp-yellow);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 0.78rem;
+    }
+
+    .crib-result {
+      color: var(--otp-green) !important;
+      font-size: 1rem !important;
+      font-weight: 900;
+    }
+
+    .quiz-card {
+      padding: clamp(20px, 4vw, 32px);
+    }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .quiz-question {
+      min-width: 0;
+      margin: 0;
+      padding: 15px;
+      border: 1px solid var(--otp-line);
+      border-radius: 15px;
+      background: rgba(3, 13, 24, 0.54);
+    }
+
+    .quiz-question.correct {
+      border-color: rgba(77, 231, 168, 0.42);
+      background: rgba(77, 231, 168, 0.055);
+    }
+
+    .quiz-question.wrong {
+      border-color: rgba(255, 111, 145, 0.42);
+      background: rgba(255, 111, 145, 0.055);
+    }
+
+    .quiz-question legend {
+      padding: 0 4px;
+      color: #e5f3ff;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .quiz-option {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .quiz-option input {
+      flex: 0 0 auto;
+      width: 17px;
+      min-height: 17px;
+      margin-top: 2px;
+      accent-color: var(--otp-cyan);
+    }
+
+    .quiz-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .quiz-feedback {
+      flex: 1;
+      min-width: 230px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .quiz-feedback.success {
+      color: var(--otp-green);
+      font-weight: 800;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .summary-card {
+      padding: 17px;
+      border: 1px solid var(--otp-line);
+      border-radius: 16px;
+      background: rgba(5, 18, 31, 0.76);
+    }
+
+    .summary-card .summary-icon {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      color: var(--otp-cyan);
+      background: rgba(105, 230, 255, 0.09);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-weight: 950;
+    }
+
+    .summary-card:nth-child(2) .summary-icon {
+      color: var(--otp-green);
+      background: rgba(77, 231, 168, 0.09);
+    }
+
+    .summary-card:nth-child(3) .summary-icon {
+      color: var(--otp-red);
+      background: rgba(255, 111, 145, 0.09);
+    }
+
+    .summary-card h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .summary-card p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.81rem;
+    }
+
+    .completion-banner {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      margin-top: 20px;
+      padding: 18px;
+      border: 1px solid rgba(77, 231, 168, 0.28);
+      border-radius: 18px;
+      background:
+        linear-gradient(105deg, rgba(77, 231, 168, 0.08), rgba(105, 230, 255, 0.045));
+    }
+
+    .completion-ring {
+      display: grid;
+      width: 54px;
+      height: 54px;
+      place-items: center;
+      border: 4px solid rgba(77, 231, 168, 0.18);
+      border-top-color: var(--otp-green);
+      border-radius: 50%;
+      color: var(--otp-green);
+      font-size: 0.8rem;
+      font-weight: 900;
+      transform: rotate(-45deg);
+    }
+
+    .completion-ring span {
+      transform: rotate(45deg);
+    }
+
+    .completion-banner h3 {
+      margin: 0;
+    }
+
+    .completion-banner p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .completion-banner .button {
+      white-space: nowrap;
+    }
+
+    .footer {
+      margin-top: 32px;
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    @keyframes orbit-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes bit-resolve {
+      0% {
+        opacity: 0.25;
+        transform: translateY(-8px) scale(0.86);
+      }
+      70% {
+        transform: translateY(2px) scale(1.04);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .hero.otp-hero {
+        grid-template-columns: 1fr;
+      }
+
+      .otp-orbit {
+        width: min(350px, 82vw);
+      }
+
+      .lab-workspace,
+      .attack-stage {
+        grid-template-columns: 1fr;
+      }
+
+      .proof-card {
+        grid-template-columns: 1fr;
+      }
+
+      .proof-control {
+        border-right: 0;
+        border-bottom: 1px solid var(--otp-line);
+      }
+
+      .candidate-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .mission-nav {
+        grid-template-columns: 1fr;
+      }
+
+      .mission-progress {
+        grid-template-columns: auto minmax(90px, 1fr) auto;
+      }
+
+      .lab-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar-actions {
+        justify-content: flex-start;
+      }
+
+      .lab-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .message-pair,
+      .quiz-grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .candidate-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .otp-shell {
+        width: min(100% - 16px, 1320px);
+      }
+
+      .hero.otp-hero {
+        min-height: 0;
+        padding: 25px 20px;
+      }
+
+      .otp-orbit {
+        width: min(290px, 86vw);
+      }
+
+      .otp-core {
+        width: 108px;
+        border-radius: 29px;
+        font-size: 1.9rem;
+      }
+
+      .orbit-condition {
+        padding: 6px 8px;
+        font-size: 0.65rem;
+      }
+
+      .mission-tab {
+        font-size: 0.72rem;
+      }
+
+      .section-heading {
+        grid-template-columns: auto 1fr;
+      }
+
+      .section-time {
+        display: none;
+      }
+
+      .lab-toolbar,
+      .lab-workspace,
+      .attack-stage {
+        padding: 14px;
+      }
+
+      .toolbar-actions > * {
+        width: 100%;
+      }
+
+      .key-state {
+        grid-template-columns: auto 1fr;
+        padding: 11px 14px;
+      }
+
+      .state-badge {
+        grid-column: 2;
+        justify-self: start;
+      }
+
+      .lab-metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .lab-metric {
+        padding: 12px;
+      }
+
+      .bit-line {
+        grid-template-columns: 1fr auto;
+      }
+
+      .bit-line-label {
+        grid-column: 1;
+      }
+
+      .bits {
+        grid-column: 1 / -1;
+        grid-row: 2;
+      }
+
+      .byte-value {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .xor-divider {
+        margin-left: 0;
+      }
+
+      .data-console,
+      .learning-callout {
+        margin-right: 14px;
+        margin-left: 14px;
+      }
+
+      .console-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .formula-display {
+        grid-template-columns: 1fr;
+      }
+
+      .formula-symbol {
+        text-align: center;
+        transform: rotate(90deg);
+      }
+
+      .candidate-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .candidate-inspector {
+        grid-template-columns: 1fr;
+      }
+
+      .equation-row {
+        grid-template-columns: 1fr;
+      }
+
+      .completion-banner {
+        grid-template-columns: auto 1fr;
+      }
+
+      .completion-banner .button {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .orbit-ring {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#mission-one">Saltar al laboratorio</a>
+  <main class="shell otp-shell">
+    <header class="topbar">
+      <div class="brand">
+        <a href="index.html">
+          <span class="brand-mark">M1</span>
+          <span>Criptografía clásica</span>
+        </a>
+      </div>
+      <nav class="nav" aria-label="Navegación del módulo">
+        <a href="vernam.html">← Vernam</a>
+        <a href="ruta-guiada.html?paso=14">Ruta guiada</a>
+        <a href="enigma/index.html">Enigma →</a>
+      </nav>
+    </header>
+
+    <section class="hero otp-hero" aria-labelledby="page-title">
+      <div>
+        <div class="eyebrow">Laboratorio interactivo · secreto perfecto</div>
+        <h1 id="page-title">One-Time Pad: <span class="gradient-text">seguridad sin atajos</span></h1>
+        <p class="hero-lead">
+          Construí un cifrado byte a byte, comprobá por qué el texto cifrado no revela
+          información y observá cómo una sola reutilización destruye la garantía.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#mission-one">Comenzar laboratorio <span aria-hidden="true">↓</span></a>
+          <a class="button secondary" href="#mission-two">¿Por qué es perfecto?</a>
+        </div>
+        <div class="concept-strip" aria-label="Conceptos centrales">
+          <span>C = M ⊕ K</span>
+          <span>H(M | C) = H(M)</span>
+          <span>Clave tan larga como el mensaje</span>
+        </div>
+      </div>
+
+      <div class="otp-orbit" aria-label="Las cuatro condiciones inseparables del One-Time Pad">
+        <div class="orbit-ring" aria-hidden="true"></div>
+        <div class="otp-core">OTP<small>perfect secrecy</small></div>
+        <span class="orbit-condition">Aleatoria</span>
+        <span class="orbit-condition">Igual longitud</span>
+        <span class="orbit-condition">Secreta</span>
+        <span class="orbit-condition">Un solo uso</span>
+      </div>
+    </section>
+
+    <nav class="mission-nav" aria-label="Misiones del laboratorio">
+      <div class="mission-tabs">
+        <button class="mission-tab active" type="button" data-target="mission-one"><strong>01</strong> Construí</button>
+        <button class="mission-tab" type="button" data-target="mission-two"><strong>02</strong> Demostrá</button>
+        <button class="mission-tab" type="button" data-target="mission-three"><strong>03</strong> Atacá</button>
+        <button class="mission-tab" type="button" data-target="checkpoint"><strong>04</strong> Comprobá</button>
+      </div>
+      <div class="mission-progress" aria-label="Progreso de actividades">
+        <span>Progreso</span>
+        <div class="progress"><div id="mission-progress-bar"></div></div>
+        <span id="mission-progress-label">0/6</span>
+      </div>
+    </nav>
+
+    <section id="mission-one" class="lesson-section" aria-labelledby="mission-one-title">
+      <div class="section-heading">
+        <div class="section-number">01</div>
+        <div>
+          <h2 id="mission-one-title">Construí un OTP real, byte por byte</h2>
+          <p>Generá una clave criptográficamente aleatoria, aplicá XOR y seguí el ciclo de vida de la clave.</p>
+        </div>
+        <span class="section-time">8–10 min</span>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-toolbar">
+          <div class="control message-control">
+            <label for="message-input">Mensaje en claro</label>
+            <textarea id="message-input" maxlength="64" spellcheck="false">SECRETO PERFECTO</textarea>
+            <small id="message-help">Máximo 64 caracteres. Se procesa como UTF-8.</small>
+          </div>
+          <div class="toolbar-actions" aria-label="Controles de cifrado">
+            <button id="generate-key" type="button"><span class="button-icon" aria-hidden="true">✦</span> Generar clave</button>
+            <button id="encrypt-message" class="secondary" type="button"><span class="button-icon" aria-hidden="true">⊕</span> Cifrar</button>
+            <button id="decrypt-message" class="secondary" type="button"><span class="button-icon" aria-hidden="true">↩</span> Descifrar</button>
+            <button id="reset-lab" class="secondary" type="button">Reiniciar</button>
+          </div>
+        </div>
+
+        <div id="key-state" class="key-state empty" aria-live="polite">
+          <span class="state-dot" aria-hidden="true"></span>
+          <div>
+            <strong id="key-state-title">Sin clave</strong>
+            <span id="key-state-copy">Generá una clave para comenzar.</span>
+          </div>
+          <span id="key-state-badge" class="state-badge">vacía</span>
+        </div>
+
+        <div class="lab-metrics" aria-label="Métricas del laboratorio">
+          <div class="lab-metric"><strong id="metric-bytes">16</strong><span>bytes del mensaje</span></div>
+          <div class="lab-metric"><strong id="metric-key-bits">—</strong><span>bits aleatorios de clave</span></div>
+          <div class="lab-metric"><strong id="metric-keys">—</strong><span>claves posibles</span></div>
+          <div class="lab-metric"><strong id="metric-leak">0 bits</strong><span>información teórica filtrada</span></div>
+        </div>
+
+        <div class="lab-workspace">
+          <section class="workspace-panel" aria-labelledby="byte-inspector-title">
+            <div class="panel-heading">
+              <h3 id="byte-inspector-title">Inspector XOR</h3>
+              <div class="byte-navigation">
+                <button id="byte-prev" type="button" aria-label="Byte anterior">←</button>
+                <span id="byte-position">byte 1/16</span>
+                <button id="byte-next" type="button" aria-label="Byte siguiente">→</button>
+              </div>
+            </div>
+
+            <div class="bit-equation">
+              <div class="bit-line message">
+                <div class="bit-line-label"><b>Mensaje M</b><span id="message-byte-label">“S”</span></div>
+                <div id="message-bits" class="bits" aria-label="Bits del byte del mensaje"></div>
+                <span id="message-byte-value" class="byte-value">0x53</span>
+              </div>
+              <div class="bit-line key">
+                <div class="bit-line-label"><b>Clave K</b><span>aleatoria</span></div>
+                <div id="key-bits" class="bits" aria-label="Bits del byte de la clave"></div>
+                <span id="key-byte-value" class="byte-value">—</span>
+              </div>
+              <div class="xor-divider" aria-hidden="true"><span>⊕</span></div>
+              <div id="cipher-bit-line" class="bit-line cipher">
+                <div class="bit-line-label"><b>Cifrado C</b><span>M XOR K</span></div>
+                <div id="cipher-bits" class="bits" aria-label="Bits del byte cifrado"></div>
+                <span id="cipher-byte-value" class="byte-value">—</span>
+              </div>
+            </div>
+            <p id="truth-hint" class="truth-hint"><b>XOR:</b> bits iguales producen 0; bits diferentes producen 1.</p>
+          </section>
+
+          <aside class="workspace-panel conditions-panel" aria-labelledby="conditions-title">
+            <div class="panel-heading"><h3 id="conditions-title">Condiciones en vivo</h3></div>
+            <div id="condition-random" class="condition-live pending">
+              <span class="condition-icon" aria-hidden="true">·</span>
+              <div><strong>Aleatoria</strong><small>Debe provenir de una fuente criptográficamente segura.</small></div>
+            </div>
+            <div id="condition-length" class="condition-live pending">
+              <span class="condition-icon" aria-hidden="true">·</span>
+              <div><strong>Igual longitud</strong><small>Un byte independiente de clave por cada byte del mensaje.</small></div>
+            </div>
+            <div id="condition-secret" class="condition-live pending">
+              <span class="condition-icon" aria-hidden="true">·</span>
+              <div><strong>Secreta</strong><small>En la práctica debe compartirse por un canal seguro.</small></div>
+            </div>
+            <div id="condition-once" class="condition-live pending">
+              <span class="condition-icon" aria-hidden="true">·</span>
+              <div><strong>Un solo uso</strong><small>Después de cifrar queda consumida y no debe reutilizarse.</small></div>
+            </div>
+            <div id="condition-score" class="condition-score">Generá una clave para evaluar las cuatro condiciones.</div>
+          </aside>
+        </div>
+
+        <section class="data-console" aria-labelledby="console-title">
+          <div class="console-top">
+            <div id="console-title" class="console-title">
+              <span class="console-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              Consola de datos
+            </div>
+            <div class="format-tabs" role="group" aria-label="Formato de datos">
+              <button class="format-tab active" type="button" data-format="hex">HEX</button>
+              <button class="format-tab" type="button" data-format="bin">BIN</button>
+              <button class="format-tab" type="button" data-format="dec">DEC</button>
+            </div>
+          </div>
+          <div class="console-grid">
+            <div class="console-cell"><span>Mensaje M</span><code id="console-message">—</code></div>
+            <div class="console-cell key"><span>Clave K</span><code id="console-key">—</code></div>
+            <div class="console-cell cipher"><span>Cifrado C</span><code id="console-cipher">—</code></div>
+            <div class="console-cell recovered"><span>Recuperado C ⊕ K</span><code id="console-recovered">—</code></div>
+          </div>
+        </section>
+
+        <div class="learning-callout" aria-live="polite">
+          <span class="callout-icon" aria-hidden="true">i</span>
+          <div>
+            <strong id="lab-explanation-title">Primero generá la clave</strong>
+            <p id="lab-explanation">Web Crypto producirá bytes aleatorios de la misma longitud que el mensaje.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mission-two" class="lesson-section" aria-labelledby="mission-two-title">
+      <div class="section-heading">
+        <div class="section-number">02</div>
+        <div>
+          <h2 id="mission-two-title">Demostrá el secreto perfecto</h2>
+          <p>Fijá un único texto cifrado y recorré todos los mensajes que podrían haberlo producido.</p>
+        </div>
+        <span class="section-time">6–8 min</span>
+      </div>
+
+      <div class="lab-card proof-card">
+        <div class="proof-control">
+          <h3>Universo controlado</h3>
+          <p class="muted small">
+            Usamos mensajes de pocos bits para enumerar todas las posibilidades. El principio es el mismo con mensajes reales.
+          </p>
+
+          <div class="control">
+            <label for="proof-length">Longitud de la demostración</label>
+            <select id="proof-length">
+              <option value="3">3 bits · 8 posibilidades</option>
+              <option value="4" selected>4 bits · 16 posibilidades</option>
+              <option value="5">5 bits · 32 posibilidades</option>
+            </select>
+          </div>
+
+          <div class="cipher-builder">
+            <label>Texto cifrado fijo C <span class="muted">(pulsá cada bit)</span></label>
+            <div id="cipher-toggle-bits" class="toggle-bits"></div>
+          </div>
+
+          <div class="actions">
+            <button id="randomize-cipher" type="button">Cambiar C al azar</button>
+          </div>
+
+          <div class="formula-display" aria-label="Relación entre mensaje, clave y cifrado">
+            <span class="formula-token">M</span>
+            <span class="formula-symbol">⊕</span>
+            <span class="formula-token key-token">K</span>
+            <span class="formula-symbol">=</span>
+            <span class="formula-token cipher-token">C fijo</span>
+          </div>
+
+          <div class="probability-card">
+            <strong id="proof-probability">1/16 = 6,25%</strong>
+            <span>probabilidad de cada mensaje, observado C y sin conocer K</span>
+            <div class="probability-track"><div id="proof-probability-bar" style="width: 6.25%"></div></div>
+          </div>
+        </div>
+
+        <div class="proof-universe">
+          <div class="universe-head">
+            <div>
+              <h3>Todos los mensajes siguen siendo posibles</h3>
+              <p id="universe-copy">Para C = 1010 existen 16 pares (M, K) compatibles.</p>
+            </div>
+            <span id="candidate-count" class="state-badge">16 candidatos</span>
+          </div>
+
+          <div id="candidate-grid" class="candidate-grid" aria-label="Mensajes y claves compatibles"></div>
+
+          <div class="candidate-inspector" aria-live="polite">
+            <div><span>Mensaje elegido M</span><code id="candidate-message">0000</code></div>
+            <div><span>Única clave compatible K</span><code id="candidate-key">1010</code></div>
+            <div><span>M ⊕ K = C</span><code id="candidate-result">1010</code></div>
+          </div>
+
+          <div class="theorem">
+            <strong>Idea de Shannon:</strong> para cada mensaje posible existe exactamente una clave equiprobable que produce el mismo C.
+            Por eso observar C no cambia la probabilidad previa de M: <b>H(M | C) = H(M)</b>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mission-three" class="lesson-section" aria-labelledby="mission-three-title">
+      <div class="section-heading">
+        <div class="section-number">03</div>
+        <div>
+          <h2 id="mission-three-title">Atacá una clave reutilizada</h2>
+          <p>Repetí deliberadamente K en dos mensajes y convertí una sospecha sobre M₁ en texto recuperado de M₂.</p>
+        </div>
+        <span class="section-time">7–9 min</span>
+      </div>
+
+      <div class="lab-card danger-lab">
+        <div class="lab-toolbar">
+          <div class="message-pair">
+            <div class="control">
+              <label for="reuse-message-one">Mensaje 1 · M₁</label>
+              <input id="reuse-message-one" value="ATACARAN AL AMANECER" maxlength="40" spellcheck="false">
+            </div>
+            <div class="control">
+              <label for="reuse-message-two">Mensaje 2 · M₂</label>
+              <input id="reuse-message-two" value="DEFENSA AL ANOCHECER" maxlength="40" spellcheck="false">
+            </div>
+          </div>
+          <div class="toolbar-actions">
+            <button id="run-reuse-attack" class="danger" type="button"><span aria-hidden="true">⚠</span> Reutilizar K y atacar</button>
+          </div>
+        </div>
+
+        <div class="attack-stage">
+          <section class="attack-equation" aria-labelledby="leak-title">
+            <h3 id="leak-title">La clave desaparece</h3>
+            <p class="muted small">XOR aplicado dos veces con la misma K la cancela: K ⊕ K = 0.</p>
+            <div class="equation-stack">
+              <div class="equation-row"><span>C₁ ⊕ C₂</span><code id="reuse-cipher-delta">Ejecutá el ataque para calcularlo.</code></div>
+              <div class="equation-row"><span>M₁ ⊕ M₂</span><code id="reuse-message-delta">—</code></div>
+            </div>
+            <div id="reuse-verdict" class="equality-verdict">
+              <span class="verdict-icon" aria-hidden="true">?</span>
+              <span>La comparación aparecerá aquí.</span>
+            </div>
+            <div id="leak-strip" class="leak-strip" aria-label="Bytes filtrados por la reutilización"></div>
+          </section>
+
+          <aside class="crib-panel" aria-labelledby="crib-title">
+            <h3 id="crib-title">Ataque con palabra probable</h3>
+            <p>
+              Si el atacante adivina un fragmento de M₁, obtiene el mismo fragmento de K y lo usa para recuperar M₂.
+            </p>
+            <div class="control">
+              <label for="crib-input">Suposición sobre el comienzo de M₁</label>
+              <input id="crib-input" value="ATACARAN" maxlength="24" spellcheck="false">
+            </div>
+            <div class="crib-output">
+              <div class="crib-line"><span>K parcial = C₁ ⊕ suposición</span><code id="crib-key">—</code></div>
+              <div class="crib-line"><span>M₂ parcial = C₂ ⊕ K parcial</span><code id="crib-result" class="crib-result">—</code></div>
+            </div>
+            <p id="crib-feedback" class="status warn">Ejecutá el ataque y probá luego una suposición incorrecta.</p>
+          </aside>
+        </div>
+
+        <div class="learning-callout">
+          <span class="callout-icon" aria-hidden="true">!</span>
+          <div>
+            <strong>Esto ya no es un One-Time Pad</strong>
+            <p>
+              La operación XOR no falló. Falló la disciplina de la clave: al repetir K, los cifrados quedan relacionados y aparece estructura explotable.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="checkpoint" class="lesson-section" aria-labelledby="checkpoint-title">
+      <div class="section-heading">
+        <div class="section-number">04</div>
+        <div>
+          <h2 id="checkpoint-title">Comprobá lo aprendido</h2>
+          <p>Tres decisiones breves para distinguir un OTP auténtico de un cifrado que solo se le parece.</p>
+        </div>
+        <span class="section-time">3 min</span>
+      </div>
+
+      <div class="lab-card quiz-card">
+        <div class="quiz-grid">
+          <fieldset class="quiz-question" data-question="q1">
+            <legend>¿Qué hace “perfecto” al secreto?</legend>
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> Que XOR es difícil de calcular.</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> Que cada mensaje posible tiene una clave equiprobable compatible.</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> Que el cifrado siempre parece texto aleatorio.</label>
+          </fieldset>
+
+          <fieldset class="quiz-question" data-question="q2">
+            <legend>¿Qué condición se viola en el ataque anterior?</legend>
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> Igual longitud.</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> Uso de XOR.</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> Uso único de la clave.</label>
+          </fieldset>
+
+          <fieldset class="quiz-question" data-question="q3">
+            <legend>¿Qué debe hacerse después de usar K correctamente?</legend>
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> Destruirla de forma segura.</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> Acortarla y volver a usarla.</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> Publicarla junto con C.</label>
+          </fieldset>
+        </div>
+
+        <div class="quiz-actions">
+          <button id="check-quiz" type="button">Verificar respuestas</button>
+          <button id="reset-quiz" class="secondary" type="button">Limpiar</button>
+          <p id="quiz-feedback" class="quiz-feedback" aria-live="polite">Respondé las tres preguntas.</p>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span class="summary-icon">⊕</span>
+            <h3>Vernam describe la operación</h3>
+            <p>XOR combina mensaje y flujo de clave. Esa operación por sí sola no garantiza secreto perfecto.</p>
+          </article>
+          <article class="summary-card">
+            <span class="summary-icon">✓</span>
+            <h3>OTP agrega cuatro condiciones</h3>
+            <p>Aleatoriedad uniforme, igual longitud, secreto y uso único convierten el mecanismo en OTP.</p>
+          </article>
+          <article class="summary-card">
+            <span class="summary-icon">!</span>
+            <h3>Una repetición basta para romperlo</h3>
+            <p>Dos cifrados con la misma K revelan M₁ ⊕ M₂ y habilitan ataques con texto probable.</p>
+          </article>
+        </div>
+
+        <div class="completion-banner">
+          <div class="completion-ring"><span id="completion-percent">0%</span></div>
+          <div>
+            <h3 id="completion-title">Laboratorio en curso</h3>
+            <p id="completion-copy">Completá las actividades para dominar el principio y su principal vulnerabilidad operacional.</p>
+          </div>
+          <a class="button secondary" href="enigma/index.html">Continuar a Enigma →</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Simulación educativa · la clave se genera y procesa localmente en el navegador.</p>
+    </footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    const $ = (id) => document.getElementById(id);
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    const TASKS_TOTAL = 6;
+
+    const state = {
+      message: new Uint8Array(),
+      key: new Uint8Array(),
+      cipher: new Uint8Array(),
+      recovered: new Uint8Array(),
+      keyState: "empty",
+      selectedByte: 0,
+      format: "hex",
+      proofCipher: "1010",
+      proofSelected: 0,
+      reuse: null,
+      tasks: new Set()
+    };
+
+    function safeRandom(length) {
+      const output = new Uint8Array(length);
+      if (!window.crypto || !window.crypto.getRandomValues) {
+        throw new Error("Este navegador no ofrece Web Crypto.");
+      }
+      window.crypto.getRandomValues(output);
+      return output;
+    }
+
+    function xorBytes(left, right) {
+      const length = Math.min(left.length, right.length);
+      const output = new Uint8Array(length);
+      for (let index = 0; index < length; index += 1) {
+        output[index] = left[index] ^ right[index];
+      }
+      return output;
+    }
+
+    function equalBytes(left, right) {
+      if (left.length !== right.length) return false;
+      return left.every((value, index) => value === right[index]);
+    }
+
+    function toHex(bytes) {
+      return Array.from(bytes, (value) => value.toString(16).padStart(2, "0").toUpperCase()).join(" ");
+    }
+
+    function toBinary(bytes) {
+      return Array.from(bytes, (value) => value.toString(2).padStart(8, "0")).join(" ");
+    }
+
+    function toDecimal(bytes) {
+      return Array.from(bytes).join(" · ");
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes.length) return "—";
+      if (state.format === "bin") return toBinary(bytes);
+      if (state.format === "dec") return toDecimal(bytes);
+      return toHex(bytes);
+    }
+
+    function byteBits(value) {
+      return value.toString(2).padStart(8, "0");
+    }
+
+    function printableByte(value) {
+      return value >= 32 && value <= 126 ? `“${String.fromCharCode(value)}”` : `byte ${value}`;
+    }
+
+    function renderBits(container, value, ready = true) {
+      const bits = ready ? byteBits(value) : "········";
+      container.replaceChildren();
+      Array.from(bits).forEach((bit, index) => {
+        const span = document.createElement("span");
+        span.className = `bit${bit === "1" ? " one" : ""}`;
+        span.textContent = bit;
+        span.style.setProperty("--i", index);
+        container.appendChild(span);
+      });
+    }
+
+    function setCondition(id, status, detail) {
+      const item = $(id);
+      item.className = `condition-live ${status}`;
+      item.querySelector(".condition-icon").textContent = status === "good" ? "✓" : status === "bad" ? "×" : "·";
+      if (detail) item.querySelector("small").textContent = detail;
+    }
+
+    function updateMessage() {
+      const input = $("message-input");
+      if (!input.value.length) input.value = "A";
+      state.message = encoder.encode(input.value);
+      state.selectedByte = Math.min(state.selectedByte, Math.max(0, state.message.length - 1));
+      state.key = new Uint8Array();
+      state.cipher = new Uint8Array();
+      state.recovered = new Uint8Array();
+      state.keyState = "empty";
+      ["key", "encrypt", "decrypt"].forEach((task) => state.tasks.delete(task));
+      renderLab();
+      updateProgress();
+      explain("El mensaje cambió", "La clave anterior se descartó. Generá una nueva: en un OTP la longitud debe coincidir exactamente.");
+    }
+
+    function generateKey() {
+      try {
+        state.message = encoder.encode($("message-input").value || "A");
+        state.key = safeRandom(state.message.length);
+        state.cipher = new Uint8Array();
+        state.recovered = new Uint8Array();
+        state.keyState = "fresh";
+        markTask("key");
+        renderLab();
+        explain(
+          "Clave preparada",
+          `${state.key.length} bytes independientes generados con Web Crypto. Todavía no fue utilizada.`
+        );
+      } catch (error) {
+        showRuntimeError(error.message);
+      }
+    }
+
+    function encryptMessage() {
+      if (!state.key.length || state.key.length !== state.message.length) {
+        generateKey();
+      }
+      if (state.keyState === "used" || state.keyState === "compromised") {
+        explain("Clave consumida", "Un OTP no permite una segunda operación con K. Generá una clave nueva.");
+        return;
+      }
+      state.cipher = xorBytes(state.message, state.key);
+      state.recovered = new Uint8Array();
+      state.keyState = "used";
+      markTask("encrypt");
+      renderLab(true);
+      explain(
+        "Cifrado completado",
+        "K quedó consumida después de una única operación. El cifrado conserva la longitud, pero no la estructura visible del mensaje."
+      );
+    }
+
+    function decryptMessage() {
+      if (!state.cipher.length) {
+        explain("Todavía no hay cifrado", "Aplicá C = M ⊕ K antes de intentar recuperar el mensaje.");
+        return;
+      }
+      state.recovered = xorBytes(state.cipher, state.key);
+      markTask("decrypt");
+      renderLab();
+      explain("Mensaje recuperado", "XOR es su propia inversa: (M ⊕ K) ⊕ K = M porque K ⊕ K = 0.");
+    }
+
+    function resetLab() {
+      state.message = encoder.encode($("message-input").value || "A");
+      state.key = new Uint8Array();
+      state.cipher = new Uint8Array();
+      state.recovered = new Uint8Array();
+      state.keyState = "empty";
+      state.selectedByte = 0;
+      ["key", "encrypt", "decrypt"].forEach((task) => state.tasks.delete(task));
+      renderLab();
+      updateProgress();
+      explain("Laboratorio reiniciado", "El mensaje permanece, pero la clave y los resultados fueron descartados.");
+    }
+
+    function explain(title, copy) {
+      $("lab-explanation-title").textContent = title;
+      $("lab-explanation").textContent = copy;
+    }
+
+    function renderKeyState() {
+      const container = $("key-state");
+      container.className = `key-state ${state.keyState}`;
+      const content = {
+        empty: ["Sin clave", "Generá una clave para comenzar.", "vacía"],
+        fresh: ["Clave nueva y reservada", "Lista para exactamente una operación de cifrado.", "fresca"],
+        used: ["Clave consumida", "Se usó una vez: conservála solo para descifrar y luego destruíla.", "usada 1 vez"],
+        compromised: ["Clave comprometida", "La reutilización eliminó la garantía de secreto perfecto.", "reutilizada"]
+      }[state.keyState];
+      $("key-state-title").textContent = content[0];
+      $("key-state-copy").textContent = content[1];
+      $("key-state-badge").textContent = content[2];
+    }
+
+    function renderConditions() {
+      const hasKey = state.key.length > 0;
+      const sameLength = hasKey && state.key.length === state.message.length;
+      const compromised = state.keyState === "compromised";
+
+      setCondition(
+        "condition-random",
+        hasKey ? "good" : "pending",
+        hasKey ? "Generada con crypto.getRandomValues()." : "Esperando una fuente criptográficamente segura."
+      );
+      setCondition(
+        "condition-length",
+        sameLength ? "good" : "pending",
+        sameLength ? `${state.key.length} bytes de mensaje ↔ ${state.key.length} bytes de clave.` : "La clave debe cubrir todo el mensaje."
+      );
+      setCondition(
+        "condition-secret",
+        hasKey ? "good" : "pending",
+        hasKey ? "Se procesa localmente; se muestra solo con fines didácticos." : "Debe acordarse por un canal seguro."
+      );
+      setCondition(
+        "condition-once",
+        compromised ? "bad" : hasKey ? "good" : "pending",
+        compromised
+          ? "K se utilizó en más de un mensaje."
+          : state.keyState === "used"
+            ? "Consumida una vez; el botón de cifrado queda bloqueado."
+            : hasKey
+              ? "Reservada para una única operación."
+              : "Todavía no existe una clave."
+      );
+
+      const score = hasKey ? (compromised ? 3 : 4) : 0;
+      $("condition-score").innerHTML = score === 4
+        ? "<strong>4/4 condiciones</strong> · El esquema cumple la definición de OTP."
+        : score === 3
+          ? "<strong>3/4 condiciones</strong> · Ya no existe secreto perfecto."
+          : "Generá una clave para evaluar las cuatro condiciones.";
+    }
+
+    function renderMetrics() {
+      const bits = state.key.length * 8;
+      $("metric-bytes").textContent = state.message.length;
+      $("metric-key-bits").textContent = state.key.length ? bits : "—";
+      $("metric-keys").textContent = state.key.length ? `2^${bits}` : "—";
+      $("metric-leak").textContent = state.keyState === "compromised" ? "> 0 bits" : "0 bits";
+    }
+
+    function renderInspector(animate = false) {
+      const length = state.message.length;
+      const index = Math.min(state.selectedByte, Math.max(0, length - 1));
+      const messageByte = state.message[index] || 0;
+      const keyReady = state.key.length === length;
+      const cipherReady = state.cipher.length === length;
+      const keyByte = keyReady ? state.key[index] : 0;
+      const cipherByte = cipherReady ? state.cipher[index] : 0;
+
+      $("byte-position").textContent = `byte ${index + 1}/${length}`;
+      $("byte-prev").disabled = index === 0;
+      $("byte-next").disabled = index >= length - 1;
+      $("message-byte-label").textContent = printableByte(messageByte);
+      $("message-byte-value").textContent = `0x${messageByte.toString(16).padStart(2, "0").toUpperCase()}`;
+      $("key-byte-value").textContent = keyReady ? `0x${keyByte.toString(16).padStart(2, "0").toUpperCase()}` : "—";
+      $("cipher-byte-value").textContent = cipherReady ? `0x${cipherByte.toString(16).padStart(2, "0").toUpperCase()}` : "—";
+
+      renderBits($("message-bits"), messageByte);
+      renderBits($("key-bits"), keyByte, keyReady);
+      renderBits($("cipher-bits"), cipherByte, cipherReady);
+
+      const cipherLine = $("cipher-bit-line");
+      cipherLine.classList.remove("pulse");
+      if (animate && cipherReady) {
+        void cipherLine.offsetWidth;
+        cipherLine.classList.add("pulse");
+      }
+    }
+
+    function renderConsole() {
+      $("console-message").textContent = formatBytes(state.message);
+      $("console-key").textContent = formatBytes(state.key);
+      $("console-cipher").textContent = formatBytes(state.cipher);
+      $("console-recovered").textContent = state.recovered.length
+        ? `${formatBytes(state.recovered)}\n→ ${decoder.decode(state.recovered)}`
+        : "—";
+    }
+
+    function renderLab(animate = false) {
+      state.message = encoder.encode($("message-input").value || "A");
+      renderKeyState();
+      renderConditions();
+      renderMetrics();
+      renderInspector(animate);
+      renderConsole();
+      $("encrypt-message").disabled = state.keyState === "used" || state.keyState === "compromised";
+      $("decrypt-message").disabled = !state.cipher.length;
+      $("message-help").textContent = `${$("message-input").value.length}/64 caracteres · ${state.message.length} bytes UTF-8.`;
+    }
+
+    function setProofCipherLength(length) {
+      const previous = state.proofCipher;
+      state.proofCipher = previous.slice(0, length).padEnd(length, "0");
+      state.proofSelected = 0;
+      renderProof();
+    }
+
+    function renderProof() {
+      const length = Number($("proof-length").value);
+      if (state.proofCipher.length !== length) {
+        state.proofCipher = state.proofCipher.slice(0, length).padEnd(length, "0");
+      }
+
+      const toggleContainer = $("cipher-toggle-bits");
+      toggleContainer.replaceChildren();
+      Array.from(state.proofCipher).forEach((bit, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `toggle-bit${bit === "1" ? " on" : ""}`;
+        button.textContent = bit;
+        button.setAttribute("aria-label", `Bit ${index + 1}: ${bit}. Pulsar para cambiar.`);
+        button.setAttribute("aria-pressed", bit === "1" ? "true" : "false");
+        button.addEventListener("click", () => {
+          const bits = Array.from(state.proofCipher);
+          bits[index] = bits[index] === "1" ? "0" : "1";
+          state.proofCipher = bits.join("");
+          renderProof();
+        });
+        toggleContainer.appendChild(button);
+      });
+
+      const count = 2 ** length;
+      const cipherValue = parseInt(state.proofCipher, 2);
+      const probability = 100 / count;
+      $("proof-probability").textContent = `1/${count} = ${probability.toLocaleString("es-AR", { maximumFractionDigits: 3 })}%`;
+      $("proof-probability-bar").style.width = `${probability}%`;
+      $("universe-copy").textContent = `Para C = ${state.proofCipher} existen ${count} pares (M, K) compatibles.`;
+      $("candidate-count").textContent = `${count} candidatos`;
+
+      const grid = $("candidate-grid");
+      grid.replaceChildren();
+      for (let message = 0; message < count; message += 1) {
+        const key = message ^ cipherValue;
+        const messageBits = message.toString(2).padStart(length, "0");
+        const keyBits = key.toString(2).padStart(length, "0");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `candidate-card${message === state.proofSelected ? " selected" : ""}`;
+        button.innerHTML = `<b>M ${messageBits}</b><span>K ${keyBits}</span>`;
+        button.setAttribute("aria-label", `Mensaje ${messageBits}, clave compatible ${keyBits}`);
+        button.addEventListener("click", () => {
+          state.proofSelected = message;
+          markTask("proof");
+          renderProof();
+        });
+        grid.appendChild(button);
+      }
+
+      const selectedMessage = state.proofSelected.toString(2).padStart(length, "0");
+      const selectedKey = (state.proofSelected ^ cipherValue).toString(2).padStart(length, "0");
+      $("candidate-message").textContent = selectedMessage;
+      $("candidate-key").textContent = selectedKey;
+      $("candidate-result").textContent = state.proofCipher;
+    }
+
+    function randomizeProofCipher() {
+      const length = Number($("proof-length").value);
+      const random = safeRandom(1)[0] % (2 ** length);
+      state.proofCipher = random.toString(2).padStart(length, "0");
+      state.proofSelected = 0;
+      renderProof();
+    }
+
+    function runReuseAttack() {
+      const messageOne = encoder.encode($("reuse-message-one").value || "A");
+      const messageTwo = encoder.encode($("reuse-message-two").value || "B");
+      const length = Math.min(messageOne.length, messageTwo.length);
+      const one = messageOne.slice(0, length);
+      const two = messageTwo.slice(0, length);
+      const key = safeRandom(length);
+      const cipherOne = xorBytes(one, key);
+      const cipherTwo = xorBytes(two, key);
+      const cipherDelta = xorBytes(cipherOne, cipherTwo);
+      const messageDelta = xorBytes(one, two);
+
+      state.reuse = { one, two, key, cipherOne, cipherTwo, cipherDelta, messageDelta };
+      markTask("reuse");
+      renderReuse();
+    }
+
+    function renderReuse() {
+      if (!state.reuse) return;
+      const { one, two, cipherOne, cipherTwo, cipherDelta, messageDelta } = state.reuse;
+      $("reuse-cipher-delta").textContent = toHex(cipherDelta);
+      $("reuse-message-delta").textContent = toHex(messageDelta);
+      const match = equalBytes(cipherDelta, messageDelta);
+      const verdict = $("reuse-verdict");
+      verdict.replaceChildren();
+      const icon = document.createElement("span");
+      icon.className = "verdict-icon";
+      icon.textContent = match ? "=" : "×";
+      const copy = document.createElement("span");
+      copy.innerHTML = match
+        ? "<strong>Coinciden byte por byte.</strong> K desapareció y quedó expuesta la relación M₁ ⊕ M₂."
+        : "Los valores no coincidieron; revisá la simulación.";
+      verdict.append(icon, copy);
+
+      const strip = $("leak-strip");
+      strip.replaceChildren();
+      Array.from(cipherDelta).slice(0, 24).forEach((value, index) => {
+        const cell = document.createElement("span");
+        cell.className = "leak-byte";
+        cell.innerHTML = `<b>${value.toString(16).padStart(2, "0").toUpperCase()}</b><small>${index + 1}</small>`;
+        strip.appendChild(cell);
+      });
+
+      const crib = encoder.encode($("crib-input").value).slice(0, one.length);
+      const partialKey = xorBytes(cipherOne.slice(0, crib.length), crib);
+      const recoveredTwo = xorBytes(cipherTwo.slice(0, crib.length), partialKey);
+      $("crib-key").textContent = toHex(partialKey) || "—";
+      $("crib-result").textContent = decoder.decode(recoveredTwo) || "—";
+      const cribCorrect = equalBytes(crib, one.slice(0, crib.length));
+      const feedback = $("crib-feedback");
+      feedback.className = `status ${cribCorrect ? "good" : "bad"}`;
+      feedback.textContent = cribCorrect
+        ? `La suposición coincide con M₁: recuperaste ${crib.length} bytes iniciales de M₂.`
+        : "La suposición no coincide: el resultado parece incoherente. Los atacantes prueban palabras probables hasta hallar estructura lingüística.";
+
+      $("reuse-message-one").setAttribute("aria-describedby", "reuse-note");
+      $("reuse-message-two").setAttribute("aria-describedby", "reuse-note");
+      if (!document.getElementById("reuse-note")) {
+        const note = document.createElement("span");
+        note.id = "reuse-note";
+        note.className = "sr-only";
+        note.textContent = `Se compararon ${one.length} bytes, la longitud común de ambos mensajes.`;
+        $("run-reuse-attack").after(note);
+      } else {
+        $("reuse-note").textContent = `Se compararon ${one.length} bytes, la longitud común de ambos mensajes.`;
+      }
+    }
+
+    function checkQuiz() {
+      const answers = { q1: "b", q2: "c", q3: "a" };
+      let score = 0;
+      let answered = 0;
+
+      Object.entries(answers).forEach(([question, correct]) => {
+        const fieldset = document.querySelector(`[data-question="${question}"]`);
+        const selected = document.querySelector(`input[name="${question}"]:checked`);
+        fieldset.classList.remove("correct", "wrong");
+        if (selected) {
+          answered += 1;
+          if (selected.value === correct) {
+            score += 1;
+            fieldset.classList.add("correct");
+          } else {
+            fieldset.classList.add("wrong");
+          }
+        }
+      });
+
+      const feedback = $("quiz-feedback");
+      if (answered < 3) {
+        feedback.className = "quiz-feedback";
+        feedback.textContent = `Respondé las ${3 - answered} pregunta${3 - answered === 1 ? "" : "s"} restante${3 - answered === 1 ? "" : "s"}.`;
+      } else if (score === 3) {
+        feedback.className = "quiz-feedback success";
+        feedback.textContent = "3/3 · Excelente: distinguís el mecanismo, las condiciones y el fallo operacional.";
+        markTask("quiz");
+      } else {
+        feedback.className = "quiz-feedback";
+        feedback.textContent = `${score}/3 · Revisá las tarjetas marcadas y volvé a intentarlo.`;
+      }
+    }
+
+    function resetQuiz() {
+      document.querySelectorAll('.quiz-question input[type="radio"]').forEach((input) => {
+        input.checked = false;
+      });
+      document.querySelectorAll(".quiz-question").forEach((fieldset) => {
+        fieldset.classList.remove("correct", "wrong");
+      });
+      $("quiz-feedback").className = "quiz-feedback";
+      $("quiz-feedback").textContent = "Respondé las tres preguntas.";
+      state.tasks.delete("quiz");
+      updateProgress();
+    }
+
+    function markTask(task) {
+      state.tasks.add(task);
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const completed = state.tasks.size;
+      const percent = Math.round((completed / TASKS_TOTAL) * 100);
+      $("mission-progress-bar").style.width = `${percent}%`;
+      $("mission-progress-label").textContent = `${completed}/${TASKS_TOTAL}`;
+      $("completion-percent").textContent = `${percent}%`;
+      if (completed === TASKS_TOTAL) {
+        $("completion-title").textContent = "Laboratorio completado";
+        $("completion-copy").textContent = "Construiste, justificaste y atacaste el esquema: ya podés explicar cuándo existe secreto perfecto y cuándo se pierde.";
+      } else {
+        $("completion-title").textContent = "Laboratorio en curso";
+        $("completion-copy").textContent = `Completaste ${completed} de ${TASKS_TOTAL} actividades. Cada interacción consolida una parte del razonamiento.`;
+      }
+    }
+
+    function showRuntimeError(message) {
+      let banner = document.querySelector(".runtime-error");
+      if (!banner) {
+        banner = document.createElement("div");
+        banner.className = "runtime-error";
+        banner.setAttribute("role", "alert");
+        document.body.prepend(banner);
+      }
+      banner.textContent = message;
+    }
+
+    function bindEvents() {
+      $("message-input").addEventListener("input", updateMessage);
+      $("generate-key").addEventListener("click", generateKey);
+      $("encrypt-message").addEventListener("click", encryptMessage);
+      $("decrypt-message").addEventListener("click", decryptMessage);
+      $("reset-lab").addEventListener("click", resetLab);
+      $("byte-prev").addEventListener("click", () => {
+        state.selectedByte = Math.max(0, state.selectedByte - 1);
+        renderInspector();
+      });
+      $("byte-next").addEventListener("click", () => {
+        state.selectedByte = Math.min(state.message.length - 1, state.selectedByte + 1);
+        renderInspector();
+      });
+
+      document.querySelectorAll(".format-tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.format = button.dataset.format;
+          document.querySelectorAll(".format-tab").forEach((tab) => tab.classList.toggle("active", tab === button));
+          renderConsole();
+        });
+      });
+
+      $("proof-length").addEventListener("change", (event) => setProofCipherLength(Number(event.target.value)));
+      $("randomize-cipher").addEventListener("click", randomizeProofCipher);
+      $("run-reuse-attack").addEventListener("click", runReuseAttack);
+      $("crib-input").addEventListener("input", renderReuse);
+      $("check-quiz").addEventListener("click", checkQuiz);
+      $("reset-quiz").addEventListener("click", resetQuiz);
+
+      document.querySelectorAll(".mission-tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          $(button.dataset.target).scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+
+      const sections = Array.from(document.querySelectorAll(".lesson-section"));
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+          if (!visible) return;
+          document.querySelectorAll(".mission-tab").forEach((tab) => {
+            tab.classList.toggle("active", tab.dataset.target === visible.target.id);
+          });
+        }, { rootMargin: "-25% 0px -60% 0px", threshold: [0, 0.15, 0.4] });
+        sections.forEach((section) => observer.observe(section));
+      }
+    }
+
+    function initialize() {
+      state.message = encoder.encode($("message-input").value);
+      bindEvents();
+      renderLab();
+      renderProof();
+      updateProgress();
+    }
+
+    window.addEventListener("error", (event) => {
+      showRuntimeError(`La simulación encontró un error: ${event.message}`);
+    });
+
+    initialize();
+  </script>
+</body>
+</html>
