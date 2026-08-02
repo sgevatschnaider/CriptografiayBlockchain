@@ -39,6 +39,7 @@ jobs:
         run: |
           node scripts/validate-simulators.mjs
           node scripts/validate-module-02.mjs
+          node scripts/validate-module-03.mjs
           node scripts/validate-fundamentos-matematicos.mjs
 
   deploy:

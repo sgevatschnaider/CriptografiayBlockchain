@@ -45,16 +45,17 @@
         </article>
 
         <article class="card">
-          <h2>Estimador de secreto</h2>
-          <div class="control"><label>Contraseña o frase</label><input id="password" value="correcto caballo bateria grapa 2026!"></div>
-          <div class="actions"><button id="estimate">Estimar espacio</button></div>
+          <h2>Límite ideal de selección aleatoria</h2>
+          <p class="muted">No introduzcas contraseñas reales. Este cálculo solo representa elecciones independientes y uniformes; no estima la entropía de una frase humana.</p>
+          <div class="control"><label>Secreto ficticio</label><input id="password" value="correcto caballo bateria grapa 2026!" autocomplete="off"></div>
+          <div class="actions"><button id="estimate">Calcular límite ideal</button><a class="button secondary" href="modulo-03/contrasena-salt-kdf.html">Abrir laboratorio KDF</a></div>
           <div class="metric-grid" style="margin-top:14px">
-            <div class="metric"><strong id="length">0</strong><span>longitud</span></div>
-            <div class="metric"><strong id="pool">0</strong><span>alfabeto estimado</span></div>
-            <div class="metric"><strong id="entropy">0</strong><span>bits ingenuos</span></div>
-            <div class="metric"><strong id="class">—</strong><span>clasificación</span></div>
+            <div class="metric"><strong id="length">0</strong><span>puntos de código tras NFC</span></div>
+            <div class="metric"><strong id="passwordBytes">0</strong><span>bytes UTF-8</span></div>
+            <div class="metric"><strong id="pool">0</strong><span>alfabeto supuesto</span></div>
+            <div class="metric"><strong id="entropy">0</strong><span>bits del límite ideal</span></div>
           </div>
-          <div class="status" id="passwordStatus">La fórmula longitud × log₂(alfabeto) sobreestima frases humanas predecibles.</div>
+          <div class="status" id="passwordStatus">Longitud × log₂(alfabeto) no debe presentarse como “entropía real” de una contraseña humana.</div>
         </article>
 
         <article class="card">
@@ -181,28 +182,29 @@
     };
 
     function estimate() {
-      const value = $('#password').value;
+      const value = $('#password').value.normalize('NFC');
+      const codePoints = [...value].length;
+      const utf8Bytes = te.encode(value).length;
       let pool = 0;
       if (/[a-záéíóúñ]/.test(value)) pool += 27;
       if (/[A-ZÁÉÍÓÚÑ]/.test(value)) pool += 27;
       if (/[0-9]/.test(value)) pool += 10;
       if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9]/.test(value)) pool += 33;
 
-      const bits = value.length && pool ? value.length * Math.log2(pool) : 0;
-      const classification = bits >= 100 ? 'Alta' : bits >= 70 ? 'Media' : bits >= 45 ? 'Baja' : 'Muy baja';
-      $('#length').textContent = value.length;
+      const bits = codePoints && pool ? codePoints * Math.log2(pool) : 0;
+      $('#length').textContent = codePoints;
+      $('#passwordBytes').textContent = utf8Bytes;
       $('#pool').textContent = pool;
       $('#entropy').textContent = bits.toFixed(1);
-      $('#class').textContent = classification;
 
       const repeated = /(.)\1{2,}/.test(value);
       const common = /password|1234|qwerty|contrase|admin|sergio/i.test(value);
       setStatus(
         $('#passwordStatus'),
         repeated || common
-          ? 'La estimación formal es engañosa: se detectaron patrones previsibles.'
-          : 'Estimación de espacio teórico. Un atacante usa diccionarios y modelos, no solo fuerza bruta uniforme.',
-        repeated || common ? 'warn' : 'good'
+          ? `El límite ideal sería ${bits.toFixed(1)} bits, pero se detectaron patrones previsibles: ese número no representa la resistencia real.`
+          : `Límite ideal: ${bits.toFixed(1)} bits bajo selección uniforme. Una entrada humana requiere un modelo de adivinación, blocklists y contexto de ataque.`,
+        'warn'
       );
     }
 

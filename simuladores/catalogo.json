@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -115,8 +115,20 @@
     {
       "id": "modulo-03",
       "titulo": "Criptografía moderna aplicada",
+      "pagina": "modulo-03/index.html",
+      "ruta_guiada": "modulo-03/ruta-guiada.html",
       "laboratorio_integral": "03-criptografia-moderna.html",
       "simulaciones": [
+        {
+          "titulo": "Clase 3: de la contraseña a AES-GCM",
+          "archivo": "modulo-03/ruta-guiada.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Contraseña, salt y KDF",
+          "archivo": "modulo-03/contrasena-salt-kdf.html",
+          "estado": "disponible"
+        },
         {
           "titulo": "Bloques frente a flujo",
           "archivo": "modulo-03/bloques-vs-flujo.html",
@@ -125,6 +137,11 @@
         {
           "titulo": "Modos AES y AEAD",
           "archivo": "modulo-03/modos-aes-aead.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Cifrado local de archivos con AES-GCM",
+          "archivo": "modulo-03/cifrado-local-archivos.html",
           "estado": "disponible"
         },
         {

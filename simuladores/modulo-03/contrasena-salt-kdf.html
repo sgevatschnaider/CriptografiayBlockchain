@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio interactivo sobre contraseñas, normalización Unicode, salt, PBKDF2 y costo de ataques offline.">
+  <meta name="theme-color" content="#071321">
+  <title>De la contraseña a la clave | Clase 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body>
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+    <header class="topbar">
+      <div class="brand"><a href="ruta-guiada.html">← Clase 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="index.html">Módulo 3</a>
+        <a href="modos-aes-aead.html">Siguiente: AES</a>
+        <a href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Teoría</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Clase 3 · Estación 1</div>
+      <h1>De la contraseña a la clave</h1>
+      <p>Comprobá qué hacen realmente el salt y PBKDF2, medí el costo local de derivación y distinguí la longitud de una clave de la imprevisibilidad de una contraseña humana.</p>
+      <div class="lesson-kicker" aria-label="Conceptos principales">
+        <span>Unicode + UTF-8</span><span>Normalización NFC</span><span>Salt de 128 bits</span><span>PBKDF2 real</span><span>Ataque offline</span>
+      </div>
+      <div class="privacy-banner">
+        <span aria-hidden="true">🛡️</span>
+        <div><strong>No introduzcas contraseñas reales.</strong> Todo se procesa localmente en tu navegador; este recurso utiliza ejemplos ficticios y no transmite datos.</div>
+      </div>
+    </section>
+
+    <section class="lab-panel full" style="margin-top:22px" aria-labelledby="flujo-title">
+      <h2 id="flujo-title">La cadena correcta</h2>
+      <div class="concept-flow" aria-label="Contraseña y parámetros ingresan en PBKDF2 para producir una clave AES">
+        <div class="flow-node"><strong>Contraseña</strong><span>Secreto humano</span></div><span class="flow-arrow" aria-hidden="true">+</span>
+        <div class="flow-node"><strong>Salt</strong><span>Único, no secreto</span></div><span class="flow-arrow" aria-hidden="true">+</span>
+        <div class="flow-node"><strong>Costo</strong><span>Iteraciones</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>PBKDF2</strong><span>HMAC-SHA-256</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>Clave</strong><span>256 bits</span></div>
+      </div>
+      <div class="callout" style="margin-top:16px"><strong>Idea central:</strong> una KDF aumenta el costo de probar candidatos, pero no crea entropía que la contraseña no tenía.</div>
+    </section>
+
+    <section class="lab-grid" id="laboratorio">
+      <article class="lab-panel">
+        <h2>1. Inspeccioná la entrada</h2>
+        <p class="muted">El navegador normaliza la contraseña a NFC antes de derivar. No confundas caracteres visibles, puntos de código y bytes.</p>
+        <div class="control">
+          <label for="password">Contraseña ficticia</label>
+          <input id="password" type="password" value="Ejemplo docente 2026!" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="actions">
+          <button class="secondary" id="toggle-password" type="button">Mostrar contraseña</button>
+          <button class="secondary" id="unicode-example" type="button">Probar ejemplo Unicode</button>
+        </div>
+        <div class="metric-grid" style="margin-top:14px">
+          <div class="metric"><strong id="graphemes">0</strong><span>grafemas visibles</span></div>
+          <div class="metric"><strong id="code-points">0</strong><span>puntos de código</span></div>
+          <div class="metric"><strong id="utf16-units">0</strong><span>unidades UTF-16</span></div>
+          <div class="metric"><strong id="utf8-bytes">0</strong><span>bytes UTF-8 tras NFC</span></div>
+        </div>
+        <div class="status" id="unicode-status">La misma apariencia visual puede tener representaciones binarias diferentes si no se normaliza.</div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>2. Configurá PBKDF2</h2>
+        <div class="controls">
+          <div class="control full">
+            <label for="salt">Salt hexadecimal · 16 bytes</label>
+            <input id="salt" class="mono" spellcheck="false" inputmode="text">
+          </div>
+          <div class="control">
+            <label for="iterations">Iteraciones educativas</label>
+            <input id="iterations" type="number" min="10000" max="1000000" step="10000" value="200000">
+          </div>
+          <div class="control">
+            <label for="output-size">Longitud derivada</label>
+            <select id="output-size" disabled><option>256 bits</option></select>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="derive" type="button">Derivar clave</button>
+          <button class="secondary" id="repeat" type="button">Repetir igual</button>
+          <button class="secondary" id="different-salt" type="button">Nueva salt y derivar</button>
+        </div>
+        <p class="small muted">El número de iteraciones es un parámetro de laboratorio, no una recomendación universal. Debe calibrarse según plataforma, amenaza y política vigente.</p>
+        <div class="status" id="kdf-status">Ejecutá la primera derivación y compará después los experimentos.</div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>3. Compará hash rápido y KDF</h2>
+        <div class="metric-grid">
+          <div class="metric"><strong id="direct-time">—</strong><span>SHA-256 directo</span></div>
+          <div class="metric"><strong id="pbkdf2-time">—</strong><span>PBKDF2 local</span></div>
+          <div class="metric"><strong id="cost-ratio">—</strong><span>relación medida</span></div>
+          <div class="metric"><strong id="derived-bits">256</strong><span>bits de salida</span></div>
+        </div>
+        <div class="data-grid">
+          <div class="data-box"><b>SHA-256 directo</b><output id="direct-output">Esperando ejecución…</output></div>
+          <div class="data-box"><b>PBKDF2-HMAC-SHA-256</b><output id="derived-output">Esperando ejecución…</output></div>
+          <div class="data-box"><b>Salt usado</b><output id="salt-output">—</output></div>
+          <div class="data-box"><b>Entrada normalizada</b><output id="normalized-output">—</output></div>
+        </div>
+        <div class="callout" style="margin-top:16px"><strong>No confundas salida con seguridad:</strong> obtener 256 bits no significa que una contraseña predecible alcance 256 bits de resistencia.</div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>4. Registro de experimentos</h2>
+        <p class="muted">La igualdad depende de los tres elementos: contraseña normalizada, salt y parámetros.</p>
+        <div class="experiment-log" id="experiment-log" aria-live="polite">
+          <p class="muted">Todavía no hay ejecuciones.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>5. Costo de intentos offline</h2>
+        <p class="muted">Extrapolación desde este dispositivo y esta sesión. No representa la velocidad de hardware especializado ni una garantía temporal.</p>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Estimación del costo de intentos offline">
+          <table>
+            <thead><tr><th>Intentos</th><th>Tiempo local estimado</th><th>Qué representa</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td id="cost-1">—</td><td>Verificación legítima</td></tr>
+              <tr><td>1.000</td><td id="cost-1000">—</td><td>Lista breve</td></tr>
+              <tr><td>1.000.000</td><td id="cost-million">—</td><td>Diccionario amplio</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="status" id="attack-status">En un ataque offline no hay bloqueo ni límite de intentos impuesto por el servidor.</div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Qué función corresponde a cada propósito</h2>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Comparación entre funciones de derivación y hash">
+          <table>
+            <thead><tr><th>Construcción</th><th>Entrada esperada</th><th>Propósito</th><th>Estado en este laboratorio</th></tr></thead>
+            <tbody>
+              <tr><td>SHA-256 directo</td><td>Datos generales</td><td>Resumen rápido; no endurece contraseñas</td><td>Ejecutado para comparar</td></tr>
+              <tr><td>PBKDF2</td><td>Contraseña humana + salt</td><td>Aumentar el costo de cada candidato</td><td>Ejecutado con Web Crypto</td></tr>
+              <tr><td>Argon2id</td><td>Contraseña humana + salt</td><td>Agregar costo de memoria y tiempo</td><td>Comparación conceptual; no se simula</td></tr>
+              <tr><td>HKDF</td><td>Secreto con alta entropía</td><td>Expandir y separar claves por contexto</td><td>No reemplaza una KDF de contraseñas</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <ol class="steps">
+          <li>Derivá dos veces con exactamente la misma entrada y explicá por qué la clave coincide.</li>
+          <li>Cambiá solamente la salt y comprobá que cambia la clave.</li>
+          <li>Multiplicá las iteraciones y compará el tiempo medido.</li>
+          <li>Explicá por qué <code>123456</code> sigue siendo predecible aunque PBKDF2 tarde más.</li>
+          <li>Indicá qué dato debe almacenarse junto con el criptograma para volver a derivar la clave.</li>
+        </ol>
+        <div class="actions"><a class="button" href="modos-aes-aead.html">Continuar con AES y sus modos →</a></div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Laboratorio educativo. No utilices estos parámetros como una política de producción sin análisis específico.</p>
+      <p data-capability></p>
+    </footer>
+  </main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar PBKDF2.</div></noscript>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/crypto-lab.js"></script>
+  <script src="assets/contrasena-salt-kdf.js"></script>
+</body>
+</html>

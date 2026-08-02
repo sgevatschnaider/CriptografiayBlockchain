@@ -65,23 +65,31 @@ Una sesión de 75 a 90 minutos puede organizarse así:
 
 ## Módulo 3 — Criptografía moderna
 
-**Pregunta rectora:** ¿por qué hash, cifrado autenticado y firma digital resuelven problemas diferentes?
+**Clase guiada disponible:** [De la contraseña a AES-GCM](./clase-03-kdf-aes-gcm.md) · [Abrir recorrido interactivo](../../simuladores/modulo-03/ruta-guiada.html)
+
+**Pregunta rectora:** ¿cómo se transforma una contraseña humana en una clave utilizable y cómo detecta el receptor una modificación?
 
 **Objetivos**
 
-- Observar el efecto avalancha.
-- Usar AES-GCM y comprender el papel de sal, IV y tag.
-- Firmar y verificar un documento.
-- Identificar fallas de composición.
+- Diferenciar contraseña, clave y entropía.
+- Usar PBKDF2 y comprender el papel de salt, costo y normalización NFC.
+- Distinguir el bloque AES de la longitud de clave.
+- Comparar CBC, CTR, GCM y XTS.
+- Cifrar un archivo local y verificar el tag.
+- Reconstruir conceptualmente la arquitectura de VeraCrypt.
 
 **Actividad central**
 
-1. Comparar dos hashes con un carácter de diferencia.
-2. Cifrar dos veces el mismo mensaje.
-3. Alterar el criptograma y observar el fallo de autenticación.
-4. Modificar un documento firmado y volver a verificar.
+1. Derivar dos veces con los mismos parámetros y comparar claves.
+2. Cambiar solamente la salt y repetir.
+3. Ejecutar AES-CBC, AES-CTR y AES-GCM con Web Crypto.
+4. Alterar ciphertext, IV o nonce, AAD y tag.
+5. Cifrar, exportar, importar y recuperar un archivo ficticio.
+6. Alterar un bit del paquete y observar el rechazo de GCM.
 
-**Evidencia de aprendizaje:** matriz que asigne confidencialidad, integridad y autenticidad a cada primitiva.
+**Evidencia de aprendizaje:** explicación que distinga KDF, clave, modo y tag; identifique los campos públicos del paquete y justifique por qué “descifrar” no equivale a “autenticar”.
+
+**Extensión:** el laboratorio integral conserva SHA-256, HKDF y ECDSA para ampliar la clase o trabajar de manera autónoma.
 
 ## Módulo 4 — Esteganografía
 

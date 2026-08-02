@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Ruta guiada de 90 minutos para la Clase 3: contraseña, KDF, AES, AEAD y cifrado local de archivos.">
+  <meta name="theme-color" content="#071321">
+  <title>Clase 3 · De la contraseña a AES-GCM</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body>
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#recorrido">Saltar al recorrido</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="../index.html">Campus</a>
+        <a href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Teoría</a>
+        <a href="../03-criptografia-moderna.html">Laboratorio integral</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Ruta docente · 90 minutos</div>
+      <h1>Clase 3: de la contraseña a AES-GCM</h1>
+      <p>Una secuencia completa para distinguir contraseña y clave, derivar material criptográfico, comparar modos AES, autenticar datos y cifrar un archivo local sin convertir VeraCrypt en el centro conceptual de la clase.</p>
+      <div class="lesson-kicker" aria-label="Resultados de aprendizaje">
+        <span>Contraseña ≠ clave</span><span>Salt + KDF</span><span>AES: bloque y clave</span><span>CBC / CTR / GCM</span><span>Cifrado autenticado</span><span>Archivo local</span>
+      </div>
+      <div class="actions">
+        <a class="button" href="contrasena-salt-kdf.html">Comenzar laboratorio</a>
+        <button class="secondary" id="reset-progress" type="button">Reiniciar progreso</button>
+      </div>
+    </section>
+
+    <section class="lab-panel full" style="margin-top:22px">
+      <div style="display:flex;justify-content:space-between;gap:14px;align-items:end;flex-wrap:wrap">
+        <div><div class="eyebrow">Progreso local</div><h2 style="margin-bottom:8px"><span id="completed-count">0</span> de 6 estaciones</h2></div>
+        <strong id="progress-percent">0 %</strong>
+      </div>
+      <div class="route-progress" role="progressbar" aria-label="Progreso de la clase" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-bar"></span></div>
+      <p class="small muted">Las marcas se guardan solamente en este navegador.</p>
+    </section>
+
+    <section class="lab-grid">
+      <article class="lab-panel">
+        <h2>Objetivos observables</h2>
+        <ul>
+          <li>Diferenciar contraseña, clave y entropía.</li>
+          <li>Explicar salt, KDF y costo offline.</li>
+          <li>Distinguir bloque AES de longitud de clave.</li>
+          <li>Comparar CBC, CTR, GCM y XTS.</li>
+          <li>Detectar una modificación con un tag.</li>
+          <li>Reconstruir conceptualmente VeraCrypt.</li>
+        </ul>
+      </article>
+      <article class="lab-panel">
+        <h2>Reglas del laboratorio</h2>
+        <ul>
+          <li>Usar únicamente contraseñas y archivos ficticios.</li>
+          <li>Predecir el resultado antes de cada botón.</li>
+          <li>Cambiar una sola variable por experimento.</li>
+          <li>Distinguir ejecución real de modelo conceptual.</li>
+          <li>No trasladar parámetros educativos a producción.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="lab-panel full" id="recorrido" style="margin-top:18px">
+      <h2>Recorrido de la clase</h2>
+      <div class="station-list">
+        <article class="station">
+          <span class="station-number">0</span>
+          <div>
+            <h3>Corrección conceptual de apertura</h3>
+            <p>Contraseña humana, clave aleatoria, bits por carácter y límite ideal de fuerza bruta.</p>
+            <label class="station-check"><input type="checkbox" data-station="0"> Marcar como completada</label>
+          </div>
+          <div><span class="station-time">10 min</span><div class="actions"><a class="button secondary" href="../modulo-02/espacio-claves-complejidad.html">Abrir apoyo</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">1</span>
+          <div>
+            <h3>De la contraseña a la clave</h3>
+            <p>Normalización NFC, salt, PBKDF2, repetibilidad y costo de intentos offline.</p>
+            <label class="station-check"><input type="checkbox" data-station="1"> Marcar como completada</label>
+          </div>
+          <div><span class="station-time">20 min</span><div class="actions"><a class="button" href="contrasena-salt-kdf.html">Abrir KDF</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">2</span>
+          <div>
+            <h3>AES, modos y autenticación</h3>
+            <p>Bloques de 128 bits, claves AES, CBC, CTR, GCM, AAD, tag y manipulación.</p>
+            <label class="station-check"><input type="checkbox" data-station="2"> Marcar como completada</label>
+          </div>
+          <div><span class="station-time">25 min</span><div class="actions"><a class="button" href="modos-aes-aead.html">Abrir AES</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">3</span>
+          <div>
+            <h3>Archivo local con AES-GCM</h3>
+            <p>Seleccionar, cifrar, exportar, importar, alterar, autenticar y recuperar.</p>
+            <label class="station-check"><input type="checkbox" data-station="3"> Marcar como completada</label>
+          </div>
+          <div><span class="station-time">20 min</span><div class="actions"><a class="button" href="cifrado-local-archivos.html">Abrir archivo</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">4</span>
+          <div>
+            <h3>Reconstrucción de VeraCrypt</h3>
+            <p>Usar lo aprendido para ubicar KDF, encabezado, claves maestras y XTS.</p>
+            <label class="station-check"><input type="checkbox" data-station="4"> Marcar como completada</label>
+          </div>
+          <span class="station-time">7 min</span>
+        </article>
+
+        <article class="station">
+          <span class="station-number">5</span>
+          <div>
+            <h3>Evaluación de salida</h3>
+            <p>Cinco preguntas para comprobar que la secuencia conceptual quedó integrada.</p>
+            <label class="station-check"><input type="checkbox" data-station="5"> Marcar como completada</label>
+          </div>
+          <div><span class="station-time">8 min</span><div class="actions"><a class="button secondary" href="#salida">Ir a preguntas</a></div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="lab-panel full" style="margin-top:18px">
+      <h2>Puente final con VeraCrypt</h2>
+      <p class="muted">La contraseña no cifra directamente todos los sectores. Primero permite abrir un encabezado protegido que contiene las claves maestras.</p>
+      <div class="concept-flow" aria-label="Arquitectura conceptual de VeraCrypt">
+        <div class="flow-node"><strong>Contraseña</strong><span>+ PIM / keyfiles</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>KDF</strong><span>Clave de encabezado</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>Encabezado</strong><span>Protegido</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>Claves maestras</strong><span>Datos</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>XTS</strong><span>Sectores del volumen</span></div>
+      </div>
+      <div class="callout" style="margin-top:16px"><strong>Conclusión:</strong> el laboratorio de archivos reemplaza la cadena didáctica contraseña → KDF → clave → cifrado → integridad. No reemplaza montaje de unidades, cifrado sectorial ni volúmenes ocultos.</div>
+    </section>
+
+    <section class="lab-panel full" id="salida" style="margin-top:18px">
+      <div class="eyebrow">Exit ticket</div>
+      <h2>Evaluación de salida</h2>
+      <form id="exit-ticket">
+        <fieldset class="lab-panel full" style="margin-top:12px">
+          <legend><strong>1. Si AES-256 usa la contraseña <code>sergio2026</code>, ¿el sistema posee automáticamente 256 bits de seguridad?</strong></legend>
+          <div class="answer-set">
+            <label><input type="radio" name="q1" value="a"> Sí, porque la clave de AES mide 256 bits.</label>
+            <label><input type="radio" name="q1" value="b"> No; la resistencia práctica queda limitada por la previsibilidad de la contraseña y el costo de la KDF.</label>
+          </div>
+        </fieldset>
+        <fieldset class="lab-panel full" style="margin-top:12px">
+          <legend><strong>2. ¿La salt debe mantenerse secreta?</strong></legend>
+          <div class="answer-set">
+            <label><input type="radio" name="q2" value="a"> Sí, es equivalente a la clave.</label>
+            <label><input type="radio" name="q2" value="b"> No; debe ser única y aleatoria, pero puede almacenarse con el paquete.</label>
+          </div>
+        </fieldset>
+        <fieldset class="lab-panel full" style="margin-top:12px">
+          <legend><strong>3. ¿PBKDF2 agrega entropía a una contraseña débil?</strong></legend>
+          <div class="answer-set">
+            <label><input type="radio" name="q3" value="a"> No; encarece cada prueba, pero no vuelve impredecible el candidato.</label>
+            <label><input type="radio" name="q3" value="b"> Sí; las iteraciones transforman cualquier contraseña en un secreto aleatorio.</label>
+          </div>
+        </fieldset>
+        <fieldset class="lab-panel full" style="margin-top:12px">
+          <legend><strong>4. ¿Qué diferencia central existe entre GCM y XTS?</strong></legend>
+          <div class="answer-set">
+            <label><input type="radio" name="q4" value="a"> GCM cifra y autentica mensajes; XTS se orienta a sectores y no aporta un tag equivalente.</label>
+            <label><input type="radio" name="q4" value="b"> XTS autentica más que GCM porque utiliza dos claves.</label>
+          </div>
+        </fieldset>
+        <fieldset class="lab-panel full" style="margin-top:12px">
+          <legend><strong>5. ¿Por qué el nonce debe ser único con una misma clave en GCM?</strong></legend>
+          <div class="answer-set">
+            <label><input type="radio" name="q5" value="a"> Solo para que el JSON sea diferente.</label>
+            <label><input type="radio" name="q5" value="b"> Porque repetirlo compromete las garantías de confidencialidad y autenticación.</label>
+          </div>
+        </fieldset>
+        <div class="actions"><button id="grade-ticket" type="submit">Corregir evaluación</button></div>
+      </form>
+      <div class="status" id="ticket-status">Respondé las cinco preguntas antes de corregir.</div>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Ruta educativa. Los parámetros y formatos del laboratorio no sustituyen una política criptográfica de producción.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/ruta-guiada.js"></script>
+</body>
+</html>

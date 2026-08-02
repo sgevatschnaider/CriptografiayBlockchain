@@ -34,7 +34,7 @@ Los enlaces siguientes apuntan a **GitHub Pages**. Al abrirlos, el navegador eje
 |---|---|---|
 | 1 | [César, Vigenère y frecuencias](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) | ¿Por qué un texto ilegible puede seguir siendo fácil de atacar? |
 | 2 | [Fundamentos modernos: ruta guiada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) | ¿Cómo se transforma la incertidumbre en seguridad frente a un adversario definido? |
-| 3 | [SHA-256, AES-GCM y ECDSA](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/03-criptografia-moderna.html) | ¿Qué objetivo de seguridad aporta cada primitiva? |
+| 3 | [Clase 3: contraseña, KDF y AES-GCM](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html) | ¿Cómo se deriva una clave y cómo se detecta una alteración? |
 | 4 | [Ocultamiento LSB](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) | ¿Ocultar la existencia equivale a proteger el contenido? |
 | 5 | [Blockchain y Merkle trees](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) | ¿Qué detecta el encadenamiento y qué no garantiza? |
 | 6 | [Shamir, commitments y Schnorr](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) | ¿Cómo distribuir confianza o demostrar conocimiento sin revelar? |

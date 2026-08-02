@@ -199,6 +199,7 @@
   function footer() {
     return `
       <footer class="footer">
+        <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
         <p><strong>Laboratorio educativo.</strong> Los algoritmos simplificados y parámetros pequeños no deben utilizarse para proteger información real.</p>
         <p class="capability" data-capability></p>
       </footer>`;
