@@ -116,9 +116,15 @@
       "id": "modulo-03",
       "titulo": "Criptografía moderna aplicada",
       "pagina": "modulo-03/index.html",
-      "ruta_guiada": "modulo-03/ruta-guiada.html",
+      "ruta_guiada": "modulo-03/ruta-modulo.html",
+      "ruta_clase_03": "modulo-03/ruta-guiada.html",
       "laboratorio_integral": "03-criptografia-moderna.html",
       "simulaciones": [
+        {
+          "titulo": "Ruta completa: de la primitiva al protocolo",
+          "archivo": "modulo-03/ruta-modulo.html",
+          "estado": "disponible"
+        },
         {
           "titulo": "Clase 3: de la contraseña a AES-GCM",
           "archivo": "modulo-03/ruta-guiada.html",
@@ -151,15 +157,28 @@
         },
         {
           "titulo": "Hash, MAC y firma",
-          "estado": "planificado"
+          "archivo": "modulo-03/hash-hmac-firmas.html",
+          "estado": "disponible"
         },
         {
           "titulo": "Padding PKCS#7 y oráculos",
-          "estado": "planificado"
+          "archivo": "modulo-03/padding-oracle.html",
+          "estado": "disponible"
         },
         {
           "titulo": "RSA, ECDH y cifrado híbrido",
-          "estado": "planificado"
+          "archivo": "modulo-03/rsa-ecdh-hibrido.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Glosario interactivo",
+          "archivo": "modulo-03/glosario.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Cuestionario integrador",
+          "archivo": "modulo-03/cuestionario.html",
+          "estado": "disponible"
         }
       ]
     },

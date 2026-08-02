@@ -7,18 +7,34 @@ const moduleDir = path.join(root, 'simuladores', 'modulo-03');
 const errors = [];
 const requiredPages = [
   'index.html',
+  'ruta-modulo.html',
   'ruta-guiada.html',
   'contrasena-salt-kdf.html',
+  'bloques-vs-flujo.html',
   'modos-aes-aead.html',
-  'cifrado-local-archivos.html'
+  'cifrado-local-archivos.html',
+  'hash-hmac-firmas.html',
+  'padding-oracle.html',
+  'rsa-ecdh-hibrido.html',
+  'glosario.html',
+  'cuestionario.html'
 ];
 const requiredAssets = [
   'assets/clase-03.css',
   'assets/crypto-lab.js',
+  'assets/modulo-03.js',
+  'assets/ruta-modulo.js',
   'assets/ruta-guiada.js',
-  'assets/contrasena-salt-kdf.js',
+  'assets/bloques-vs-flujo.js',
   'assets/modos-aes-aead.js',
-  'assets/cifrado-local-archivos.js'
+  'assets/cifrado-local-archivos.js',
+  'assets/hash-hmac-firmas.js',
+  'assets/padding-oracle.js',
+  'assets/rsa-ecdh-hibrido.js',
+  'assets/glosario-data.js',
+  'assets/glosario.js',
+  'assets/cuestionario-data.js',
+  'assets/cuestionario.js'
 ];
 
 function fail(message) {
@@ -99,12 +115,20 @@ for (const relative of requiredAssets.filter((file) => file.endsWith('.js'))) {
 }
 
 const kdfPage = read('contrasena-salt-kdf.html');
-const kdfScript = read('assets/contrasena-salt-kdf.js');
-for (const token of ['id="password"', 'id="salt"', 'id="iterations"', 'id="experiment-log"', 'id="cost-million"']) {
+for (const token of ['id="password"', 'id="salt"', 'id="iterations"', 'id="log"', 'id="cmillion"']) {
   if (!kdfPage.includes(token)) fail(`contrasena-salt-kdf.html: falta ${token}`);
 }
-for (const concept of ['normalizePassword', 'derivePbkdf2Bits', 'describeText', 'Salt diferente', '1_000_000']) {
-  if (!kdfScript.includes(concept)) fail(`contrasena-salt-kdf.js: falta ${concept}`);
+for (const concept of ['normalize("NFC")', 'PBKDF2', 'deriveBits', '1e6', 'Repetir exactamente igual']) {
+  if (!kdfPage.includes(concept)) fail(`contrasena-salt-kdf.html: falta el concepto ${concept}`);
+}
+
+const blocksPage = read('bloques-vs-flujo.html');
+const blocksScript = read('assets/bloques-vs-flujo.js');
+for (const token of ['id="block-message"', 'PKCS#7', 'id="reuse-stream"', 'C₁ ⊕ C₂ = M₁ ⊕ M₂']) {
+  if (!blocksPage.includes(token)) fail(`bloques-vs-flujo.html: falta ${token}`);
+}
+for (const concept of ['Module03.randomBytes', 'Lab.xorBytes', 'plainXor', 'cipherXor']) {
+  if (!blocksScript.includes(concept)) fail(`bloques-vs-flujo.js: falta ${concept}`);
 }
 
 const modesPage = read('modos-aes-aead.html');
@@ -128,6 +152,86 @@ for (const concept of ['CBB-AES-GCM-1', '5 * 1024 * 1024', 'deriveAesGcmKey', 's
   if (!fileScript.includes(concept)) fail(`cifrado-local-archivos.js: falta ${concept}`);
 }
 
+const hashPage = read('hash-hmac-firmas.html');
+const hashScript = read('assets/hash-hmac-firmas.js');
+for (const token of ['id="hash-message-a"', 'id="hmac-message"', 'id="signed-document"', 'ECDSA P-256']) {
+  if (!hashPage.includes(token)) fail(`hash-hmac-firmas.html: falta ${token}`);
+}
+for (const concept of ["crypto.subtle.digest('SHA-256'", "name: 'HMAC'", "name: 'ECDSA'", 'crypto.subtle.verify']) {
+  if (!hashScript.includes(concept)) fail(`hash-hmac-firmas.js: falta ${concept}`);
+}
+
+const oraclePage = read('padding-oracle.html');
+const oracleScript = read('assets/padding-oracle.js');
+for (const token of ['AES-CBC real', 'id="query-leaky-oracle"', 'id="scan-oracle"', 'PKCS#7']) {
+  if (!oraclePage.includes(token)) fail(`padding-oracle.html: falta ${token}`);
+}
+for (const concept of ["name: 'AES-CBC'", 'for (let delta = 1; delta <= 255', '^ 0x01', 'crypto.subtle.decrypt']) {
+  if (!oracleScript.includes(concept)) fail(`padding-oracle.js: falta ${concept}`);
+}
+
+const publicKeyPage = read('rsa-ecdh-hibrido.html');
+const publicKeyScript = read('assets/rsa-ecdh-hibrido.js');
+for (const token of ['RSA-OAEP 2048', 'ECDH P-256', 'id="simulate-mitm"', 'ECDH → HKDF → AES-GCM']) {
+  if (!publicKeyPage.includes(token)) fail(`rsa-ecdh-hibrido.html: falta ${token}`);
+}
+for (const concept of ["name: 'RSA-OAEP'", "name: 'ECDH'", "name: 'HKDF'", "name: 'AES-GCM'", 'deriveBits', 'hybridAad']) {
+  if (!publicKeyScript.includes(concept)) fail(`rsa-ecdh-hibrido.js: falta ${concept}`);
+}
+
+const moduleRoute = read('ruta-modulo.html');
+const moduleStations = [...moduleRoute.matchAll(/data-module-station=["']([^"']+)["']/g)].map((match) => match[1]);
+const expectedStations = ['fundamentos', 'bloques-flujo', 'kdf', 'aes-aead', 'archivos', 'hash-mac-firma', 'oraculo-padding', 'clave-publica', 'glosario', 'cuestionario'];
+if (moduleStations.join('|') !== expectedStations.join('|')) fail('ruta-modulo.html: las diez estaciones no están completas y ordenadas');
+
+const glossaryData = read('assets/glosario-data.js');
+const glossaryCount = [...glossaryData.matchAll(/\bterm:\s*'/g)].length;
+if (glossaryCount < 60) fail(`glosario-data.js: se esperaban al menos 60 términos y hay ${glossaryCount}`);
+try {
+  const scope = {};
+  new Function('window', glossaryData)(scope);
+  const terms = scope.Module03Glossary;
+  if (!Array.isArray(terms) || terms.length !== glossaryCount) throw new Error('la colección exportada no coincide con el banco declarado');
+  const names = terms.map((term) => term.term);
+  if (new Set(names).size !== names.length) throw new Error('hay términos duplicados');
+  for (const [index, term] of terms.entries()) {
+    for (const field of ['term', 'category', 'definition', 'example', 'contrast']) {
+      if (typeof term[field] !== 'string' || !term[field].trim()) throw new Error(`el término ${index + 1} no tiene ${field}`);
+    }
+  }
+} catch (error) {
+  fail(`glosario-data.js: ${error.message}`);
+}
+for (const token of ['id="glossary-search"', 'id="glossary-category"', 'id="glossary-status"', 'id="glossary-grid"']) {
+  if (!read('glosario.html').includes(token)) fail(`glosario.html: falta ${token}`);
+}
+
+const questionData = read('assets/cuestionario-data.js');
+const questionCount = [...questionData.matchAll(/\bprompt:\s*'/g)].length;
+if (questionCount < 30) fail(`cuestionario-data.js: se esperaban al menos 30 preguntas y hay ${questionCount}`);
+try {
+  const scope = {};
+  new Function('window', questionData)(scope);
+  const questions = scope.Module03Questions;
+  if (!Array.isArray(questions) || questions.length !== questionCount) throw new Error('la colección exportada no coincide con el banco declarado');
+  const prompts = questions.map((question) => question.prompt);
+  if (new Set(prompts).size !== prompts.length) throw new Error('hay preguntas duplicadas');
+  const categories = new Set(questions.map((question) => question.category));
+  const levels = new Set(questions.map((question) => question.level));
+  if (categories.size !== 6) throw new Error(`se esperaban 6 categorías y hay ${categories.size}`);
+  if ([...levels].sort().join('|') !== ['Aplicado', 'Base', 'Diagnóstico'].join('|')) throw new Error('los niveles no son Base, Aplicado y Diagnóstico');
+  for (const [index, question] of questions.entries()) {
+    if (!Array.isArray(question.options) || question.options.length < 3) throw new Error(`la pregunta ${index + 1} no tiene al menos 3 opciones`);
+    if (!Number.isInteger(question.answer) || question.answer < 0 || question.answer >= question.options.length) throw new Error(`la pregunta ${index + 1} tiene una respuesta inválida`);
+    if (typeof question.explanation !== 'string' || !question.explanation.trim()) throw new Error(`la pregunta ${index + 1} no tiene explicación`);
+  }
+} catch (error) {
+  fail(`cuestionario-data.js: ${error.message}`);
+}
+for (const token of ['id="quiz-category"', 'id="quiz-level"', 'id="quiz-mode"', 'id="quiz-summary"']) {
+  if (!read('cuestionario.html').includes(token)) fail(`cuestionario.html: falta ${token}`);
+}
+
 const routePage = read('ruta-guiada.html');
 const stations = [...routePage.matchAll(/data-station=["'](\d+)["']/g)].map((match) => match[1]);
 if (stations.join('|') !== '0|1|2|3|4|5') fail('ruta-guiada.html: la ruta debe contener seis estaciones en orden');
@@ -149,24 +253,34 @@ try {
   const catalog = JSON.parse(fs.readFileSync(path.join(root, 'simuladores', 'catalogo.json'), 'utf8'));
   const module = catalog.modulos?.find((item) => item.id === 'modulo-03');
   const expected = [
+    'modulo-03/ruta-modulo.html',
     'modulo-03/ruta-guiada.html',
     'modulo-03/contrasena-salt-kdf.html',
+    'modulo-03/bloques-vs-flujo.html',
     'modulo-03/modos-aes-aead.html',
-    'modulo-03/cifrado-local-archivos.html'
+    'modulo-03/cifrado-local-archivos.html',
+    'modulo-03/hash-hmac-firmas.html',
+    'modulo-03/padding-oracle.html',
+    'modulo-03/rsa-ecdh-hibrido.html',
+    'modulo-03/glosario.html',
+    'modulo-03/cuestionario.html'
   ];
   for (const file of expected) {
     const entry = module?.simulaciones?.find((item) => item.archivo === file);
     if (!entry || entry.estado !== 'disponible') fail(`catalogo.json: no registra ${file} como disponible`);
   }
-  if (module?.ruta_guiada !== 'modulo-03/ruta-guiada.html') fail('catalogo.json: falta la ruta guiada del Módulo 3');
+  if (module?.ruta_guiada !== 'modulo-03/ruta-modulo.html') fail('catalogo.json: falta la ruta completa del Módulo 3');
+  if (module?.ruta_clase_03 !== 'modulo-03/ruta-guiada.html') fail('catalogo.json: falta la ruta específica de la Clase 3');
 } catch (error) {
   fail(`catalogo.json: JSON inválido: ${error.message}`);
 }
 
 const campus = fs.readFileSync(path.join(root, 'simuladores', 'index.html'), 'utf8');
 if (!campus.includes('modulo-03/ruta-guiada.html')) fail('El campus no enlaza la Clase 3');
+if (!campus.includes('modulo-03/ruta-modulo.html')) fail('El campus no enlaza la ruta completa del Módulo 3');
 const guide = fs.readFileSync(path.join(root, 'docs', 'criptografia', 'guia-docente-simuladores.md'), 'utf8');
 if (!guide.includes('clase-03-kdf-aes-gcm.md')) fail('La guía docente no enlaza la planificación de Clase 3');
+if (!guide.includes('modulo-03/ruta-modulo.html')) fail('La guía docente no enlaza la ruta completa del Módulo 3');
 
 async function validateCryptoRoundTrips() {
   try {
@@ -235,6 +349,109 @@ async function validateCryptoRoundTrips() {
         throw new Error(`${algorithm} no completó el round trip`);
       }
     }
+
+    const hmacKey = await crypto.subtle.importKey(
+      'raw',
+      new Uint8Array(32).fill(7),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign', 'verify']
+    );
+    const hmacMessage = cryptoLab.encoder.encode('mensaje autenticado');
+    const hmacTag = await crypto.subtle.sign('HMAC', hmacKey, hmacMessage);
+    if (!await crypto.subtle.verify('HMAC', hmacKey, hmacTag, hmacMessage)) {
+      throw new Error('HMAC no verificó su propio tag');
+    }
+    if (await crypto.subtle.verify('HMAC', hmacKey, hmacTag, cryptoLab.encoder.encode('mensaje alterado'))) {
+      throw new Error('HMAC aceptó un mensaje alterado');
+    }
+
+    const ecdsa = await crypto.subtle.generateKey(
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      false,
+      ['sign', 'verify']
+    );
+    const signedMessage = cryptoLab.encoder.encode('documento firmado');
+    const signature = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, ecdsa.privateKey, signedMessage);
+    if (!await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, ecdsa.publicKey, signature, signedMessage)) {
+      throw new Error('ECDSA no verificó su propia firma');
+    }
+    if (await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, ecdsa.publicKey, signature, cryptoLab.encoder.encode('documento alterado'))) {
+      throw new Error('ECDSA aceptó un documento alterado');
+    }
+
+    const rsa = await crypto.subtle.generateKey(
+      { name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+      false,
+      ['encrypt', 'decrypt']
+    );
+    const rsaPlain = cryptoLab.encoder.encode('clave de sesión');
+    const rsaCipher = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, rsa.publicKey, rsaPlain);
+    const rsaRecovered = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, rsa.privateKey, rsaCipher);
+    if (cryptoLab.decoder.decode(rsaRecovered) !== 'clave de sesión') throw new Error('RSA-OAEP no completó el round trip');
+
+    const [alice, bob] = await Promise.all([
+      crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']),
+      crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits'])
+    ]);
+    const [aliceSecret, bobSecret] = await Promise.all([
+      crypto.subtle.deriveBits({ name: 'ECDH', public: bob.publicKey }, alice.privateKey, 256),
+      crypto.subtle.deriveBits({ name: 'ECDH', public: alice.publicKey }, bob.privateKey, 256)
+    ]);
+    if (cryptoLab.bytesToHex(aliceSecret) !== cryptoLab.bytesToHex(bobSecret)) throw new Error('ECDH no produjo el mismo secreto');
+
+    const hybridSalt = new Uint8Array(16).fill(13);
+    const hybridInfo = cryptoLab.encoder.encode('modulo-03|prueba|v1');
+    const hybridIv = new Uint8Array(12).fill(17);
+    const hybridAad = cryptoLab.encoder.encode('{"suite":"ECDH-P-256|HKDF-SHA-256|AES-256-GCM"}');
+    async function deriveHybridKey(secret) {
+      const material = await crypto.subtle.importKey('raw', secret, 'HKDF', false, ['deriveKey']);
+      return crypto.subtle.deriveKey(
+        { name: 'HKDF', hash: 'SHA-256', salt: hybridSalt, info: hybridInfo },
+        material,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+    const [aliceHybridKey, bobHybridKey] = await Promise.all([
+      deriveHybridKey(aliceSecret),
+      deriveHybridKey(bobSecret)
+    ]);
+    const hybridPlain = cryptoLab.encoder.encode('mensaje híbrido autenticado');
+    const hybridCipher = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: hybridIv, additionalData: hybridAad, tagLength: 128 },
+      aliceHybridKey,
+      hybridPlain
+    );
+    const hybridRecovered = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: hybridIv, additionalData: hybridAad, tagLength: 128 },
+      bobHybridKey,
+      hybridCipher
+    );
+    if (cryptoLab.decoder.decode(hybridRecovered) !== cryptoLab.decoder.decode(hybridPlain)) {
+      throw new Error('ECDH + HKDF + AES-GCM no completó el round trip');
+    }
+    let hybridRejected = false;
+    try {
+      await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: hybridIv, additionalData: cryptoLab.encoder.encode('metadatos alterados'), tagLength: 128 },
+        bobHybridKey,
+        hybridCipher
+      );
+    } catch {
+      hybridRejected = true;
+    }
+    if (!hybridRejected) throw new Error('el cifrado híbrido aceptó AAD alterado');
+
+    const oracleKey = await crypto.subtle.importKey('raw', new Uint8Array(32).fill(11), { name: 'AES-CBC' }, false, ['encrypt', 'decrypt']);
+    const oracleIv = new Uint8Array(16);
+    const oracleMessage = cryptoLab.encoder.encode('SECRETO DEMO');
+    const oracleCipher = await crypto.subtle.encrypt({ name: 'AES-CBC', iv: oracleIv }, oracleKey, oracleMessage);
+    const forcedIv = new Uint8Array(oracleIv);
+    const padding = 16 - oracleMessage.length;
+    forcedIv[15] ^= padding ^ 1;
+    await crypto.subtle.decrypt({ name: 'AES-CBC', iv: forcedIv }, oracleKey, oracleCipher);
   } catch (error) {
     fail(`Pruebas criptográficas: ${error.message}`);
   }
@@ -248,4 +465,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Validación correcta: ruta de Clase 3, KDF, AES-CBC/CTR/GCM, archivos, catálogo y round trips criptográficos.');
+console.log('Validación correcta: ruta completa, Clase 3, 60+ términos, 30 preguntas y round trips KDF, AES, HMAC, ECDSA, RSA, ECDH, HKDF y oráculo CBC.');

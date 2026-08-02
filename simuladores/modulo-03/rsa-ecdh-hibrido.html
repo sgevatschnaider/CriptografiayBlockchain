@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio de RSA-OAEP, ECDH P-256, ataque man-in-the-middle y cifrado híbrido ECDH-HKDF-AES-GCM con Web Crypto.">
+  <meta name="theme-color" content="#071321">
+  <title>RSA, ECDH y cifrado híbrido | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body data-module-page="clave-publica">
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#public-key-lab">Saltar al laboratorio</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="ruta-modulo.html">Ruta completa</a>
+        <a href="hash-hmac-firmas.html">Hash y firma</a>
+        <a href="cuestionario.html">Evaluación</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Criptografía asimétrica · estación 7</div>
+      <h1>RSA, ECDH y cifrado híbrido</h1>
+      <p>Compará transportar un mensaje pequeño con RSA-OAEP, acordar un secreto con ECDH y construir una clave de sesión mediante HKDF para cifrar datos con AES-GCM.</p>
+      <div class="lesson-kicker"><span>RSA-OAEP 2048</span><span>ECDH P-256</span><span>MITM</span><span>HKDF-SHA-256</span><span>AES-256-GCM</span><span>Autenticación</span></div>
+      <div class="actions"><button class="secondary" type="button" data-complete-page="clave-publica">Marcar como completado</button></div>
+    </section>
+
+    <section class="privacy-banner"><span aria-hidden="true">🔑</span><div><strong>Claves efímeras y locales.</strong> Todos los pares se generan en esta pestaña. Ninguna clave, mensaje o paquete se transmite. Recargar la página descarta el estado.</div></section>
+
+    <section class="lab-grid" id="public-key-lab">
+      <article class="lab-panel full">
+        <div class="eyebrow">Experimento 1 · transportar un secreto pequeño</div>
+        <h2>RSA-OAEP no reemplaza el cifrado simétrico de datos</h2>
+        <div class="controls">
+          <div class="control full"><label for="rsa-message">Mensaje para el destinatario</label><textarea id="rsa-message">clave-de-sesion-ficticia</textarea></div>
+        </div>
+        <div class="actions"><button id="generate-rsa-keys" type="button">Generar RSA 2048</button><button id="rsa-encrypt" type="button">Cifrar con pública</button><button class="secondary" id="rsa-decrypt" type="button">Descifrar con privada</button><button class="warn" id="rsa-tamper" type="button">Alterar ciphertext</button><button class="secondary" id="rsa-wrong-key" type="button">Probar otra privada</button></div>
+        <div class="metric-grid">
+          <div class="metric"><strong id="rsa-message-bytes">0</strong><span>bytes de entrada</span></div>
+          <div class="metric"><strong>190</strong><span>máximo OAEP observado</span></div>
+          <div class="metric"><strong id="rsa-cipher-bytes">0</strong><span>bytes de ciphertext</span></div>
+          <div class="metric"><strong id="rsa-key-state">No</strong><span>par disponible</span></div>
+        </div>
+        <div class="data-grid">
+          <div class="data-box"><b>Huella de la clave pública</b><output id="rsa-fingerprint">—</output></div>
+          <div class="data-box"><b>Ciphertext Base64</b><output id="rsa-ciphertext">—</output></div>
+          <div class="data-box"><b>Texto recuperado</b><output id="rsa-recovered">—</output></div>
+        </div>
+        <div class="status" id="rsa-status">Generá el par antes de cifrar.</div>
+      </article>
+
+      <article class="lab-panel full">
+        <div class="eyebrow">Experimento 2 · acordar un secreto</div>
+        <h2>ECDH: dos cálculos, el mismo resultado</h2>
+        <p>Alicia combina su clave privada con la pública de Bob. Bob combina su privada con la pública de Alicia. Las claves privadas nunca viajan.</p>
+        <div class="actions"><button id="generate-ecdh-pairs" type="button">Generar pares de Alicia y Bob</button><button class="secondary" id="derive-ecdh" type="button">Derivar en ambos sentidos</button></div>
+        <div class="key-grid">
+          <div class="key-card"><strong>Alicia · huella pública</strong><code id="alice-fingerprint">—</code></div>
+          <div class="key-card"><strong>Bob · huella pública</strong><code id="bob-fingerprint">—</code></div>
+          <div class="key-card"><strong>Alicia calcula</strong><code id="alice-secret">—</code></div>
+          <div class="key-card"><strong>Bob calcula</strong><code id="bob-secret">—</code></div>
+        </div>
+        <div class="status" id="ecdh-status">Todavía no hay pares ECDH.</div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="eyebrow">Ataque</div>
+        <h2>ECDH sin autenticación permite MITM</h2>
+        <p>Mallory sustituye las claves públicas y establece un secreto diferente con cada extremo. Alicia y Bob creen hablar entre sí, pero no comparten la misma clave.</p>
+        <div class="actions"><button class="warn" id="simulate-mitm" type="button">Interponer a Mallory</button></div>
+        <div class="data-grid">
+          <div class="data-box"><b>Alicia ↔ Mallory</b><output id="mitm-alice-match">—</output></div>
+          <div class="data-box"><b>Mallory ↔ Bob</b><output id="mitm-bob-match">—</output></div>
+          <div class="data-box"><b>Alicia = Bob</b><output id="mitm-endpoints-match">—</output></div>
+        </div>
+        <div class="status" id="mitm-status">El acuerdo todavía no fue interceptado.</div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="eyebrow">Confianza</div>
+        <h2>¿Quién garantiza la clave pública?</h2>
+        <div class="concept-flow" aria-label="Vínculo entre identidad y clave pública">
+          <div class="flow-node"><strong>Identidad</strong><span>Dominio o persona</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><strong>Certificado</strong><span>Identidad + clave</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><strong>Cadena</strong><span>Autoridades</span></div>
+        </div>
+        <p>Una firma sobre la clave efímera, una huella verificada o una cadena PKI puede autenticar el intercambio. El mecanismo exacto pertenece al protocolo, no a ECDH aislado.</p>
+        <div class="callout"><strong>Acuerdo ≠ autenticación.</strong> Obtener un secreto compartido no demuestra con quién se lo comparte.</div>
+      </article>
+
+      <article class="lab-panel full">
+        <div class="eyebrow">Experimento 3 · composición</div>
+        <h2>ECDH → HKDF → AES-GCM</h2>
+        <div class="controls">
+          <div class="control"><label for="hybrid-message">Mensaje extenso</label><textarea id="hybrid-message">Informe confidencial cifrado con una clave de sesión derivada por Alicia y recuperado por Bob.</textarea></div>
+          <div class="control"><label for="hybrid-context">Contexto HKDF</label><input id="hybrid-context" value="modulo-03|ecdh|aes-gcm|v1"></div>
+        </div>
+        <div class="actions"><button id="hybrid-encrypt" type="button">Derivar y cifrar</button><button class="secondary" id="hybrid-decrypt" type="button">Derivar y recuperar</button><button class="warn" id="hybrid-tamper" type="button">Alterar paquete</button></div>
+        <div class="concept-flow" aria-label="Cadena de cifrado híbrido">
+          <div class="flow-node"><strong>ECDH</strong><span>Secreto común</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><strong>HKDF</strong><span>Clave separada</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><strong>AES-GCM</strong><span>Datos + tag</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><strong>Paquete</strong><span>salt + nonce + AAD</span></div>
+        </div>
+        <div class="controls">
+          <div class="control"><label for="hybrid-package">Paquete JSON editable</label><textarea class="packet-view mono" id="hybrid-package" spellcheck="false"></textarea></div>
+          <div class="control"><label for="hybrid-recovered">Texto recuperado</label><textarea id="hybrid-recovered" readonly></textarea></div>
+        </div>
+        <div class="status" id="hybrid-status">Generá pares ECDH o dejá que el laboratorio los cree al cifrar.</div>
+      </article>
+    </section>
+
+    <section class="lab-panel full">
+      <div class="eyebrow">Mapa de uso</div>
+      <h2>Por qué los sistemas reales combinan primitivas</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Componente</th><th>Función</th><th>No resuelve por sí solo</th></tr></thead>
+          <tbody>
+            <tr><td>RSA-OAEP</td><td>Cifra una entrada acotada para quien posee la privada</td><td>Datos grandes, identidad de la pública, firma</td></tr>
+            <tr><td>ECDH</td><td>Produce un secreto común sin transmitirlo</td><td>Autenticación de los extremos</td></tr>
+            <tr><td>HKDF</td><td>Extrae y expande claves con separación de contexto</td><td>Entropía inexistente o identidad</td></tr>
+            <tr><td>AES-GCM</td><td>Cifra y autentica datos eficientemente</td><td>Distribución inicial de la clave y unicidad automática del nonce</td></tr>
+            <tr><td>Firma o PKI</td><td>Vincula claves y mensajes con una identidad o raíz de confianza</td><td>Confidencialidad de los datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>RSA-OAEP, ECDH P-256, HKDF-SHA-256 y AES-GCM se ejecutan con Web Crypto. El paquete y los parámetros son educativos.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
+  <script src="assets/rsa-ecdh-hibrido.js"></script>
+</body>
+</html>

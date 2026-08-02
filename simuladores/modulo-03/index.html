@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Índice del Módulo 3 con la ruta de Clase 3, KDF, modos AES, AEAD y cifrado local de archivos.">
+  <meta name="description" content="Índice completo del Módulo 3 con cifrado simétrico, KDF, AEAD, hash, HMAC, firmas, RSA, ECDH, PKI, glosario y evaluación.">
   <meta name="theme-color" content="#071321">
   <title>Módulo 3 | Criptografía moderna aplicada</title>
   <link rel="stylesheet" href="../assets/lab.css">
@@ -27,12 +27,25 @@
     <section class="hero">
       <div class="eyebrow">Módulo 3</div>
       <h1>Criptografía moderna aplicada</h1>
-      <p>De la contraseña a la clave y de la clave a un paquete autenticado: KDF, AES, modos de operación, archivos locales y composición segura mediante primitivas reales del navegador.</p>
-      <div class="lesson-kicker"><span>PBKDF2</span><span>AES</span><span>CBC</span><span>CTR</span><span>GCM</span><span>AEAD</span><span>HKDF</span><span>ECDSA</span></div>
-      <div class="actions"><a class="button" href="ruta-guiada.html">Comenzar la Clase 3</a><a class="button secondary" href="../03-criptografia-moderna.html">Explorar laboratorio integral</a></div>
+      <p>De la clave a la composición segura: cifrado simétrico y autenticado, hashes, MAC, firmas, intercambio, cifrado híbrido y confianza en claves públicas mediante primitivas reales del navegador.</p>
+      <div class="lesson-kicker"><span>PBKDF2</span><span>AES-GCM</span><span>SHA-256</span><span>HMAC</span><span>ECDSA</span><span>RSA-OAEP</span><span>ECDH</span><span>HKDF</span><span>PKI</span></div>
+      <div class="actions"><a class="button" href="ruta-modulo.html">Recorrer el módulo</a><a class="button secondary" href="ruta-guiada.html">Abrir la Clase 3</a></div>
+    </section>
+
+    <section class="lab-panel full module-progress-panel" data-module-progress role="group">
+      <div class="progress-heading"><div><div class="eyebrow">Recorrido autónomo</div><h2><span data-progress-count>0/10</span> estaciones completadas</h2></div><strong data-progress-label>0%</strong></div>
+      <div class="route-progress" aria-hidden="true"><span data-progress-bar></span></div>
+      <div class="actions"><a class="button secondary" href="ruta-modulo.html">Ver ruta y evidencias</a><a class="button secondary" href="cuestionario.html">Mejor evaluación: <span data-best-quiz>0%</span></a></div>
     </section>
 
     <section class="resource-grid" id="recursos">
+      <a class="resource-card featured" href="ruta-modulo.html">
+        <span class="availability">Ruta completa</span>
+        <h2>De la primitiva al protocolo</h2>
+        <p>Diez estaciones conectan bloques, KDF, AEAD, hash, HMAC, firmas, oráculos, RSA, ECDH, HKDF, PKI, glosario y evaluación.</p>
+        <div class="actions"><span class="button">Comenzar recorrido</span></div>
+      </a>
+
       <a class="resource-card featured" href="ruta-guiada.html">
         <span class="availability">Ruta disponible</span>
         <h2>Clase 3 · De la contraseña a AES-GCM</h2>
@@ -64,8 +77,8 @@
       <a class="resource-card" href="bloques-vs-flujo.html">
         <span class="availability">Disponible</span>
         <h2>Bloques frente a flujo</h2>
-        <p>Partición, padding, keystream, XOR y riesgo de reutilización de flujo.</p>
-        <div class="actions"><span class="button secondary">Abrir apoyo</span></div>
+        <p>PKCS#7 visual, bytes UTF-8, keystream, XOR y demostración C₁ ⊕ C₂ = M₁ ⊕ M₂.</p>
+        <div class="actions"><span class="button secondary">Abrir laboratorio</span></div>
       </a>
 
       <a class="resource-card" href="../03-criptografia-moderna.html">
@@ -75,23 +88,40 @@
         <div class="actions"><span class="button secondary">Abrir síntesis</span></div>
       </a>
 
-      <article class="resource-card">
-        <span class="availability planned">Próxima ampliación</span>
+      <a class="resource-card" href="hash-hmac-firmas.html">
+        <span class="availability">Disponible</span>
         <h2>Hash, HMAC y firma</h2>
-        <p>Integridad sin clave, autenticación simétrica y verificabilidad pública.</p>
-      </article>
+        <p>Avalancha SHA-256, autenticación simétrica y verificabilidad pública con ECDSA.</p>
+        <div class="actions"><span class="button secondary">Abrir comparador</span></div>
+      </a>
 
-      <article class="resource-card">
-        <span class="availability planned">Próxima ampliación</span>
-        <h2>Padding oracle controlado</h2>
-        <p>PKCS#7, errores distinguibles y motivo para preferir cifrado autenticado.</p>
-      </article>
+      <a class="resource-card" href="padding-oracle.html">
+        <span class="availability">Disponible</span>
+        <h2>Padding y oráculo controlado</h2>
+        <p>AES-CBC real, PKCS#7, consultas distinguibles y motivo para preferir AEAD.</p>
+        <div class="actions"><span class="button secondary">Abrir ataque</span></div>
+      </a>
 
-      <article class="resource-card">
-        <span class="availability planned">Próxima ampliación</span>
+      <a class="resource-card" href="rsa-ecdh-hibrido.html">
+        <span class="availability">Disponible</span>
         <h2>RSA, ECDH y cifrado híbrido</h2>
-        <p>Acuerdo de claves, encapsulación, claves de sesión y autenticación.</p>
-      </article>
+        <p>RSA-OAEP, acuerdo P-256, MITM, HKDF, clave de sesión y AES-GCM.</p>
+        <div class="actions"><span class="button secondary">Abrir laboratorio</span></div>
+      </a>
+
+      <a class="resource-card" href="glosario.html">
+        <span class="availability">Disponible</span>
+        <h2>Glosario interactivo</h2>
+        <p>Definiciones, ejemplos y contrastes de las primitivas y protocolos del módulo.</p>
+        <div class="actions"><span class="button secondary">Estudiar conceptos</span></div>
+      </a>
+
+      <a class="resource-card" href="cuestionario.html">
+        <span class="availability">Disponible</span>
+        <h2>Cuestionario integrador</h2>
+        <p>Banco conceptual y aplicado con modos estudio y examen, devolución y mejor puntaje.</p>
+        <div class="actions"><span class="button secondary">Comenzar evaluación</span></div>
+      </a>
     </section>
 
     <section class="lab-panel full" style="margin-top:22px">
@@ -106,5 +136,6 @@
     </footer>
   </main>
   <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
 </body>
 </html>

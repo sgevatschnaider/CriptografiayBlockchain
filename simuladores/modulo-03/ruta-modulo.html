@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Ruta pedagógica completa del Módulo 3 sobre cifrado simétrico, hashes, autenticación, firmas, RSA, ECDH, PKI y composición segura.">
+  <meta name="theme-color" content="#071321">
+  <title>Ruta completa del Módulo 3 | Criptografía moderna</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body data-module-page="">
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#recorrido-modulo">Saltar al recorrido</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="../index.html">Campus</a>
+        <a href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Teoría</a>
+        <a href="ruta-guiada.html">Clase 3</a>
+        <a href="glosario.html">Glosario</a>
+        <a href="cuestionario.html">Evaluación</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Ruta pedagógica completa · 10 estaciones</div>
+      <h1>Criptografía moderna: de la primitiva al protocolo</h1>
+      <p>Un recorrido acumulativo para elegir y combinar correctamente cifrado, autenticación, derivación, intercambio y firma. Cada estación exige una predicción, una evidencia observable y una conclusión de seguridad.</p>
+      <div class="lesson-kicker" aria-label="Núcleos del módulo">
+        <span>Simétrica</span><span>AEAD</span><span>Hash y HMAC</span><span>Firma</span><span>RSA-OAEP</span><span>ECDH + HKDF</span><span>PKI</span>
+      </div>
+      <div class="actions">
+        <a class="button" href="#recorrido-modulo">Comenzar recorrido</a>
+        <a class="button secondary" href="ruta-guiada.html">Abrir Clase 3</a>
+      </div>
+    </section>
+
+    <section class="lab-panel full module-progress-panel" data-module-progress role="group">
+      <div class="progress-heading">
+        <div><div class="eyebrow">Progreso local</div><h2><span data-progress-count>0/10</span> estaciones completadas</h2></div>
+        <strong data-progress-label>0%</strong>
+      </div>
+      <div class="route-progress" aria-hidden="true"><span data-progress-bar></span></div>
+      <p class="small muted">Las marcas se guardan únicamente en este navegador. Visitar una página no la marca automáticamente como comprendida.</p>
+      <div class="actions"><button class="secondary" id="reset-module-progress" type="button">Reiniciar progreso</button></div>
+    </section>
+
+    <section class="lab-grid" aria-label="Resultados y método">
+      <article class="lab-panel">
+        <h2>Resultados de aprendizaje</h2>
+        <ul>
+          <li>Separar confidencialidad, integridad, autenticidad y verificabilidad pública.</li>
+          <li>Elegir entre hash, HMAC, firma, cifrado simétrico y cifrado híbrido.</li>
+          <li>Explicar por qué nonces, salts, IV, AAD y tags cumplen funciones distintas.</li>
+          <li>Reconocer oráculos, reutilización de flujo y ataques man-in-the-middle.</li>
+          <li>Justificar la composición ECDH → HKDF → AEAD → autenticación de identidades.</li>
+        </ul>
+      </article>
+      <article class="lab-panel">
+        <h2>Método de trabajo</h2>
+        <ol class="steps compact-steps">
+          <li><strong>Predecir:</strong> anticipá qué debería cambiar y qué debería mantenerse.</li>
+          <li><strong>Experimentar:</strong> modificá una sola variable.</li>
+          <li><strong>Atacar:</strong> alterá mensaje, clave, nonce, tag o clave pública.</li>
+          <li><strong>Explicar:</strong> nombrá la propiedad que se preservó o perdió.</li>
+          <li><strong>Transferir:</strong> conectá el resultado con TLS, almacenamiento o firmas.</li>
+        </ol>
+      </article>
+    </section>
+
+    <section class="lab-panel full" id="recorrido-modulo">
+      <div class="section-heading">
+        <div><div class="eyebrow">Secuencia acumulativa</div><h2>Recorrido del módulo</h2></div>
+        <p class="muted">El orden evita usar una primitiva antes de comprender qué propiedad aporta.</p>
+      </div>
+      <div class="station-list module-stations">
+        <article class="station">
+          <span class="station-number">0</span>
+          <div><h3>Puente desde los fundamentos</h3><p>Entropía, espacio de claves, XOR, CSPRNG y modelo de adversario.</p><label class="station-check"><input type="checkbox" data-module-station="fundamentos"> Puedo explicar los prerrequisitos</label></div>
+          <div><span class="station-time">Base</span><div class="actions"><a class="button secondary" href="../modulo-02/ruta-guiada.html">Repasar Módulo 2</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">1</span>
+          <div><h3>Bloques, flujo y reutilización</h3><p>PKCS#7, partición en bloques, keystream, XOR y el peligro de reutilizar una secuencia.</p><label class="station-check"><input type="checkbox" data-module-station="bloques-flujo"> Expliqué la igualdad C₁ ⊕ C₂ = M₁ ⊕ M₂</label></div>
+          <div><span class="station-time">Simétrica</span><div class="actions"><a class="button" href="bloques-vs-flujo.html">Abrir laboratorio</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">2</span>
+          <div><h3>Contraseña, salt y KDF</h3><p>NFC, UTF-8, PBKDF2, costo por intento y diferencia entre contraseña y clave.</p><label class="station-check"><input type="checkbox" data-module-station="kdf"> Justifiqué qué cambia al variar la salt</label></div>
+          <div><span class="station-time">Derivación</span><div class="actions"><a class="button" href="contrasena-salt-kdf.html">Abrir KDF</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">3</span>
+          <div><h3>AES, modos y AEAD</h3><p>CBC, CTR y GCM reales; nonce, AAD, ciphertext y tag; manipulación controlada.</p><label class="station-check"><input type="checkbox" data-module-station="aes-aead"> Diferencié descifrar de autenticar</label></div>
+          <div><span class="station-time">AEAD</span><div class="actions"><a class="button" href="modos-aes-aead.html">Abrir AES</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">4</span>
+          <div><h3>Composición aplicada a archivos</h3><p>PBKDF2 + AES-256-GCM, formato del paquete, exportación, recuperación y rechazo.</p><label class="station-check"><input type="checkbox" data-module-station="archivos"> Recuperé el archivo y provoqué un rechazo</label></div>
+          <div><span class="station-time">Práctica</span><div class="actions"><a class="button" href="cifrado-local-archivos.html">Abrir archivos</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">5</span>
+          <div><h3>Hash, HMAC y firma digital</h3><p>Avalancha de SHA-256, autenticación con secreto compartido y verificación con clave pública.</p><label class="station-check"><input type="checkbox" data-module-station="hash-mac-firma"> Elegí la primitiva correcta para tres escenarios</label></div>
+          <div><span class="station-time">Integridad</span><div class="actions"><a class="button" href="hash-hmac-firmas.html">Abrir comparador</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">6</span>
+          <div><h3>Padding y oráculos</h3><p>PKCS#7, AES-CBC real, respuestas distinguibles y recuperación de información mediante consultas.</p><label class="station-check"><input type="checkbox" data-module-station="oraculo-padding"> Expliqué por qué el error uniforme es necesario pero no suficiente</label></div>
+          <div><span class="station-time">Ataque</span><div class="actions"><a class="button" href="padding-oracle.html">Abrir oráculo</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">7</span>
+          <div><h3>RSA, ECDH y cifrado híbrido</h3><p>RSA-OAEP, acuerdo P-256, HKDF, AES-GCM y ataque man-in-the-middle sin autenticación.</p><label class="station-check"><input type="checkbox" data-module-station="clave-publica"> Reconstruí la cadena ECDH → HKDF → AEAD</label></div>
+          <div><span class="station-time">Asimétrica</span><div class="actions"><a class="button" href="rsa-ecdh-hibrido.html">Abrir laboratorio</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">8</span>
+          <div><h3>Glosario de precisión</h3><p>Conceptos, ejemplos, contrastes y relaciones para evitar equivalencias incorrectas.</p><label class="station-check"><input type="checkbox" data-module-station="glosario"> Revisé y marqué los términos dominados</label></div>
+          <div><span class="station-time">Síntesis</span><div class="actions"><a class="button secondary" href="glosario.html">Abrir glosario</a></div></div>
+        </article>
+
+        <article class="station">
+          <span class="station-number">9</span>
+          <div><h3>Cuestionario integrador</h3><p>Preguntas conceptuales, aplicadas y diagnósticas con devolución razonada.</p><label class="station-check"><input type="checkbox" data-module-station="cuestionario"> Alcancé al menos 70% y revisé los errores</label></div>
+          <div><span class="station-time">Evaluación</span><div class="actions"><a class="button secondary" href="cuestionario.html">Comenzar evaluación</a></div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="lab-panel full">
+      <div class="eyebrow">Mapa de decisión</div>
+      <h2>Una propiedad, una primitiva, una condición</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Necesidad</th><th>Primitiva o construcción</th><th>Condición decisiva</th></tr></thead>
+          <tbody>
+            <tr><td>Ocultar y autenticar un mensaje</td><td>AES-GCM o ChaCha20-Poly1305</td><td>Nonce único por clave y tag verificado antes de usar el texto</td></tr>
+            <tr><td>Detectar cambios sin secreto</td><td>Hash</td><td>El hash por sí solo no autentica al emisor</td></tr>
+            <tr><td>Autenticar entre partes con secreto compartido</td><td>HMAC</td><td>Ambas partes pueden producir el tag</td></tr>
+            <tr><td>Verificación pública</td><td>Firma digital</td><td>La clave pública debe vincularse con una identidad confiable</td></tr>
+            <tr><td>Acordar una clave de sesión</td><td>ECDH + HKDF</td><td>El intercambio debe autenticarse para evitar MITM</td></tr>
+            <tr><td>Proteger datos grandes para un destinatario</td><td>Cifrado híbrido</td><td>Asimétrica para establecer/proteger la clave; AEAD para los datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Laboratorio educativo. Los parámetros, formatos y decisiones de una aplicación real requieren estándares vigentes, bibliotecas auditadas y un modelo de amenazas explícito.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
+  <script src="assets/ruta-modulo.js"></script>
+</body>
+</html>

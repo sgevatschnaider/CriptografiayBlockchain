@@ -1,1 +1,118 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bloques y flujo</title><link rel="stylesheet" href="../assets/lab.css"><style>.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.p{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--panel)}textarea{width:100%;min-height:100px}.chunks{display:flex;flex-wrap:wrap;gap:8px}.chunk{padding:8px;border:1px solid var(--border);border-radius:8px;font-family:ui-monospace,monospace}.mono{font-family:ui-monospace,monospace;word-break:break-all}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">← Módulo 3</a></div><nav class="nav"><a href="../index.html">Campus</a></nav></header><section class="hero"><div class="eyebrow">Criptografía simétrica</div><h1>Cifrado por bloques frente a cifrado por flujo</h1><p>Compara partición, padding, keystream, XOR y el riesgo de reutilizar un flujo.</p></section><section class="g"><article class="p"><h2>Mensaje</h2><textarea id="msg">LA CRIPTOGRAFIA MODERNA PROTEGE BITS</textarea><label>Tamaño de bloque didáctico</label><select id="bs"><option>8</option><option selected>16</option></select><div class="actions"><button class="button" id="run">Procesar</button></div></article><article class="p"><h2>Vista por bloques</h2><div id="blocks" class="chunks"></div><p id="pad"></p><p>Un cifrador real como AES trabaja con bloques de 128 bits. Los modos determinan cómo se procesan mensajes largos.</p></article><article class="p"><h2>Vista por flujo</h2><p>Mensaje XOR keystream:</p><p class="mono" id="stream"></p><p><b>Idea clave:</b> un cifrado por flujo no es menos seguro por naturaleza. La reutilización de nonce o keystream sí puede ser catastrófica.</p></article></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main><script>const te=new TextEncoder();function hex(a){return[...a].map(x=>x.toString(16).padStart(2,'0')).join(' ')}run.onclick=()=>{const s=msg.value,b=+bs.value,arr=[...s];blocks.innerHTML='';for(let i=0;i<arr.length;i+=b){const c=arr.slice(i,i+b).join('');const e=document.createElement('span');e.className='chunk';e.textContent=c.padEnd(b,'·');blocks.appendChild(e)}const p=(b-arr.length%b)%b;pad.textContent=`Padding visual necesario: ${p} carácter(es).`;const m=te.encode(s),ks=Uint8Array.from(m,(_,i)=>(31*i+173)&255),c=Uint8Array.from(m,(v,i)=>v^ks[i]);stream.textContent=`M: ${hex(m)}\nKS: ${hex(ks)}\nC: ${hex(c)}`};run.click();</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio visual de cifrado por bloques y flujo con PKCS#7, bytes UTF-8, XOR y demostración de reutilización de keystream.">
+  <meta name="theme-color" content="#071321">
+  <title>Bloques frente a flujo | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body data-module-page="bloques-flujo">
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="ruta-modulo.html">Ruta completa</a>
+        <a href="modos-aes-aead.html">AES y AEAD</a>
+        <a href="glosario.html">Glosario</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Criptografía simétrica · estación 1</div>
+      <h1>Cifrado por bloques frente a cifrado por flujo</h1>
+      <p>Observá cómo se empaqueta un mensaje para un cifrador de bloques y por qué reutilizar un keystream expone la relación C₁ ⊕ C₂ = M₁ ⊕ M₂.</p>
+      <div class="lesson-kicker"><span>UTF-8</span><span>Bloques de 128 bits</span><span>PKCS#7</span><span>Keystream</span><span>XOR</span><span>Nonce único</span></div>
+      <div class="actions"><button class="secondary" type="button" data-complete-page="bloques-flujo">Marcar como completado</button></div>
+    </section>
+
+    <section class="privacy-banner"><span aria-hidden="true">🔒</span><div><strong>Modelo educativo transparente.</strong> La vista por bloques muestra empaquetado y padding; no pretende implementar AES. La vista por flujo usa bytes aleatorios del CSPRNG para aislar la propiedad matemática de XOR.</div></section>
+
+    <section class="lab-grid" id="laboratorio">
+      <article class="lab-panel">
+        <div class="eyebrow">Experimento A</div>
+        <h2>Preparar un mensaje por bloques</h2>
+        <div class="controls">
+          <div class="control full"><label for="block-message">Mensaje</label><textarea id="block-message">CRIPTOGRAFÍA MODERNA: BLOQUES DE 128 BITS</textarea></div>
+          <div class="control"><label for="block-size">Tamaño didáctico</label><select id="block-size"><option value="8">8 bytes</option><option value="16" selected>16 bytes · AES</option></select></div>
+          <div class="control"><label for="padding-mode">Relleno</label><select id="padding-mode"><option value="pkcs7" selected>PKCS#7</option><option value="none">Sin rellenar</option></select></div>
+        </div>
+        <div class="actions"><button id="analyze-blocks" type="button">Partir en bloques</button></div>
+        <div class="status" id="block-status">El análisis opera sobre bytes UTF-8, no sobre caracteres visibles.</div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="eyebrow">Resultado</div>
+        <h2>Bloques de bytes</h2>
+        <div class="metric-grid">
+          <div class="metric"><strong id="source-byte-count">0</strong><span>bytes originales</span></div>
+          <div class="metric"><strong id="padding-byte-count">0</strong><span>bytes de padding</span></div>
+          <div class="metric"><strong id="block-count">0</strong><span>bloques resultantes</span></div>
+          <div class="metric"><strong id="block-width">0</strong><span>bits por bloque</span></div>
+        </div>
+        <div class="byte-strip" id="block-output" aria-live="polite"></div>
+      </article>
+
+      <article class="lab-panel full">
+        <div class="eyebrow">Experimento B</div>
+        <h2>¿Qué revela reutilizar el mismo flujo?</h2>
+        <div class="controls">
+          <div class="control"><label for="stream-message-a">Mensaje M₁</label><textarea id="stream-message-a">PAGAR A ANA 1000</textarea></div>
+          <div class="control"><label for="stream-message-b">Mensaje M₂</label><textarea id="stream-message-b">PAGAR A LUIS 900</textarea></div>
+        </div>
+        <div class="actions">
+          <button id="reuse-stream" type="button">Reutilizar keystream</button>
+          <button class="secondary" id="separate-streams" type="button">Usar flujos independientes</button>
+          <button class="secondary" id="new-stream" type="button">Generar nuevo material</button>
+        </div>
+        <div class="status" id="stream-status">Elegí un experimento y compará las dos igualdades.</div>
+        <div class="data-grid">
+          <div class="data-box"><b>M₁ ⊕ M₂</b><output id="plain-xor">—</output></div>
+          <div class="data-box"><b>C₁ ⊕ C₂</b><output id="cipher-xor">—</output></div>
+          <div class="data-box"><b>¿Coinciden?</b><output id="xor-equality">—</output></div>
+          <div class="data-box"><b>Bytes comparados</b><output id="compared-bytes">0</output></div>
+        </div>
+        <details class="lab-panel full byte-details">
+          <summary><strong>Ver mensajes, flujos y criptogramas en hexadecimal</strong></summary>
+          <div class="byte-strip" id="stream-output"></div>
+        </details>
+      </article>
+    </section>
+
+    <section class="lab-grid">
+      <article class="lab-panel">
+        <h2>Cifrador por bloques</h2>
+        <p>AES transforma bloques de 128 bits. Un modo como CTR o GCM decide cómo procesar una secuencia de bloques y cómo usar un nonce.</p>
+        <div class="callout"><strong>El padding no autentica.</strong> CBC puede necesitar PKCS#7, pero todavía requiere una construcción de autenticación separada o un modo AEAD.</div>
+      </article>
+      <article class="lab-panel">
+        <h2>Cifrador por flujo</h2>
+        <p>ChaCha20 produce un keystream a partir de clave, nonce y contador. Se combina con el mensaje mediante XOR y normalmente se usa con Poly1305 para autenticar.</p>
+        <div class="callout"><strong>El flujo no es el problema.</strong> La falla aparece al repetir clave + nonce y, por lo tanto, repetir el keystream.</div>
+      </article>
+    </section>
+
+    <section class="lab-panel full">
+      <div class="eyebrow">Comprobación conceptual</div>
+      <h2>La cancelación que aprovecha el atacante</h2>
+      <div class="concept-flow" aria-label="Demostración algebraica de reutilización de flujo">
+        <div class="flow-node"><strong>C₁</strong><span>M₁ ⊕ KS</span></div><span class="flow-arrow" aria-hidden="true">⊕</span>
+        <div class="flow-node"><strong>C₂</strong><span>M₂ ⊕ KS</span></div><span class="flow-arrow" aria-hidden="true">=</span>
+        <div class="flow-node"><strong>M₁ ⊕ M₂</strong><span>KS ⊕ KS = 0</span></div>
+      </div>
+      <p class="muted">El resultado no entrega automáticamente ambos mensajes, pero elimina el secreto del flujo y expone relaciones explotables mediante estructura, contexto o texto conocido.</p>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Los bytes aleatorios de esta demostración no constituyen una implementación de ChaCha20 ni un formato de cifrado utilizable.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
+  <script src="assets/bloques-vs-flujo.js"></script>
+</body>
+</html>

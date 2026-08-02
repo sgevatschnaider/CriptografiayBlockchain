@@ -65,31 +65,37 @@ Una sesión de 75 a 90 minutos puede organizarse así:
 
 ## Módulo 3 — Criptografía moderna
 
-**Clase guiada disponible:** [De la contraseña a AES-GCM](./clase-03-kdf-aes-gcm.md) · [Abrir recorrido interactivo](../../simuladores/modulo-03/ruta-guiada.html)
+**Ruta completa:** [De la primitiva al protocolo](../../simuladores/modulo-03/ruta-modulo.html) · **Clase guiada:** [De la contraseña a AES-GCM](./clase-03-kdf-aes-gcm.md) · [Abrir Clase 3](../../simuladores/modulo-03/ruta-guiada.html)
 
-**Pregunta rectora:** ¿cómo se transforma una contraseña humana en una clave utilizable y cómo detecta el receptor una modificación?
+**Pregunta rectora:** ¿qué propiedad aporta cada primitiva y qué condiciones deben cumplirse para componerlas en un protocolo seguro?
 
 **Objetivos**
 
-- Diferenciar contraseña, clave y entropía.
+- Diferenciar contraseña, clave, entropía y material derivado.
+- Comparar cifrado por bloques y por flujo, y explicar la reutilización de keystream.
 - Usar PBKDF2 y comprender el papel de salt, costo y normalización NFC.
-- Distinguir el bloque AES de la longitud de clave.
-- Comparar CBC, CTR, GCM y XTS.
-- Cifrar un archivo local y verificar el tag.
-- Reconstruir conceptualmente la arquitectura de VeraCrypt.
+- Distinguir CBC, CTR, GCM y XTS según su propósito y sus garantías.
+- Separar hash, HMAC y firma digital por modelo de clave y verificabilidad.
+- Explicar un oráculo de padding y justificar la preferencia por AEAD.
+- Ejecutar RSA-OAEP y distinguirlo de RSA-PSS.
+- Simular ECDH con y sin autenticación, derivar mediante HKDF y cifrar con AES-GCM.
+- Relacionar claves públicas, certificados, PKI y TLS con el problema de identidad.
 
 **Actividad central**
 
-1. Derivar dos veces con los mismos parámetros y comparar claves.
-2. Cambiar solamente la salt y repetir.
-3. Ejecutar AES-CBC, AES-CTR y AES-GCM con Web Crypto.
-4. Alterar ciphertext, IV o nonce, AAD y tag.
-5. Cifrar, exportar, importar y recuperar un archivo ficticio.
-6. Alterar un bit del paquete y observar el rechazo de GCM.
+1. Partir bytes en bloques, observar PKCS#7 y comprobar (C_1 \oplus C_2 = M_1 \oplus M_2) al reutilizar flujo.
+2. Derivar dos veces con los mismos parámetros, cambiar solamente la salt y medir el costo.
+3. Ejecutar AES-CBC, AES-CTR y AES-GCM; alterar ciphertext, IV o nonce, AAD y tag.
+4. Cifrar, exportar, importar y recuperar un archivo ficticio; alterar un bit y observar el rechazo.
+5. Medir avalancha SHA-256 y comparar hash, HMAC y ECDSA ante mensaje o clave alterados.
+6. Consultar el oráculo CBC local, forzar padding `01` e inferir el byte de relleno.
+7. Cifrar una entrada acotada con RSA-OAEP y comprobar rechazo ante alteración u otra privada.
+8. Derivar ECDH en ambos sentidos, interponer a Mallory y componer ECDH → HKDF → AES-GCM.
+9. Consolidar vocabulario en el glosario y alcanzar al menos 70% en el cuestionario integrador.
 
-**Evidencia de aprendizaje:** explicación que distinga KDF, clave, modo y tag; identifique los campos públicos del paquete y justifique por qué “descifrar” no equivale a “autenticar”.
+**Evidencia de aprendizaje:** mapa de decisión que elija primitivas para confidencialidad, integridad, autenticación simétrica, verificabilidad pública y acuerdo de claves; para cada elección debe declarar condición crítica, ataque relevante y mecanismo de identidad.
 
-**Extensión:** el laboratorio integral conserva SHA-256, HKDF y ECDSA para ampliar la clase o trabajar de manera autónoma.
+**Cierre de estudio:** [glosario interactivo](../../simuladores/modulo-03/glosario.html) → [cuestionario integrador](../../simuladores/modulo-03/cuestionario.html). La Clase 3 conserva su secuencia específica de 90 minutos dentro del recorrido más amplio.
 
 ## Módulo 4 — Esteganografía
 
