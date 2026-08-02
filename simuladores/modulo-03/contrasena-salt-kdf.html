@@ -3,15 +3,759 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Laboratorio interactivo sobre contraseñas, normalización Unicode, salt, PBKDF2 y costo de ataques offline.">
+  <meta name="description" content="Laboratorio interactivo y visual sobre el flujo completo desde una contraseña humana hasta una clave criptográfica derivada con PBKDF2.">
   <meta name="theme-color" content="#071321">
-  <title>De la contraseña a la clave | Clase 3</title>
-  <link rel="stylesheet" href="../assets/lab.css">
-  <link rel="stylesheet" href="assets/clase-03.css">
+  <title>De la contraseña a la clave | Laboratorio interactivo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050b14;
+      --bg-2: #071321;
+      --panel: rgba(12, 28, 47, .82);
+      --panel-strong: #0d2035;
+      --panel-soft: rgba(20, 43, 69, .58);
+      --line: rgba(143, 205, 255, .17);
+      --line-strong: rgba(143, 205, 255, .35);
+      --text: #edf7ff;
+      --muted: #9eb4c8;
+      --cyan: #5de4ff;
+      --cyan-2: #1db6d7;
+      --violet: #b48cff;
+      --green: #6ee7b7;
+      --amber: #f8c76a;
+      --red: #ff7f98;
+      --shadow: 0 24px 60px rgba(0, 0, 0, .32);
+      --radius: 22px;
+      --radius-small: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(29, 182, 215, .18), transparent 28rem),
+        radial-gradient(circle at 92% 12%, rgba(180, 140, 255, .14), transparent 30rem),
+        linear-gradient(180deg, var(--bg-2), var(--bg));
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .26;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, black, transparent 84%);
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+    button, input, select { outline-offset: 3px; }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 3px solid rgba(93, 228, 255, .72);
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      left: 16px;
+      top: -60px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--cyan);
+      color: #001018;
+      font-weight: 800;
+      transition: top .2s ease;
+    }
+    .skip-link:focus { top: 16px; }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 70px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 10px 2px 22px;
+    }
+    .brand a {
+      text-decoration: none;
+      font-weight: 850;
+      letter-spacing: .02em;
+    }
+    .nav { display: flex; gap: 10px; flex-wrap: wrap; }
+    .nav a {
+      text-decoration: none;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255,255,255,.025);
+    }
+    .nav a:hover { color: var(--text); border-color: var(--line-strong); }
+
+    .hero {
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      padding: clamp(26px, 5vw, 62px);
+      background:
+        linear-gradient(135deg, rgba(9, 27, 47, .96), rgba(11, 27, 45, .70)),
+        radial-gradient(circle at 80% 10%, rgba(180,140,255,.22), transparent 36%);
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "01 → 02 → 03 → 04 → 05";
+      position: absolute;
+      right: 28px;
+      bottom: 18px;
+      font: 700 clamp(16px, 2.3vw, 28px)/1 var(--mono);
+      color: rgba(93, 228, 255, .08);
+      letter-spacing: .14em;
+      white-space: nowrap;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: var(--cyan);
+      background: rgba(93,228,255,.09);
+      border: 1px solid rgba(93,228,255,.2);
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 800px;
+      margin: 18px 0 14px;
+      font-size: clamp(2.4rem, 7vw, 5.8rem);
+      line-height: .96;
+      letter-spacing: -.055em;
+    }
+    .hero > p {
+      max-width: 780px;
+      margin: 0;
+      color: #c5d7e6;
+      font-size: clamp(1rem, 2vw, 1.27rem);
+      line-height: 1.65;
+    }
+    .lesson-kicker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 24px;
+    }
+    .lesson-kicker span, .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      color: #d6e9f8;
+      font-size: .82rem;
+      font-weight: 700;
+    }
+    .privacy-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 26px;
+      padding: 14px 16px;
+      max-width: 810px;
+      border-left: 3px solid var(--green);
+      background: rgba(110,231,183,.075);
+      border-radius: 0 14px 14px 0;
+      color: #d9f8eb;
+      line-height: 1.5;
+    }
+
+    .section { margin-top: 24px; }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 16px 42px rgba(0,0,0,.18);
+    }
+    .panel-pad { padding: clamp(20px, 3vw, 30px); }
+    h2, h3 { margin-top: 0; }
+    h2 { font-size: clamp(1.35rem, 2.4vw, 2rem); letter-spacing: -.025em; }
+    h3 { font-size: 1.05rem; }
+    .muted { color: var(--muted); line-height: 1.55; }
+    .small { font-size: .88rem; }
+    .mono { font-family: var(--mono); }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 15px;
+    }
+    .section-heading h2 { margin-bottom: 4px; }
+    .section-heading p { margin: 0; }
+
+    .progress-shell {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .progress-track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+    }
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan-2), var(--violet));
+      transition: width .35s ease;
+    }
+    .progress-label { color: var(--muted); font-size: .86rem; font-weight: 750; }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(0, auto));
+      align-items: stretch;
+      gap: 9px;
+    }
+    .flow-node {
+      min-width: 0;
+      min-height: 132px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 17px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+      transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+    }
+    .flow-node .step-number {
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: rgba(255,255,255,.055);
+      color: var(--muted);
+      font: 800 .78rem/1 var(--mono);
+    }
+    .flow-node strong { display: block; font-size: 1rem; }
+    .flow-node span { color: var(--muted); font-size: .84rem; line-height: 1.35; }
+    .flow-node.active {
+      transform: translateY(-4px);
+      border-color: rgba(93,228,255,.62);
+      background: rgba(93,228,255,.085);
+      box-shadow: 0 0 0 4px rgba(93,228,255,.07), 0 20px 34px rgba(0,0,0,.22);
+    }
+    .flow-node.done { border-color: rgba(110,231,183,.38); }
+    .flow-node.done .step-number { background: rgba(110,231,183,.15); color: var(--green); }
+    .flow-node.error { border-color: rgba(255,127,152,.6); background: rgba(255,127,152,.07); }
+    .flow-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--cyan);
+      opacity: .7;
+      font: 900 1.25rem/1 var(--mono);
+    }
+    .flow-detail {
+      overflow: hidden;
+      max-width: 155px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #d9efff !important;
+      font-family: var(--mono);
+      font-size: .72rem !important;
+    }
+
+    .callout {
+      margin-top: 18px;
+      padding: 15px 17px;
+      border-radius: var(--radius-small);
+      background: rgba(180,140,255,.08);
+      border: 1px solid rgba(180,140,255,.2);
+      color: #e9ddff;
+      line-height: 1.55;
+    }
+
+    .lab-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+    .span-12 { grid-column: span 12; }
+    .lab-card { padding: clamp(20px, 3vw, 28px); }
+
+    .step-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .step-chip {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      color: #00141d;
+      background: var(--cyan);
+      font: 900 .84rem/1 var(--mono);
+    }
+    .step-title h2 { margin-bottom: 5px; }
+    .step-title p { margin: 0; }
+
+    .control { margin-top: 15px; }
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 7px;
+      color: #d7e7f3;
+      font-size: .9rem;
+      font-weight: 760;
+    }
+    .control label small { color: var(--muted); font-weight: 500; }
+    input, select {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line-strong);
+      border-radius: 13px;
+      padding: 11px 13px;
+      color: var(--text);
+      background: rgba(3, 13, 23, .72);
+    }
+    input:hover, select:hover { border-color: rgba(93,228,255,.45); }
+    input[type="range"] {
+      min-height: 30px;
+      padding: 0;
+      accent-color: var(--cyan);
+      background: transparent;
+      border: 0;
+    }
+    .password-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 9px;
+    }
+    .password-row button { min-width: 52px; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 17px;
+    }
+    button, .button-link {
+      min-height: 43px;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 15px;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform .16s ease, filter .16s ease, opacity .16s ease, background .16s ease;
+    }
+    button:hover, .button-link:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    button:disabled { cursor: wait; opacity: .55; transform: none; }
+    .primary {
+      color: #001018;
+      background: linear-gradient(135deg, var(--cyan), #9cf0ff);
+      box-shadow: 0 10px 24px rgba(29,182,215,.2);
+    }
+    .secondary {
+      color: var(--text);
+      border: 1px solid var(--line-strong);
+      background: rgba(255,255,255,.045);
+    }
+    .ghost {
+      color: var(--muted);
+      border: 1px solid transparent;
+      background: transparent;
+    }
+    .danger-soft { color: #ffdbe2; border-color: rgba(255,127,152,.25); }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 17px;
+    }
+    .metric {
+      padding: 14px;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255,255,255,.025);
+    }
+    .metric strong {
+      display: block;
+      overflow: hidden;
+      color: var(--cyan);
+      font: 850 clamp(1.1rem, 2vw, 1.55rem)/1.15 var(--mono);
+      text-overflow: ellipsis;
+    }
+    .metric span { display: block; margin-top: 7px; color: var(--muted); font-size: .77rem; line-height: 1.35; }
+
+    .status {
+      margin-top: 15px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+      color: #cbddea;
+      line-height: 1.5;
+    }
+    .status[data-kind="success"] { border-color: rgba(110,231,183,.28); background: rgba(110,231,183,.06); color: #d8f8e9; }
+    .status[data-kind="warning"] { border-color: rgba(248,199,106,.28); background: rgba(248,199,106,.06); color: #ffe8b9; }
+    .status[data-kind="error"] { border-color: rgba(255,127,152,.3); background: rgba(255,127,152,.06); color: #ffdbe2; }
+
+    .byte-strip {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .byte {
+      display: grid;
+      place-items: center;
+      min-width: 37px;
+      height: 35px;
+      padding: 0 6px;
+      border: 1px solid rgba(93,228,255,.18);
+      border-radius: 9px;
+      color: #dff8ff;
+      background: rgba(93,228,255,.055);
+      font: 700 .74rem/1 var(--mono);
+      animation: byteIn .28s ease both;
+    }
+    @keyframes byteIn {
+      from { opacity: 0; transform: translateY(5px) scale(.96); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .trace-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .trace-box {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(2, 10, 18, .42);
+    }
+    .trace-box b { display: block; margin-bottom: 8px; font-size: .83rem; color: #d9e9f5; }
+    .trace-box output, .trace-box code {
+      display: block;
+      overflow-wrap: anywhere;
+      color: #bcefff;
+      font: 650 .79rem/1.55 var(--mono);
+    }
+
+    .strength {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 13px;
+    }
+    .strength-track {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,.07);
+    }
+    .strength-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--red);
+      transition: width .25s ease, background .25s ease;
+    }
+    .strength-label { min-width: 76px; color: var(--muted); font-size: .78rem; text-align: right; }
+
+    .iteration-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+    .iteration-display strong { color: var(--amber); font-family: var(--mono); }
+
+    .runner {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+      padding: 20px;
+      border: 1px solid rgba(93,228,255,.22);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(93,228,255,.07), rgba(180,140,255,.055));
+    }
+    .runner h2 { margin-bottom: 6px; }
+    .runner p { margin: 0; }
+    .runner-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+
+    .key-stage {
+      min-height: 230px;
+      display: grid;
+      align-content: center;
+      gap: 15px;
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px dashed rgba(93,228,255,.28);
+      background:
+        radial-gradient(circle at center, rgba(93,228,255,.08), transparent 65%),
+        rgba(3, 13, 23, .45);
+    }
+    .key-lock {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      border: 1px solid rgba(93,228,255,.3);
+      background: rgba(93,228,255,.1);
+      color: var(--cyan);
+      font-size: 1.7rem;
+      transition: transform .3s ease, background .3s ease;
+    }
+    .key-stage.ready .key-lock { transform: rotate(-5deg) scale(1.08); background: rgba(110,231,183,.12); color: var(--green); }
+    .key-hex {
+      max-height: 150px;
+      overflow: auto;
+      text-align: center;
+      overflow-wrap: anywhere;
+      color: #d9f7ff;
+      font: 750 .93rem/1.6 var(--mono);
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .compare-card {
+      position: relative;
+      overflow: hidden;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.025);
+    }
+    .compare-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--cyan);
+      opacity: .7;
+    }
+    .compare-card.kdf::before { background: var(--violet); }
+    .compare-card strong { display: block; font-size: 1.1rem; }
+    .compare-card .time { margin: 8px 0; color: var(--cyan); font: 850 1.5rem/1 var(--mono); }
+    .compare-card.kdf .time { color: var(--violet); }
+    .compare-card p { margin: 0; color: var(--muted); font-size: .87rem; line-height: 1.45; }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 15px; }
+    table { width: 100%; border-collapse: collapse; min-width: 650px; }
+    th, td { padding: 13px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: #dff3ff; background: rgba(255,255,255,.035); font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; }
+    td { color: #c8d9e5; font-size: .9rem; line-height: 1.45; }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    .experiment-log { display: grid; gap: 10px; }
+    .experiment {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.022);
+    }
+    .experiment-id {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      color: var(--cyan);
+      background: rgba(93,228,255,.08);
+      font: 850 .78rem/1 var(--mono);
+    }
+    .experiment-main { min-width: 0; }
+    .experiment-main strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font: 700 .8rem/1.4 var(--mono);
+    }
+    .experiment-main span { color: var(--muted); font-size: .76rem; }
+    .result-pill {
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .same { color: var(--green); background: rgba(110,231,183,.1); }
+    .different { color: var(--amber); background: rgba(248,199,106,.1); }
+    .first { color: var(--cyan); background: rgba(93,228,255,.09); }
+
+    .concept-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .concept-card {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.025);
+    }
+    .concept-card strong { display: block; margin-bottom: 7px; }
+    .concept-card p { margin: 0; color: var(--muted); font-size: .86rem; line-height: 1.5; }
+    .concept-card.current { border-color: rgba(93,228,255,.35); background: rgba(93,228,255,.055); }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.022);
+      padding: 13px 15px;
+    }
+    details + details { margin-top: 10px; }
+    summary { cursor: pointer; font-weight: 800; }
+    details p { color: var(--muted); line-height: 1.6; }
+
+    .challenge-list { display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+    .challenge-list li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 11px;
+      align-items: start;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: #d1e3ef;
+      background: rgba(255,255,255,.022);
+    }
+    .challenge-list span {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #00141d;
+      background: var(--green);
+      font: 900 .74rem/1 var(--mono);
+    }
+
+    .footer {
+      margin-top: 28px;
+      padding: 24px 4px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+    .author-line { color: #d9eaf6; font-weight: 800; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,16,24,.3);
+      border-top-color: #001018;
+      animation: spin .7s linear infinite;
+      vertical-align: -2px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    @media (max-width: 1040px) {
+      .pipeline { grid-template-columns: repeat(5, 1fr); }
+      .flow-arrow { display: none; }
+      .span-5, .span-7 { grid-column: span 12; }
+      .concept-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .shell { width: min(100% - 20px, 1240px); padding-top: 10px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .hero { border-radius: 22px; padding: 24px 20px 36px; }
+      .hero::after { display: none; }
+      .pipeline { grid-template-columns: 1fr; }
+      .flow-node { min-height: 100px; }
+      .runner { grid-template-columns: 1fr; }
+      .runner-actions { justify-content: flex-start; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .trace-grid, .comparison { grid-template-columns: 1fr; }
+      .concept-cards { grid-template-columns: 1fr; }
+      .section-heading { align-items: flex-start; flex-direction: column; }
+      .experiment { grid-template-columns: auto 1fr; }
+      .experiment .result-pill { grid-column: 2; justify-self: start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
 </head>
 <body>
-  <main class="shell lesson-shell">
-    <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+  <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+
+  <main class="shell">
     <header class="topbar">
       <div class="brand"><a href="ruta-guiada.html">← Clase 3</a></div>
       <nav class="nav" aria-label="Navegación principal">
@@ -22,154 +766,967 @@
     </header>
 
     <section class="hero">
-      <div class="eyebrow">Clase 3 · Estación 1</div>
+      <div class="eyebrow">Clase 3 · Estación 1 · Laboratorio guiado</div>
       <h1>De la contraseña a la clave</h1>
-      <p>Comprobá qué hacen realmente el salt y PBKDF2, medí el costo local de derivación y distinguí la longitud de una clave de la imprevisibilidad de una contraseña humana.</p>
+      <p>Seguí el recorrido completo: texto humano, normalización Unicode, bytes UTF-8, salt, costo de trabajo, PBKDF2 y una clave de 256 bits lista para alimentar un algoritmo como AES.</p>
       <div class="lesson-kicker" aria-label="Conceptos principales">
-        <span>Unicode + UTF-8</span><span>Normalización NFC</span><span>Salt de 128 bits</span><span>PBKDF2 real</span><span>Ataque offline</span>
+        <span>Unicode y UTF-8</span>
+        <span>Normalización NFC</span>
+        <span>Salt aleatoria de 128 bits</span>
+        <span>PBKDF2-HMAC-SHA-256</span>
+        <span>Clave derivada de 256 bits</span>
       </div>
       <div class="privacy-banner">
         <span aria-hidden="true">🛡️</span>
-        <div><strong>No introduzcas contraseñas reales.</strong> Todo se procesa localmente en tu navegador; este recurso utiliza ejemplos ficticios y no transmite datos.</div>
+        <div><strong>No introduzcas contraseñas reales.</strong> Todo se procesa localmente mediante Web Crypto. El laboratorio no transmite ni almacena datos.</div>
       </div>
     </section>
 
-    <section class="lab-panel full" style="margin-top:22px" aria-labelledby="flujo-title">
-      <h2 id="flujo-title">La cadena correcta</h2>
-      <div class="concept-flow" aria-label="Contraseña y parámetros ingresan en PBKDF2 para producir una clave AES">
-        <div class="flow-node"><strong>Contraseña</strong><span>Secreto humano</span></div><span class="flow-arrow" aria-hidden="true">+</span>
-        <div class="flow-node"><strong>Salt</strong><span>Único, no secreto</span></div><span class="flow-arrow" aria-hidden="true">+</span>
-        <div class="flow-node"><strong>Costo</strong><span>Iteraciones</span></div><span class="flow-arrow" aria-hidden="true">→</span>
-        <div class="flow-node"><strong>PBKDF2</strong><span>HMAC-SHA-256</span></div><span class="flow-arrow" aria-hidden="true">→</span>
-        <div class="flow-node"><strong>Clave</strong><span>256 bits</span></div>
+    <section class="section panel panel-pad" aria-labelledby="flow-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="flow-title">Mapa vivo del proceso</h2>
+          <p class="muted">Cada nodo se ilumina cuando participa en la derivación.</p>
+        </div>
+        <span class="badge" id="flow-state">Esperando entrada</span>
       </div>
-      <div class="callout" style="margin-top:16px"><strong>Idea central:</strong> una KDF aumenta el costo de probar candidatos, pero no crea entropía que la contraseña no tenía.</div>
+
+      <div class="progress-shell" aria-label="Progreso del flujo">
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-label" id="progress-label">0 de 5 etapas</div>
+      </div>
+
+      <div class="pipeline" aria-label="Flujo desde la contraseña hasta la clave">
+        <div class="flow-node" data-flow="1">
+          <div class="step-number">01</div>
+          <div><strong>Contraseña</strong><span>Secreto humano, memorable pero normalmente predecible.</span></div>
+          <span class="flow-detail" id="flow-password">—</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-node" data-flow="2">
+          <div class="step-number">02</div>
+          <div><strong>NFC + UTF-8</strong><span>Unifica la representación y transforma texto en bytes.</span></div>
+          <span class="flow-detail" id="flow-bytes">—</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">+</div>
+        <div class="flow-node" data-flow="3">
+          <div class="step-number">03</div>
+          <div><strong>Salt</strong><span>Valor público y único que evita resultados idénticos.</span></div>
+          <span class="flow-detail" id="flow-salt">—</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">+</div>
+        <div class="flow-node" data-flow="4">
+          <div class="step-number">04</div>
+          <div><strong>PBKDF2</strong><span>Repite HMAC-SHA-256 para encarecer cada candidato.</span></div>
+          <span class="flow-detail" id="flow-cost">—</span>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-node" data-flow="5">
+          <div class="step-number">05</div>
+          <div><strong>Clave</strong><span>32 bytes derivados. La longitud no equivale a entropía.</span></div>
+          <span class="flow-detail" id="flow-key">—</span>
+        </div>
+      </div>
+
+      <div class="callout"><strong>Idea central:</strong> PBKDF2 aumenta el costo de probar cada contraseña candidata. No transforma una contraseña obvia en un secreto impredecible ni “crea” entropía inexistente.</div>
     </section>
 
-    <section class="lab-grid" id="laboratorio">
-      <article class="lab-panel">
-        <h2>1. Inspeccioná la entrada</h2>
-        <p class="muted">El navegador normaliza la contraseña a NFC antes de derivar. No confundas caracteres visibles, puntos de código y bytes.</p>
+    <section class="section runner" aria-labelledby="runner-title">
+      <div>
+        <h2 id="runner-title">Ejecutá el recorrido completo</h2>
+        <p class="muted">La página ya contiene una salt inicial. Podés modificar contraseña, salt o costo y luego derivar con los valores actuales para observar qué variable cambia la clave.</p>
+      </div>
+      <div class="runner-actions">
+        <button class="primary" id="run-flow" type="button">Derivar con valores actuales</button>
+        <button class="secondary" id="new-salt-run" type="button">Nueva salt + derivar</button>
+        <button class="ghost danger-soft" id="reset-lab" type="button">Reiniciar</button>
+      </div>
+    </section>
+
+    <section class="section lab-grid" id="laboratorio">
+      <article class="panel lab-card span-5">
+        <div class="step-title">
+          <div class="step-chip">01</div>
+          <div>
+            <h2>Inspeccioná la contraseña</h2>
+            <p class="muted">Lo que ves en pantalla no siempre coincide con lo que procesa la computadora.</p>
+          </div>
+        </div>
+
         <div class="control">
-          <label for="password">Contraseña ficticia</label>
-          <input id="password" type="password" value="Ejemplo docente 2026!" autocomplete="off" spellcheck="false">
+          <label for="password">Contraseña ficticia <small>No uses una contraseña real</small></label>
+          <div class="password-row">
+            <input id="password" type="password" value="Ejemplo docente 2026!" autocomplete="off" spellcheck="false">
+            <button class="secondary" id="toggle-password" type="button" aria-label="Mostrar contraseña">Ver</button>
+          </div>
         </div>
+
         <div class="actions">
-          <button class="secondary" id="toggle-password" type="button">Mostrar contraseña</button>
-          <button class="secondary" id="unicode-example" type="button">Probar ejemplo Unicode</button>
+          <button class="secondary" id="unicode-example" type="button">Ejemplo Unicode</button>
+          <button class="secondary" id="weak-example" type="button">Ejemplo predecible</button>
+          <button class="secondary" id="strong-example" type="button">Ejemplo más largo</button>
         </div>
-        <div class="metric-grid" style="margin-top:14px">
+
+        <div class="strength" aria-label="Indicador educativo de previsibilidad">
+          <div class="strength-track"><div class="strength-fill" id="strength-fill"></div></div>
+          <div class="strength-label" id="strength-label">—</div>
+        </div>
+        <p class="small muted">Indicador heurístico para comparar ejemplos; no es una medición criptográfica exacta de entropía.</p>
+
+        <div class="metric-grid">
           <div class="metric"><strong id="graphemes">0</strong><span>grafemas visibles</span></div>
           <div class="metric"><strong id="code-points">0</strong><span>puntos de código</span></div>
           <div class="metric"><strong id="utf16-units">0</strong><span>unidades UTF-16</span></div>
           <div class="metric"><strong id="utf8-bytes">0</strong><span>bytes UTF-8 tras NFC</span></div>
         </div>
-        <div class="status" id="unicode-status">La misma apariencia visual puede tener representaciones binarias diferentes si no se normaliza.</div>
+
+        <div class="status" id="unicode-status">Escribí o elegí un ejemplo para inspeccionar su representación.</div>
       </article>
 
-      <article class="lab-panel">
-        <h2>2. Configurá PBKDF2</h2>
-        <div class="controls">
-          <div class="control full">
-            <label for="salt">Salt hexadecimal · 16 bytes</label>
-            <input id="salt" class="mono" spellcheck="false" inputmode="text">
+      <article class="panel lab-card span-7">
+        <div class="step-title">
+          <div class="step-chip">02</div>
+          <div>
+            <h2>Observá la transformación a bytes</h2>
+            <p class="muted">PBKDF2 no recibe “letras”: recibe una secuencia exacta de bytes.</p>
           </div>
-          <div class="control">
-            <label for="iterations">Iteraciones educativas</label>
-            <input id="iterations" type="number" min="10000" max="1000000" step="10000" value="200000">
+        </div>
+
+        <div class="trace-grid">
+          <div class="trace-box"><b>Entrada original</b><output id="original-output">—</output></div>
+          <div class="trace-box"><b>Entrada normalizada en NFC</b><output id="normalized-output">—</output></div>
+          <div class="trace-box"><b>Puntos de código</b><output id="codepoints-output">—</output></div>
+          <div class="trace-box"><b>Bytes UTF-8 en hexadecimal</b><output id="utf8-output">—</output></div>
+        </div>
+
+        <h3 style="margin-top:20px">Mapa de bytes</h3>
+        <div class="byte-strip" id="input-bytes" aria-live="polite"><span class="muted">Esperando entrada…</span></div>
+
+        <div class="callout"><strong>Por qué normalizar:</strong> dos textos visualmente iguales pueden usar secuencias Unicode distintas. La normalización NFC permite que ambos recorridos lleguen a los mismos bytes antes de derivar.</div>
+      </article>
+
+      <article class="panel lab-card span-5">
+        <div class="step-title">
+          <div class="step-chip">03</div>
+          <div>
+            <h2>Configurá la derivación</h2>
+            <p class="muted">La salt no es una contraseña adicional: debe ser única, aleatoria y puede almacenarse en claro.</p>
           </div>
-          <div class="control">
-            <label for="output-size">Longitud derivada</label>
-            <select id="output-size" disabled><option>256 bits</option></select>
-          </div>
+        </div>
+
+        <div class="control">
+          <label for="salt">Salt hexadecimal <small>16 bytes = 128 bits</small></label>
+          <input id="salt" class="mono" spellcheck="false" inputmode="text" maxlength="32" aria-describedby="salt-help">
         </div>
         <div class="actions">
-          <button id="derive" type="button">Derivar clave</button>
-          <button class="secondary" id="repeat" type="button">Repetir igual</button>
-          <button class="secondary" id="different-salt" type="button">Nueva salt y derivar</button>
+          <button class="secondary" id="generate-salt" type="button">Generar salt segura</button>
         </div>
-        <p class="small muted">El número de iteraciones es un parámetro de laboratorio, no una recomendación universal. Debe calibrarse según plataforma, amenaza y política vigente.</p>
-        <div class="status" id="kdf-status">Ejecutá la primera derivación y compará después los experimentos.</div>
-      </article>
+        <p id="salt-help" class="small muted">Se generan 16 bytes con <code>crypto.getRandomValues()</code>.</p>
 
-      <article class="lab-panel full">
-        <h2>3. Compará hash rápido y KDF</h2>
+        <div class="control">
+          <label for="iterations">Costo de trabajo <small>Laboratorio local</small></label>
+          <input id="iterations" type="range" min="50000" max="600000" step="50000" value="200000">
+          <div class="iteration-display">
+            <span>50.000</span>
+            <strong id="iterations-value">200.000 iteraciones</strong>
+            <span>600.000</span>
+          </div>
+        </div>
+
         <div class="metric-grid">
-          <div class="metric"><strong id="direct-time">—</strong><span>SHA-256 directo</span></div>
-          <div class="metric"><strong id="pbkdf2-time">—</strong><span>PBKDF2 local</span></div>
-          <div class="metric"><strong id="cost-ratio">—</strong><span>relación medida</span></div>
-          <div class="metric"><strong id="derived-bits">256</strong><span>bits de salida</span></div>
+          <div class="metric"><strong id="salt-bits">128</strong><span>bits de salt</span></div>
+          <div class="metric"><strong>SHA-256</strong><span>PRF interna HMAC</span></div>
+          <div class="metric"><strong>256</strong><span>bits solicitados</span></div>
+          <div class="metric"><strong id="iteration-metric">200k</strong><span>repeticiones</span></div>
         </div>
-        <div class="data-grid">
-          <div class="data-box"><b>SHA-256 directo</b><output id="direct-output">Esperando ejecución…</output></div>
-          <div class="data-box"><b>PBKDF2-HMAC-SHA-256</b><output id="derived-output">Esperando ejecución…</output></div>
-          <div class="data-box"><b>Salt usado</b><output id="salt-output">—</output></div>
-          <div class="data-box"><b>Entrada normalizada</b><output id="normalized-output">—</output></div>
-        </div>
-        <div class="callout" style="margin-top:16px"><strong>No confundas salida con seguridad:</strong> obtener 256 bits no significa que una contraseña predecible alcance 256 bits de resistencia.</div>
+
+        <div class="status" id="kdf-status">Ajustá los parámetros y ejecutá la derivación.</div>
       </article>
 
-      <article class="lab-panel">
-        <h2>4. Registro de experimentos</h2>
-        <p class="muted">La igualdad depende de los tres elementos: contraseña normalizada, salt y parámetros.</p>
+      <article class="panel lab-card span-7">
+        <div class="step-title">
+          <div class="step-chip">04</div>
+          <div>
+            <h2>Compará velocidad y propósito</h2>
+            <p class="muted">Un hash rápido es útil para integridad. Una contraseña necesita una función deliberadamente costosa.</p>
+          </div>
+        </div>
+
+        <div class="comparison">
+          <div class="compare-card">
+            <span class="badge">Hash rápido</span>
+            <strong>SHA-256 directo</strong>
+            <div class="time" id="direct-time">—</div>
+            <p>Produce un resumen con rapidez. Esa rapidez favorece a quien prueba millones de contraseñas.</p>
+          </div>
+          <div class="compare-card kdf">
+            <span class="badge">KDF de contraseña</span>
+            <strong>PBKDF2-HMAC-SHA-256</strong>
+            <div class="time" id="pbkdf2-time">—</div>
+            <p>Repite el trabajo para que cada intento legítimo y cada intento atacante cuesten más.</p>
+          </div>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric"><strong id="cost-ratio">—</strong><span>veces más costoso en esta medición</span></div>
+          <div class="metric"><strong id="throughput">—</strong><span>intentos PBKDF2/segundo estimados</span></div>
+          <div class="metric"><strong id="derived-bits">256</strong><span>bits de salida</span></div>
+          <div class="metric"><strong id="last-run">—</strong><span>última ejecución</span></div>
+        </div>
+
+        <div class="trace-grid">
+          <div class="trace-box"><b>SHA-256 directo</b><output id="direct-output">Esperando ejecución…</output></div>
+          <div class="trace-box"><b>Salt utilizada</b><output id="salt-output">—</output></div>
+        </div>
+      </article>
+
+      <article class="panel lab-card span-12">
+        <div class="step-title">
+          <div class="step-chip">05</div>
+          <div>
+            <h2>Construcción final de la clave</h2>
+            <p class="muted">La salida de 256 bits se muestra como 32 bytes y como 64 dígitos hexadecimales.</p>
+          </div>
+        </div>
+
+        <div class="key-stage" id="key-stage">
+          <div class="key-lock" aria-hidden="true">⌁</div>
+          <div class="key-hex" id="derived-output">Todavía no se derivó una clave.</div>
+          <div class="byte-strip" id="key-bytes" aria-live="polite"></div>
+        </div>
+
+        <div class="callout"><strong>No confundas formato con fuerza:</strong> la clave ocupa 256 bits, pero la resistencia real sigue limitada por la imprevisibilidad de la contraseña y por el costo de probar candidatos.</div>
+      </article>
+
+      <article class="panel lab-card span-7">
+        <div class="section-heading">
+          <div>
+            <h2>Registro de experimentos</h2>
+            <p class="muted">Cada derivación agrega una fila. Repetí o cambiá una sola variable para comparar causas y resultados.</p>
+          </div>
+          <div class="actions">
+            <span class="badge" id="experiment-count">0 experimentos</span>
+            <button class="ghost" id="clear-log" type="button">Vaciar registro</button>
+          </div>
+        </div>
+        <div class="actions" aria-label="Controles para crear experimentos comparables">
+          <button class="secondary" id="repeat-experiment" type="button">Repetir exactamente igual</button>
+          <button class="secondary" id="password-experiment" type="button">Cambiar sólo la contraseña</button>
+          <button class="secondary" id="salt-experiment" type="button">Cambiar sólo la salt</button>
+          <button class="secondary" id="cost-experiment" type="button">Cambiar sólo el costo</button>
+        </div>
+        <div class="status" id="experiment-help">Primero derivá una clave. Después repetí sin cambios o modificá únicamente contraseña, salt o costo: cada clic generará una nueva fila.</div>
+        <p class="small muted"><strong>Importante:</strong> editar un valor no recalcula automáticamente la clave. Los cuatro botones comparativos toman como base el último experimento terminado, de modo que cada prueba aísla realmente una sola variable.</p>
         <div class="experiment-log" id="experiment-log" aria-live="polite">
           <p class="muted">Todavía no hay ejecuciones.</p>
         </div>
       </article>
 
-      <article class="lab-panel">
-        <h2>5. Costo de intentos offline</h2>
-        <p class="muted">Extrapolación desde este dispositivo y esta sesión. No representa la velocidad de hardware especializado ni una garantía temporal.</p>
-        <div class="table-wrap" tabindex="0" role="region" aria-label="Estimación del costo de intentos offline">
+      <article class="panel lab-card span-5">
+        <h2>Costo de intentos offline</h2>
+        <p class="muted">Extrapolación lineal desde este navegador y esta sesión. No representa hardware especializado.</p>
+        <div class="table-wrap" role="region" aria-label="Estimación de ataque offline">
           <table>
-            <thead><tr><th>Intentos</th><th>Tiempo local estimado</th><th>Qué representa</th></tr></thead>
+            <thead><tr><th>Intentos</th><th>Tiempo local</th><th>Lectura didáctica</th></tr></thead>
             <tbody>
-              <tr><td>1</td><td id="cost-1">—</td><td>Verificación legítima</td></tr>
-              <tr><td>1.000</td><td id="cost-1000">—</td><td>Lista breve</td></tr>
+              <tr><td>1</td><td id="cost-1">—</td><td>Una verificación legítima</td></tr>
+              <tr><td>1.000</td><td id="cost-1000">—</td><td>Lista breve de candidatos</td></tr>
               <tr><td>1.000.000</td><td id="cost-million">—</td><td>Diccionario amplio</td></tr>
+              <tr><td>1.000.000.000</td><td id="cost-billion">—</td><td>Espacio de búsqueda mayor</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="status" id="attack-status">En un ataque offline no hay bloqueo ni límite de intentos impuesto por el servidor.</div>
+        <div class="status" id="attack-status">En un ataque offline no existe el bloqueo de cuenta del servidor.</div>
       </article>
 
-      <article class="lab-panel full">
-        <h2>Qué función corresponde a cada propósito</h2>
-        <div class="table-wrap" tabindex="0" role="region" aria-label="Comparación entre funciones de derivación y hash">
-          <table>
-            <thead><tr><th>Construcción</th><th>Entrada esperada</th><th>Propósito</th><th>Estado en este laboratorio</th></tr></thead>
-            <tbody>
-              <tr><td>SHA-256 directo</td><td>Datos generales</td><td>Resumen rápido; no endurece contraseñas</td><td>Ejecutado para comparar</td></tr>
-              <tr><td>PBKDF2</td><td>Contraseña humana + salt</td><td>Aumentar el costo de cada candidato</td><td>Ejecutado con Web Crypto</td></tr>
-              <tr><td>Argon2id</td><td>Contraseña humana + salt</td><td>Agregar costo de memoria y tiempo</td><td>Comparación conceptual; no se simula</td></tr>
-              <tr><td>HKDF</td><td>Secreto con alta entropía</td><td>Expandir y separar claves por contexto</td><td>No reemplaza una KDF de contraseñas</td></tr>
-            </tbody>
-          </table>
+      <article class="panel lab-card span-12">
+        <div class="section-heading">
+          <div>
+            <h2>Qué función corresponde a cada propósito</h2>
+            <p class="muted">La palabra “derivación” no significa lo mismo en todos los contextos.</p>
+          </div>
+        </div>
+        <div class="concept-cards">
+          <div class="concept-card">
+            <strong>SHA-256</strong>
+            <p>Hash rápido para datos generales e integridad. No endurece contraseñas por sí solo.</p>
+          </div>
+          <div class="concept-card current">
+            <strong>PBKDF2</strong>
+            <p>Contraseña + salt + iteraciones. Aumenta el costo temporal de cada candidato.</p>
+          </div>
+          <div class="concept-card">
+            <strong>Argon2id</strong>
+            <p>KDF moderna con costo de memoria y tiempo. Aquí se compara conceptualmente, no se ejecuta.</p>
+          </div>
+          <div class="concept-card">
+            <strong>HKDF</strong>
+            <p>Expande y separa claves desde secretos de alta entropía. No sustituye una KDF de contraseñas.</p>
+          </div>
         </div>
       </article>
 
-      <article class="lab-panel full">
+      <article class="panel lab-card span-5">
+        <h2>Preguntas que abre el experimento</h2>
+        <details>
+          <summary>¿Por qué la misma entrada produce la misma clave?</summary>
+          <p>PBKDF2 es determinista: si contraseña normalizada, salt, función, iteraciones y longitud coinciden, la salida coincide.</p>
+        </details>
+        <details>
+          <summary>¿Por qué cambiar sólo la salt cambia la clave?</summary>
+          <p>La salt forma parte de la entrada de la KDF. Una salt distinta crea un recorrido computacional distinto aunque la contraseña sea igual.</p>
+        </details>
+        <details>
+          <summary>¿La salt debe mantenerse secreta?</summary>
+          <p>No. Debe ser única y estar disponible para repetir la derivación legítima. Su función principal no es ocultar, sino separar resultados.</p>
+        </details>
+        <details>
+          <summary>¿Por qué 256 bits no equivalen a 256 bits de seguridad?</summary>
+          <p>Porque una salida extensa puede provenir de una entrada predecible. El atacante busca la contraseña, no recorre necesariamente todas las claves posibles.</p>
+        </details>
+      </article>
+
+      <article class="panel lab-card span-7">
         <h2>Desafío de transferencia</h2>
-        <ol class="steps">
-          <li>Derivá dos veces con exactamente la misma entrada y explicá por qué la clave coincide.</li>
-          <li>Cambiá solamente la salt y comprobá que cambia la clave.</li>
-          <li>Multiplicá las iteraciones y compará el tiempo medido.</li>
-          <li>Explicá por qué <code>123456</code> sigue siendo predecible aunque PBKDF2 tarde más.</li>
-          <li>Indicá qué dato debe almacenarse junto con el criptograma para volver a derivar la clave.</li>
+        <ol class="challenge-list">
+          <li><span>1</span><div>Derivá dos veces con exactamente la misma entrada y explicá por qué la clave coincide.</div></li>
+          <li><span>2</span><div>Cambiá únicamente la salt y verificá que cambia la clave.</div></li>
+          <li><span>3</span><div>Aumentá las iteraciones y compará el tiempo local medido.</div></li>
+          <li><span>4</span><div>Probá <code>123456</code> y explicá por qué sigue siendo predecible aunque PBKDF2 tarde más.</div></li>
+          <li><span>5</span><div>Indicá qué parámetros deben almacenarse para volver a derivar la clave legítimamente.</div></li>
         </ol>
-        <div class="actions"><a class="button" href="modos-aes-aead.html">Continuar con AES y sus modos →</a></div>
+        <div class="actions"><a class="button-link primary" href="modos-aes-aead.html">Continuar con AES y sus modos →</a></div>
       </article>
     </section>
 
     <footer class="footer">
       <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
-      <p>Laboratorio educativo. No utilices estos parámetros como una política de producción sin análisis específico.</p>
-      <p data-capability></p>
+      <p>Laboratorio educativo. Los parámetros deben calibrarse según la plataforma, la amenaza y la política vigente antes de cualquier uso de producción.</p>
     </footer>
   </main>
-  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar PBKDF2.</div></noscript>
-  <script src="../assets/lab.js"></script>
-  <script src="assets/crypto-lab.js"></script>
-  <script src="assets/contrasena-salt-kdf.js"></script>
+
+  <noscript><div class="status" data-kind="error">Este laboratorio necesita JavaScript para ejecutar PBKDF2.</div></noscript>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const $ = (id) => document.getElementById(id);
+      const encoder = new TextEncoder();
+      const experiments = [];
+      let running = false;
+      let lastDerivedHex = "";
+      let lastDurationMs = 0;
+
+      const els = {
+        password: $("password"),
+        salt: $("salt"),
+        iterations: $("iterations"),
+        iterationsValue: $("iterations-value"),
+        iterationMetric: $("iteration-metric"),
+        flowState: $("flow-state"),
+        progressFill: $("progress-fill"),
+        progressLabel: $("progress-label"),
+        flowPassword: $("flow-password"),
+        flowBytes: $("flow-bytes"),
+        flowSalt: $("flow-salt"),
+        flowCost: $("flow-cost"),
+        flowKey: $("flow-key"),
+        graphemes: $("graphemes"),
+        codePoints: $("code-points"),
+        utf16Units: $("utf16-units"),
+        utf8Bytes: $("utf8-bytes"),
+        unicodeStatus: $("unicode-status"),
+        originalOutput: $("original-output"),
+        normalizedOutput: $("normalized-output"),
+        codepointsOutput: $("codepoints-output"),
+        utf8Output: $("utf8-output"),
+        inputBytes: $("input-bytes"),
+        strengthFill: $("strength-fill"),
+        strengthLabel: $("strength-label"),
+        kdfStatus: $("kdf-status"),
+        directTime: $("direct-time"),
+        pbkdf2Time: $("pbkdf2-time"),
+        costRatio: $("cost-ratio"),
+        throughput: $("throughput"),
+        lastRun: $("last-run"),
+        directOutput: $("direct-output"),
+        saltOutput: $("salt-output"),
+        derivedOutput: $("derived-output"),
+        keyBytes: $("key-bytes"),
+        keyStage: $("key-stage"),
+        experimentLog: $("experiment-log"),
+        experimentCount: $("experiment-count"),
+        experimentHelp: $("experiment-help"),
+        repeatExperiment: $("repeat-experiment"),
+        passwordExperiment: $("password-experiment"),
+        saltExperiment: $("salt-experiment"),
+        costExperiment: $("cost-experiment"),
+        cost1: $("cost-1"),
+        cost1000: $("cost-1000"),
+        costMillion: $("cost-million"),
+        costBillion: $("cost-billion"),
+        attackStatus: $("attack-status"),
+        runFlow: $("run-flow"),
+        newSaltRun: $("new-salt-run"),
+        generateSalt: $("generate-salt"),
+        resetLab: $("reset-lab"),
+        clearLog: $("clear-log")
+      };
+
+      function bytesToHex(bytes) {
+        return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
+      }
+
+      function hexToBytes(hex) {
+        const clean = hex.trim().toLowerCase();
+        if (!/^[0-9a-f]{32}$/.test(clean)) {
+          throw new Error("La salt debe contener exactamente 32 dígitos hexadecimales (16 bytes).");
+        }
+        return new Uint8Array(clean.match(/.{2}/g).map(part => parseInt(part, 16)));
+      }
+
+      function randomSaltHex() {
+        const bytes = new Uint8Array(16);
+        crypto.getRandomValues(bytes);
+        return bytesToHex(bytes);
+      }
+
+      function countGraphemes(value) {
+        if (typeof Intl !== "undefined" && Intl.Segmenter) {
+          return [...new Intl.Segmenter("es", { granularity: "grapheme" }).segment(value)].length;
+        }
+        return Array.from(value).length;
+      }
+
+      function formatInteger(value) {
+        return new Intl.NumberFormat("es-AR").format(value);
+      }
+
+      function formatMilliseconds(ms) {
+        if (!Number.isFinite(ms)) return "—";
+        if (ms < 1) return `${ms.toFixed(3)} ms`;
+        if (ms < 1000) return `${ms.toFixed(1)} ms`;
+        return `${(ms / 1000).toFixed(2)} s`;
+      }
+
+      function formatDuration(ms) {
+        if (!Number.isFinite(ms) || ms < 0) return "—";
+        if (ms < 1000) return `${ms.toFixed(1)} ms`;
+        const seconds = ms / 1000;
+        if (seconds < 60) return `${seconds.toFixed(1)} s`;
+        const minutes = seconds / 60;
+        if (minutes < 60) return `${minutes.toFixed(1)} min`;
+        const hours = minutes / 60;
+        if (hours < 48) return `${hours.toFixed(1)} h`;
+        const days = hours / 24;
+        if (days < 365) return `${days.toFixed(1)} días`;
+        const years = days / 365.25;
+        return `${years.toFixed(1)} años`;
+      }
+
+      function renderBytes(container, bytes, limit = Infinity) {
+        container.innerHTML = "";
+        const fragment = document.createDocumentFragment();
+        const shown = Array.from(bytes).slice(0, limit);
+        shown.forEach((byte, index) => {
+          const span = document.createElement("span");
+          span.className = "byte";
+          span.textContent = byte.toString(16).padStart(2, "0").toUpperCase();
+          span.title = `Byte ${index + 1}: ${byte} decimal`;
+          span.style.animationDelay = `${Math.min(index * 22, 420)}ms`;
+          fragment.appendChild(span);
+        });
+        if (bytes.length > limit) {
+          const more = document.createElement("span");
+          more.className = "byte";
+          more.textContent = `+${bytes.length - limit}`;
+          fragment.appendChild(more);
+        }
+        container.appendChild(fragment);
+      }
+
+      function estimateStrength(value) {
+        let score = 0;
+        if (value.length >= 8) score++;
+        if (value.length >= 12) score++;
+        if (value.length >= 16) score++;
+        if (/[a-záéíóúñ]/i.test(value) && /[A-ZÁÉÍÓÚÑ]/.test(value)) score++;
+        if (/\d/.test(value)) score++;
+        if (/[^\p{L}\p{N}\s]/u.test(value)) score++;
+        if (/\s/.test(value) && value.trim().split(/\s+/).length >= 3) score++;
+        if (/^(123456|password|qwerty|admin|contraseña|abc123)$/i.test(value.trim())) score = 0;
+
+        if (score <= 1) return { pct: 18, label: "Muy predecible", color: "var(--red)" };
+        if (score <= 3) return { pct: 42, label: "Débil", color: "var(--amber)" };
+        if (score <= 5) return { pct: 68, label: "Intermedia", color: "var(--cyan)" };
+        return { pct: 91, label: "Mejor ejemplo", color: "var(--green)" };
+      }
+
+      function updateInputAnalysis() {
+        const original = els.password.value;
+        const normalized = original.normalize("NFC");
+        const bytes = encoder.encode(normalized);
+        const codePoints = Array.from(normalized);
+        const originalBytes = encoder.encode(original);
+        const changed = original !== normalized || bytesToHex(originalBytes) !== bytesToHex(bytes);
+        const strength = estimateStrength(original);
+
+        els.graphemes.textContent = countGraphemes(original);
+        els.codePoints.textContent = codePoints.length;
+        els.utf16Units.textContent = original.length;
+        els.utf8Bytes.textContent = bytes.length;
+        els.originalOutput.textContent = original || "(vacía)";
+        els.normalizedOutput.textContent = normalized || "(vacía)";
+        els.codepointsOutput.textContent = codePoints.length
+          ? codePoints.map(char => `U+${char.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")}`).join(" · ")
+          : "—";
+        els.utf8Output.textContent = bytes.length ? bytesToHex(bytes).match(/.{2}/g).join(" ").toUpperCase() : "—";
+        els.flowPassword.textContent = original ? `${countGraphemes(original)} grafemas` : "vacía";
+        els.flowBytes.textContent = `${bytes.length} bytes`;
+        renderBytes(els.inputBytes, bytes, 48);
+
+        els.strengthFill.style.width = `${strength.pct}%`;
+        els.strengthFill.style.background = strength.color;
+        els.strengthLabel.textContent = strength.label;
+
+        if (!original) {
+          setStatus(els.unicodeStatus, "La contraseña está vacía. Ingresá un ejemplo ficticio.", "error");
+        } else if (changed) {
+          setStatus(els.unicodeStatus, "La normalización NFC modificó la representación binaria antes de derivar.", "warning");
+        } else {
+          setStatus(els.unicodeStatus, "En este ejemplo, la forma original ya coincide con su representación NFC.", "success");
+        }
+
+        setFlowProgress(1, "Entrada inspeccionada");
+        return { original, normalized, bytes };
+      }
+
+      function setStatus(element, message, kind = "") {
+        element.textContent = message;
+        if (kind) element.dataset.kind = kind;
+        else delete element.dataset.kind;
+      }
+
+      function setFlowProgress(step, label) {
+        document.querySelectorAll("[data-flow]").forEach(node => {
+          const nodeStep = Number(node.dataset.flow);
+          node.classList.toggle("done", nodeStep <= step);
+          node.classList.remove("active", "error");
+        });
+        if (step > 0 && step <= 5) {
+          document.querySelector(`[data-flow="${step}"]`)?.classList.add("active");
+        }
+        els.progressFill.style.width = `${Math.max(0, Math.min(step, 5)) * 20}%`;
+        els.progressLabel.textContent = `${Math.max(0, Math.min(step, 5))} de 5 etapas`;
+        els.flowState.textContent = label;
+      }
+
+      function setFlowError(step, message) {
+        const node = document.querySelector(`[data-flow="${step}"]`);
+        node?.classList.add("error");
+        els.flowState.textContent = message;
+      }
+
+      function updateIterations() {
+        const iterations = Number(els.iterations.value);
+        els.iterationsValue.textContent = `${formatInteger(iterations)} iteraciones`;
+        els.iterationMetric.textContent = `${Math.round(iterations / 1000)}k`;
+        els.flowCost.textContent = `${formatInteger(iterations)} vueltas`;
+      }
+
+      function updateSaltFlow() {
+        const clean = els.salt.value.trim();
+        els.flowSalt.textContent = clean.length === 32 ? `${clean.slice(0, 8)}…${clean.slice(-6)}` : "salt inválida";
+      }
+
+      function markPending(variable) {
+        if (!experiments.length || running) return;
+        setStatus(
+          els.kdfStatus,
+          `${variable} modificada. La clave visible todavía corresponde a la última ejecución; presioná “Derivar con valores actuales” para recalcularla.`,
+          "warning"
+        );
+        els.flowState.textContent = "Hay cambios pendientes de derivar";
+      }
+
+      function nextTeachingPassword(currentValue = els.password.value) {
+        const current = currentValue.normalize("NFC");
+        const candidates = [
+          "Ejemplo docente 2026!",
+          "Ejemplo docente 2027!",
+          "Faro violeta cruza 7 mares!",
+          "Café seguro para la clase 3!"
+        ];
+        return candidates.find(value => value.normalize("NFC") !== current) || `${currentValue} A`;
+      }
+
+      function restoreLatestExperiment() {
+        const latest = experiments[0];
+        if (!latest) return null;
+        els.password.value = latest.normalized;
+        els.salt.value = latest.saltHex;
+        els.iterations.value = String(latest.iterations);
+        updateInputAnalysis();
+        updateSaltFlow();
+        updateIterations();
+        return latest;
+      }
+
+      function setBusy(isBusy) {
+        running = isBusy;
+        [
+          els.runFlow,
+          els.newSaltRun,
+          els.generateSalt,
+          els.repeatExperiment,
+          els.passwordExperiment,
+          els.saltExperiment,
+          els.costExperiment
+        ].forEach(button => {
+          if (button) button.disabled = isBusy;
+        });
+        els.runFlow.innerHTML = isBusy ? '<span class="spinner" aria-hidden="true"></span>Derivando…' : "Derivar con valores actuales";
+      }
+
+      async function sha256(bytes) {
+        const start = performance.now();
+        const digest = await crypto.subtle.digest("SHA-256", bytes);
+        return { bytes: new Uint8Array(digest), duration: performance.now() - start };
+      }
+
+      async function pbkdf2(passwordBytes, saltBytes, iterations) {
+        const keyMaterial = await crypto.subtle.importKey(
+          "raw",
+          passwordBytes,
+          { name: "PBKDF2" },
+          false,
+          ["deriveBits"]
+        );
+        const start = performance.now();
+        const bits = await crypto.subtle.deriveBits(
+          {
+            name: "PBKDF2",
+            hash: "SHA-256",
+            salt: saltBytes,
+            iterations
+          },
+          keyMaterial,
+          256
+        );
+        return { bytes: new Uint8Array(bits), duration: performance.now() - start };
+      }
+
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      async function runDerivation({ freshSalt = false } = {}) {
+        if (running) return;
+        setBusy(true);
+        els.keyStage.classList.remove("ready");
+
+        try {
+          if (!crypto?.subtle || !crypto?.getRandomValues) {
+            throw new Error("Este navegador no ofrece la API Web Crypto requerida.");
+          }
+
+          if (freshSalt || !els.salt.value.trim()) {
+            els.salt.value = randomSaltHex();
+          }
+
+          const { normalized, bytes: passwordBytes } = updateInputAnalysis();
+          if (!normalized) {
+            setFlowError(1, "Falta la contraseña");
+            throw new Error("Ingresá una contraseña ficticia antes de derivar.");
+          }
+
+          await sleep(180);
+          setFlowProgress(2, "Texto convertido a bytes");
+          await sleep(180);
+
+          const saltBytes = hexToBytes(els.salt.value);
+          updateSaltFlow();
+          setFlowProgress(3, "Salt incorporada");
+          els.saltOutput.textContent = bytesToHex(saltBytes);
+          await sleep(180);
+
+          const iterations = Number(els.iterations.value);
+          if (!Number.isInteger(iterations) || iterations < 10000) {
+            setFlowError(4, "Costo inválido");
+            throw new Error("El número de iteraciones no es válido.");
+          }
+
+          setFlowProgress(4, "PBKDF2 trabajando");
+          setStatus(els.kdfStatus, `Ejecutando ${formatInteger(iterations)} iteraciones de PBKDF2-HMAC-SHA-256…`, "warning");
+          await sleep(80);
+
+          const direct = await sha256(passwordBytes);
+          const derived = await pbkdf2(passwordBytes, saltBytes, iterations);
+          const directHex = bytesToHex(direct.bytes);
+          const derivedHex = bytesToHex(derived.bytes);
+          const ratio = direct.duration > 0 ? derived.duration / direct.duration : NaN;
+          const attemptsPerSecond = derived.duration > 0 ? 1000 / derived.duration : NaN;
+
+          lastDurationMs = derived.duration;
+          els.directTime.textContent = formatMilliseconds(direct.duration);
+          els.pbkdf2Time.textContent = formatMilliseconds(derived.duration);
+          els.costRatio.textContent = Number.isFinite(ratio) ? `${Math.max(1, Math.round(ratio)).toLocaleString("es-AR")}×` : "—";
+          els.throughput.textContent = Number.isFinite(attemptsPerSecond) ? attemptsPerSecond.toFixed(attemptsPerSecond < 10 ? 2 : 1) : "—";
+          els.lastRun.textContent = new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+          els.directOutput.textContent = directHex;
+          els.derivedOutput.textContent = derivedHex.match(/.{1,8}/g).join(" ");
+          els.flowKey.textContent = `${derived.bytes.length} bytes`;
+          renderBytes(els.keyBytes, derived.bytes);
+          els.keyStage.classList.add("ready");
+
+          updateAttackCosts(derived.duration);
+          addExperiment({
+            derivedHex,
+            saltHex: bytesToHex(saltBytes),
+            iterations,
+            duration: derived.duration,
+            normalized,
+            inputFingerprint: directHex.slice(0, 8)
+          });
+
+          setFlowProgress(5, "Clave derivada correctamente");
+          setStatus(
+            els.kdfStatus,
+            `Clave de 256 bits derivada en ${formatMilliseconds(derived.duration)}. Repetí sin cambios o modificá una sola variable para comparar.`,
+            "success"
+          );
+          setStatus(
+            els.attackStatus,
+            `En este navegador, una prueba tarda aproximadamente ${formatMilliseconds(derived.duration)}. La extrapolación no incluye paralelismo ni hardware especializado.`,
+            "warning"
+          );
+          lastDerivedHex = derivedHex;
+        } catch (error) {
+          console.error(error);
+          setStatus(els.kdfStatus, error.message || "No se pudo completar la derivación.", "error");
+          els.flowState.textContent = "Flujo interrumpido";
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      function updateAttackCosts(durationMs) {
+        const scenarios = [
+          [els.cost1, 1],
+          [els.cost1000, 1_000],
+          [els.costMillion, 1_000_000],
+          [els.costBillion, 1_000_000_000]
+        ];
+        scenarios.forEach(([element, attempts]) => {
+          element.textContent = formatDuration(durationMs * attempts);
+        });
+      }
+
+      function addExperiment(experiment) {
+        const previous = experiments[0];
+        let relation = "Primera ejecución";
+        let relationClass = "first";
+        let explanation = "Punto de partida para las comparaciones.";
+
+        if (previous) {
+          const changes = [];
+          if (previous.normalized !== experiment.normalized) changes.push("contraseña");
+          if (previous.saltHex !== experiment.saltHex) changes.push("salt");
+          if (previous.iterations !== experiment.iterations) changes.push("costo");
+
+          const sameOutput = previous.derivedHex === experiment.derivedHex;
+          relationClass = sameOutput ? "same" : "different";
+
+          if (changes.length === 0) {
+            relation = sameOutput ? "Mismos datos → misma clave" : "Resultado inesperado";
+            explanation = sameOutput
+              ? "PBKDF2 es determinista: entradas y parámetros idénticos producen la misma salida."
+              : "Con las mismas entradas la clave debería coincidir; revisá los parámetros.";
+          } else if (changes.length === 1) {
+            relation = `Cambió sólo ${changes[0]}`;
+            explanation = sameOutput
+              ? "La salida coincidió pese al cambio; sería un resultado extraordinariamente improbable."
+              : `Al cambiar ${changes[0]}, cambió la clave derivada.`;
+          } else {
+            relation = `Cambiaron ${changes.length} variables`;
+            explanation = `Se modificaron ${changes.join(", ")}; por eso esta prueba no aísla una sola causa.`;
+          }
+        }
+
+        experiments.unshift({
+          ...experiment,
+          id: experiments.length + 1,
+          relation,
+          relationClass,
+          explanation
+        });
+        renderExperiments();
+      }
+
+      function renderExperiments() {
+        const count = experiments.length;
+        if (els.experimentCount) {
+          els.experimentCount.textContent = `${count} ${count === 1 ? "experimento" : "experimentos"}`;
+        }
+
+        if (!count) {
+          els.experimentLog.innerHTML = '<p class="muted">Todavía no hay ejecuciones.</p>';
+          setStatus(
+            els.experimentHelp,
+            "Primero derivá una clave. Después repetí sin cambios o modificá únicamente contraseña, salt o costo."
+          );
+          return;
+        }
+
+        setStatus(
+          els.experimentHelp,
+          count === 1
+            ? "Ya existe el experimento #1. Ahora repetilo o cambiá sólo contraseña, salt o costo."
+            : `El registro contiene ${count} pruebas. La fila superior siempre se compara con la inmediatamente anterior.`,
+          count === 1 ? "warning" : "success"
+        );
+
+        els.experimentLog.innerHTML = "";
+        experiments.slice(0, 8).forEach(item => {
+          const row = document.createElement("div");
+          row.className = "experiment";
+
+          const id = document.createElement("div");
+          id.className = "experiment-id";
+          id.textContent = `#${item.id}`;
+
+          const main = document.createElement("div");
+          main.className = "experiment-main";
+          const key = document.createElement("strong");
+          key.textContent = item.derivedHex;
+          const meta = document.createElement("span");
+          meta.textContent = `entrada ${item.inputFingerprint || "—"}… · ${formatInteger(item.iterations)} iteraciones · ${formatMilliseconds(item.duration)} · salt ${item.saltHex.slice(0, 8)}…`;
+          const explanation = document.createElement("span");
+          explanation.textContent = item.explanation;
+          main.append(key, meta, explanation);
+
+          const result = document.createElement("span");
+          result.className = `result-pill ${item.relationClass}`;
+          result.textContent = item.relation;
+
+          row.append(id, main, result);
+          els.experimentLog.appendChild(row);
+        });
+      }
+
+      function resetLab() {
+        els.password.value = "Ejemplo docente 2026!";
+        els.salt.value = randomSaltHex();
+        els.iterations.value = "200000";
+        lastDerivedHex = "";
+        lastDurationMs = 0;
+        updateIterations();
+        updateSaltFlow();
+        updateInputAnalysis();
+        setFlowProgress(0, "Esperando ejecución");
+        document.querySelectorAll("[data-flow]").forEach(node => node.classList.remove("done", "active", "error"));
+        els.progressFill.style.width = "0%";
+        els.progressLabel.textContent = "0 de 5 etapas";
+        els.derivedOutput.textContent = "Todavía no se derivó una clave.";
+        els.keyBytes.innerHTML = "";
+        els.keyStage.classList.remove("ready");
+        els.directTime.textContent = "—";
+        els.pbkdf2Time.textContent = "—";
+        els.costRatio.textContent = "—";
+        els.throughput.textContent = "—";
+        els.lastRun.textContent = "—";
+        els.directOutput.textContent = "Esperando ejecución…";
+        els.saltOutput.textContent = "—";
+        [els.cost1, els.cost1000, els.costMillion, els.costBillion].forEach(el => el.textContent = "—");
+        setStatus(els.kdfStatus, "Ajustá los parámetros y ejecutá la derivación.");
+        setStatus(els.attackStatus, "En un ataque offline no existe el bloqueo de cuenta del servidor.");
+      }
+
+      $("toggle-password").addEventListener("click", (event) => {
+        const visible = els.password.type === "text";
+        els.password.type = visible ? "password" : "text";
+        event.currentTarget.textContent = visible ? "Ver" : "Ocultar";
+        event.currentTarget.setAttribute("aria-label", visible ? "Mostrar contraseña" : "Ocultar contraseña");
+      });
+
+      $("unicode-example").addEventListener("click", () => {
+        els.password.value = "Cafe\u0301 seguro 2026!";
+        updateInputAnalysis();
+        markPending("Contraseña");
+      });
+
+      $("weak-example").addEventListener("click", () => {
+        els.password.value = "123456";
+        updateInputAnalysis();
+        markPending("Contraseña");
+      });
+
+      $("strong-example").addEventListener("click", () => {
+        els.password.value = "Faro violeta cruza 7 mares!";
+        updateInputAnalysis();
+        markPending("Contraseña");
+      });
+
+      els.password.addEventListener("input", () => {
+        updateInputAnalysis();
+        markPending("Contraseña");
+      });
+      els.salt.addEventListener("input", () => {
+        updateSaltFlow();
+        markPending("Salt");
+      });
+      els.iterations.addEventListener("input", () => {
+        updateIterations();
+        markPending("Costo");
+      });
+      els.generateSalt.addEventListener("click", () => {
+        els.salt.value = randomSaltHex();
+        updateSaltFlow();
+        setFlowProgress(3, "Nueva salt generada");
+        markPending("Salt");
+      });
+      els.runFlow.addEventListener("click", () => runDerivation());
+      els.newSaltRun.addEventListener("click", () => runDerivation({ freshSalt: true }));
+      els.repeatExperiment.addEventListener("click", () => {
+        restoreLatestExperiment();
+        runDerivation();
+      });
+      els.passwordExperiment.addEventListener("click", () => {
+        const latest = restoreLatestExperiment();
+        els.password.value = nextTeachingPassword(latest?.normalized || els.password.value);
+        updateInputAnalysis();
+        runDerivation();
+      });
+      els.saltExperiment.addEventListener("click", () => {
+        restoreLatestExperiment();
+        runDerivation({ freshSalt: true });
+      });
+      els.costExperiment.addEventListener("click", () => {
+        restoreLatestExperiment();
+        const max = Number(els.iterations.max) || 600000;
+        const step = Number(els.iterations.step) || 50000;
+        const current = Number(els.iterations.value);
+        els.iterations.value = String(current + step <= max ? current + step : Math.max(Number(els.iterations.min), current - step));
+        updateIterations();
+        runDerivation();
+      });
+      els.resetLab.addEventListener("click", resetLab);
+      els.clearLog.addEventListener("click", () => {
+        experiments.length = 0;
+        renderExperiments();
+      });
+
+      els.salt.value = randomSaltHex();
+      updateIterations();
+      updateSaltFlow();
+      updateInputAnalysis();
+      setFlowProgress(0, "Esperando ejecución");
+      document.querySelectorAll("[data-flow]").forEach(node => node.classList.remove("done", "active", "error"));
+      els.progressFill.style.width = "0%";
+      els.progressLabel.textContent = "0 de 5 etapas";
+      renderExperiments();
+    })();
+  </script>
 </body>
 </html>
