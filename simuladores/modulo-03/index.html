@@ -1,1 +1,110 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Módulo 3 | Criptografía moderna</title><link rel="stylesheet" href="../assets/lab.css"><style>.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.item{display:flex;flex-direction:column;gap:9px;padding:22px;border:1px solid var(--border);border-radius:18px;background:var(--panel);text-decoration:none;color:var(--text)}.item:hover{transform:translateY(-3px);border-color:var(--border-strong)}.badge{align-self:flex-start;padding:5px 9px;border-radius:999px;background:rgba(74,222,163,.12);color:var(--good);font-size:.72rem;font-weight:800;text-transform:uppercase}.planned{background:rgba(255,209,102,.1);color:#ffd166}.item p{color:var(--muted)}.path{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.path span{padding:7px 10px;border:1px solid var(--border);border-radius:999px}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="../index.html">⛓️ Campus</a></div><nav class="nav"><a href="../../index.html">Portada</a><a href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Teoría</a></nav></header><section class="hero"><div class="eyebrow">Módulo 3</div><h1>Criptografía moderna y cifrado simétrico</h1><p>Primitivas, modos y protocolos para proteger bits con propiedades explícitas: confidencialidad, integridad, autenticidad y gestión segura de claves.</p><div class="path"><span>Bloques</span><span>Flujos</span><span>AES</span><span>ECB</span><span>CBC</span><span>CTR</span><span>GCM</span><span>AEAD</span><span>Hashes</span><span>MAC</span><span>Clave pública</span></div><div class="actions"><a class="button" href="../03-criptografia-moderna.html">Laboratorio integral</a><a class="button secondary" href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Módulo teórico</a></div></section><section class="cards"><a class="item" href="bloques-vs-flujo.html"><span class="badge">Disponible</span><h2>Bloques frente a flujo</h2><p>Partición, padding, keystream, XOR y riesgos de reutilización de nonce.</p></a><a class="item" href="modos-aes-aead.html"><span class="badge">Disponible</span><h2>Modos AES y AEAD</h2><p>ECB, CBC, CTR y AES-GCM; patrones, IV/nonce, tag y detección de manipulación.</p></a><a class="item" href="../03-criptografia-moderna.html"><span class="badge">Disponible</span><h2>Laboratorio moderno integral</h2><p>SHA-256, PBKDF2, AES-GCM, HKDF, ECDSA y alteración de paquetes mediante Web Crypto.</p></a><article class="item"><span class="badge planned">Planificado</span><h2>Hash, MAC y firma</h2><p>Diferencia entre integridad sin clave, autenticación simétrica y verificabilidad pública.</p></article><article class="item"><span class="badge planned">Planificado</span><h2>Padding PKCS#7 y oráculos</h2><p>Relleno, validación, errores distinguibles y motivo para preferir AEAD.</p></article><article class="item"><span class="badge planned">Planificado</span><h2>RSA, ECDH y cifrado híbrido</h2><p>Acuerdo de claves, encapsulación, sesión, autenticación y composición protocolaria.</p></article></section><section class="card" style="margin-top:22px"><h2>Regla de diseño</h2><p>No se elige solamente un algoritmo. Se eligen una primitiva, un modo o construcción, parámetros, nonces, autenticación, derivación, almacenamiento, rotación y un modelo de amenaza.</p><p>Para sistemas nuevos, el recorrido profesional prioriza APIs de alto nivel y cifrado autenticado, por ejemplo AES-GCM o ChaCha20-Poly1305.</p></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Índice del Módulo 3 con la ruta de Clase 3, KDF, modos AES, AEAD y cifrado local de archivos.">
+  <meta name="theme-color" content="#071321">
+  <title>Módulo 3 | Criptografía moderna aplicada</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+  <style>
+    .resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin-top:22px}.resource-card{display:flex;min-height:230px;flex-direction:column;gap:9px;padding:22px;border:1px solid var(--border);border-radius:18px;color:var(--text);background:linear-gradient(180deg,rgba(17,39,65,.96),rgba(8,22,38,.98));text-decoration:none;transition:transform 160ms ease,border-color 160ms ease}.resource-card:hover{border-color:var(--border-strong);transform:translateY(-3px)}.resource-card h2{margin:3px 0 0;font-size:1.25rem}.resource-card p{margin:0;color:var(--muted)}.resource-card .actions{margin-top:auto}.resource-card.featured{grid-column:1/-1;min-height:0;background:linear-gradient(135deg,rgba(20,60,89,.98),rgba(49,31,88,.96))}.availability{align-self:flex-start;padding:5px 9px;border-radius:999px;color:var(--good);background:rgba(74,222,163,.12);font-size:.72rem;font-weight:850;text-transform:uppercase}.availability.planned{color:var(--warn);background:rgba(255,199,102,.1)}
+  </style>
+</head>
+<body>
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#recursos">Saltar a los recursos</a>
+    <header class="topbar">
+      <div class="brand"><a href="../index.html">← Campus</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="../../index.html">Portada</a>
+        <a href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Teoría</a>
+        <a href="../03-criptografia-moderna.html">Laboratorio integral</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Módulo 3</div>
+      <h1>Criptografía moderna aplicada</h1>
+      <p>De la contraseña a la clave y de la clave a un paquete autenticado: KDF, AES, modos de operación, archivos locales y composición segura mediante primitivas reales del navegador.</p>
+      <div class="lesson-kicker"><span>PBKDF2</span><span>AES</span><span>CBC</span><span>CTR</span><span>GCM</span><span>AEAD</span><span>HKDF</span><span>ECDSA</span></div>
+      <div class="actions"><a class="button" href="ruta-guiada.html">Comenzar la Clase 3</a><a class="button secondary" href="../03-criptografia-moderna.html">Explorar laboratorio integral</a></div>
+    </section>
+
+    <section class="resource-grid" id="recursos">
+      <a class="resource-card featured" href="ruta-guiada.html">
+        <span class="availability">Ruta disponible</span>
+        <h2>Clase 3 · De la contraseña a AES-GCM</h2>
+        <p>Secuencia docente de 90 minutos con seis estaciones, progreso local, puente conceptual con VeraCrypt y evaluación de salida.</p>
+        <div class="actions"><span class="button">Abrir ruta guiada</span></div>
+      </a>
+
+      <a class="resource-card" href="contrasena-salt-kdf.html">
+        <span class="availability">Disponible</span>
+        <h2>Contraseña, salt y KDF</h2>
+        <p>Unicode, NFC, PBKDF2 real, repetibilidad, salts diferentes y costo de intentos offline.</p>
+        <div class="actions"><span class="button secondary">Abrir laboratorio</span></div>
+      </a>
+
+      <a class="resource-card" href="modos-aes-aead.html">
+        <span class="availability">Disponible</span>
+        <h2>Modos AES y AEAD</h2>
+        <p>AES-CBC, AES-CTR y AES-GCM reales; ECB y XTS conceptuales; bloques, padding, nonce, AAD, tag y manipulación.</p>
+        <div class="actions"><span class="button secondary">Abrir comparador</span></div>
+      </a>
+
+      <a class="resource-card" href="cifrado-local-archivos.html">
+        <span class="availability">Disponible</span>
+        <h2>Cifrado local de archivos</h2>
+        <p>PBKDF2 + AES-256-GCM, exportación e importación JSON, descarga y rechazo de un paquete alterado.</p>
+        <div class="actions"><span class="button secondary">Abrir práctica</span></div>
+      </a>
+
+      <a class="resource-card" href="bloques-vs-flujo.html">
+        <span class="availability">Disponible</span>
+        <h2>Bloques frente a flujo</h2>
+        <p>Partición, padding, keystream, XOR y riesgo de reutilización de flujo.</p>
+        <div class="actions"><span class="button secondary">Abrir apoyo</span></div>
+      </a>
+
+      <a class="resource-card" href="../03-criptografia-moderna.html">
+        <span class="availability">Disponible</span>
+        <h2>Laboratorio moderno integral</h2>
+        <p>SHA-256, PBKDF2, AES-GCM, HKDF y ECDSA mediante Web Crypto.</p>
+        <div class="actions"><span class="button secondary">Abrir síntesis</span></div>
+      </a>
+
+      <article class="resource-card">
+        <span class="availability planned">Próxima ampliación</span>
+        <h2>Hash, HMAC y firma</h2>
+        <p>Integridad sin clave, autenticación simétrica y verificabilidad pública.</p>
+      </article>
+
+      <article class="resource-card">
+        <span class="availability planned">Próxima ampliación</span>
+        <h2>Padding oracle controlado</h2>
+        <p>PKCS#7, errores distinguibles y motivo para preferir cifrado autenticado.</p>
+      </article>
+
+      <article class="resource-card">
+        <span class="availability planned">Próxima ampliación</span>
+        <h2>RSA, ECDH y cifrado híbrido</h2>
+        <p>Acuerdo de claves, encapsulación, claves de sesión y autenticación.</p>
+      </article>
+    </section>
+
+    <section class="lab-panel full" style="margin-top:22px">
+      <h2>Regla de diseño</h2>
+      <p>No se elige solamente un algoritmo: se eligen primitiva, modo, parámetros, nonces, autenticación, derivación, formato, almacenamiento, rotación y modelo de amenaza.</p>
+      <p>En la Clase 3, la regla observable es: <strong>cifrar no basta; el receptor también debe poder detectar cualquier modificación.</strong></p>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Los modelos simplificados y los parámetros educativos no deben utilizarse directamente para proteger información real.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+</body>
+</html>

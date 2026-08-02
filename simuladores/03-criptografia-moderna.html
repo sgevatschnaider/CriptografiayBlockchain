@@ -33,6 +33,7 @@
         <div class="eyebrow">Módulo 3</div>
         <h1>Criptografía moderna</h1>
         <p>Trabajá con primitivas reales del navegador: SHA-256, PBKDF2, HKDF, AES-GCM y ECDSA. El objetivo no es memorizar nombres, sino comprender propiedades, parámetros, formatos y composición segura.</p>
+        <div class="actions"><a class="button" href="modulo-03/ruta-guiada.html">Comenzar Clase 3</a><a class="button secondary" href="modulo-03/contrasena-salt-kdf.html">Profundizar KDF</a><a class="button secondary" href="modulo-03/modos-aes-aead.html">Comparar modos AES</a></div>
       </section>
 
       <section class="grid">
@@ -61,9 +62,9 @@
 
         <article class="card full">
           <h2>PBKDF2: derivación desde contraseña</h2>
-          <p class="muted">PBKDF2 no agrega entropía a una contraseña. Aumenta el costo de cada intento mediante una sal y múltiples iteraciones.</p>
+          <p class="muted">PBKDF2 no agrega entropía a una contraseña. Aumenta el costo de cada intento mediante una sal y múltiples iteraciones. No introduzcas contraseñas reales.</p>
           <div class="controls">
-            <div class="control full"><label>Contraseña</label><input id="kdfPassword" type="password" value="Clave educativa robusta 2026!"></div>
+            <div class="control full"><label>Contraseña ficticia</label><input id="kdfPassword" type="password" value="Clave educativa robusta 2026!" autocomplete="off"></div>
             <div class="control"><label>Iteraciones</label><input id="kdfIterations" type="number" min="10000" max="2000000" value="200000"></div>
             <div class="control"><label>Sal hexadecimal (16 bytes)</label><input id="kdfSalt" class="mono"></div>
           </div>
@@ -87,7 +88,7 @@
           <div class="controls">
             <div class="control full"><label>Mensaje</label><textarea id="plaintext">Este mensaje será cifrado y autenticado.</textarea></div>
             <div class="control full"><label>Datos asociados AAD</label><input id="aad" value="tipo=orden;version=1;usuario=sergio"></div>
-            <div class="control"><label>Contraseña</label><input id="aesPassword" type="password" value="Clave educativa robusta 2026!"></div>
+            <div class="control"><label>Contraseña ficticia</label><input id="aesPassword" type="password" value="Clave educativa robusta 2026!" autocomplete="off"></div>
             <div class="control"><label>Iteraciones PBKDF2</label><input id="aesIterations" type="number" min="10000" max="2000000" value="200000"></div>
           </div>
           <div class="actions">
@@ -95,8 +96,14 @@
             <button class="secondary" id="decryptAes">Descifrar y autenticar</button>
             <button class="danger" id="tamperCiphertext">Alterar criptograma</button>
             <button class="danger" id="tamperAad">Alterar AAD</button>
+            <button class="danger" id="tamperIv">Alterar IV</button>
+            <button class="danger" id="tamperTag">Alterar tag</button>
           </div>
           <div class="control" style="margin-top:14px"><label>Paquete JSON interoperable</label><textarea id="aesPackage" class="mono"></textarea></div>
+          <div class="two-col" style="margin-top:14px">
+            <div><label>Ciphertext sin tag</label><div class="output mono" id="aesCiphertextView"></div></div>
+            <div><label>Tag de 128 bits</label><div class="output mono" id="aesTagView"></div></div>
+          </div>
           <div class="output" id="decryptedOutput"></div>
           <div class="metric-grid" style="margin-top:14px">
             <div class="metric"><strong id="aesPlainBytes">0</strong><span>bytes de texto</span></div>
@@ -109,13 +116,13 @@
 
         <article class="card full">
           <h2>HKDF: separación de claves por contexto</h2>
-          <p class="muted">A partir de un secreto maestro, HKDF deriva material independiente usando etiquetas de contexto. Las claves de cifrado y autenticación no deberían reutilizarse para propósitos distintos.</p>
+          <p class="muted">A partir de material secreto con alta entropía, HKDF deriva claves independientes usando etiquetas de contexto. HKDF no reemplaza PBKDF2 o Argon2id para contraseñas humanas.</p>
           <div class="controls">
-            <div class="control full"><label>Secreto maestro</label><input id="masterSecret" value="secreto compartido de una negociación"></div>
+            <div class="control full"><label>Secreto maestro aleatorio · 32 bytes hexadecimales</label><input id="masterSecret" class="mono" readonly></div>
             <div class="control"><label>Contexto 1</label><input id="hkdfInfoA" value="app:v1:encryption"></div>
             <div class="control"><label>Contexto 2</label><input id="hkdfInfoB" value="app:v1:authentication"></div>
           </div>
-          <div class="actions"><button id="deriveHkdf">Derivar claves</button></div>
+          <div class="actions"><button id="deriveHkdf">Derivar claves</button><button class="secondary" id="newMasterSecret">Nuevo secreto maestro</button></div>
           <div class="two-col" style="margin-top:14px">
             <div><label>Clave del contexto 1</label><div class="output mono" id="hkdfOutputA"></div></div>
             <div><label>Clave del contexto 2</label><div class="output mono" id="hkdfOutputB"></div></div>
@@ -238,7 +245,9 @@
 
     async function importPbkdf2Password(password) {
       assertWebCrypto();
-      return crypto.subtle.importKey('raw', te.encode(password), 'PBKDF2', false, ['deriveBits', 'deriveKey']);
+      const normalized = String(password).normalize('NFC');
+      if (!normalized.length) throw new Error('Ingresá una contraseña ficticia.');
+      return crypto.subtle.importKey('raw', te.encode(normalized), 'PBKDF2', false, ['deriveBits', 'deriveKey']);
     }
 
     async function derivePbkdf2Bits(password, salt, iterations) {
@@ -332,11 +341,14 @@
         };
 
         $('#aesPackage').value = JSON.stringify(packet, null, 2);
+        const encryptedBytes = new Uint8Array(encrypted);
+        $('#aesCiphertextView').textContent = bytesToHex(encryptedBytes.slice(0, -16));
+        $('#aesTagView').textContent = bytesToHex(encryptedBytes.slice(-16));
         $('#decryptedOutput').textContent = '';
         $('#aesPlainBytes').textContent = plaintextBytes.length;
         $('#aesCipherBytes').textContent = encrypted.byteLength;
         $('#aesState').textContent = 'Pendiente';
-        setStatus($('#aesStatus'), 'Mensaje cifrado. El tag de 128 bits está incorporado al final del criptograma.', 'good');
+        setStatus($('#aesStatus'), 'Mensaje cifrado. El paquete conserva ciphertext y tag; la vista los separa para estudiar sus funciones.', 'good');
       } catch (error) {
         setStatus($('#aesStatus'), error.message, 'bad');
       }
@@ -392,9 +404,38 @@
       }
     };
 
+    $('#tamperIv').onclick = () => {
+      try {
+        const packet = JSON.parse($('#aesPackage').value);
+        const bytes = b64ToBytes(packet.iv);
+        bytes[0] ^= 1;
+        packet.iv = bytesToB64(bytes);
+        $('#aesPackage').value = JSON.stringify(packet, null, 2);
+        setStatus($('#aesStatus'), 'Se alteró el IV. En GCM, el nonce también queda cubierto por la verificación del tag.', 'warn');
+      } catch (error) {
+        setStatus($('#aesStatus'), 'Primero generá un paquete válido.', 'bad');
+      }
+    };
+
+    $('#tamperTag').onclick = () => {
+      try {
+        const packet = JSON.parse($('#aesPackage').value);
+        const bytes = b64ToBytes(packet.ciphertext);
+        if (bytes.length < 16) throw new Error('Tag incompleto.');
+        bytes[bytes.length - 1] ^= 1;
+        packet.ciphertext = bytesToB64(bytes);
+        $('#aesPackage').value = JSON.stringify(packet, null, 2);
+        $('#aesTagView').textContent = bytesToHex(bytes.slice(-16));
+        setStatus($('#aesStatus'), 'Se alteró un bit del tag. El descifrado autenticado debe rechazar el paquete.', 'warn');
+      } catch (error) {
+        setStatus($('#aesStatus'), 'Primero generá un paquete válido.', 'bad');
+      }
+    };
+
     async function deriveHkdf(info) {
       assertWebCrypto();
-      const master = await crypto.subtle.importKey('raw', te.encode($('#masterSecret').value), 'HKDF', false, ['deriveBits']);
+      const masterBytes = parseHex($('#masterSecret').value, 32);
+      const master = await crypto.subtle.importKey('raw', masterBytes, 'HKDF', false, ['deriveBits']);
       return crypto.subtle.deriveBits(
         {
           name: 'HKDF',
@@ -426,6 +467,13 @@
       } catch (error) {
         setStatus($('#hkdfStatus'), error.message, 'bad');
       }
+    };
+
+    $('#newMasterSecret').onclick = () => {
+      $('#masterSecret').value = bytesToHex(randomBytes(32));
+      $('#hkdfOutputA').textContent = '';
+      $('#hkdfOutputB').textContent = '';
+      setStatus($('#hkdfStatus'), 'Se generó material maestro aleatorio con el CSPRNG del navegador.', 'good');
     };
 
     let signingKeys = null;
@@ -505,6 +553,7 @@
     };
 
     $('#newKdfSalt').click();
+    $('#newMasterSecret').click();
     compareHashMessages();
     $('#derivePbkdf2').click();
     $('#encryptAes').click();

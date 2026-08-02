@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio de cifrado local de archivos con PBKDF2 y AES-256-GCM, exportación, importación y prueba de alteración.">
+  <meta name="theme-color" content="#071321">
+  <title>Cifrado local de archivos | Clase 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body>
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+    <header class="topbar">
+      <div class="brand"><a href="ruta-guiada.html">← Clase 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="modos-aes-aead.html">Anterior: AES</a>
+        <a href="index.html">Módulo 3</a>
+        <a href="../03-criptografia-moderna.html">Laboratorio integral</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Clase 3 · Estación 3</div>
+      <h1>Cifrá un archivo sin sacarlo del navegador</h1>
+      <p>Seleccioná un archivo de prueba, derivá una clave con PBKDF2, cifralo con AES-256-GCM, descargá el paquete y comprobá que una modificación de un solo bit impide recuperarlo.</p>
+      <div class="lesson-kicker" aria-label="Componentes del paquete">
+        <span>PBKDF2-HMAC-SHA-256</span><span>Salt de 128 bits</span><span>IV de 96 bits</span><span>AES-256-GCM</span><span>Tag de 128 bits</span><span>AAD</span>
+      </div>
+      <div class="privacy-banner">
+        <span aria-hidden="true">🔒</span>
+        <div><strong>Procesamiento completamente local.</strong> El archivo y la contraseña no se envían a ningún servidor. El contador de datos subidos permanece en cero.</div>
+      </div>
+    </section>
+
+    <section class="lab-panel full" style="margin-top:22px">
+      <h2>Arquitectura del paquete</h2>
+      <div class="concept-flow" aria-label="Contraseña y salt derivan una clave que cifra el archivo con AES-GCM">
+        <div class="flow-node"><strong>Contraseña</strong><span>Ejemplo ficticio</span></div><span class="flow-arrow" aria-hidden="true">+</span>
+        <div class="flow-node"><strong>Salt</strong><span>16 bytes</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>PBKDF2</strong><span>Clave AES</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>AES-GCM</strong><span>Archivo + AAD</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>Paquete</strong><span>Ciphertext + tag</span></div>
+      </div>
+    </section>
+
+    <section class="lab-grid" id="laboratorio">
+      <article class="lab-panel">
+        <h2>1. Elegí datos de prueba</h2>
+        <div class="file-drop">
+          <div class="control">
+            <label for="source-file">Archivo local · máximo 5 MiB</label>
+            <input id="source-file" type="file">
+          </div>
+          <div class="actions"><button class="secondary" id="demo-file" type="button">Crear archivo de demostración</button></div>
+          <p class="file-summary" id="source-summary">Todavía no seleccionaste un archivo.</p>
+        </div>
+        <div class="control" style="margin-top:14px">
+          <label for="file-password">Contraseña ficticia</label>
+          <input id="file-password" type="password" value="Laboratorio clase 3!" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="control" style="margin-top:12px">
+          <label for="file-iterations">Iteraciones educativas</label>
+          <input id="file-iterations" type="number" min="10000" max="1000000" step="10000" value="200000">
+        </div>
+        <div class="actions"><button id="encrypt-file" type="button">Cifrar y preparar paquete</button></div>
+        <div class="status" id="encrypt-status">Seleccioná un archivo o generá la demostración.</div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>2. Importá o verificá un paquete</h2>
+        <div class="file-drop">
+          <div class="control">
+            <label for="package-file">Paquete cifrado JSON</label>
+            <input id="package-file" type="file" accept="application/json,.json">
+          </div>
+          <p class="file-summary" id="package-summary">También podés usar el paquete recién generado.</p>
+        </div>
+        <div class="actions">
+          <button id="decrypt-file" type="button">Descifrar y autenticar</button>
+          <button class="danger" id="tamper-package" type="button">Alterar un bit</button>
+        </div>
+        <div class="status" id="decrypt-status">AES-GCM entregará el archivo solamente si contraseña, salt, IV, AAD, ciphertext y tag son coherentes.</div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>3. Paquete interoperable del laboratorio</h2>
+        <div class="control">
+          <label for="package-json">JSON editable</label>
+          <textarea id="package-json" class="mono" spellcheck="false" placeholder="El paquete aparecerá aquí después de cifrar o importar."></textarea>
+        </div>
+        <div class="actions">
+          <button class="secondary" id="download-package" type="button" disabled>Descargar paquete cifrado</button>
+          <button class="secondary" id="download-plain" type="button" disabled>Descargar archivo recuperado</button>
+        </div>
+        <p class="small muted">El formato contiene los parámetros públicos necesarios para volver a derivar la clave. La contraseña y la clave derivada nunca se incorporan al paquete.</p>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Componentes observables</h2>
+        <div class="metric-grid">
+          <div class="metric"><strong id="original-bytes">0</strong><span>bytes originales</span></div>
+          <div class="metric"><strong id="derived-time">—</strong><span>tiempo de derivación</span></div>
+          <div class="metric"><strong id="cipher-time">—</strong><span>tiempo AES-GCM</span></div>
+          <div class="metric"><strong id="uploaded-bytes">0</strong><span>bytes enviados</span></div>
+        </div>
+        <div class="data-grid">
+          <div class="data-box"><b>Salt</b><output id="salt-view">—</output></div>
+          <div class="data-box"><b>IV</b><output id="iv-view">—</output></div>
+          <div class="data-box"><b>Ciphertext</b><output id="ciphertext-view">—</output></div>
+          <div class="data-box"><b>Tag</b><output id="tag-view">—</output></div>
+          <div class="data-box"><b>AAD visible y autenticado</b><output id="aad-view">—</output></div>
+          <div class="data-box"><b>Estado</b><output id="package-state">Sin paquete</output></div>
+        </div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>Qué reemplaza didácticamente</h2>
+        <ul>
+          <li>Contraseña → KDF → clave.</li>
+          <li>Cifrado de bytes con una clave simétrica.</li>
+          <li>Parámetros públicos almacenados junto al criptograma.</li>
+          <li>Detección de contraseña incorrecta o paquete alterado.</li>
+          <li>Exportación e importación del resultado.</li>
+        </ul>
+      </article>
+
+      <article class="lab-panel">
+        <h2>Qué no reemplaza</h2>
+        <ul>
+          <li>Montaje de una unidad cifrada.</li>
+          <li>Acceso aleatorio a sectores mediante XTS.</li>
+          <li>Cifrado completo de un pendrive o dispositivo.</li>
+          <li>Encabezados, keyfiles o volúmenes ocultos de VeraCrypt.</li>
+          <li>Gestión profesional de claves y respaldos.</li>
+        </ul>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <ol class="steps">
+          <li>Cifrá el archivo de demostración y descargá el paquete.</li>
+          <li>Volvé a importarlo y recuperá exactamente el archivo original.</li>
+          <li>Alterá un bit del ciphertext y comprobá que GCM rechaza el paquete.</li>
+          <li>Probá una contraseña incorrecta y explicá por qué el navegador informa el mismo fallo general.</li>
+          <li>Identificá cuáles campos son públicos y cuál debe permanecer secreto.</li>
+        </ol>
+        <div class="actions"><a class="button" href="ruta-guiada.html#salida">Completar evaluación de salida →</a></div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Laboratorio educativo. El formato JSON sirve para aprender y no constituye por sí solo un estándar de producción.</p>
+      <p data-capability></p>
+    </footer>
+  </main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para leer y cifrar archivos localmente.</div></noscript>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/crypto-lab.js"></script>
+  <script src="assets/cifrado-local-archivos.js"></script>
+</body>
+</html>

@@ -1,1 +1,184 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Modos AES y AEAD</title><link rel="stylesheet" href="../assets/lab.css"><style>.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.p{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--panel)}textarea,input,select{width:100%}.row{display:flex;gap:8px;flex-wrap:wrap}.block{padding:10px;border:1px solid var(--border);border-radius:9px;font-family:ui-monospace,monospace}.good{color:#4adea3}.bad{color:#fb7185}.mono{font-family:ui-monospace,monospace;word-break:break-all}</style></head><body><main class="shell"><header class="topbar"><div class="brand"><a href="index.html">← Módulo 3</a></div><nav class="nav"><a href="../index.html">Campus</a><a href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Teoría</a></nav></header><section class="hero"><div class="eyebrow">Cifrado simétrico moderno</div><h1>ECB, CBC, CTR y GCM</h1><p>Visualiza patrones, IV/nonce, padding y autenticación. La representación de bloques es didáctica; la prueba GCM utiliza Web Crypto.</p></section><section class="g"><article class="p"><h2>Comparador conceptual</h2><label>Modo</label><select id="mode"><option>ECB</option><option>CBC</option><option>CTR</option><option>GCM</option></select><label>Mensaje con bloques repetidos</label><textarea id="msg">BLOQUE-REPETIDO|BLOQUE-REPETIDO|BLOQUE-DIFERENTE</textarea><div class="actions"><button class="button" id="show">Visualizar</button></div><div class="row" id="blocks"></div><p id="explain"></p></article><article class="p"><h2>AES-GCM real</h2><label>Mensaje</label><input id="gm" value="Historia clínica cifrada"><label>Datos asociados (AAD)</label><input id="aad" value="paciente:123|tipo:informe"><div class="actions"><button class="button" id="enc">Cifrar y verificar</button><button class="button secondary" id="tamper">Alterar paquete</button></div><p class="mono" id="packet"></p><p id="status"></p></article></section><section class="p" style="margin-top:16px"><h2>Reglas profesionales</h2><ul><li><b>ECB:</b> evita su uso para datos generales porque preserva patrones.</li><li><b>CBC:</b> necesita IV impredecible, padding y autenticación separada.</li><li><b>CTR:</b> no requiere padding, pero nunca debe reutilizar nonce/contador con la misma clave.</li><li><b>GCM:</b> proporciona confidencialidad e integridad mediante un tag; exige nonce único.</li><li>En sistemas nuevos, prefiere construcciones AEAD como AES-GCM o ChaCha20-Poly1305.</li></ul></section><footer class="footer"><p>Material elaborado por el profesor Sergio Gevatschnaider.</p></footer></main><script>function toy(s,i,m){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}if(m==='ECB')return(h>>>0).toString(16);h^=(i+1)*2654435761;return(h>>>0).toString(16)}show.onclick=()=>{const m=mode.value,parts=msg.value.split('|');blocks.innerHTML='';parts.forEach((x,i)=>{const e=document.createElement('span');e.className='block';e.textContent=toy(x,i,m);blocks.appendChild(e)});const t={ECB:'Bloques claros iguales producen bloques cifrados iguales: el patrón se filtra.',CBC:'Cada bloque depende del anterior y de un IV; requiere padding y no autentica por sí solo.',CTR:'Nonce + contador generan un keystream; permite paralelismo y no usa padding.',GCM:'Usa CTR para cifrar y añade autenticación mediante un tag.'};explain.textContent=t[m]};show.click();let pack=null,key=null;const te=new TextEncoder(),td=new TextDecoder();function hex(a){return[...a].map(x=>x.toString(16).padStart(2,'0')).join('')}enc.onclick=async()=>{try{key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},true,['encrypt','decrypt']);const iv=crypto.getRandomValues(new Uint8Array(12)),a=te.encode(aad.value),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:a},key,te.encode(gm.value)));pack={iv,a,ct};packet.textContent=`IV: ${hex(iv)}\nAAD: ${aad.value}\nC+TAG: ${hex(ct)}`;const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:a},key,ct);status.className='good';status.textContent='Verificación correcta: '+td.decode(pt)}catch(e){status.className='bad';status.textContent='Error: '+e.message}};tamper.onclick=async()=>{if(!pack)return;const c=new Uint8Array(pack.ct);c[0]^=1;try{await crypto.subtle.decrypt({name:'AES-GCM',iv:pack.iv,additionalData:pack.a},key,c);status.className='bad';status.textContent='La alteración no fue detectada.'}catch{status.className='good';status.textContent='Alteración detectada: GCM rechazó el paquete.'}};</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Comparador interactivo de AES-CBC, AES-CTR y AES-GCM reales, con ECB y XTS como modelos conceptuales.">
+  <meta name="theme-color" content="#071321">
+  <title>Modos AES y cifrado autenticado | Clase 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body>
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#simulador">Saltar al simulador</a>
+    <header class="topbar">
+      <div class="brand"><a href="ruta-guiada.html">← Clase 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="contrasena-salt-kdf.html">Anterior: KDF</a>
+        <a href="index.html">Módulo 3</a>
+        <a href="cifrado-local-archivos.html">Siguiente: archivo</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Clase 3 · Estación 2</div>
+      <h1>AES: el modo cambia la seguridad</h1>
+      <p>Ejecutá AES-CBC, AES-CTR y AES-GCM mediante Web Crypto. Observá bloques, IV o nonce, padding, AAD y tag; después alterá cada paquete para descubrir qué modos detectan la manipulación.</p>
+      <div class="lesson-kicker" aria-label="Conceptos principales">
+        <span>Bloque AES: 128 bits</span><span>Claves: 128/192/256 bits</span><span>CBC real</span><span>CTR real</span><span>GCM real</span><span>AEAD</span>
+      </div>
+      <div class="privacy-banner">
+        <span aria-hidden="true">🔬</span>
+        <div><strong>Implementación verificable:</strong> CBC, CTR y GCM se ejecutan con la API criptográfica del navegador. ECB y XTS se presentan solamente como modelos conceptuales y están rotulados como tales.</div>
+      </div>
+    </section>
+
+    <section class="lab-grid">
+      <article class="lab-panel full">
+        <h2>Primero: algoritmo, bloque y modo no son lo mismo</h2>
+        <div class="table-wrap">
+          <table class="mode-table">
+            <thead><tr><th>Modo</th><th>IV / nonce</th><th>Padding</th><th>Autenticación</th><th>Tratamiento aquí</th></tr></thead>
+            <tbody>
+              <tr><td>ECB</td><td>No</td><td>Sí</td><td class="no">No</td><td class="concept">Modelo de filtración de patrones</td></tr>
+              <tr><td>AES-CBC</td><td>IV impredecible de 128 bits</td><td>PKCS#7</td><td class="no">No</td><td class="yes">Ejecución real</td></tr>
+              <tr><td>AES-CTR</td><td>Contador único</td><td>No</td><td class="no">No</td><td class="yes">Ejecución real</td></tr>
+              <tr><td>AES-GCM</td><td>Nonce único; aquí 96 bits</td><td>No</td><td class="yes">Sí, tag</td><td class="yes">Ejecución real</td></tr>
+              <tr><td>XTS</td><td>Número de sector / tweak</td><td>Orientado a sectores</td><td class="no">No</td><td class="concept">Modelo de cifrado de almacenamiento</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout" style="margin-top:16px"><strong>AES-256 no usa bloques de 256 bits:</strong> el bloque de AES siempre mide 128 bits; “256” indica la longitud de la clave.</div>
+      </article>
+
+      <article class="lab-panel">
+        <span class="mode-badge">Modelo conceptual · no es AES ejecutado</span>
+        <h2 style="margin-top:12px">Por qué ECB filtra patrones</h2>
+        <p class="muted">Separá bloques con <code>|</code>. Si dos bloques claros son iguales, ECB produciría dos bloques cifrados iguales bajo la misma clave.</p>
+        <div class="control">
+          <label for="ecb-message">Bloques ASCII de 16 bytes</label>
+          <textarea id="ecb-message" spellcheck="false">BLOQUE-REPETIDO!|BLOQUE-REPETIDO!|BLOQUE-DISTINTO!</textarea>
+        </div>
+        <div class="actions"><button id="show-ecb" type="button">Visualizar igualdad</button></div>
+        <div class="pattern-row" id="ecb-pattern" aria-live="polite"></div>
+        <div class="status" id="ecb-status">Las etiquetas E₁, E₂… representan igualdad estructural, no criptogramas calculados.</div>
+      </article>
+
+      <article class="lab-panel">
+        <span class="mode-badge">Modelo conceptual · almacenamiento</span>
+        <h2 style="margin-top:12px">Qué resuelve XTS</h2>
+        <p class="muted">XTS incorpora la posición del sector como tweak para permitir acceso aleatorio y evitar que bloques iguales en sectores distintos se traten igual.</p>
+        <div class="concept-flow" aria-label="Sector y número de sector ingresan en AES-XTS">
+          <div class="flow-node"><strong>Sector</strong><span>Datos</span></div><span class="flow-arrow" aria-hidden="true">+</span>
+          <div class="flow-node"><strong>Tweak</strong><span>Posición</span></div><span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><strong>AES-XTS</strong><span>Dos claves</span></div>
+        </div>
+        <div class="status warn">XTS no aporta un tag de autenticación como GCM. Está diseñado para discos y volúmenes, no para reemplazar AEAD en mensajes.</div>
+      </article>
+    </section>
+
+    <section class="lab-grid" id="simulador">
+      <article class="lab-panel full">
+        <h2>Laboratorio real: CBC, CTR y GCM</h2>
+        <div class="controls">
+          <div class="control">
+            <label for="mode">Modo</label>
+            <select id="mode">
+              <option value="AES-CBC">AES-CBC</option>
+              <option value="AES-CTR">AES-CTR</option>
+              <option value="AES-GCM" selected>AES-GCM</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="key-length">Longitud de clave</label>
+            <select id="key-length">
+              <option value="128">128 bits</option>
+              <option value="192">192 bits</option>
+              <option value="256" selected>256 bits</option>
+            </select>
+          </div>
+          <div class="control full">
+            <label for="message">Mensaje UTF-8</label>
+            <textarea id="message">La confidencialidad sin integridad no alcanza: este paquete debe detectar cualquier cambio.</textarea>
+          </div>
+          <div class="control full">
+            <label for="aad">Datos asociados AAD · solo GCM</label>
+            <input id="aad" value="curso=criptografia;clase=3;tipo=demostracion" spellcheck="false">
+          </div>
+        </div>
+        <div class="actions">
+          <button id="encrypt" type="button">Cifrar y verificar</button>
+          <button class="secondary" id="repeat-encryption" type="button">Cifrar nuevamente</button>
+          <button class="secondary" id="new-key" type="button">Generar otra clave</button>
+          <button class="danger" id="tamper-data" type="button">Alterar datos cifrados</button>
+          <button class="danger" id="tamper-context" type="button">Alterar IV / nonce / AAD</button>
+        </div>
+        <div class="metric-grid" style="margin-top:16px">
+          <div class="metric"><strong>128</strong><span>bits por bloque AES</span></div>
+          <div class="metric"><strong id="key-bits">256</strong><span>bits de clave</span></div>
+          <div class="metric"><strong id="iv-bits">96</strong><span>bits de IV / nonce</span></div>
+          <div class="metric"><strong id="auth-state">Pendiente</strong><span>resultado de autenticación</span></div>
+        </div>
+        <div class="status" id="mode-status">La clave de sesión se mantiene al repetir; cambia el IV o nonce.</div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Componentes del paquete</h2>
+        <div class="data-grid">
+          <div class="data-box"><b>Huella de la clave de sesión</b><output id="key-fingerprint">—</output></div>
+          <div class="data-box"><b id="parameter-label">IV / nonce</b><output id="parameter-output">—</output></div>
+          <div class="data-box"><b>Ciphertext</b><output id="ciphertext-output">—</output></div>
+          <div class="data-box"><b>Tag de autenticación</b><output id="tag-output">Solo existe en GCM</output></div>
+          <div class="data-box"><b>AAD autenticado, no cifrado</b><output id="aad-output">—</output></div>
+          <div class="data-box"><b>Resultado tras alteración</b><output id="tamper-output">Todavía no se alteró el paquete.</output></div>
+        </div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>Bloques de texto claro</h2>
+        <p class="muted" id="padding-description">GCM no necesita padding.</p>
+        <div class="byte-blocks" id="plain-blocks"></div>
+      </article>
+
+      <article class="lab-panel">
+        <h2>Bloques del criptograma</h2>
+        <p class="muted">Cada tarjeta contiene hasta 16 bytes. En GCM el tag se muestra por separado.</p>
+        <div class="byte-blocks" id="cipher-blocks"></div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Qué ocurrió al alterar el paquete</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Modo</th><th>¿Descifró?</th><th>¿Detectó autenticidad?</th><th>Interpretación</th></tr></thead>
+            <tbody id="tamper-history"><tr><td colspan="4">Ejecutá un cifrado y utilizá uno de los botones de alteración.</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>Desafío de transferencia</h2>
+        <ol class="steps">
+          <li>Cifrá dos veces con la misma clave y comprobá que cambia el IV o nonce y también el criptograma.</li>
+          <li>Alterá datos en CBC y CTR: observá que descifrar no equivale a autenticar.</li>
+          <li>Alterá ciphertext, AAD y nonce en GCM: el paquete debe ser rechazado.</li>
+          <li>Explicá por qué reutilizar nonce con la misma clave es peligroso en CTR y GCM.</li>
+          <li>Justificá por qué XTS es adecuado para sectores, pero no reemplaza a GCM para un mensaje.</li>
+        </ol>
+        <div class="actions"><a class="button" href="cifrado-local-archivos.html">Aplicar AES-GCM a un archivo →</a></div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Laboratorio educativo. Para sistemas reales, utilizá formatos y bibliotecas mantenidas, gestión de claves y parámetros definidos por el contexto.</p>
+      <p data-capability></p>
+    </footer>
+  </main>
+  <noscript><div class="runtime-error">Este laboratorio necesita JavaScript para ejecutar Web Crypto.</div></noscript>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/crypto-lab.js"></script>
+  <script src="assets/modos-aes-aead.js"></script>
+</body>
+</html>
