@@ -314,6 +314,9 @@ if (fs.existsSync(indexPath)) {
   if (routeCards.join('|') !== expectedCurriculum.join('|')) {
     fail('simuladores/modulo-02/index.html: las estaciones no coinciden con el currículo esperado');
   }
+  if (!indexHtml.includes('Cuarenta y dos preguntas') || /Treinta y seis preguntas/i.test(indexHtml)) {
+    fail('simuladores/modulo-02/index.html: el conteo visible del cuestionario no coincide con el banco de 42 preguntas');
+  }
 }
 
 const moduleJsPath = path.join(moduleDir, 'assets', 'module.js');
