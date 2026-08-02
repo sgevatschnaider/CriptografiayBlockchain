@@ -2,6 +2,8 @@
 
 La criptografía moderna combina primitivas matemáticas, protocolos y prácticas de ingeniería. El objetivo no es solamente ocultar un mensaje, sino proporcionar propiedades precisas: **confidencialidad, integridad, autenticidad, no repudio y derivación segura de claves**.
 
+> **Recorrido interactivo:** [ruta completa del Módulo 3](../../simuladores/modulo-03/ruta-modulo.html) · [Clase 3: de la contraseña a AES-GCM](../../simuladores/modulo-03/ruta-guiada.html) · [glosario](../../simuladores/modulo-03/glosario.html) · [cuestionario](../../simuladores/modulo-03/cuestionario.html)
+
 ## 1. Cifrado simétrico
 
 Usa la misma clave secreta para cifrar y descifrar. Es rápido y adecuado para grandes volúmenes de datos.
@@ -128,13 +130,24 @@ TLS 1.3 integra acuerdo de claves, autenticación, derivación y cifrado autenti
 - no validar certificados o claves públicas;
 - elegir parámetros obsoletos.
 
-## Laboratorios sugeridos
+## Laboratorios del módulo
 
-- Comparar ECB y GCM sobre una imagen.
-- Medir el efecto avalancha de SHA-256.
-- Construir HMAC y verificar alteraciones del mensaje.
-- Simular un intercambio Diffie–Hellman con y sin autenticación.
-- Firmar y verificar datos con Ed25519 mediante una biblioteca auditada.
+1. [Bloques frente a flujo](../../simuladores/modulo-03/bloques-vs-flujo.html): partición, PKCS#7, keystream y reutilización.
+2. [Contraseña, salt y KDF](../../simuladores/modulo-03/contrasena-salt-kdf.html): NFC, UTF-8, PBKDF2 y costo offline.
+3. [Modos AES y AEAD](../../simuladores/modulo-03/modos-aes-aead.html): CBC, CTR, GCM, AAD y tag.
+4. [Cifrado local de archivos](../../simuladores/modulo-03/cifrado-local-archivos.html): composición PBKDF2 + AES-256-GCM.
+5. [Hash, HMAC y firma](../../simuladores/modulo-03/hash-hmac-firmas.html): SHA-256, HMAC-SHA-256 y ECDSA P-256.
+6. [Padding y oráculo controlado](../../simuladores/modulo-03/padding-oracle.html): respuestas distinguibles sobre AES-CBC.
+7. [RSA, ECDH y cifrado híbrido](../../simuladores/modulo-03/rsa-ecdh-hibrido.html): RSA-OAEP, MITM y ECDH → HKDF → AES-GCM.
+
+## Referencias técnicas primarias
+
+- [W3C · Web Cryptography API](https://www.w3.org/TR/webcrypto/): operaciones y algoritmos disponibles en el navegador.
+- [NIST SP 800-38D · GCM y GMAC](https://csrc.nist.gov/pubs/sp/800/38/d/final): cifrado autenticado con datos asociados.
+- [NIST SP 800-132 · derivación basada en contraseñas](https://csrc.nist.gov/pubs/sp/800/132/final): salts y factores de iteración para datos almacenados.
+- [RFC 5869 · HKDF](https://www.rfc-editor.org/info/rfc5869): extracción, expansión y separación contextual.
+- [RFC 8017 · PKCS #1](https://www.rfc-editor.org/info/rfc8017): RSA-OAEP y RSA-PSS.
+- [RFC 9846 · TLS 1.3](https://www.rfc-editor.org/info/rfc9846): ejemplo de composición protocolar de acuerdo, autenticación, KDF y AEAD.
 
 > **Regla de producción:** usar bibliotecas mantenidas, estándares vigentes y APIs de alto nivel. La implementación didáctica no debe trasladarse directamente a sistemas reales.
 

@@ -22,7 +22,7 @@ Esta carpeta reúne el campus ejecutable del repositorio. Cada módulo posee:
 |---|---|---|
 | 1 | [Criptografía clásica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-01/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) |
 | 2 | [Fundamentos de la criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/) | [Ruta guiada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) |
-| 3 | [Criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/) | [Clase 3](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html) |
+| 3 | [Criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/) | [Ruta completa](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-modulo.html) · [Clase 3](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html) |
 | 4 | [Esteganografía](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-04/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) |
 | 5 | [Blockchain](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-05/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) |
 | 6 | [Protocolos y privacidad](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-06/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) |
@@ -64,10 +64,17 @@ simuladores/
 │   └── assets/
 ├── modulo-03/
 │   ├── index.html
+│   ├── ruta-modulo.html
 │   ├── ruta-guiada.html
 │   ├── contrasena-salt-kdf.html
+│   ├── bloques-vs-flujo.html
 │   ├── modos-aes-aead.html
 │   ├── cifrado-local-archivos.html
+│   ├── hash-hmac-firmas.html
+│   ├── padding-oracle.html
+│   ├── rsa-ecdh-hibrido.html
+│   ├── glosario.html
+│   ├── cuestionario.html
 │   └── assets/
 ├── ...
 ├── modulo-08/

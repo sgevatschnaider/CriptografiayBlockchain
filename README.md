@@ -60,10 +60,13 @@ Cada módulo posee una **página propia** que organiza su laboratorio integral, 
 [![Salto clásico–moderno](https://img.shields.io/badge/LAB-SALTO%20CLÁSICO–MODERNO-0f766e?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/introduccion-interactiva.html)
 [![Shannon y entropía](https://img.shields.io/badge/LAB-SHANNON%20Y%20ENTROPÍA-1d4ed8?style=for-the-badge&logo=python&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/entropia-shannon.html)
 [![XOR y AES-CTR](https://img.shields.io/badge/LAB-XOR%20Y%20AES--CTR-0891b2?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/laboratorio-xor-flujo.html)
+[![Ruta Módulo 3](https://img.shields.io/badge/RUTA-MÓDULO%203%20COMPLETO-5b21b6?style=for-the-badge&logo=googlescholar&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-modulo.html)
 [![Clase 3](https://img.shields.io/badge/RUTA-CLASE%203%20KDF%20Y%20AES-4338ca?style=for-the-badge&logo=googlescholar&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html)
 [![Contraseña y KDF](https://img.shields.io/badge/LAB-CONTRASEÑA%20Y%20KDF-7c3aed?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/contrasena-salt-kdf.html)
 [![AES y AEAD](https://img.shields.io/badge/LAB-AES%20Y%20AEAD-6d28d9?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/modos-aes-aead.html)
 [![Cifrado de archivos](https://img.shields.io/badge/LAB-CIFRADO%20LOCAL%20DE%20ARCHIVOS-5b21b6?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/cifrado-local-archivos.html)
+[![Hash, HMAC y firma](https://img.shields.io/badge/LAB-HASH%2C%20HMAC%20Y%20FIRMA-7c3aed?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/hash-hmac-firmas.html)
+[![RSA, ECDH e híbrido](https://img.shields.io/badge/LAB-RSA%2C%20ECDH%20E%20HÍBRIDO-4338ca?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/rsa-ecdh-hibrido.html)
 [![Blockchain y Merkle](https://img.shields.io/badge/LAB-BLOCKCHAIN%20Y%20MERKLE-111827?style=for-the-badge&logo=bitcoin&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html)
 
 </div>

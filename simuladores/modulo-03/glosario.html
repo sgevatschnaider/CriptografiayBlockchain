@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Glosario interactivo de criptografía moderna con definiciones, ejemplos, contrastes, filtros y progreso local.">
+  <meta name="theme-color" content="#071321">
+  <title>Glosario interactivo | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body data-module-page="glosario">
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#glossary-grid">Saltar al glosario</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="ruta-modulo.html">Ruta completa</a>
+        <a href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Teoría</a>
+        <a href="cuestionario.html">Evaluación</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Recuperación activa · estación 8</div>
+      <h1>Glosario de precisión criptográfica</h1>
+      <p>Buscá por término, definición, ejemplo o contraste. La sección “No confundir con” apunta a los errores conceptuales que más afectan la selección y composición de primitivas.</p>
+      <div class="lesson-kicker"><span>Definición</span><span>Ejemplo</span><span>Contraste</span><span>Filtros</span><span>Progreso local</span></div>
+      <div class="actions"><button class="secondary" type="button" data-complete-page="glosario">Marcar como completado</button></div>
+    </section>
+
+    <section class="lab-panel full">
+      <div class="section-heading">
+        <div><div class="eyebrow">Banco conceptual</div><h2><span id="glossary-total">0</span> términos del módulo</h2><p class="muted">Las marcas de dominio se guardan únicamente en este navegador.</p></div>
+        <div class="oracle-counter"><strong id="known-count">0</strong><span>dominados</span></div>
+      </div>
+      <div class="glossary-toolbar">
+        <div><label class="sr-only" for="glossary-search">Buscar término</label><input id="glossary-search" type="search" placeholder="Buscar: nonce, firma, ECDH…" autocomplete="off"></div>
+        <div><label class="sr-only" for="glossary-category">Categoría</label><select id="glossary-category"><option value="all">Todas las categorías</option></select></div>
+        <div><label class="sr-only" for="glossary-status">Progreso</label><select id="glossary-status"><option value="all">Todos</option><option value="pending">Pendientes</option><option value="known">Dominados</option></select></div>
+        <button class="secondary" id="random-term" type="button">Término aleatorio</button>
+      </div>
+      <div class="actions"><button class="secondary" id="clear-known" type="button">Borrar marcas</button></div>
+      <div class="status" id="glossary-status-text" aria-live="polite">Cargando términos…</div>
+      <div class="term-grid" id="glossary-grid"></div>
+      <div class="empty-state" id="glossary-empty" hidden>No hay términos que coincidan con esos filtros.</div>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Las definiciones describen el uso pedagógico del módulo; una especificación normativa puede imponer requisitos adicionales.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
+  <script src="assets/glosario-data.js"></script>
+  <script src="assets/glosario.js"></script>
+</body>
+</html>

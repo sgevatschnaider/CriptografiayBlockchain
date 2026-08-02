@@ -92,4 +92,4 @@ El estudiante aprueba la evidencia de salida si puede explicar, sin apoyarse sol
 
 Material elaborado por el profesor Sergio Gevatschnaider.
 
-[Abrir la ruta de la Clase 3](../../simuladores/modulo-03/ruta-guiada.html) · [Volver al Módulo 3](./03-criptografia-moderna.md)
+[Abrir la ruta de la Clase 3](../../simuladores/modulo-03/ruta-guiada.html) · [Continuar con la ruta completa del Módulo 3](../../simuladores/modulo-03/ruta-modulo.html) · [Volver a la teoría](./03-criptografia-moderna.md)

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cuestionario interactivo del Módulo 3 con preguntas conceptuales y aplicadas sobre criptografía moderna, devolución razonada y progreso local.">
+  <meta name="theme-color" content="#071321">
+  <title>Cuestionario integrador | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body data-module-page="cuestionario">
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#quiz-card">Saltar a la pregunta</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="ruta-modulo.html">Ruta completa</a>
+        <a href="glosario.html">Glosario</a>
+        <a href="../../docs/criptografia/lector.html?modulo=03-criptografia-moderna">Teoría</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Evaluación y recuperación · estación 9</div>
+      <h1>Cuestionario integrador de criptografía moderna</h1>
+      <p>Configurá una práctica breve o una evaluación completa. El modo estudio explica cada respuesta al verificar; el modo examen concentra la devolución al final.</p>
+      <div class="lesson-kicker"><span>30 preguntas</span><span>6 categorías</span><span>3 niveles</span><span>Modo estudio</span><span>Modo examen</span></div>
+    </section>
+
+    <section class="lab-panel full">
+      <div class="section-heading">
+        <div><div class="eyebrow">Configuración</div><h2>Armá tu intento</h2></div>
+        <div class="oracle-counter"><strong data-best-quiz>0%</strong><span>mejor puntaje</span></div>
+      </div>
+      <div class="quiz-toolbar">
+        <div><label for="quiz-category">Categoría</label><select id="quiz-category"><option value="all">Todas las categorías</option></select></div>
+        <div><label for="quiz-level">Nivel</label><select id="quiz-level"><option value="all">Todos los niveles</option><option value="Base">Base</option><option value="Aplicado">Aplicado</option><option value="Diagnóstico">Diagnóstico</option></select></div>
+        <div><label for="quiz-size">Cantidad</label><select id="quiz-size"><option value="10">10 preguntas</option><option value="15" selected>15 preguntas</option><option value="30">Banco completo</option></select></div>
+        <div><label for="quiz-mode">Modo</label><select id="quiz-mode"><option value="study" selected>Estudio</option><option value="exam">Examen</option></select></div>
+      </div>
+      <div class="actions"><button id="start-quiz" type="button">Iniciar intento</button><button class="secondary" id="restart-quiz" type="button">Nuevo intento</button></div>
+      <div class="status" id="quiz-status">Seleccioná una configuración para comenzar.</div>
+    </section>
+
+    <section class="quiz-card" id="quiz-card" aria-live="polite">
+      <p class="muted">La primera pregunta aparecerá aquí.</p>
+    </section>
+
+    <section class="lab-panel full" id="quiz-navigation" hidden>
+      <div class="progress-heading"><strong id="question-progress">0/0</strong><span class="muted" id="answered-progress">0 respondidas</span></div>
+      <div class="quiz-dots" id="quiz-dots" aria-label="Navegación entre preguntas"></div>
+      <div class="actions">
+        <button class="secondary" id="previous-question" type="button">← Anterior</button>
+        <button id="check-question" type="button">Verificar respuesta</button>
+        <button class="secondary" id="next-question" type="button">Siguiente →</button>
+      </div>
+    </section>
+
+    <section class="lab-panel full" id="quiz-summary" hidden>
+      <div class="eyebrow">Resultado</div>
+      <h2>Resumen del intento</h2>
+      <div class="summary-grid">
+        <div class="summary-card"><strong id="summary-score">0%</strong><p>Puntaje</p></div>
+        <div class="summary-card"><strong id="summary-correct">0/0</strong><p>Respuestas correctas</p></div>
+        <div class="summary-card"><strong id="summary-level">—</strong><p>Diagnóstico</p></div>
+        <div class="summary-card"><strong data-best-quiz>0%</strong><p>Mejor puntaje guardado</p></div>
+      </div>
+      <div id="summary-review"></div>
+      <div class="actions"><button id="retry-quiz" type="button">Realizar otro intento</button><a class="button secondary" href="glosario.html">Revisar glosario</a></div>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>El umbral del 70% marca la finalización local de la estación; la devolución razonada forma parte de la evaluación.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
+  <script src="assets/cuestionario-data.js"></script>
+  <script src="assets/cuestionario.js"></script>
+</body>
+</html>

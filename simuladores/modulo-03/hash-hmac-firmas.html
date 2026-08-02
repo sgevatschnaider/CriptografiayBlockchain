@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Comparador interactivo de SHA-256, HMAC-SHA-256 y ECDSA P-256 con avalancha, alteración y verificación mediante Web Crypto.">
+  <meta name="theme-color" content="#071321">
+  <title>Hash, HMAC y firma digital | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body data-module-page="hash-mac-firma">
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#comparador">Saltar al comparador</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="ruta-modulo.html">Ruta completa</a>
+        <a href="rsa-ecdh-hibrido.html">RSA y ECDH</a>
+        <a href="glosario.html">Glosario</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Integridad y autenticidad · estación 5</div>
+      <h1>Hash, HMAC y firma digital no son equivalentes</h1>
+      <p>Tres experimentos con la misma idea —detectar cambios— pero con modelos de confianza distintos: sin clave, con secreto compartido y con par pública/privada.</p>
+      <div class="lesson-kicker"><span>SHA-256</span><span>Efecto avalancha</span><span>HMAC-SHA-256</span><span>ECDSA P-256</span><span>Clave pública</span><span>Web Crypto</span></div>
+      <div class="actions"><button class="secondary" type="button" data-complete-page="hash-mac-firma">Marcar como completado</button></div>
+    </section>
+
+    <section class="property-grid" aria-label="Comparación de propiedades">
+      <article class="property-card"><strong>Hash</strong><p>Cualquiera puede calcularlo. Detecta diferencias si el valor esperado llega por un canal confiable, pero no identifica al emisor.</p></article>
+      <article class="property-card"><strong>HMAC</strong><p>Solo quien conoce el secreto compartido puede producir o verificar el tag. No ofrece verificabilidad pública.</p></article>
+      <article class="property-card"><strong>Firma digital</strong><p>La clave privada firma y la pública verifica. La identidad depende de cómo se obtuvo y validó esa clave pública.</p></article>
+    </section>
+
+    <section class="lab-grid" id="comparador">
+      <article class="lab-panel full">
+        <div class="eyebrow">Experimento 1 · sin clave</div>
+        <h2>Avalancha de SHA-256</h2>
+        <div class="controls">
+          <div class="control"><label for="hash-message-a">Mensaje A</label><textarea id="hash-message-a">Transferir 1000 unidades a Ana.</textarea></div>
+          <div class="control"><label for="hash-message-b">Mensaje B</label><textarea id="hash-message-b">Transferir 1001 unidades a Ana.</textarea></div>
+        </div>
+        <div class="actions"><button id="calculate-hashes" type="button">Calcular SHA-256</button><button class="secondary" id="one-bit-example" type="button">Usar diferencia de un bit</button></div>
+        <div class="data-grid">
+          <div class="data-box"><b>SHA-256(A)</b><output id="hash-a">—</output></div>
+          <div class="data-box"><b>SHA-256(B)</b><output id="hash-b">—</output></div>
+          <div class="data-box"><b>Bits diferentes</b><output id="hash-distance">0 / 256</output></div>
+          <div class="data-box"><b>Proporción</b><output id="hash-ratio">0%</output></div>
+        </div>
+        <div class="meter" aria-label="Proporción de bits diferentes"><span id="hash-meter"></span></div>
+        <div class="status" id="hash-status">Cambiá una entrada y medí cuántos bits del resumen se modifican.</div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="eyebrow">Experimento 2 · secreto compartido</div>
+        <h2>HMAC-SHA-256</h2>
+        <div class="control full"><label for="hmac-message">Mensaje autenticado</label><textarea id="hmac-message">orden=compra;activo=BTC;cantidad=0.25</textarea></div>
+        <div class="data-box"><b>Clave didáctica de 256 bits</b><output id="hmac-key">—</output></div>
+        <div class="actions"><button id="create-hmac" type="button">Crear tag</button><button class="secondary" id="verify-hmac" type="button">Verificar</button><button class="secondary" id="new-hmac-key" type="button">Nueva clave</button><button class="warn" id="tamper-hmac-message" type="button">Alterar mensaje</button></div>
+        <div class="data-box"><b>Tag HMAC</b><output id="hmac-tag">—</output></div>
+        <div class="status" id="hmac-status">Generá una clave y un tag.</div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="eyebrow">Experimento 3 · verificación pública</div>
+        <h2>Firma ECDSA P-256</h2>
+        <div class="control full"><label for="signed-document">Documento</label><textarea id="signed-document">Acepto el contrato identificado como CRIPTO-03.</textarea></div>
+        <div class="actions"><button id="generate-signing-keys" type="button">Generar par</button><button id="sign-document" type="button">Firmar</button><button class="secondary" id="verify-signature" type="button">Verificar</button><button class="warn" id="tamper-document" type="button">Alterar documento</button><button class="secondary" id="verify-wrong-key" type="button">Probar otra clave pública</button></div>
+        <div class="data-grid">
+          <div class="data-box"><b>Huella de la clave pública</b><output id="public-fingerprint">—</output></div>
+          <div class="data-box"><b>Firma</b><output id="signature-output">—</output></div>
+          <div class="data-box"><b>Longitud observada</b><output id="signature-length">0 bytes</output></div>
+          <div class="data-box"><b>Verificación</b><output id="signature-result">—</output></div>
+        </div>
+        <div class="status" id="signature-status">La clave privada se mantiene en esta sesión del navegador.</div>
+      </article>
+    </section>
+
+    <section class="lab-panel full">
+      <div class="eyebrow">Transferencia</div>
+      <h2>Elegí según quién debe poder producir la prueba</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Escenario</th><th>Elección</th><th>Razón</th></tr></thead>
+          <tbody>
+            <tr><td>Comprobar que una descarga coincide con un valor publicado por un canal confiable</td><td>Hash</td><td>No se necesita un secreto local para recalcularlo.</td></tr>
+            <tr><td>Autenticar mensajes entre dos servicios que comparten una clave</td><td>HMAC</td><td>Ambos pueden producir y verificar el tag.</td></tr>
+            <tr><td>Permitir que muchas personas verifiquen un documento sin poder firmarlo</td><td>Firma digital</td><td>La capacidad de firma permanece en la clave privada.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Una firma válida no nombra por sí sola a una persona.</strong> Demuestra coherencia con una clave pública; certificados, huellas verificadas o PKI aportan el vínculo de identidad.</div>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>SHA-256, HMAC-SHA-256 y ECDSA P-256 se ejecutan mediante Web Crypto. Las claves son efímeras y no se transmiten.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
+  <script src="assets/hash-hmac-firmas.js"></script>
+</body>
+</html>

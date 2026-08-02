@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Simulación controlada de padding PKCS#7 y oráculo sobre AES-CBC real para comprender respuestas distinguibles y la preferencia por AEAD.">
+  <meta name="theme-color" content="#071321">
+  <title>Padding y oráculo controlado | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body data-module-page="oraculo-padding">
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#oracle-lab">Saltar al laboratorio</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="ruta-modulo.html">Ruta completa</a>
+        <a href="modos-aes-aead.html">AES y AEAD</a>
+        <a href="cuestionario.html">Evaluación</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Ataque y composición · estación 6</div>
+      <h1>Padding válido no significa mensaje auténtico</h1>
+      <p>Un oráculo aparece cuando una implementación revela si el relleno de un criptograma CBC es válido. Esa sola diferencia permite aprender sobre el texto claro sin conocer la clave.</p>
+      <div class="lesson-kicker"><span>AES-CBC real</span><span>PKCS#7</span><span>IV manipulable</span><span>Oracle query</span><span>Error uniforme</span><span>AEAD</span></div>
+      <div class="actions"><button class="secondary" type="button" data-complete-page="oraculo-padding">Marcar como completado</button></div>
+    </section>
+
+    <section class="privacy-banner"><span aria-hidden="true">🧪</span><div><strong>Entorno controlado y local.</strong> El laboratorio crea su propia clave efímera, limita el mensaje a un bloque y no consulta ningún servidor. El objetivo es observar la fuga, no atacar sistemas externos.</div></section>
+
+    <section class="lab-grid" id="oracle-lab">
+      <article class="lab-panel">
+        <div class="eyebrow">Paso 1</div>
+        <h2>Construir un paquete CBC</h2>
+        <div class="control full"><label for="oracle-message">Mensaje de 1 a 15 bytes UTF-8</label><input id="oracle-message" value="SECRETO DEMO" autocomplete="off"></div>
+        <div class="actions"><button id="encrypt-oracle-message" type="button">Cifrar con AES-CBC</button><button class="secondary" id="restore-oracle-packet" type="button">Restaurar paquete</button></div>
+        <div class="metric-grid">
+          <div class="metric"><strong id="oracle-message-bytes">0</strong><span>bytes de mensaje</span></div>
+          <div class="metric"><strong id="oracle-padding-bytes">0</strong><span>valor de padding</span></div>
+          <div class="metric"><strong id="oracle-cipher-bytes">0</strong><span>bytes cifrados</span></div>
+          <div class="metric"><strong id="oracle-blocks">0</strong><span>bloques cifrados</span></div>
+        </div>
+        <div class="status" id="oracle-build-status">El mensaje debe caber en un bloque para que el IV controle directamente el padding final.</div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="eyebrow">Paquete actual</div>
+        <h2>IV y ciphertext</h2>
+        <div class="data-grid">
+          <div class="data-box"><b>IV · 16 bytes</b><output id="oracle-iv">—</output></div>
+          <div class="data-box"><b>Ciphertext</b><output id="oracle-ciphertext">—</output></div>
+          <div class="data-box"><b>Último byte del IV</b><output id="oracle-iv-last">—</output></div>
+          <div class="data-box"><b>Estado</b><output id="oracle-packet-state">Sin paquete</output></div>
+        </div>
+        <div class="actions"><button class="warn" id="flip-oracle-iv" type="button">Alterar último byte del IV</button><button class="warn" id="flip-oracle-ciphertext" type="button">Alterar ciphertext</button></div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="eyebrow">Paso 2</div>
+        <h2>Comparar respuestas</h2>
+        <p>El mismo descifrado interno puede exponerse de dos maneras. Una respuesta específica confirma qué condición falló.</p>
+        <div class="actions"><button id="query-leaky-oracle" type="button">Consultar oráculo filtrante</button><button class="secondary" id="query-uniform-oracle" type="button">Consultar interfaz uniforme</button></div>
+        <div class="status" id="leaky-oracle-status">Respuesta del oráculo filtrante pendiente.</div>
+        <div class="status" id="uniform-oracle-status">Respuesta uniforme pendiente.</div>
+        <div class="oracle-counter"><strong id="oracle-query-count">0</strong><span>consultas locales</span></div>
+      </article>
+
+      <article class="lab-panel">
+        <div class="eyebrow">Paso 3</div>
+        <h2>Recuperar el byte de padding</h2>
+        <p>El atacante modifica el último byte del IV hasta forzar un padding <code>01</code>. La respuesta válida revela el byte claro original en esa posición.</p>
+        <div class="actions"><button id="scan-oracle" type="button">Ejecutar búsqueda controlada</button></div>
+        <div class="data-grid">
+          <div class="data-box"><b>Delta encontrado</b><output id="oracle-delta">—</output></div>
+          <div class="data-box"><b>Byte claro inferido</b><output id="oracle-recovered-byte">—</output></div>
+          <div class="data-box"><b>Interpretación</b><output id="oracle-recovered-meaning">—</output></div>
+          <div class="data-box"><b>Consultas del escaneo</b><output id="oracle-scan-queries">0</output></div>
+        </div>
+        <div class="status" id="oracle-scan-status">Primero generá un paquete válido.</div>
+      </article>
+    </section>
+
+    <section class="lab-panel full">
+      <div class="eyebrow">Diagnóstico</div>
+      <h2>Qué corrige cada defensa</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Medida</th><th>Qué mejora</th><th>Límite</th></tr></thead>
+          <tbody>
+            <tr><td>Mensajes de error uniformes</td><td>Evitan revelar explícitamente “padding inválido”</td><td>El estado, el tiempo o efectos laterales todavía pueden distinguir casos</td></tr>
+            <tr><td>Autenticar antes de procesar CBC</td><td>Rechaza paquetes modificados antes de interpretar padding</td><td>La composición y el orden deben implementarse correctamente</td></tr>
+            <tr><td>Usar AEAD</td><td>Integra confidencialidad y autenticación con una interfaz coherente</td><td>Nonce único, tag correcto y manejo uniforme siguen siendo obligatorios</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Conclusión:</strong> ocultar el texto del error reduce una señal, pero la solución estructural es autenticar el paquete y no liberar texto claro antes de verificarlo.</div>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>La demostración usa AES-CBC y padding PKCS#7 de Web Crypto con claves efímeras. No transmite datos ni automatiza ataques contra terceros.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
+  <script src="assets/padding-oracle.js"></script>
+</body>
+</html>
