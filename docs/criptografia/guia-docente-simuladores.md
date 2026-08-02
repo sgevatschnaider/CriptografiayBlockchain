@@ -44,6 +44,7 @@ Una sesión de 75 a 90 minutos puede organizarse así:
 - Relacionar entropía, redundancia e información mutua con el modelo de Shannon.
 - Distinguir fuente de entropía, PRNG de propósito general y CSPRNG o DRBG.
 - Formular propiedad, adversario, condición de victoria y recursos.
+- Distinguir confusión, difusión, avalancha, SAC, BIC y completitud sin convertir una métrica visual en prueba de seguridad.
 - Explicar la reversibilidad de XOR y diferenciar desplazamiento, bloques y flujo.
 - Comprobar por qué reutilizar un contador o keystream expone relaciones entre mensajes.
 - Conectar complejidad y estructuras algebraicas con primitivas modernas.
@@ -55,11 +56,12 @@ Una sesión de 75 a 90 minutos puede organizarse así:
 3. Enumerar las 25 claves de César y discutir por qué “parece ilegible” no es una definición.
 4. Comparar un PRNG lineal con un CSPRNG, repetir la semilla y predecir la salida del generador débil.
 5. Contrastar la entropía efectiva de un PIN, una marca temporal y 128 bits producidos por el sistema.
-6. Manipular dos bytes con AND, OR y XOR; aplicar XOR por segunda vez para recuperar el mensaje.
-7. Ejecutar AES-CTR con el mismo contador para dos mensajes y verificar \(C_1 \oplus C_2 = M_1 \oplus M_2\).
-8. Repetir con contadores distintos y separar confidencialidad de autenticación.
+6. Invertir un bit del mensaje y de la clave, comparar capas y rondas, y ejecutar el diagnóstico local de SAC, BIC y completitud.
+7. Manipular dos bytes con AND, OR y XOR; aplicar XOR por segunda vez para recuperar el mensaje.
+8. Ejecutar AES-CTR con el mismo contador para dos mensajes y verificar \(C_1 \oplus C_2 = M_1 \oplus M_2\).
+9. Repetir con contadores distintos y separar confidencialidad de autenticación.
 
-**Evidencia de aprendizaje:** explicación oral o escrita que compare César, OTP y AES-GCM mediante cuatro elementos explícitos —propiedad, adversario, victoria y recursos—, distinga apariencia estadística de impredecibilidad e interprete la igualdad observada al reutilizar el contador.
+**Evidencia de aprendizaje:** explicación oral o escrita que compare César, OTP y AES-GCM mediante cuatro elementos explícitos —propiedad, adversario, victoria y recursos—, distinga apariencia estadística de impredecibilidad, separe difusión de avalancha e interprete la igualdad observada al reutilizar el contador.
 
 **Extensión:** la ruta guiada de trece estaciones permite distribuir teoría, simulaciones, mapas, glosario y cuestionario en varias clases o utilizarlos como trabajo autónomo.
 
@@ -87,7 +89,7 @@ Una sesión de 75 a 90 minutos puede organizarse así:
 2. Derivar dos veces con los mismos parámetros, cambiar solamente la salt y medir el costo.
 3. Ejecutar AES-CBC, AES-CTR y AES-GCM; alterar ciphertext, IV o nonce, AAD y tag.
 4. Cifrar, exportar, importar y recuperar un archivo ficticio; alterar un bit y observar el rechazo.
-5. Medir avalancha SHA-256 y comparar hash, HMAC y ECDSA ante mensaje o clave alterados.
+5. Recuperar el fundamento de confusión y difusión, medir avalancha SHA-256 y comparar hash, HMAC y ECDSA ante mensaje o clave alterados.
 6. Consultar el oráculo CBC local, forzar padding `01` e inferir el byte de relleno.
 7. Cifrar una entrada acotada con RSA-OAEP y comprobar rechazo ante alteración u otra privada.
 8. Derivar ECDH en ambos sentidos, interponer a Mallory y componer ECDH → HKDF → AES-GCM.

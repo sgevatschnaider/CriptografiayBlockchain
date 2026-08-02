@@ -129,11 +129,30 @@ La clave desaparece de la ecuación y queda expuesta una relación entre mensaje
 
 ### 2.6 Confusión, difusión y avalancha
 
-- **Confusión:** complica la relación entre clave, entrada y salida; suelen contribuir las sustituciones no lineales.
-- **Difusión:** dispersa la influencia de cada bit de entrada sobre muchos bits de salida; contribuyen permutaciones y mezclas lineales.
-- **Avalancha:** un cambio pequeño en la entrada produce numerosos cambios en la salida.
+Son conceptos relacionados, pero responden preguntas diferentes:
 
-La avalancha es deseable, pero no es una prueba de seguridad. Una función defectuosa también puede producir salidas visualmente caóticas.
+- **Confusión:** vuelve compleja, especialmente no lineal, la relación entre clave, entrada y salida. Las S-boxes aportan no linealidad; XOR y las transformaciones lineales no bastan por sí solos.
+- **Difusión:** distribuye la influencia estadística de cada parte del texto claro sobre muchas posiciones del criptograma. Permutaciones y mezclas lineales conectan las salidas de distintas sustituciones entre rondas.
+- **Efecto avalancha:** describe la sensibilidad observable de la salida. Al invertir un bit de entrada, una transformación equilibrada de `n` bits debería modificar, en promedio, aproximadamente `n/2` bits de salida.
+
+La medida básica es la **distancia de Hamming**:
+
+```text
+dH(a,b) = cantidad de posiciones donde a y b difieren
+avalancha = dH(F(x), F(x XOR e_i)) / n
+```
+
+Una **S-box** sustituye grupos pequeños de bits y aporta no linealidad. Una **P-box** solo permuta posiciones: conserva el peso y la distancia de Hamming. En AES, `ShiftRows` permuta bytes y `MixColumns` los combina linealmente; la difusión se acumula al alternar estas capas con `SubBytes` y la incorporación de subclaves durante varias rondas.
+
+Tres criterios refinan la observación visual:
+
+- **Criterio estricto de avalancha (SAC):** para cada bit de entrada `i` y cada bit de salida `j`, la probabilidad de que `j` cambie al invertir `i` debe aproximarse a `1/2`. Un promedio global de 50% no alcanza.
+- **Criterio de independencia de bits (BIC):** para cada perturbación de entrada, los cambios de pares de bits de salida deben comportarse de manera aproximadamente independiente. Dos bits pueden cambiar cada uno 50% de las veces y aun estar correlacionados.
+- **Completitud:** cada bit de salida depende de todos los bits de entrada en algún contexto. No significa que todos los bits deban cambiar en cada ejecución.
+
+El número de rondas determina cómo se acumulan confusión y difusión y también aporta margen frente al mejor ataque conocido. Una variante de rondas reducidas puede mostrar avalancha cercana a 50% y, sin embargo, ser vulnerable.
+
+La avalancha es deseable, pero no prueba seguridad, SAC, BIC ni completitud por sí sola. Una función defectuosa también puede producir salidas visualmente caóticas. El [laboratorio de confusión, difusión y avalancha](../../simuladores/modulo-02/confusion-difusion.html) permite separar una prueba individual de un diagnóstico estadístico comparativo.
 
 ### 2.7 PRNG y CSPRNG
 

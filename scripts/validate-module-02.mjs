@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { pathToFileURL } from 'node:url';
 
 const root = process.cwd();
 const moduleDir = path.join(root, 'simuladores', 'modulo-02');
@@ -40,6 +41,8 @@ const requiredPages = [
 const requiredAssets = [
   'assets/module.css',
   'assets/module.js',
+  'assets/confusion-difusion.css',
+  'assets/confusion-difusion.js',
   'assets/pseudoaleatoriedad.css',
   'assets/pseudoaleatoriedad.js',
   'assets/introducciones.css',
@@ -176,6 +179,22 @@ const experienceContracts = [
     ]
   },
   {
+    file: 'confusion-difusion.html',
+    snippets: [
+      'data-module-page="confusion-difusion"',
+      'id="perturb-target"',
+      'id="layer-comparison"',
+      'id="run-statistical-analysis"',
+      'id="influence-heatmap"',
+      'Criterio estricto de avalancha',
+      'Criterio de independencia de bits',
+      'Completitud',
+      'Material elaborado por el profesor Sergio Gevatschnaider',
+      'assets/confusion-difusion.css',
+      'assets/confusion-difusion.js'
+    ]
+  },
+  {
     file: 'laboratorio-xor-flujo.html',
     snippets: [
       'data-module-page="xor-flujo"',
@@ -210,6 +229,77 @@ if (fs.existsSync(pseudoScriptPath)) {
     if (!pseudoScript.includes(concept)) {
       fail(`simuladores/modulo-02/assets/pseudoaleatoriedad.js: falta el concepto verificable ${concept}`);
     }
+  }
+}
+
+const confusionScriptPath = path.join(moduleDir, 'assets', 'confusion-difusion.js');
+if (fs.existsSync(confusionScriptPath)) {
+  const confusionScript = fs.readFileSync(confusionScriptPath, 'utf8');
+  const confusionHtml = fs.readFileSync(path.join(moduleDir, 'confusion-difusion.html'), 'utf8');
+  const confusionIds = new Set([...confusionHtml.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]));
+  const referencedIds = new Set([...confusionScript.matchAll(/\$\('([^']+)'\)/g)].map((match) => match[1]));
+  for (const id of referencedIds) {
+    if (!confusionIds.has(id)) fail(`simuladores/modulo-02/confusion-difusion.html: falta el ID requerido por JavaScript #${id}`);
+  }
+  if (/\bMath\.random\s*\(/.test(confusionScript)) {
+    fail('simuladores/modulo-02/assets/confusion-difusion.js: el análisis debe ser reproducible y no usar Math.random');
+  }
+  for (const concept of ['ANALYSIS_CONTEXTS', 'differenceBits', 'pairCounts', 'phiCoefficient', 'sampledOutputPairs', 'contextVariant', 'renderHeatmap']) {
+    if (!confusionScript.includes(concept)) {
+      fail(`simuladores/modulo-02/assets/confusion-difusion.js: falta el concepto verificable ${concept}`);
+    }
+  }
+}
+
+if (fs.existsSync(confusionScriptPath)) {
+  try {
+    delete globalThis.ConfusionDiffusionCore;
+    await import(`${pathToFileURL(confusionScriptPath).href}?validation=${Date.now()}`);
+    const core = globalThis.ConfusionDiffusionCore;
+    if (!core) throw new Error('no exportó el núcleo verificable');
+
+    const input = core.blockFromText('CRIPTOGRAFIA').block;
+    const key = core.keyFromText('SHANNON');
+    const flipped = core.flipBit(input, 0);
+    const xorOriginal = core.finalState(input, key, 4, 'key');
+    const xorModified = core.finalState(flipped, key, 4, 'key');
+    const xorDistance = core.differenceBits(xorOriginal, xorModified).reduce((sum, bit) => sum + bit, 0);
+    if (xorDistance !== 1 || core.changedByteCount(xorOriginal, xorModified) !== 1) {
+      throw new Error('XOR solo no conservó una diferencia de un bit');
+    }
+
+    const fullOriginal = core.finalState(input, key, 4, 'full');
+    const fullModified = core.finalState(flipped, key, 4, 'full');
+    const fullDistance = core.differenceBits(fullOriginal, fullModified).reduce((sum, bit) => sum + bit, 0);
+    if (fullDistance < 40 || fullDistance > 88 || core.changedByteCount(fullOriginal, fullModified) !== 16) {
+      throw new Error(`la red completa no propagó la perturbación esperada (${fullDistance}/128)`);
+    }
+
+    const experiment = { originalInput: input, originalKey: key, target: 'message' };
+    const linear = core.analyzeConfiguration(experiment, 4, 'key');
+    if (Math.abs(linear.globalMean - 1 / 128) > Number.EPSILON || Math.abs(linear.coverage - 1 / 128) > Number.EPSILON) {
+      throw new Error('el diagnóstico lineal no identificó la influencia diagonal');
+    }
+    const complete = core.analyzeConfiguration(experiment, 4, 'full');
+    if (complete.globalMean < 0.45 || complete.globalMean > 0.55) {
+      throw new Error(`la avalancha media de la red completa quedó fuera del rango de control (${complete.globalMean})`);
+    }
+    if (complete.coverage < 0.99 || complete.sacDeviation > 0.12 || complete.bicProxy > 0.08) {
+      throw new Error('el análisis estadístico no distinguió adecuadamente la red completa');
+    }
+    const keySensitivity = core.analyzeConfiguration({ originalInput: input, originalKey: key, target: 'key' }, 4, 'full');
+    if (keySensitivity.globalMean < 0.45 || keySensitivity.globalMean > 0.55 || keySensitivity.coverage < 0.99) {
+      throw new Error('el análisis de sensibilidad a la clave no propagó los 128 bits');
+    }
+
+    const first = Uint8Array.from([0, 0, 1, 1]);
+    const independent = Uint8Array.from([0, 1, 0, 1]);
+    if (Math.abs(core.phiCoefficient(first, independent)) > Number.EPSILON) {
+      throw new Error('el coeficiente phi no reconoció el patrón independiente de control');
+    }
+    delete globalThis.ConfusionDiffusionCore;
+  } catch (error) {
+    fail(`simuladores/modulo-02/assets/confusion-difusion.js: prueba lógica fallida: ${error.message}`);
   }
 }
 
@@ -261,7 +351,7 @@ function loadData(relative, globalName) {
 }
 
 const glossary = loadData('assets/glosario-data.js', 'Module02Glossary');
-if (glossary.length !== 72) fail(`Glosario: se esperaban 72 términos y hay ${glossary.length}`);
+if (glossary.length !== 78) fail(`Glosario: se esperaban 78 términos y hay ${glossary.length}`);
 if (new Set(glossary.map((item) => item.id)).size !== glossary.length) fail('Glosario: hay IDs duplicados');
 glossary.forEach((item, index) => {
   for (const field of ['id', 'term', 'category', 'definition', 'example', 'related']) {
@@ -270,7 +360,7 @@ glossary.forEach((item, index) => {
 });
 
 const questions = loadData('assets/cuestionario-data.js', 'Module02Questions');
-if (questions.length !== 36) fail(`Cuestionario: se esperaban 36 preguntas y hay ${questions.length}`);
+if (questions.length !== 42) fail(`Cuestionario: se esperaban 42 preguntas y hay ${questions.length}`);
 if (new Set(questions.map((item) => item.id)).size !== questions.length) fail('Cuestionario: hay IDs duplicados');
 questions.forEach((item, index) => {
   if (!Array.isArray(item.options) || item.options.length !== 4) {
@@ -307,4 +397,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Módulo 2 validado: ${htmlFiles.length} páginas, 13 estaciones, 72 términos y 36 preguntas.`);
+console.log(`Módulo 2 validado: ${htmlFiles.length} páginas, 13 estaciones, 78 términos y 42 preguntas.`);

@@ -157,6 +157,9 @@ const hashScript = read('assets/hash-hmac-firmas.js');
 for (const token of ['id="hash-message-a"', 'id="hmac-message"', 'id="signed-document"', 'ECDSA P-256']) {
   if (!hashPage.includes(token)) fail(`hash-hmac-firmas.html: falta ${token}`);
 }
+if (!hashPage.includes('../modulo-02/confusion-difusion.html')) {
+  fail('hash-hmac-firmas.html: falta el prerrequisito de confusión, difusión y avalancha');
+}
 for (const concept of ["crypto.subtle.digest('SHA-256'", "name: 'HMAC'", "name: 'ECDSA'", 'crypto.subtle.verify']) {
   if (!hashScript.includes(concept)) fail(`hash-hmac-firmas.js: falta ${concept}`);
 }
@@ -183,6 +186,7 @@ const moduleRoute = read('ruta-modulo.html');
 const moduleStations = [...moduleRoute.matchAll(/data-module-station=["']([^"']+)["']/g)].map((match) => match[1]);
 const expectedStations = ['fundamentos', 'bloques-flujo', 'kdf', 'aes-aead', 'archivos', 'hash-mac-firma', 'oraculo-padding', 'clave-publica', 'glosario', 'cuestionario'];
 if (moduleStations.join('|') !== expectedStations.join('|')) fail('ruta-modulo.html: las diez estaciones no están completas y ordenadas');
+if (!moduleRoute.includes('../modulo-02/confusion-difusion.html')) fail('ruta-modulo.html: falta el puente explícito al laboratorio de avalancha');
 
 const glossaryData = read('assets/glosario-data.js');
 const glossaryCount = [...glossaryData.matchAll(/\bterm:\s*'/g)].length;
