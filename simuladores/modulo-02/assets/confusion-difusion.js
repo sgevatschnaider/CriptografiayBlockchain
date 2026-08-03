@@ -22,6 +22,21 @@
     0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16
   ]);
 
+  const MODES = Object.freeze([
+    { id: 'key', label: 'Solo XOR', short: 'lineal' },
+    { id: 'sub', label: '+ S-box', short: 'no lineal' },
+    { id: 'perm', label: '+ ShiftRows', short: 'reposición' },
+    { id: 'full', label: '+ MixColumns', short: 'mezcla completa' }
+  ]);
+  const MODE_EXPLANATIONS = Object.freeze({
+    key: 'Solo XOR es lineal: conserva exactamente la posición y la cantidad de diferencias; no aporta difusión.',
+    sub: 'La S-box agrega no linealidad y puede cambiar varios bits, pero cada byte continúa aislado de los demás.',
+    perm: 'ShiftRows mueve bytes entre columnas. Conserva la distancia en esa capa, pero prepara la propagación de rondas posteriores.',
+    full: 'MixColumns combina cuatro bytes por columna; junto con ShiftRows y varias rondas extiende la influencia por todo el bloque.'
+  });
+  const ANALYSIS_CONTEXTS = 32;
+  const BIC_PAIR_SAMPLE = 512;
+
   function blockFromText(text) {
     const source = encoder.encode(text);
     const block = new Uint8Array(16);
@@ -99,6 +114,48 @@
     return states;
   }
 
+  function finalState(input, key, rounds, mode) {
+    return transform(input, key, rounds, mode).at(-1);
+  }
+
+  function flipBit(bytes, bitIndex) {
+    const output = bytes.slice();
+    output[Math.floor(bitIndex / 8)] ^= 1 << (7 - (bitIndex % 8));
+    return output;
+  }
+
+  function differenceBits(a, b) {
+    const changes = new Uint8Array(128);
+    for (let byte = 0; byte < 16; byte += 1) {
+      const difference = a[byte] ^ b[byte];
+      for (let bit = 0; bit < 8; bit += 1) {
+        changes[byte * 8 + bit] = (difference >> (7 - bit)) & 1;
+      }
+    }
+    return changes;
+  }
+
+  function changedByteCount(a, b) {
+    return a.reduce((sum, value, index) => sum + (value !== b[index] ? 1 : 0), 0);
+  }
+
+  function buildExperiment() {
+    const source = blockFromText($('spn-message').value);
+    const key = keyFromText($('spn-key').value);
+    const target = $('perturb-target').value;
+    const bitIndex = Number($('flip-bit').value);
+    return {
+      source,
+      key,
+      target,
+      bitIndex,
+      originalInput: source.block,
+      modifiedInput: target === 'message' ? flipBit(source.block, bitIndex) : source.block,
+      originalKey: key,
+      modifiedKey: target === 'key' ? flipBit(key, bitIndex) : key
+    };
+  }
+
   function renderMatrix(root, state, comparison = null) {
     root.innerHTML = [...state].map((value, index) => {
       const changed = comparison && value !== comparison[index];
@@ -107,55 +164,298 @@
     }).join('');
   }
 
+  function renderLayerComparison(experiment, rounds, selectedMode) {
+    $('layer-comparison').innerHTML = MODES.map((mode) => {
+      const original = finalState(experiment.originalInput, experiment.originalKey, rounds, mode.id);
+      const modified = finalState(experiment.modifiedInput, experiment.modifiedKey, rounds, mode.id);
+      const distance = Module02.hammingBytes(original, modified);
+      const percent = distance / 128 * 100;
+      const bytes = changedByteCount(original, modified);
+      return `<div class="layer-row${mode.id === selectedMode ? ' active' : ''}">
+        <strong>${mode.label}</strong>
+        <span class="layer-track" aria-hidden="true"><span style="width:${percent}%"></span></span>
+        <output>${distance}/128</output>
+        <small>${bytes}/16 bytes · ${mode.short}</small>
+      </div>`;
+    }).join('');
+  }
+
   function render() {
-    const source = blockFromText($('spn-message').value);
-    const key = keyFromText($('spn-key').value);
-    const bitIndex = Number($('flip-bit').value);
+    const experiment = buildExperiment();
     const rounds = Number($('round-count').value);
     const mode = $('layer-mode').value;
-    const modified = source.block.slice();
-    modified[Math.floor(bitIndex / 8)] ^= 1 << (7 - (bitIndex % 8));
-    const originalRounds = transform(source.block, key, rounds, mode);
-    const modifiedRounds = transform(modified, key, rounds, mode);
+    const originalRounds = transform(experiment.originalInput, experiment.originalKey, rounds, mode);
+    const modifiedRounds = transform(experiment.modifiedInput, experiment.modifiedKey, rounds, mode);
     const original = originalRounds.at(-1);
     const flipped = modifiedRounds.at(-1);
     const distance = Module02.hammingBytes(original, flipped);
     const percent = distance / 128 * 100;
-    const changedBytes = original.reduce((sum, value, index) => sum + (value !== flipped[index] ? 1 : 0), 0);
+    const changedBytes = changedByteCount(original, flipped);
+    const targetLabel = experiment.target === 'message' ? 'mensaje' : 'clave expandida';
 
-    $('flip-bit-value').textContent = String(bitIndex);
+    $('flip-bit-label').textContent = `Bit de ${targetLabel}`;
+    $('flip-bit-value').textContent = String(experiment.bitIndex);
     $('round-count-value').textContent = String(rounds);
-    $('input-bytes').textContent = `M: ${Module02.toHex(source.block)}\nM′: ${Module02.toHex(modified)}\nK*: ${Module02.toHex(key)}`;
+    $('input-bytes').textContent = experiment.target === 'message'
+      ? `M:  ${Module02.toHex(experiment.originalInput)}\nM′: ${Module02.toHex(experiment.modifiedInput)}\nK*: ${Module02.toHex(experiment.originalKey)}`
+      : `M:  ${Module02.toHex(experiment.originalInput)}\nK*: ${Module02.toHex(experiment.originalKey)}\nK′: ${Module02.toHex(experiment.modifiedKey)}`;
     $('hamming-distance').textContent = `${distance}/128`;
     $('avalanche-percent').textContent = `${percent.toFixed(1)}%`;
     $('changed-bytes').textContent = `${changedBytes}/16`;
     $('distance-to-half').textContent = `${Math.abs(50 - percent).toFixed(1)} pp`;
     $('hex-original').textContent = Module02.toHex(original);
     $('hex-flipped').textContent = Module02.toHex(flipped);
+    $('layer-explanation').textContent = MODE_EXPLANATIONS[mode];
     renderMatrix($('state-original'), original);
     renderMatrix($('state-flipped'), flipped, original);
     $('round-bars').innerHTML = originalRounds.map((state, index) => {
-      const d = Module02.hammingBytes(state, modifiedRounds[index]);
-      const pct = d / 128 * 100;
-      return `<div class="round-row"><strong>Ronda ${index + 1}</strong><span class="round-track"><span style="width:${pct}%"></span></span><span>${d} · ${pct.toFixed(1)}%</span></div>`;
+      const roundModified = modifiedRounds[index];
+      const roundDistance = Module02.hammingBytes(state, roundModified);
+      const roundPercent = roundDistance / 128 * 100;
+      const roundBytes = changedByteCount(state, roundModified);
+      return `<div class="round-row"><strong>Ronda ${index + 1}</strong><span class="round-track"><span style="width:${roundPercent}%"></span></span><span>${roundDistance} · ${roundPercent.toFixed(1)}% · ${roundBytes}/16 bytes</span></div>`;
     }).join('');
+    renderLayerComparison(experiment, rounds, mode);
 
-    const lengthMessage = source.originalLength > 16
+    const lengthMessage = experiment.source.originalLength > 16
       ? 'El mensaje se truncó a 16 bytes.'
-      : source.originalLength < 16
+      : experiment.source.originalLength < 16
         ? 'El bloque se completó con bytes 00.'
         : 'El mensaje ocupa exactamente 16 bytes.';
+    const interpretation = experiment.target === 'message'
+      ? 'Esta prueba observa sensibilidad al texto y difusión.'
+      : 'Esta prueba observa sensibilidad a la clave y confusión.';
     if (mode === 'full' && percent >= 35 && percent <= 65) {
-      $('spn-status').textContent = `${lengthMessage} La red completa quedó cerca del objetivo visual de 50%, sin que eso pruebe seguridad.`;
+      $('spn-status').textContent = `${lengthMessage} ${interpretation} El resultado quedó cerca de 50%, sin probar seguridad ni SAC.`;
       $('spn-status').className = 'status good';
     } else {
-      $('spn-status').textContent = `${lengthMessage} Con estas capas, el cambio alcanzó ${percent.toFixed(1)}% de los bits.`;
+      $('spn-status').textContent = `${lengthMessage} ${interpretation} Con estas capas, el cambio alcanzó ${percent.toFixed(1)}% de los bits.`;
       $('spn-status').className = 'status warn';
     }
   }
 
-  ['spn-message', 'spn-key'].forEach((id) => $(id).addEventListener('input', render));
-  ['flip-bit', 'round-count'].forEach((id) => $(id).addEventListener('input', render));
-  $('layer-mode').addEventListener('change', render);
+  function contextVariant(bytes, contextIndex) {
+    if (contextIndex === 0) return bytes.slice();
+    const output = bytes.slice();
+    let state = (0x9e3779b9 ^ Math.imul(contextIndex, 0x85ebca6b)) >>> 0;
+    for (let index = 0; index < output.length; index += 1) {
+      state ^= state << 13;
+      state ^= state >>> 17;
+      state ^= state << 5;
+      output[index] ^= (state >>> 24) & 0xff;
+    }
+    return output;
+  }
+
+  function sampledOutputPairs(limit) {
+    const allPairs = [];
+    for (let first = 0; first < 128; first += 1) {
+      for (let second = first + 1; second < 128; second += 1) {
+        allPairs.push([first, second]);
+      }
+    }
+    const pairs = [];
+    const stride = 73;
+    const start = 19;
+    for (let index = 0; index < limit; index += 1) {
+      pairs.push(allPairs[(start + index * stride) % allPairs.length]);
+    }
+    return pairs;
+  }
+
+  function phiCoefficient(first, second) {
+    let firstOnes = 0;
+    let secondOnes = 0;
+    let bothOnes = 0;
+    for (let index = 0; index < first.length; index += 1) {
+      firstOnes += first[index];
+      secondOnes += second[index];
+      bothOnes += first[index] & second[index];
+    }
+    const total = first.length;
+    const denominator = Math.sqrt(firstOnes * (total - firstOnes) * secondOnes * (total - secondOnes));
+    if (denominator === 0) return 1;
+    return (total * bothOnes - firstOnes * secondOnes) / denominator;
+  }
+
+  function renderHeatmap(pairCounts, target) {
+    const cells = ['<span class="heat-label axis-title">in→out</span>'];
+    for (let outputByte = 0; outputByte < 16; outputByte += 1) {
+      cells.push(`<span class="heat-label">${outputByte.toString(16).toUpperCase()}</span>`);
+    }
+    for (let inputByte = 0; inputByte < 16; inputByte += 1) {
+      cells.push(`<span class="heat-label">${inputByte.toString(16).toUpperCase()}</span>`);
+      for (let outputByte = 0; outputByte < 16; outputByte += 1) {
+        let changes = 0;
+        for (let inputBit = inputByte * 8; inputBit < inputByte * 8 + 8; inputBit += 1) {
+          for (let outputBit = outputByte * 8; outputBit < outputByte * 8 + 8; outputBit += 1) {
+            changes += pairCounts[inputBit * 128 + outputBit];
+          }
+        }
+        const rate = changes / (ANALYSIS_CONTEXTS * 64);
+        const hue = rate <= 0.5 ? 208 - rate * 114 : 151 - (rate - 0.5) * 218;
+        const lightness = 16 + Math.min(rate, 0.5) * 56;
+        const textColor = lightness > 34 ? '#03131d' : '#f2fbff';
+        const title = `${target === 'message' ? 'Mensaje' : 'Clave'} byte ${inputByte.toString(16).toUpperCase()} → salida byte ${outputByte.toString(16).toUpperCase()}: ${(rate * 100).toFixed(1)}%`;
+        cells.push(`<span class="heat-cell" style="background:hsl(${hue.toFixed(0)} 72% ${lightness.toFixed(0)}%);color:${textColor}" title="${title}">${Math.round(rate * 100)}</span>`);
+      }
+    }
+    $('influence-heatmap').innerHTML = cells.join('');
+    $('influence-heatmap').setAttribute('aria-label', `Mapa de influencia de ${target === 'message' ? 'bits del mensaje' : 'bits de la clave'} sobre bytes de salida`);
+  }
+
+  function renderEmptyHeatmap() {
+    $('influence-heatmap').innerHTML = '<span class="heat-placeholder">El mapa aparecerá después de ejecutar el análisis.</span>';
+    $('influence-heatmap').setAttribute('aria-label', 'Mapa pendiente de análisis');
+  }
+
+  function markAnalysisStale() {
+    for (const id of ['batch-mean', 'sac-deviation', 'completeness-coverage', 'bic-correlation']) {
+      $(id).textContent = '—';
+    }
+    $('analysis-summary').hidden = true;
+    $('analysis-status').textContent = 'Los controles cambiaron. Ejecutá nuevamente el análisis para obtener métricas comparables.';
+    $('analysis-status').className = 'status warn';
+    renderEmptyHeatmap();
+  }
+
+  function analyzeConfiguration(experiment, rounds, mode) {
+    const totalTrials = ANALYSIS_CONTEXTS * 128;
+    const pairCounts = new Uint16Array(128 * 128);
+    const outputChanges = Array.from({ length: 128 }, () => new Uint8Array(totalTrials));
+    const distances = new Uint8Array(totalTrials);
+    let trialIndex = 0;
+    let totalChanged = 0;
+
+    for (let context = 0; context < ANALYSIS_CONTEXTS; context += 1) {
+      const baseInput = experiment.target === 'message'
+        ? contextVariant(experiment.originalInput, context)
+        : experiment.originalInput;
+      const baseKey = experiment.target === 'key'
+        ? contextVariant(experiment.originalKey, context)
+        : experiment.originalKey;
+      const originalOutput = finalState(baseInput, baseKey, rounds, mode);
+
+      for (let inputBit = 0; inputBit < 128; inputBit += 1) {
+        const modifiedInput = experiment.target === 'message' ? flipBit(baseInput, inputBit) : baseInput;
+        const modifiedKey = experiment.target === 'key' ? flipBit(baseKey, inputBit) : baseKey;
+        const modifiedOutput = finalState(modifiedInput, modifiedKey, rounds, mode);
+        const changes = differenceBits(originalOutput, modifiedOutput);
+        let distance = 0;
+        for (let outputBit = 0; outputBit < 128; outputBit += 1) {
+          const changed = changes[outputBit];
+          distance += changed;
+          pairCounts[inputBit * 128 + outputBit] += changed;
+          outputChanges[outputBit][trialIndex] = changed;
+        }
+        distances[trialIndex] = distance;
+        totalChanged += distance;
+        trialIndex += 1;
+      }
+    }
+
+    let sacAbsoluteDeviation = 0;
+    let observedDependencies = 0;
+    for (const count of pairCounts) {
+      const probability = count / ANALYSIS_CONTEXTS;
+      sacAbsoluteDeviation += Math.abs(probability - 0.5);
+      if (count > 0) observedDependencies += 1;
+    }
+
+    let correlationTotal = 0;
+    const pairs = sampledOutputPairs(BIC_PAIR_SAMPLE);
+    for (const [first, second] of pairs) {
+      correlationTotal += Math.abs(phiCoefficient(outputChanges[first], outputChanges[second]));
+    }
+
+    const globalMean = totalChanged / (totalTrials * 128);
+    const sacDeviation = sacAbsoluteDeviation / pairCounts.length;
+    const coverage = observedDependencies / pairCounts.length;
+    const bicProxy = correlationTotal / pairs.length;
+    const minDistance = Math.min(...distances);
+    const maxDistance = Math.max(...distances);
+
+    return {
+      totalTrials,
+      pairCounts,
+      globalMean,
+      sacDeviation,
+      coverage,
+      bicProxy,
+      minDistance,
+      maxDistance
+    };
+  }
+
+  function calculateStatisticalAnalysis() {
+    const experiment = buildExperiment();
+    const rounds = Number($('round-count').value);
+    const mode = $('layer-mode').value;
+    const analysis = analyzeConfiguration(experiment, rounds, mode);
+
+    $('batch-mean').textContent = `${(analysis.globalMean * 100).toFixed(2)}%`;
+    $('sac-deviation').textContent = `${(analysis.sacDeviation * 100).toFixed(2)} pp`;
+    $('completeness-coverage').textContent = `${(analysis.coverage * 100).toFixed(2)}%`;
+    $('bic-correlation').textContent = analysis.bicProxy.toFixed(3);
+    $('analysis-range').textContent = `${(analysis.minDistance / 128 * 100).toFixed(1)}% – ${(analysis.maxDistance / 128 * 100).toFixed(1)}%`;
+    $('analysis-target-label').textContent = experiment.target === 'message' ? '128 bits del mensaje' : '128 bits de la clave expandida';
+    $('analysis-summary').hidden = false;
+    renderHeatmap(analysis.pairCounts, experiment.target);
+
+    const balanced = analysis.globalMean >= 0.45 && analysis.globalMean <= 0.55;
+    $('analysis-status').textContent = balanced
+      ? 'La media global quedó cerca de 50%. Revisá ahora el desvío por par, la cobertura y la correlación: el promedio no basta.'
+      : 'La media global se aleja de 50% en esta configuración. No interpretes el proxy BIC de forma aislada; compará capas y aumentá rondas.';
+    $('analysis-status').className = `status ${balanced ? 'good' : 'warn'}`;
+  }
+
+  function runStatisticalAnalysis() {
+    const button = $('run-statistical-analysis');
+    button.disabled = true;
+    button.textContent = 'Analizando…';
+    $('analysis-status').textContent = 'Procesando 4.096 pares sin transmitir datos fuera del navegador.';
+    $('analysis-status').className = 'status';
+    window.setTimeout(() => {
+      try {
+        calculateStatisticalAnalysis();
+      } catch (error) {
+        $('analysis-status').textContent = `No se pudo completar el análisis: ${error.message}`;
+        $('analysis-status').className = 'status bad';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Analizar 4.096 pares';
+      }
+    }, 20);
+  }
+
+  globalThis.ConfusionDiffusionCore = Object.freeze({
+    ANALYSIS_CONTEXTS,
+    blockFromText,
+    keyFromText,
+    transform,
+    finalState,
+    flipBit,
+    differenceBits,
+    changedByteCount,
+    contextVariant,
+    phiCoefficient,
+    analyzeConfiguration
+  });
+
+  if (typeof document === 'undefined') return;
+
+  const bindAndInvalidate = (id, eventName) => {
+    $(id).addEventListener(eventName, () => {
+      render();
+      markAnalysisStale();
+    });
+  };
+
+  ['spn-message', 'spn-key'].forEach((id) => bindAndInvalidate(id, 'input'));
+  $('flip-bit').addEventListener('input', render);
+  bindAndInvalidate('round-count', 'input');
+  ['perturb-target', 'layer-mode'].forEach((id) => bindAndInvalidate(id, 'change'));
+  $('run-statistical-analysis').addEventListener('click', runStatisticalAnalysis);
   render();
+  renderEmptyHeatmap();
 })();

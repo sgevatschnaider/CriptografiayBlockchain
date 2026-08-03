@@ -59,9 +59,9 @@
       title: 'Confusión, difusión y avalancha',
       family: 'Diseño simétrico',
       level: 'Intermedio',
-      time: '25 min',
-      objective: 'Observar cómo sustitución y mezcla dispersan un cambio de un bit.',
-      evidence: 'Leés la distancia de Hamming por capa y explicás por qué la avalancha no demuestra seguridad.',
+      time: '40 min',
+      objective: 'Distinguir confusión, difusión y avalancha; medir SAC, BIC y completitud sin tratarlos como pruebas de seguridad.',
+      evidence: 'Comparás mensaje y clave por capas y rondas, interpretás el mapa de influencia y explicás los límites estadísticos.',
       url: 'confusion-difusion.html'
     },
     {

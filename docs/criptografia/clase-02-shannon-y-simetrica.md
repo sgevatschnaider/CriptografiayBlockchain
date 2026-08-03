@@ -55,11 +55,14 @@ La redundancia del lenguaje explica por qué los cifrados clásicos filtran estr
 
 ## 3. Confusión y difusión
 
-- **Confusión:** vuelve compleja la relación entre clave y criptograma.
-- **Difusión:** dispersa la influencia de cada bit del mensaje sobre muchos bits de salida.
-- **Avalancha:** un cambio pequeño produce numerosos cambios en la salida.
+- **Confusión:** vuelve compleja y no lineal la relación entre clave, entrada y salida; las S-boxes son su mecanismo típico.
+- **Difusión:** dispersa la influencia de cada bit del mensaje; permutaciones y mezclas conectan posiciones entre rondas.
+- **Avalancha:** mide cuántos bits de salida cambian ante una perturbación mínima mediante distancia de Hamming.
+- **SAC:** exige una probabilidad cercana a 1/2 para cada par bit de entrada–bit de salida, no solo para el promedio.
+- **BIC:** exige independencia aproximada entre los cambios de pares de bits de salida.
+- **Completitud:** cada bit de salida depende de todos los bits de entrada en algún contexto.
 
-La avalancha es deseable, pero no prueba por sí sola seguridad.
+La avalancha es deseable, pero no prueba por sí sola seguridad. La actividad completa está en el [laboratorio de confusión, difusión y avalancha](../../simuladores/modulo-02/confusion-difusion.html).
 
 ## 4. Complejidad y bits de seguridad
 

@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Red de sustitución-permutación didáctica para visualizar confusión, difusión y efecto avalancha por rondas.">
+  <meta name="description" content="Laboratorio completo para definir, comparar y medir confusión, difusión, efecto avalancha, SAC, BIC, completitud, no linealidad y diseño por rondas.">
   <meta name="theme-color" content="#061322">
   <title>Confusión, difusión y avalancha | Módulo 2</title>
   <link rel="stylesheet" href="../assets/lab.css">
   <link rel="stylesheet" href="assets/module.css?v=7f2c9c7">
+  <link rel="stylesheet" href="assets/confusion-difusion.css?v=31c8930">
 </head>
 <body class="module-02" data-module-page="confusion-difusion">
   <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
@@ -22,23 +23,121 @@
 
     <section class="page-hero">
       <div>
-        <div class="hero-kicker">Diseño de cifradores · red por rondas</div>
+        <div class="hero-kicker">Diseño de cifradores · red por rondas · análisis estadístico</div>
         <h1>Confusión, difusión y efecto avalancha</h1>
-        <p>Invertí un solo bit y seguí su propagación. Activá capas para distinguir no linealidad, movimiento de posiciones y mezcla entre bytes.</p>
+        <p>Invertí un bit del mensaje o de la clave, seguí su propagación por las capas y contrastá una observación aislada con 4.096 experimentos controlados.</p>
+        <div class="hero-actions">
+          <a class="button" href="#laboratorio">Experimentar</a>
+          <a class="button secondary" href="#conceptos">Estudiar definiciones</a>
+          <a class="button secondary" href="#analisis-estadistico">Analizar SAC y BIC</a>
+        </div>
       </div>
       <div class="page-badge" aria-hidden="true">≈½</div>
     </section>
 
+    <section class="concept-section" id="conceptos" aria-labelledby="conceptos-title">
+      <header class="concept-heading">
+        <div>
+          <div class="section-kicker">Mapa conceptual</div>
+          <h2 id="conceptos-title">Tres ideas relacionadas, pero no equivalentes</h2>
+          <p>Confusión y difusión son principios de diseño. La avalancha es un comportamiento observable que puede emerger al combinarlos durante suficientes rondas.</p>
+        </div>
+        <div class="concept-equation" aria-label="La confusión más la difusión aplicadas por rondas producen sensibilidad y avalancha">
+          <span>confusión</span><b>+</b><span>difusión</span><b>×</b><span>rondas</span><b>→</b><span>avalancha</span>
+        </div>
+      </header>
+
+      <div class="core-concepts">
+        <article class="core-concept" data-concept="confusion">
+          <span class="concept-number" aria-hidden="true">01</span>
+          <h3>Confusión</h3>
+          <p>Hace compleja, especialmente no lineal, la relación entre la clave, la entrada y la salida. Busca impedir que una regularidad simple del criptograma revele una ecuación simple sobre la clave.</p>
+          <p><strong>Mecanismo típico:</strong> S-boxes no lineales combinadas con la incorporación de subclaves.</p>
+          <p class="concept-test"><strong>En este laboratorio:</strong> invertí un bit de la clave y compará «solo XOR» con «XOR + S-box».</p>
+        </article>
+        <article class="core-concept" data-concept="diffusion">
+          <span class="concept-number" aria-hidden="true">02</span>
+          <h3>Difusión</h3>
+          <p>Distribuye la influencia estadística de cada parte del texto claro sobre muchas posiciones de salida, de modo que los patrones del mensaje no permanezcan localizados.</p>
+          <p><strong>Mecanismos típicos:</strong> permutaciones, desplazamientos y mezclas lineales que conectan las salidas de varias S-boxes.</p>
+          <p class="concept-test"><strong>En este laboratorio:</strong> invertí un bit del mensaje y observá cuántos bytes alcanza con ShiftRows y MixColumns.</p>
+        </article>
+        <article class="core-concept" data-concept="avalanche">
+          <span class="concept-number" aria-hidden="true">03</span>
+          <h3>Efecto avalancha</h3>
+          <p>Describe la sensibilidad de la salida: una modificación mínima de la entrada produce muchos cambios. Para una salida equilibrada de <em>n</em> bits se espera, en promedio, una distancia cercana a <em>n/2</em>.</p>
+          <div class="concept-formula">A = d<sub>H</sub>(F(x), F(x⊕e<sub>i</sub>)) / n × 100</div>
+          <p class="concept-test"><strong>Límite:</strong> obtener 50% en un caso no demuestra seguridad ni satisface por sí solo SAC.</p>
+        </article>
+      </div>
+
+      <div class="definition-grid" aria-label="Definiciones relacionadas">
+        <details class="definition-card" open>
+          <summary><span>Distancia de Hamming</span><small>La medida</small></summary>
+          <p><strong>d<sub>H</sub>(a,b)</strong> es la cantidad de posiciones binarias donde dos cadenas de igual longitud difieren. En 128 bits, una distancia 64 equivale a 50% de cambios.</p>
+          <p>No mide dónde cambiaron los bits ni si esos cambios son independientes.</p>
+        </details>
+        <details class="definition-card" open>
+          <summary><span>S-box</span><small>Confusión</small></summary>
+          <p>Función de sustitución que transforma grupos pequeños de bits. Una S-box criptográfica se diseña con alta no linealidad y baja uniformidad diferencial, entre otras propiedades.</p>
+          <p>La S-box de AES sustituye cada byte usando inversión en GF(2⁸) y una transformación afín.</p>
+        </details>
+        <details class="definition-card" open>
+          <summary><span>P-box y mezcla</span><small>Difusión</small></summary>
+          <p>Una <strong>P-box</strong> permuta posiciones: mueve bits, pero conserva su cantidad y no agrega no linealidad. En AES no hay una P-box de bits independiente: ShiftRows permuta bytes y MixColumns combina bytes linealmente.</p>
+          <p>Su potencia aparece entre rondas, porque lleva la salida de una S-box hacia varias transformaciones posteriores.</p>
+        </details>
+        <details class="definition-card">
+          <summary><span>No linealidad</span><small>Resistencia algebraica</small></summary>
+          <p>Indica cuánto se aparta una función booleana de todas las funciones afines. XOR, permutaciones y MixColumns son lineales; la S-box aporta la no linealidad esencial.</p>
+          <p>Sin ella, la construcción podría expresarse como un sistema lineal y resolverse mediante álgebra.</p>
+        </details>
+        <details class="definition-card">
+          <summary><span>SAC</span><small>Criterio estricto de avalancha</small></summary>
+          <p>Para cada bit de entrada <em>i</em> y cada bit de salida <em>j</em>, al invertir <em>i</em> el bit <em>j</em> debería cambiar con probabilidad 1/2 sobre entradas representativas:</p>
+          <div class="concept-formula">Pr[F(X)<sub>j</sub> ≠ F(X⊕e<sub>i</sub>)<sub>j</sub>] = 1/2</div>
+          <p>Es más exigente que obtener un promedio global cercano a 50%.</p>
+        </details>
+        <details class="definition-card">
+          <summary><span>BIC</span><small>Criterio de independencia de bits</small></summary>
+          <p>Para cada bit de entrada invertido, las variables que indican el cambio de dos bits de salida deberían comportarse de manera aproximadamente independiente.</p>
+          <p>Dos salidas pueden cambiar 50% de las veces y, aun así, estar correlacionadas. El laboratorio informa una aproximación agregada, no una certificación formal.</p>
+        </details>
+        <details class="definition-card">
+          <summary><span>Completitud</span><small>Alcance de la influencia</small></summary>
+          <p>Cada bit de salida depende de todos los bits de entrada: para cada par entrada–salida existe algún contexto en el que modificar el primero altera el segundo.</p>
+          <p>No exige que todos los bits cambien en cada prueba; eso sería distinto del comportamiento probabilístico buscado por SAC.</p>
+        </details>
+        <details class="definition-card">
+          <summary><span>Número de rondas</span><small>Propagación y margen</small></summary>
+          <p>La primera ronda suele dejar el cambio localizado. Las rondas siguientes combinan sustitución, movimiento, mezcla y clave hasta distribuir la influencia.</p>
+          <p>Reducir rondas puede conservar una salida visualmente caótica y, sin embargo, eliminar el margen frente al mejor criptoanálisis conocido.</p>
+        </details>
+      </div>
+    </section>
+
+    <aside class="experiment-route" aria-label="Ruta del experimento">
+      <div><span class="experiment-step">1</span><strong>Predecí</strong><p>¿Qué capa cambiará la cantidad de bits y cuál solo los moverá?</p></div>
+      <div><span class="experiment-step">2</span><strong>Aislá</strong><p>Modificá mensaje o clave, pero no ambos a la vez.</p></div>
+      <div><span class="experiment-step">3</span><strong>Medí</strong><p>Leé distancia, bytes alcanzados y propagación por ronda.</p></div>
+      <div><span class="experiment-step">4</span><strong>Generalizá</strong><p>Contrastá el caso individual con el análisis de 4.096 pares.</p></div>
+    </aside>
+
     <section class="lab-grid" id="laboratorio" aria-label="Red de sustitución y permutación didáctica">
       <article class="lab-panel third">
-        <h2>1. Entrada</h2>
+        <h2>1. Entrada y perturbación</h2>
         <label for="spn-message">Mensaje (primeros 16 bytes UTF-8)</label>
         <input id="spn-message" type="text" value="CRIPTOGRAFIA" autocomplete="off">
         <label for="spn-key">Clave didáctica</label>
         <input id="spn-key" type="text" value="SHANNON" autocomplete="off">
-        <label for="flip-bit">Bit que se invierte: <strong id="flip-bit-value">0</strong></label>
+        <label for="perturb-target">Variable que cambia</label>
+        <select id="perturb-target">
+          <option value="message" selected>Un bit del mensaje</option>
+          <option value="key">Un bit de la clave expandida</option>
+        </select>
+        <label for="flip-bit"><span id="flip-bit-label">Bit del mensaje</span>: <strong id="flip-bit-value">0</strong></label>
         <input id="flip-bit" type="range" min="0" max="127" value="0">
-        <p class="small muted">Bit 0 es el más significativo del primer byte del bloque.</p>
+        <p class="small muted">El bit 0 es el más significativo del primer byte. Se modifica una sola variable por experimento.</p>
         <div class="bits-output" id="input-bytes">—</div>
       </article>
 
@@ -54,19 +153,20 @@
         <label for="round-count">Cantidad de rondas: <strong id="round-count-value">4</strong></label>
         <input id="round-count" type="range" min="1" max="8" value="4">
         <ol class="steps">
-          <li><strong>AddRoundKey:</strong> combina datos y subclave con XOR.</li>
-          <li><strong>S-box:</strong> agrega no linealidad y confusión.</li>
-          <li><strong>ShiftRows:</strong> permuta posiciones entre columnas.</li>
-          <li><strong>MixColumns:</strong> mezcla bytes en GF(2⁸).</li>
+          <li><strong>AddRoundKey:</strong> combina datos y subclave con XOR; es lineal y reversible.</li>
+          <li><strong>S-box:</strong> aporta sustitución no lineal y confusión.</li>
+          <li><strong>ShiftRows:</strong> cambia posiciones para conectar columnas entre rondas.</li>
+          <li><strong>MixColumns:</strong> mezcla cuatro bytes dentro de cada columna en GF(2⁸).</li>
         </ol>
+        <p class="status" id="layer-explanation" role="status">La red completa combina no linealidad y mezcla.</p>
       </article>
 
       <article class="lab-panel third">
-        <h2>3. Resultado global</h2>
+        <h2>3. Resultado del caso</h2>
         <div class="metric-strip two-columns">
           <div class="metric-tile"><strong id="hamming-distance">—</strong><span>bits diferentes</span></div>
-          <div class="metric-tile"><strong id="avalanche-percent">—</strong><span>avalancha final</span></div>
-          <div class="metric-tile"><strong id="changed-bytes">—</strong><span>bytes modificados</span></div>
+          <div class="metric-tile"><strong id="avalanche-percent">—</strong><span>avalancha observada</span></div>
+          <div class="metric-tile"><strong id="changed-bytes">—</strong><span>bytes alcanzados</span></div>
           <div class="metric-tile"><strong id="distance-to-half">—</strong><span>distancia respecto de 50%</span></div>
         </div>
         <p class="status" id="spn-status" role="status" aria-live="polite">Procesando el bloque.</p>
@@ -90,28 +190,83 @@
 
       <article class="lab-panel full">
         <h2>6. Propagación por ronda</h2>
-        <p>La distancia de Hamming mide cuántos bits difieren entre ambos estados después de cada ronda.</p>
+        <p>La distancia de Hamming muestra la intensidad del cambio; la cantidad de bytes alcanzados muestra su extensión espacial.</p>
         <div class="round-bars" id="round-bars"></div>
       </article>
 
       <article class="lab-panel full">
-        <h2>Qué demuestra y qué no</h2>
-        <div class="comparison-grid">
+        <div class="section-heading compact-heading">
+          <div><div class="section-kicker">Experimento comparativo</div><h2>7. Qué aporta cada capa</h2></div>
+          <p class="muted">Mismo mensaje, misma clave, mismo bit y mismas rondas. Solo cambia la profundidad de la red.</p>
+        </div>
+        <div class="layer-comparison" id="layer-comparison" aria-label="Comparación de avalancha por capas"></div>
+        <div class="insight-box">
+          <p><strong>Lectura clave:</strong> ShiftRows es una permutación: por sí misma no aumenta la distancia de Hamming. Su función es reposicionar diferencias para que las capas de mezcla y sustitución de las rondas siguientes las propaguen.</p>
+        </div>
+      </article>
+
+      <article class="lab-panel full statistical-panel" id="analisis-estadistico">
+        <div class="section-heading">
+          <div><div class="section-kicker">Del ejemplo a una muestra</div><h2>8. Diagnóstico local de SAC, BIC y completitud</h2></div>
+          <button id="run-statistical-analysis" type="button">Analizar 4.096 pares</button>
+        </div>
+        <p>El análisis usa 32 contextos deterministas y, en cada uno, invierte por separado los 128 bits de la variable elegida. Así compara <strong>4.096 pares</strong> y observa 524.288 decisiones de cambio en la salida.</p>
+        <div class="metric-strip analysis-metrics">
+          <div class="metric-tile"><strong id="batch-mean">—</strong><span>avalancha media global</span></div>
+          <div class="metric-tile"><strong id="sac-deviation">—</strong><span>desvío SAC medio respecto de 50%</span></div>
+          <div class="metric-tile"><strong id="completeness-coverage">—</strong><span>dependencias observadas</span></div>
+          <div class="metric-tile"><strong id="bic-correlation">—</strong><span>|φ| medio, proxy BIC</span></div>
+        </div>
+        <div class="analysis-summary" id="analysis-summary" hidden>
+          <p><strong>Rango de avalancha por inversión:</strong> <span id="analysis-range">—</span></p>
+          <p><strong>Variable analizada:</strong> <span id="analysis-target-label">—</span></p>
+          <p><strong>Muestra:</strong> 32 contextos × 128 inversiones; correlación φ estimada sobre 512 pares de bits de salida.</p>
+        </div>
+        <p class="status" id="analysis-status" role="status" aria-live="polite">Ejecutá el análisis después de elegir capas, rondas y variable.</p>
+
+        <div class="heatmap-section">
+          <div>
+            <h3>Mapa de influencia por bytes</h3>
+            <p class="muted">Cada celda agrega 64 pares bit a bit durante los 32 contextos. Filas: byte perturbado. Columnas: byte de salida.</p>
+          </div>
+          <div class="heatmap-legend" aria-label="Escala del mapa de influencia"><span>0%</span><i></i><span>50%</span><span>100%</span></div>
+        </div>
+        <div class="heatmap-shell">
+          <div class="influence-grid" id="influence-heatmap" role="img" aria-label="Mapa pendiente de análisis"></div>
+        </div>
+
+        <div class="comparison-grid analysis-caveats">
           <div class="example-box">
-            <p><strong>Demuestra visualmente:</strong> cómo la no linealidad y la mezcla hacen que una modificación local se propague por el estado.</p>
+            <p><strong>Qué aporta:</strong> permite comparar capas y rondas con la misma metodología, detectar cambios localizados, sesgos fuertes y correlaciones evidentes.</p>
           </div>
           <div class="warning-box">
-            <p><strong>No demuestra:</strong> resistencia frente a criptoanálisis diferencial, lineal, algebraico, ataques de canal lateral o fallas de protocolo.</p>
+            <p><strong>Qué no certifica:</strong> SAC y BIC formales requieren una población de entradas adecuada y análisis estadístico más amplio. Un |φ| pequeño solo se interpreta si los cambios marginales están equilibrados; una salida casi siempre invariable también puede producir correlación agregada baja. La completitud observada no prueba dependencia para todo el dominio.</p>
           </div>
         </div>
       </article>
 
       <article class="lab-panel full">
-        <h2>Desafío de transferencia</h2>
-        <p>Compará «solo XOR» con cuatro rondas completas. ¿Por qué una salida con 50% de bits cambiados sigue sin alcanzar para afirmar que la construcción es un cifrado seguro?</p>
+        <h2>9. Qué demuestra y qué no</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Resultado</th><th>Interpretación válida</th><th>Conclusión inválida</th></tr></thead>
+            <tbody>
+              <tr><td>≈50% en una prueba</td><td>La salida fue sensible a esa perturbación concreta.</td><td>«El algoritmo es seguro» o «cumple SAC».</td></tr>
+              <tr><td>≈50% en promedio</td><td>La tasa global está equilibrada en la muestra.</td><td>«Cada par entrada–salida cambia con probabilidad 1/2».</td></tr>
+              <tr><td>Dependencias observadas altas</td><td>La influencia se extendió en los contextos probados.</td><td>«La completitud quedó demostrada para todo el dominio».</td></tr>
+              <tr><td>Correlación pequeña</td><td>No apareció una dependencia lineal fuerte en el proxy usado.</td><td>«BIC está certificado».</td></tr>
+              <tr><td>Más propagación al sumar rondas</td><td>Las capas acumulan difusión y sensibilidad.</td><td>«Cualquier cantidad de rondas que alcance 50% es suficiente».</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <h2>10. Desafío de transferencia</h2>
+        <p>Compará «solo XOR» con cuatro rondas completas. Después repetí el análisis cambiando mensaje y clave. ¿Por qué una salida con 50% de bits modificados todavía no alcanza para afirmar que la construcción es un cifrado seguro?</p>
         <details class="checkpoint">
           <summary>Ver orientación</summary>
-          <p>La avalancha es una propiedad estadística local. La seguridad moderna exige un modelo de ataque, indistinguibilidad, análisis de la estructura completa, un key schedule adecuado y resistencia de la implementación.</p>
+          <p>La avalancha describe sensibilidad, no seguridad completa. Faltan un modelo de adversario, un calendario de claves analizado, resistencia diferencial y lineal, suficiente margen de rondas, modos de uso seguros y una implementación resistente a fallas y canales laterales.</p>
         </details>
       </article>
     </section>
@@ -125,9 +280,12 @@
       </div>
     </aside>
 
-    <footer class="module-footer"><p>La red usa la S-box y la mezcla de columnas de AES como componentes didácticos, pero posee un calendario de claves simplificado y no implementa AES.</p></footer>
+    <footer class="module-footer">
+      <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+      <p>La red usa la S-box, ShiftRows y MixColumns de AES como componentes didácticos, pero posee un calendario de claves simplificado y no implementa AES.</p>
+    </footer>
   </main>
   <script src="assets/module.js?v=890d1ab"></script>
-  <script src="assets/confusion-difusion.js"></script>
+  <script src="assets/confusion-difusion.js?v=a9b6914"></script>
 </body>
 </html>
