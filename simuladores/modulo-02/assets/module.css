@@ -1318,6 +1318,39 @@ canvas.chart {
   background: #051522;
 }
 
+/*
+ * La ruta guiada muestra cada estación dentro de un iframe. En ese contexto,
+ * las capas fixed/sticky con backdrop-filter pueden entrar en una ruta de
+ * composición inestable en Chromium. El modo embebido conserva el contenido
+ * y la interacción, pero elimina esos efectos decorativos y estabiliza el
+ * espacio reservado para la barra de desplazamiento.
+ */
+html.module-embedded {
+  overflow-anchor: none;
+  scroll-behavior: auto;
+  scrollbar-gutter: stable;
+}
+
+body.module-02.module-embedded::before {
+  position: absolute;
+}
+
+body.module-02.module-embedded .module-topbar,
+body.module-02.module-embedded .side-toc,
+body.module-02.module-embedded .quiz-sidebar,
+body.module-02.module-embedded .rng-local-nav {
+  position: static;
+  backdrop-filter: none;
+}
+
+body.module-02.module-embedded .hero-note {
+  backdrop-filter: none;
+}
+
+body.module-02.module-embedded .byte-ribbon::after {
+  animation: none;
+}
+
 @media (max-width: 1040px) {
   .module-topbar {
     position: static;

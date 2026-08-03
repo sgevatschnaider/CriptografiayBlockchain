@@ -88,8 +88,10 @@
     const width = Math.max(320, Math.round(rect.width));
     const height = Math.max(240, Math.round(rect.height));
     const ratio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    canvas.width = Math.round(width * ratio);
-    canvas.height = Math.round(height * ratio);
+    const pixelWidth = Math.round(width * ratio);
+    const pixelHeight = Math.round(height * ratio);
+    if (canvas.width !== pixelWidth) canvas.width = pixelWidth;
+    if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     context.clearRect(0, 0, width, height);
 
@@ -172,8 +174,7 @@
       updateTheory();
     });
   });
-  if ('ResizeObserver' in window) new ResizeObserver(drawChart).observe(canvas);
-  else window.addEventListener('resize', drawChart);
+  Module02.observeResponsiveCanvas(canvas, drawChart);
 
   updateTheory();
   generateSample();
