@@ -18,6 +18,12 @@
     'cuestionario'
   ]);
 
+  const isEmbedded = window.self !== window.top;
+  if (isEmbedded) {
+    document.documentElement.classList.add('module-embedded');
+    document.body.classList.add('module-embedded');
+  }
+
   const pageId = document.body.dataset.modulePage || '';
   let toastTimer = 0;
 
@@ -210,6 +216,43 @@
     sections.forEach((section) => observer.observe(section));
   }
 
+  function observeResponsiveCanvas(canvas, draw) {
+    if (!canvas || typeof draw !== 'function') return () => {};
+    const target = canvas.parentElement || canvas;
+    let animationFrame = 0;
+    let previousWidth = -1;
+    let previousHeight = -1;
+
+    function schedule() {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(() => {
+        animationFrame = 0;
+        const rect = target.getBoundingClientRect();
+        const width = Math.round(rect.width * 100) / 100;
+        const height = Math.round(rect.height * 100) / 100;
+        if (width === previousWidth && height === previousHeight) return;
+        previousWidth = width;
+        previousHeight = height;
+        draw();
+      });
+    }
+
+    let observer = null;
+    if ('ResizeObserver' in window) {
+      observer = new ResizeObserver(schedule);
+      observer.observe(target);
+    } else {
+      window.addEventListener('resize', schedule, { passive: true });
+    }
+    schedule();
+
+    return () => {
+      if (observer) observer.disconnect();
+      else window.removeEventListener('resize', schedule);
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    };
+  }
+
   function entropy(probabilities) {
     return probabilities.reduce((sum, value) => {
       const p = Number(value);
@@ -280,6 +323,8 @@
     setBestQuiz,
     updateProgressUi,
     announce,
+    isEmbedded,
+    observeResponsiveCanvas,
     entropy,
     popcount,
     hammingBytes,

@@ -327,6 +327,37 @@ if (fs.existsSync(moduleJsPath)) {
       fail(`simuladores/modulo-02/assets/module.js: falta la estación ${id}`);
     }
   }
+  for (const contract of ['window.self !== window.top', "classList.add('module-embedded')", 'observeResponsiveCanvas']) {
+    if (!moduleJs.includes(contract)) {
+      fail(`simuladores/modulo-02/assets/module.js: falta la estabilización embebida ${contract}`);
+    }
+  }
+}
+
+const moduleCssPath = path.join(moduleDir, 'assets', 'module.css');
+if (fs.existsSync(moduleCssPath)) {
+  const moduleCss = fs.readFileSync(moduleCssPath, 'utf8');
+  for (const selector of [
+    'html.module-embedded',
+    'body.module-02.module-embedded::before',
+    'body.module-02.module-embedded .module-topbar'
+  ]) {
+    if (!moduleCss.includes(selector)) {
+      fail(`simuladores/modulo-02/assets/module.css: falta la regla estable ${selector}`);
+    }
+  }
+}
+
+for (const chartScript of ['entropia.js', 'complejidad.js']) {
+  const absolute = path.join(moduleDir, 'assets', chartScript);
+  if (!fs.existsSync(absolute)) continue;
+  const content = fs.readFileSync(absolute, 'utf8');
+  if (!content.includes('Module02.observeResponsiveCanvas(canvas, drawChart)')) {
+    fail(`simuladores/modulo-02/assets/${chartScript}: el gráfico no usa el observador estable`);
+  }
+  if (/new ResizeObserver\(drawChart\)\.observe\(canvas\)/.test(content)) {
+    fail(`simuladores/modulo-02/assets/${chartScript}: no observar el canvas que el propio dibujo redimensiona`);
+  }
 }
 
 const routeJsPath = path.join(moduleDir, 'assets', 'ruta-guiada.js');
@@ -336,6 +367,11 @@ if (fs.existsSync(routeJsPath)) {
   const routeIds = [...routeBlock.matchAll(/\bid:\s*'([^']+)'/g)].map((match) => match[1]);
   if (routeIds.join('|') !== expectedCurriculum.join('|')) {
     fail('simuladores/modulo-02/assets/ruta-guiada.js: la ruta no contiene las 13 estaciones esperadas en orden');
+  }
+  for (const contract of ['EMBED_REVISION', "searchParams.set('embed'", 'embeddedUrl.href']) {
+    if (!routeJs.includes(contract)) {
+      fail(`simuladores/modulo-02/assets/ruta-guiada.js: falta la renovación del recurso embebido ${contract}`);
+    }
   }
 }
 
