@@ -275,6 +275,11 @@ if (fs.existsSync(routeJsPath)) {
   if (routeIds.join('|') !== expectedCurriculum.join('|')) {
     fail('simuladores/modulo-02/assets/ruta-guiada.js: la ruta no contiene las 13 estaciones esperadas en orden');
   }
+  for (const contract of ['EMBED_REVISION', "searchParams.set('embed'", 'embeddedUrl.href']) {
+    if (!routeJs.includes(contract)) {
+      fail(`simuladores/modulo-02/assets/ruta-guiada.js: falta la renovación del recurso embebido ${contract}`);
+    }
+  }
 }
 
 function loadData(relative, globalName) {
