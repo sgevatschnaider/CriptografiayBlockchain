@@ -2,6 +2,7 @@
   'use strict';
 
   const LAST_STEP_KEY = 'criptografia-modulo-02-ruta-ultimo-paso';
+  const EMBED_REVISION = '890d1ab';
   const route = Object.freeze([
     {
       id: 'salto-moderno',
@@ -178,7 +179,9 @@
     byId('open-direct').href = step.url;
     byId('lesson-frame').title = `Estación ${current}: ${step.title}`;
     byId('frame-loading').classList.remove('hidden');
-    byId('lesson-frame').src = step.url;
+    const embeddedUrl = new URL(step.url, window.location.href);
+    embeddedUrl.searchParams.set('embed', EMBED_REVISION);
+    byId('lesson-frame').src = embeddedUrl.href;
 
     const previous = byId('prev');
     const next = byId('next');
