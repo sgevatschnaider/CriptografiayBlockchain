@@ -2,7 +2,7 @@
 <html lang="es" data-theme="nocturno">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Glosario de 90 términos de criptografía moderna con definiciones, ejemplos y contrastes.">
+<meta name="description" content="Glosario de 112 términos de criptografía moderna con definiciones, ejemplos y contrastes.">
 <meta name="theme-color" content="#06101d">
 <title>Glosario completo de criptografía moderna</title>
 <link rel="stylesheet" href="../assets/lab.css">
@@ -14,37 +14,20 @@
 <header class="topbar">
   <div class="brand"><a href="index.html">← Módulo 3</a></div>
   <nav class="nav" aria-label="Navegación">
-    <a href="teoria-programa.html">Teoría</a>
-    <a href="clasificacion-criptosistemas.html">Clasificación</a>
-    <a href="algoritmos-simetricos.html">Simétrica</a>
-    <a href="cifrado-hibrido-sesion.html">Asimétrica</a>
-    <a href="ataque-contrasenas.html">Contraseñas</a>
-    <a href="mapas-programa.html">Mapas</a>
-    <a href="glosario-programa.html">Glosario</a>
-    <a href="cuestionario-programa.html">Evaluación</a>
-    <label class="theme-control">Tema
-      <select data-theme-select aria-label="Tema visual">
-        <option value="nocturno">Nocturno</option><option value="claro">Claro</option>
-        <option value="contraste">Alto contraste</option><option value="oceano">Océano</option>
-      </select>
-    </label>
+    <a href="teoria-programa.html">Teoría</a><a href="vernam-a-criptografia-moderna.html">Vernam → AEAD</a><a href="clasificacion-criptosistemas.html">Clasificación</a><a href="algoritmos-simetricos.html">Simétrica</a><a href="cifrado-hibrido-sesion.html">Asimétrica</a><a href="mapas-programa.html">Mapas</a><a href="glosario-programa.html" aria-current="page">Glosario</a><a href="cuestionario-programa.html">Evaluación</a>
+    <label class="theme-control">Tema<select data-theme-select aria-label="Tema visual"><option value="nocturno">Nocturno</option><option value="claro">Claro</option><option value="contraste">Alto contraste</option><option value="oceano">Océano</option></select></label>
   </nav>
 </header>
 <div id="contenido" tabindex="-1"></div>
 
-<section class="hero"><div class="eyebrow">Glosario integral · 90 conceptos</div><h1>Glosario de criptografía moderna</h1><p>Definiciones, ejemplos y contrastes para todo el programa: fundamentos, simétrica, asimétrica, modos, padding, claves de sesión, contraseñas, PKI y composición híbrida.</p></section>
-<section class="grid"><article class="panel full">
-<div class="control"><label for="glossary-search">Buscar término o concepto</label><input id="glossary-search" type="search" placeholder="Ej.: nonce, RSA, bits de seguridad, salt"></div>
-<p id="glossary-count" class="muted"></p><div id="glossary-grid" class="glossary-grid"></div>
-</article></section>
+<section class="hero"><div class="eyebrow">Glosario integral · 112 conceptos</div><h1>Glosario de criptografía moderna</h1><p>Definiciones, ejemplos y contrastes para fundamentos, simétrica, asimétrica, modos, padding, claves de sesión, contraseñas, PKI y composición híbrida. La ampliación incorpora el puente Vernam–OTP–nonce–AEAD y distinciones sobre uniformidad, impredecibilidad, independencia y maleabilidad.</p><div class="actions"><a class="button" href="vernam-a-criptografia-moderna.html">Estudiar el puente conceptual</a><a class="button secondary" href="mapas-programa.html">Abrir mapas mentales</a></div></section>
+<section class="grid"><article class="panel full"><div class="control"><label for="glossary-search">Buscar término o concepto</label><input id="glossary-search" type="search" placeholder="Ej.: nonce, Vernam, two-time pad, salt, RSA"></div><p id="glossary-count" class="muted"></p><div id="glossary-grid" class="glossary-grid"></div></article></section>
 
-<footer class="footer">
-<p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
-<p>Los modelos y ataques se ejecutan con datos ficticios y fines educativos. Para producción deben utilizarse bibliotecas mantenidas, estándares vigentes y revisión profesional.</p>
-</footer>
+<footer class="footer"><p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p><p>Las definiciones son educativas y resaltan diferencias operativas. Para parámetros de producción deben consultarse estándares y bibliotecas vigentes.</p></footer>
 </main>
 <script src="../assets/lab.js"></script>
 <script src="assets/programa-glosario-data.js"></script>
+<script src="assets/programa-glosario-vernam-data.js"></script>
 <script src="assets/programa-cuestionario-data.js"></script>
 <script src="assets/programa-moderno.js"></script>
 </body></html>
