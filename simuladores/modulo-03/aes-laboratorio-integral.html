@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio integral de AES con ronda didáctica exacta AES-128, vector FIPS 197, expansión de clave, avalancha y AES-GCM real mediante Web Crypto.">
+  <meta name="theme-color" content="#06101d">
+  <title>Laboratorio integral de AES | Rondas, avalancha y GCM</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/aes-completo.css">
+</head>
+<body data-module-page="aes-aead">
+<a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+<main class="aes-shell">
+  <header class="aes-topbar">
+    <div class="aes-brand"><a href="aes-teoria-completa.html">← Teoría completa de AES</a></div>
+    <nav class="aes-nav" aria-label="Navegación del laboratorio"><a href="index.html">Módulo 3</a><a href="modos-aes-aead.html">Modos</a><a href="cifrado-local-archivos.html">Archivos</a><a href="#gcm">AES-GCM</a><label class="aes-theme">Tema<select data-theme-select aria-label="Tema visual"><option value="nocturno">Nocturno</option><option value="claro">Claro</option><option value="contraste">Alto contraste</option><option value="oceano">Océano</option></select></label></nav>
+  </header>
+
+  <section class="aes-hero">
+    <div><div class="aes-eyebrow">Módulo 3 · laboratorio integral</div><h1>Construir, observar y verificar AES</h1><p>Dos niveles separados: una implementación educativa exacta de AES-128 para inspeccionar estado, subclaves y rondas; y Web Crypto para ejecutar AES-GCM real, autenticar datos y rechazar alteraciones.</p><div class="aes-actions"><a class="aes-button" href="#laboratorio">Comenzar</a><a class="aes-button secondary" href="aes-teoria-completa.html">Repasar teoría</a><button class="aes-button secondary" type="button" data-complete-page="aes-aead">Marcar como completado</button></div></div>
+    <div class="aes-orbit" aria-label="Niveles del laboratorio"><div class="aes-core">AES</div><span>Estado</span><span>Rondas</span><span>Avalancha</span><span>GCM real</span></div>
+  </section>
+
+  <section class="aes-section" id="laboratorio">
+    <div class="aes-eyebrow">Arquitectura del recurso</div><h2>Modelo transparente y primitiva real</h2>
+    <div class="aes-grid"><article class="aes-card half insight"><h3>Nivel A · AES-128 inspeccionable</h3><p>Implementa SubBytes, ShiftRows, MixColumns, AddRoundKey, expansión de clave y descifrado para mostrar cada estado. Se valida con el vector conocido de FIPS 197.</p></article><article class="aes-card half"><h3>Nivel B · AES-GCM de plataforma</h3><p>Usa <code>crypto.subtle</code> para cifrar y descifrar. Las claves no son exportadas por el laboratorio y los datos permanecen en este navegador.</p></article></div>
+    <div class="aes-card full warning"><h3>Regla metodológica</h3><p>La implementación inspeccionable se utiliza para estudiar AES-128 sobre un bloque. Para operaciones aplicadas se delega el cifrado a Web Crypto; no se presenta el código educativo como biblioteca de producción.</p></div>
+  </section>
+
+  <section class="aes-section">
+    <div class="aes-tabs" role="tablist" aria-label="Experimentos AES">
+      <button class="aes-tab" id="tab-rounds" type="button" role="tab" aria-selected="true" aria-controls="panel-rounds">Rondas</button>
+      <button class="aes-tab" id="tab-vector" type="button" role="tab" aria-selected="false" aria-controls="panel-vector">Vector FIPS</button>
+      <button class="aes-tab" id="tab-avalanche" type="button" role="tab" aria-selected="false" aria-controls="panel-avalanche">Avalancha</button>
+      <button class="aes-tab" id="tab-gcm" type="button" role="tab" aria-selected="false" aria-controls="panel-gcm">AES-GCM real</button>
+    </div>
+
+    <div class="aes-tab-panel" id="panel-rounds" role="tabpanel" aria-labelledby="tab-rounds">
+      <div class="aes-eyebrow">Experimento 1</div><h2>Recorrer AES-128 transformación por transformación</h2>
+      <div class="aes-state-lab">
+        <div class="aes-controls">
+          <div class="aes-control"><label for="round-plaintext">Bloque de entrada · 32 hex</label><input id="round-plaintext" class="mono" value="00112233445566778899aabbccddeeff" maxlength="47" spellcheck="false"></div>
+          <div class="aes-control"><label for="round-key">Clave AES-128 · 32 hex</label><input id="round-key" class="mono" value="000102030405060708090a0b0c0d0e0f" maxlength="47" spellcheck="false"></div>
+          <div class="aes-actions"><button class="aes-button" id="build-trace" type="button">Construir traza</button><button class="aes-button secondary" id="previous-step" type="button">Anterior</button><button class="aes-button secondary" id="next-step" type="button">Siguiente</button><button class="aes-button secondary" id="play-trace" type="button">Reproducir</button></div>
+          <div class="aes-status" id="trace-status">Preparado para ejecutar el vector de referencia.</div>
+          <div class="aes-control"><label for="trace-slider">Posición de la traza</label><input id="trace-slider" type="range" min="0" max="0" value="0"></div>
+        </div>
+        <div>
+          <div class="aes-metrics"><div class="aes-metric"><strong id="trace-round">0</strong><span>ronda</span></div><div class="aes-metric"><strong id="trace-operation">Entrada</strong><span>operación</span></div><div class="aes-metric"><strong id="trace-index">1/1</strong><span>estado</span></div><div class="aes-metric"><strong id="trace-hamming">0</strong><span>bits vs anterior</span></div></div>
+          <h3>Estado actual</h3><div class="aes-state" id="round-state" aria-label="Estado actual de AES"></div>
+        </div>
+      </div>
+      <div class="aes-grid"><article class="aes-card half"><h3>Estado hexadecimal</h3><div class="aes-code" id="round-state-hex">—</div></article><article class="aes-card half"><h3>Subclave asociada</h3><div class="aes-code" id="round-key-hex">—</div></article><article class="aes-card full"><h3>Índice de estados</h3><div class="aes-round-strip" id="round-strip"></div></article></div>
+    </div>
+
+    <div class="aes-tab-panel" id="panel-vector" role="tabpanel" aria-labelledby="tab-vector" hidden>
+      <div class="aes-eyebrow">Experimento 2</div><h2>Validar la implementación con un vector conocido</h2>
+      <div class="aes-grid">
+        <article class="aes-card half"><h3>Entrada FIPS 197</h3><div class="aes-code">Plaintext: 00112233445566778899aabbccddeeff
+Key:       000102030405060708090a0b0c0d0e0f
+Expected:  69c4e0d86a7b0430d8cdb78070b4c55a</div><div class="aes-actions"><button class="aes-button" id="run-vector" type="button">Ejecutar prueba</button></div></article>
+        <article class="aes-card half"><h3>Resultado</h3><div class="aes-code" id="vector-result">Todavía no ejecutado.</div><div class="aes-status" id="vector-status">La prueba verifica cifrado y descifrado del bloque.</div></article>
+        <article class="aes-card full insight"><h3>Por qué importa</h3><p>Una visualización atractiva no basta. Comparar contra un vector publicado permite detectar errores de orden de bytes, expansión de clave, S-box, MixColumns o número de rondas.</p></article>
+      </div>
+    </div>
+
+    <div class="aes-tab-panel" id="panel-avalanche" role="tabpanel" aria-labelledby="tab-avalanche" hidden>
+      <div class="aes-eyebrow">Experimento 3</div><h2 id="avalancha">Cambiar un bit y medir la propagación</h2>
+      <div class="aes-grid">
+        <article class="aes-card half"><div class="aes-control"><label for="avalanche-bit">Bit de la entrada que se modificará: <span id="avalanche-bit-label">0</span></label><input id="avalanche-bit" type="range" min="0" max="127" value="0"></div><div class="aes-actions"><button class="aes-button" id="run-avalanche" type="button">Comparar cifrados</button><button class="aes-button secondary" id="random-avalanche" type="button">Elegir bit aleatorio</button></div><div class="aes-status" id="avalanche-status">Se cifrarán dos bloques que difieren en exactamente un bit con la misma clave.</div></article>
+        <article class="aes-card half"><div class="aes-metrics"><div class="aes-metric"><strong id="avalanche-distance">—</strong><span>bits diferentes</span></div><div class="aes-metric"><strong id="avalanche-percent">—</strong><span>porcentaje</span></div><div class="aes-metric"><strong id="avalanche-plain-distance">1</strong><span>bit de entrada</span></div><div class="aes-metric"><strong>128</strong><span>bits de salida</span></div></div></article>
+        <article class="aes-card full"><h3>Mapa de diferencias de salida</h3><div class="aes-bit-map" id="avalanche-map" aria-label="Mapa de 128 bits; los activos representan diferencias"></div></article>
+        <article class="aes-card half"><h3>Ciphertext A</h3><div class="aes-code" id="avalanche-a">—</div></article><article class="aes-card half"><h3>Ciphertext B</h3><div class="aes-code" id="avalanche-b">—</div></article>
+        <article class="aes-card full warning"><h3>Interpretación correcta</h3><p>Un resultado próximo al 50 % ilustra avalancha para este par. No demuestra por sí solo la seguridad del algoritmo ni certifica propiedades estadísticas sobre todas las entradas.</p></article>
+      </div>
+    </div>
+
+    <div class="aes-tab-panel" id="panel-gcm" role="tabpanel" aria-labelledby="tab-gcm" hidden>
+      <div class="aes-eyebrow">Experimento 4</div><h2 id="gcm">Cifrar, autenticar y rechazar alteraciones con AES-GCM</h2>
+      <div class="aes-grid">
+        <article class="aes-card half"><div class="aes-control"><label for="gcm-message">Mensaje ficticio</label><textarea id="gcm-message">Alicia envía un mensaje autenticado a Bruno.</textarea></div><div class="aes-control"><label for="gcm-aad">Datos asociados visibles</label><input id="gcm-aad" value="curso=criptografia;tipo=demostracion"></div><div class="aes-actions"><button class="aes-button" id="gcm-generate" type="button">Generar clave y cifrar</button><button class="aes-button secondary" id="gcm-decrypt" type="button">Descifrar y verificar</button></div><div class="aes-status" id="gcm-status">La clave será AES-GCM de 256 bits, no exportable, y el nonce tendrá 96 bits.</div></article>
+        <article class="aes-card half"><h3>Paquete observable</h3><div class="aes-code" id="gcm-package">Sin paquete.</div><div class="aes-actions"><button class="aes-button danger" id="tamper-cipher" type="button">Alterar ciphertext</button><button class="aes-button warn" id="tamper-aad" type="button">Alterar AAD</button><button class="aes-button secondary" id="restore-gcm" type="button">Restaurar</button></div></article>
+        <article class="aes-card full"><div class="aes-metrics"><div class="aes-metric"><strong id="gcm-nonce-size">0</strong><span>bytes de nonce</span></div><div class="aes-metric"><strong id="gcm-cipher-size">0</strong><span>bytes cifrados + tag</span></div><div class="aes-metric"><strong id="gcm-aad-size">0</strong><span>bytes AAD</span></div><div class="aes-metric"><strong id="gcm-uploaded">0</strong><span>bytes enviados</span></div></div></article>
+        <article class="aes-card full insight"><h3>Decisión de aceptación</h3><p>Web Crypto no entrega el texto si la verificación falla. Ciphertext, nonce, AAD y tag forman una unidad lógica: alterar cualquiera de los componentes autenticados produce rechazo.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="aes-section">
+    <div class="aes-eyebrow">Transferencia</div><h2>Continuar con los recursos integrados</h2>
+    <div class="aes-grid"><article class="aes-card"><h3>Comparar algoritmos</h3><p>AES, ChaCha20, padding y decisiones de modo.</p><a class="aes-button secondary" href="algoritmos-simetricos.html">Abrir comparador</a></article><article class="aes-card"><h3>Provocar fallas de modo</h3><p>CBC, CTR y GCM mediante Web Crypto.</p><a class="aes-button secondary" href="modos-aes-aead.html">Abrir modos</a></article><article class="aes-card"><h3>Cifrar un archivo</h3><p>PBKDF2 + AES-256-GCM, exportación, alteración y recuperación.</p><a class="aes-button secondary" href="cifrado-local-archivos.html">Abrir archivos</a></article></div>
+  </section>
+
+  <footer class="aes-footer"><p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p><p>La traza AES-128 permite inspección educativa y se valida contra un vector conocido. Las operaciones AES-GCM aplicadas se ejecutan mediante Web Crypto y no transmiten datos.</p></footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/modulo-03.js"></script>
+<script src="assets/aes-core.js"></script>
+<script src="assets/aes-laboratorio-integral.js"></script>
+</body>
+</html>
