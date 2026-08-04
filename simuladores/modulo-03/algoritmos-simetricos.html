@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Laboratorio comparativo de AES, ChaCha20, modos de operación, padding y cifrado autenticado.">
+<meta name="theme-color" content="#06101d">
+<title>Algoritmos simétricos, modos y padding</title>
+<link rel="stylesheet" href="../assets/lab.css">
+<link rel="stylesheet" href="assets/programa-moderno.css">
+</head>
+<body data-modern-page="simetrica">
+<main class="shell">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <div class="brand"><a href="index.html">← Módulo 3</a></div>
+  <nav class="nav" aria-label="Navegación">
+    <a href="teoria-programa.html">Teoría</a>
+    <a href="clasificacion-criptosistemas.html">Clasificación</a>
+    <a href="algoritmos-simetricos.html">Simétrica</a>
+    <a href="cifrado-hibrido-sesion.html">Asimétrica</a>
+    <a href="ataque-contrasenas.html">Contraseñas</a>
+    <a href="mapas-programa.html">Mapas</a>
+    <a href="glosario-programa.html">Glosario</a>
+    <a href="cuestionario-programa.html">Evaluación</a>
+    <label class="theme-control">Tema
+      <select data-theme-select aria-label="Tema visual">
+        <option value="nocturno">Nocturno</option><option value="claro">Claro</option>
+        <option value="contraste">Alto contraste</option><option value="oceano">Océano</option>
+      </select>
+    </label>
+  </nav>
+</header>
+<div id="contenido" tabindex="-1"></div>
+
+<section class="hero">
+<div class="eyebrow">Simulación comparativa · algoritmos, modos y padding</div>
+<h1>Laboratorio de cifrado simétrico moderno</h1>
+<p>Compará AES-GCM, ChaCha20-Poly1305, CTR + HMAC y CBC + HMAC. Observá la diferencia entre bloque y flujo, el papel del hardware, la necesidad de nonces únicos y el funcionamiento de PKCS#7.</p>
+</section>
+<section class="grid">
+<article class="panel">
+<h2>Escenario de rendimiento conceptual</h2>
+<div class="control"><label for="message-size">Tamaño del mensaje: <span id="message-size-label"></span></label><input id="message-size" type="range" min="1" max="1024" value="64"></div>
+<div class="control"><label for="hardware">Entorno</label><select id="hardware"><option value="aes">CPU con aceleración AES</option><option value="software">Software sin aceleración AES</option></select></div>
+<p class="muted">Los puntajes son didácticos y no representan benchmarks universales.</p>
+</article>
+<article class="panel">
+<h2>Comparación visual</h2>
+<div id="symmetric-bars" class="diagram-bars"></div>
+</article>
+
+<article class="panel full">
+<h2>Bloque frente a flujo</h2>
+<div class="flow">
+<div class="flow-node"><strong>AES</strong><p class="muted">Cifrador por bloques de 128 bits. La clave puede medir 128, 192 o 256 bits.</p></div>
+<div class="flow-arrow">↔</div>
+<div class="flow-node"><strong>ChaCha20</strong><p class="muted">Cifrador de flujo con clave de 256 bits. Se usa con Poly1305.</p></div>
+<div class="flow-arrow">↔</div>
+<div class="flow-node"><strong>CTR</strong><p class="muted">Convierte AES en flujo mediante contador. Repetirlo reproduce el keystream.</p></div>
+</div>
+</article>
+
+<article class="panel">
+<h2>Visualizador PKCS#7</h2>
+<div class="control"><label for="padding-length">Longitud de entrada en bytes</label><input id="padding-length" type="range" min="0" max="32" value="11"></div>
+<div id="padding-bytes" class="bit-row" aria-label="Bytes de datos y padding"></div>
+<div id="padding-status" class="status"></div>
+</article>
+
+<article class="panel">
+<h2>Modo de operación: decisión</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Modo</th><th>Padding</th><th>Integridad</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td>ECB</td><td>Sí</td><td>No</td><td>Evitar</td></tr>
+<tr><td>CBC</td><td>Sí</td><td>No, salvo MAC</td><td>Legado controlado</td></tr>
+<tr><td>CTR</td><td>No</td><td>No, salvo MAC</td><td>Flujo con contador único</td></tr>
+<tr><td>GCM</td><td>No</td><td>Sí</td><td>AEAD general</td></tr>
+<tr><td>XTS</td><td>No tradicional</td><td>No general</td><td>Sectores de disco</td></tr>
+</tbody></table></div>
+</article>
+
+<article class="panel full">
+<h2>Qué cambia al alterar datos</h2>
+<div class="matrix">
+<div class="cell"><strong>Construcción</strong></div><div class="cell"><strong>Ciphertext</strong></div><div class="cell"><strong>Nonce/IV</strong></div><div class="cell"><strong>AAD</strong></div><div class="cell"><strong>Resultado</strong></div>
+<div class="cell">CBC sin MAC</div><div class="cell warn">Texto cambia</div><div class="cell warn">Primer bloque cambia</div><div class="cell">No existe</div><div class="cell bad">Puede aceptar</div>
+<div class="cell">CTR sin MAC</div><div class="cell warn">Bit controlable</div><div class="cell bad">Flujo equivocado</div><div class="cell">No existe</div><div class="cell bad">Puede aceptar</div>
+<div class="cell">GCM</div><div class="cell good">Detecta</div><div class="cell good">Detecta/falla</div><div class="cell good">Detecta</div><div class="cell good">Rechaza</div>
+</div>
+</article>
+</section>
+
+<footer class="footer">
+<p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+<p>Los modelos y ataques se ejecutan con datos ficticios y fines educativos. Para producción deben utilizarse bibliotecas mantenidas, estándares vigentes y revisión profesional.</p>
+</footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/programa-glosario-data.js"></script>
+<script src="assets/programa-cuestionario-data.js"></script>
+<script src="assets/programa-moderno.js"></script>
+</body></html>
