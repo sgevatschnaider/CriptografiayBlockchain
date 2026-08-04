@@ -14,7 +14,13 @@ const requiredPages=[
   'glosario-programa.html',
   'cuestionario-programa.html'
 ];
-const requiredAssets=['assets/programa-moderno.css','assets/programa-moderno.js','assets/programa-glosario-data.js','assets/programa-cuestionario-data.js'];
+const requiredAssets=[
+  'assets/programa-moderno.css',
+  'assets/modulo-integrado.css',
+  'assets/programa-moderno.js',
+  'assets/programa-glosario-data.js',
+  'assets/programa-cuestionario-data.js'
+];
 const fail=(message)=>errors.push(message);
 const read=(relative)=>{
   const file=path.join(moduleDir,relative);
@@ -106,6 +112,26 @@ try{
 
 const index=fs.readFileSync(path.join(moduleDir,'index.html'),'utf8');
 for(const page of requiredPages)if(!index.includes(page))fail(`index.html: no enlaza ${page}`);
+for(const forbidden of ['Nueva simulación','Ruta original','Laboratorios existentes preservados']){
+  if(index.includes(forbidden))fail(`index.html: conserva una separación artificial mediante «${forbidden}»`);
+}
+for(const marker of ['Seis etapas, sin materiales aislados','phase-card','resource-button','Comenzar la ruta integrada']){
+  if(!index.includes(marker))fail(`index.html: falta el elemento de integración ${marker}`);
+}
+
+const route=read('ruta-modulo.html');
+for(const page of requiredPages)if(!route.includes(page))fail(`ruta-modulo.html: no integra ${page}`);
+const stations=[...route.matchAll(/data-module-station=["']([^"']+)["']/g)].map(match=>match[1]);
+const expectedStations=['fundamentos','bloques-flujo','kdf','aes-aead','archivos','hash-mac-firma','oraculo-padding','clave-publica','glosario','cuestionario'];
+if(stations.join('|')!==expectedStations.join('|'))fail('ruta-modulo.html: alteró el orden pedagógico o el seguimiento de las diez estaciones');
+for(const marker of ['Etapa 1','Etapa 2','Etapa 3','Etapa 4','Etapa 5','Etapa 6','station-resource-grid']){
+  if(!route.includes(marker))fail(`ruta-modulo.html: falta la integración visual ${marker}`);
+}
+
+const moduleScript=read('assets/modulo-03.js');
+try{new Function(moduleScript);}catch(error){fail(`modulo-03.js: error de sintaxis: ${error.message}`);}
+if(!moduleScript.includes('modulo-integrado.css'))fail('modulo-03.js: no carga los estilos integrados en todo el módulo');
+
 const docs=fs.readFileSync(path.join(root,'docs','criptografia','03-criptografia-moderna.md'),'utf8');
 for(const heading of ['## 1. Fundamentos','## 12. Laboratorio: vulnerar contraseña'])if(!docs.includes(heading))fail(`03-criptografia-moderna.md: falta ${heading}`);
 
@@ -114,4 +140,4 @@ if(errors.length){
   errors.forEach(error=>console.error(`- ${error}`));
   process.exit(1);
 }
-console.log('Validación correcta: 12 puntos teóricos, 4 simulaciones nuevas, mapas, 85+ términos, 40+ preguntas y selector multitema.');
+console.log('Validación correcta: Módulo 3 integrado en seis etapas, 12 puntos teóricos, simulaciones, mapas, 85+ términos, 40+ preguntas y selector multitema.');
