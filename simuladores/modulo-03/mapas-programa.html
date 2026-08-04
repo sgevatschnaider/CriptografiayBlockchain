@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Mapas mentales interactivos sobre propiedades, primitivas, ataques, claves y protocolos.">
+<meta name="theme-color" content="#06101d">
+<title>Mapas mentales de criptografía moderna</title>
+<link rel="stylesheet" href="../assets/lab.css">
+<link rel="stylesheet" href="assets/programa-moderno.css">
+</head>
+<body data-modern-page="mapas">
+<main class="shell">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <div class="brand"><a href="index.html">← Módulo 3</a></div>
+  <nav class="nav" aria-label="Navegación">
+    <a href="teoria-programa.html">Teoría</a>
+    <a href="clasificacion-criptosistemas.html">Clasificación</a>
+    <a href="algoritmos-simetricos.html">Simétrica</a>
+    <a href="cifrado-hibrido-sesion.html">Asimétrica</a>
+    <a href="ataque-contrasenas.html">Contraseñas</a>
+    <a href="mapas-programa.html">Mapas</a>
+    <a href="glosario-programa.html">Glosario</a>
+    <a href="cuestionario-programa.html">Evaluación</a>
+    <label class="theme-control">Tema
+      <select data-theme-select aria-label="Tema visual">
+        <option value="nocturno">Nocturno</option><option value="claro">Claro</option>
+        <option value="contraste">Alto contraste</option><option value="oceano">Océano</option>
+      </select>
+    </label>
+  </nav>
+</header>
+<div id="contenido" tabindex="-1"></div>
+
+<section class="hero">
+<div class="eyebrow">Síntesis visual · mapas mentales interactivos</div>
+<h1>Mapas de criptografía moderna</h1>
+<p>Explorá las conexiones entre propiedades, primitivas, claves, ataques y protocolos. Cada nodo responde una pregunta distinta y evita memorizar algoritmos sin comprender su función.</p>
+</section>
+<section class="grid">
+<article class="panel full">
+<h2>Mapa 1 · Del objetivo a la primitiva</h2>
+<div class="mindmap">
+<div class="mind-node" data-title="Confidencialidad" data-detail="Para datos voluminosos se usa AEAD simétrico. La asimétrica acuerda o encapsula la clave de sesión." data-question="¿Quién puede leer y bajo qué clave?"><strong>Confidencialidad</strong><p class="muted">AES-GCM · ChaCha20-Poly1305</p></div>
+<div class="mind-node" data-title="Integridad" data-detail="Un tag AEAD o MAC detecta alteraciones. Un hash solo no autentica el origen." data-question="¿Quién puede producir una modificación aceptada?"><strong>Integridad</strong><p class="muted">AEAD · HMAC</p></div>
+<div class="mind-node" data-title="Autenticidad pública" data-detail="Una firma vincula mensaje y clave privada; la identidad de la pública requiere PKI o verificación." data-question="¿Cómo sabe un tercero quién firmó?"><strong>Autenticidad</strong><p class="muted">ECDSA · EdDSA · RSA-PSS</p></div>
+<div class="mind-center"><strong>Objetivo de seguridad</strong><p>Elegir antes del algoritmo</p></div>
+<div class="mind-node" data-title="Acuerdo de claves" data-detail="ECDH/X25519 o un KEM crea material compartido, que debe pasar por una KDF." data-question="¿La clave pública está autenticada?"><strong>Acuerdo/KEM</strong><p class="muted">ECDH · X25519 · ML-KEM</p></div>
+<div class="mind-node" data-title="Contraseñas" data-detail="Las contraseñas requieren KDF costosa, salt única y parámetros actualizables." data-question="¿El atacante puede probar candidatos offline?"><strong>Contraseñas</strong><p class="muted">Argon2id · PBKDF2</p></div>
+<div class="mind-node" data-title="Huella" data-detail="El hash resume datos, pero no reemplaza MAC, firma ni cifrado." data-question="¿Se necesita una clave o verificación pública?"><strong>Hash</strong><p class="muted">SHA-256 · SHA-3</p></div>
+</div>
+<div id="map-detail" class="status">Seleccioná un nodo para desarrollar su relación.</div>
+</article>
+
+<article class="panel full">
+<h2>Mapa 2 · Cifrado híbrido</h2>
+<div class="flow">
+<div class="flow-node"><strong>Identidad</strong><p class="muted">Certificado, firma, PSK o huella.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Acuerdo/KEM</strong><p class="muted">ECDH, X25519, RSA-OAEP, ML-KEM.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>HKDF</strong><p class="muted">Extrae y separa claves por contexto.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>AEAD</strong><p class="muted">Cifra y autentica datos + AAD.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Rotación</strong><p class="muted">Expiración, revocación y nueva sesión.</p></div>
+</div>
+</article>
+
+<article class="panel">
+<h2>Mapa 3 · Ataques por error de uso</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Error</th><th>Consecuencia</th></tr></thead>
+<tbody><tr><td>Nonce GCM repetido</td><td>Daño de confidencialidad e integridad</td></tr>
+<tr><td>CTR reutilizado</td><td>C₁ XOR C₂ = M₁ XOR M₂</td></tr>
+<tr><td>CBC con errores distinguibles</td><td>Padding oracle</td></tr>
+<tr><td>ECDH sin autenticación</td><td>MITM</td></tr>
+<tr><td>SHA-256 directo para contraseña</td><td>Ataque offline acelerado</td></tr></tbody></table></div>
+</article>
+<article class="panel">
+<h2>Mapa 4 · Ciclo de vida de claves</h2>
+<div class="flow" style="flex-direction:column">
+<div class="flow-node"><strong>Generar</strong><p class="muted">CSPRNG y parámetros vigentes.</p></div>
+<div class="flow-node"><strong>Almacenar</strong><p class="muted">Separación, HSM/keystore, mínimos privilegios.</p></div>
+<div class="flow-node"><strong>Usar</strong><p class="muted">Propósito y contexto limitados.</p></div>
+<div class="flow-node"><strong>Rotar/revocar</strong><p class="muted">Responder a tiempo, volumen o incidente.</p></div>
+<div class="flow-node"><strong>Destruir</strong><p class="muted">Borrado y cierre de referencias.</p></div>
+</div>
+</article>
+</section>
+
+<footer class="footer">
+<p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+<p>Los modelos y ataques se ejecutan con datos ficticios y fines educativos. Para producción deben utilizarse bibliotecas mantenidas, estándares vigentes y revisión profesional.</p>
+</footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/programa-glosario-data.js"></script>
+<script src="assets/programa-cuestionario-data.js"></script>
+<script src="assets/programa-moderno.js"></script>
+</body></html>
