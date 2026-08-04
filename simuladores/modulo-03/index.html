@@ -1,10 +1,11 @@
 <!doctype html>
 <html lang="es" data-theme="nocturno">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Índice completo de teoría, simulaciones, mapas mentales, glosarios y cuestionarios de criptografía moderna.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Recorrido integrado de teoría, simulaciones, laboratorios, mapas, glosarios y evaluaciones de criptografía moderna.">
 <meta name="theme-color" content="#06101d">
-<title>Módulo 3 | Criptografía moderna completa</title>
+<title>Módulo 3 | Criptografía moderna integrada</title>
 <link rel="stylesheet" href="../assets/lab.css">
 <link rel="stylesheet" href="assets/programa-moderno.css">
 </head>
@@ -12,93 +13,115 @@
 <main class="shell">
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
 <header class="topbar">
-  <div class="brand"><a href="index.html">← Módulo 3</a></div>
-  <nav class="nav" aria-label="Navegación">
+  <div class="brand"><a href="../index.html">← Campus de criptografía</a></div>
+  <nav class="nav" aria-label="Navegación del módulo">
+    <a href="#recorrido">Recorrido</a>
     <a href="teoria-programa.html">Teoría</a>
-    <a href="clasificacion-criptosistemas.html">Clasificación</a>
-    <a href="algoritmos-simetricos.html">Simétrica</a>
-    <a href="cifrado-hibrido-sesion.html">Asimétrica</a>
-    <a href="ataque-contrasenas.html">Contraseñas</a>
+    <a href="ruta-modulo.html">Ruta guiada</a>
     <a href="mapas-programa.html">Mapas</a>
     <a href="glosario-programa.html">Glosario</a>
     <a href="cuestionario-programa.html">Evaluación</a>
     <label class="theme-control">Tema
       <select data-theme-select aria-label="Tema visual">
-        <option value="nocturno">Nocturno</option><option value="claro">Claro</option>
-        <option value="contraste">Alto contraste</option><option value="oceano">Océano</option>
+        <option value="nocturno">Nocturno</option>
+        <option value="claro">Claro</option>
+        <option value="contraste">Alto contraste</option>
+        <option value="oceano">Océano</option>
       </select>
     </label>
   </nav>
 </header>
 <div id="contenido" tabindex="-1"></div>
 
-<section class="hero">
-<div class="eyebrow">Módulo 3 · criptografía moderna aplicada</div>
-<h1>De la primitiva al protocolo seguro</h1>
-<p>Programa completo con teoría, simulaciones, mapas mentales, glosarios y evaluaciones. El recorrido integra los contenidos existentes con clasificación de criptosistemas modernos, comparación AES/ChaCha20, RSA/ECC/HPKE, claves de sesión y un ataque offline controlado a contraseñas ficticias.</p>
-<div class="actions"><a class="button" href="teoria-programa.html">Abrir teoría completa</a><a class="button secondary" href="ruta-modulo.html">Ruta original</a><a class="button secondary" href="ruta-guiada.html">Clase 3</a></div>
+<section class="hero integrated-hero">
+  <div class="eyebrow">Módulo 3 · una sola experiencia de aprendizaje</div>
+  <h1>Criptografía moderna: comprender, construir, atacar y decidir</h1>
+  <p>Un recorrido continuo que integra fundamentos, teoría, simulaciones y laboratorios reales. Cada etapa conecta una propiedad de seguridad con su primitiva, sus condiciones de uso, un ataque observable y una decisión profesional.</p>
+  <div class="hero-metrics" aria-label="Alcance del módulo">
+    <div class="hero-metric"><strong>6</strong><span>etapas conectadas</span></div>
+    <div class="hero-metric"><strong>16</strong><span>recursos interactivos</span></div>
+    <div class="hero-metric"><strong>90</strong><span>conceptos de glosario</span></div>
+    <div class="hero-metric"><strong>45</strong><span>preguntas integradoras</span></div>
+  </div>
+  <div class="actions hero-actions">
+    <a class="button" href="ruta-modulo.html">Comenzar la ruta integrada</a>
+    <a class="button secondary" href="teoria-programa.html">Estudiar la teoría</a>
+    <a class="button secondary" href="#recorrido">Explorar por etapas</a>
+  </div>
 </section>
 
-<section class="grid">
-<article class="panel full">
-<h2>Cumplimiento del programa</h2>
-<div class="table-wrap"><table>
-<thead><tr><th>Punto</th><th>Teoría</th><th>Simulación o evidencia</th><th>Estado</th></tr></thead>
-<tbody>
-<tr><td>Fundamentos</td><td><a href="teoria-programa.html#fundamentos">Unidad 1</a></td><td><a href="../modulo-02/">Módulo 2</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Clasificación moderna</td><td><a href="teoria-programa.html#clasificacion">Unidad 2</a></td><td><a href="clasificacion-criptosistemas.html">Clasificador</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Criptografía simétrica</td><td><a href="teoria-programa.html#simetrica">Unidad 3</a></td><td><a href="algoritmos-simetricos.html">Comparador</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Bits de seguridad</td><td><a href="teoria-programa.html#bits">Unidad 4</a></td><td><a href="../modulo-02/espacio-claves-complejidad.html">Laboratorio</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Bloque y flujo</td><td><a href="teoria-programa.html#bloques">Unidad 5</a></td><td><a href="bloques-vs-flujo.html">Laboratorio</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Modos de operación</td><td><a href="teoria-programa.html#modos">Unidad 6</a></td><td><a href="modos-aes-aead.html">CBC/CTR/GCM</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Padding</td><td><a href="teoria-programa.html#padding">Unidad 7</a></td><td><a href="padding-oracle.html">Oráculo controlado</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Algoritmos simétricos</td><td><a href="teoria-programa.html#algoritmos-simetricos">Unidad 8</a></td><td><a href="algoritmos-simetricos.html">AES/ChaCha20</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Criptografía asimétrica</td><td><a href="teoria-programa.html#asimetrica">Unidad 9</a></td><td><a href="rsa-ecdh-hibrido.html">Laboratorio real</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>RSA y EC</td><td><a href="teoria-programa.html#rsa-ec">Unidad 10</a></td><td><a href="cifrado-hibrido-sesion.html">RSA/ECC/HPKE</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Claves de sesión</td><td><a href="teoria-programa.html#sesion">Unidad 11</a></td><td><a href="cifrado-hibrido-sesion.html">Composición híbrida</a></td><td class="requirement-ok">Completo</td></tr>
-<tr><td>Vulnerar contraseña</td><td><a href="teoria-programa.html#passwords">Unidad 12</a></td><td><a href="ataque-contrasenas.html">Ataque offline local</a></td><td class="requirement-ok">Completo</td></tr>
-</tbody></table></div>
-</article>
+<section class="learning-compass" aria-labelledby="brujula-titulo">
+  <div class="compass-core">
+    <span class="eyebrow">Brújula del módulo</span>
+    <h2 id="brujula-titulo">Una propiedad, una construcción y una condición crítica</h2>
+  </div>
+  <div class="compass-flow" aria-label="Flujo conceptual">
+    <div><strong>1</strong><span>Definir qué se protege</span></div>
+    <b aria-hidden="true">→</b>
+    <div><strong>2</strong><span>Elegir la primitiva</span></div>
+    <b aria-hidden="true">→</b>
+    <div><strong>3</strong><span>Configurar parámetros</span></div>
+    <b aria-hidden="true">→</b>
+    <div><strong>4</strong><span>Provocar una falla</span></div>
+    <b aria-hidden="true">→</b>
+    <div><strong>5</strong><span>Justificar la decisión</span></div>
+  </div>
 </section>
 
-<section class="resource-grid" id="recursos">
-<a class="resource-card" href="teoria-programa.html"><span class="tag">Teoría integral</span><h2>Programa completo</h2><p>Doce unidades con mapas, gráficos, tablas y preguntas conceptuales.</p><span class="button">Estudiar teoría</span></a>
-<a class="resource-card" href="clasificacion-criptosistemas.html"><span class="tag">Nueva simulación</span><h2>Clasificación moderna</h2><p>Árbol de familias, matriz de propiedades y asistente de decisión.</p><span class="button">Abrir clasificador</span></a>
-<a class="resource-card" href="algoritmos-simetricos.html"><span class="tag">Nueva simulación</span><h2>AES, ChaCha20 y modos</h2><p>Comparación, bloques, flujo, padding y autenticación.</p><span class="button">Abrir laboratorio</span></a>
-<a class="resource-card" href="cifrado-hibrido-sesion.html"><span class="tag">Nueva simulación</span><h2>RSA, ECC, HPKE y sesión</h2><p>Acuerdo, encapsulación, HKDF, AEAD y MITM.</p><span class="button">Abrir arquitectura</span></a>
-<a class="resource-card" href="ataque-contrasenas.html"><span class="tag">Nueva simulación</span><h2>Vulnerar contraseña</h2><p>Ataque offline controlado con diccionario, máscara y PBKDF2.</p><span class="button danger">Abrir ataque</span></a>
-<a class="resource-card" href="mapas-programa.html"><span class="tag">Síntesis</span><h2>Mapas mentales</h2><p>Propiedades, primitivas, ataques y ciclo de vida de claves.</p><span class="button">Abrir mapas</span></a>
-<a class="resource-card" href="glosario-programa.html"><span class="tag">90 conceptos</span><h2>Glosario completo</h2><p>Definición, ejemplo y contraste de todo el programa.</p><span class="button">Estudiar términos</span></a>
-<a class="resource-card" href="cuestionario-programa.html"><span class="tag">45 preguntas</span><h2>Evaluación integral</h2><p>Retroalimentación inmediata y resultado final.</p><span class="button">Comenzar</span></a>
+<section class="journey" id="recorrido" aria-labelledby="recorrido-titulo">
+  <header class="journey-heading">
+    <div>
+      <div class="eyebrow">Recorrido integral</div>
+      <h2 id="recorrido-titulo">Seis etapas, sin materiales aislados</h2>
+      <p>Cada etapa reúne lectura, visualización, experimentación y evaluación. Los botones conducen directamente al recurso adecuado sin distinguir entre contenidos anteriores o incorporados después.</p>
+    </div>
+    <a class="button secondary" href="ruta-modulo.html">Ver secuencia con progreso</a>
+  </header>
+
+  <article class="phase-card phase-foundations">
+    <div class="phase-number">01</div>
+    <div class="phase-copy"><span class="phase-kicker">Modelo de seguridad</span><h3>Fundamentos y clasificación</h3><p>Pasá de “el mensaje parece ilegible” a una definición con propiedad, adversario, recursos, condición de victoria y supuesto. Ubicá hash, KDF, MAC, cifrado, firma y acuerdo de claves dentro del mapa moderno.</p><div class="phase-outcome"><strong>Resultado:</strong> distinguir primitivas, construcciones y protocolos antes de elegir un algoritmo.</div></div>
+    <div class="phase-resources"><a class="resource-button primary" href="teoria-programa.html#fundamentos"><span>Teoría</span><strong>Fundamentos modernos</strong></a><a class="resource-button" href="clasificacion-criptosistemas.html"><span>Simulación</span><strong>Clasificar criptosistemas</strong></a><a class="resource-button" href="../modulo-02/espacio-claves-complejidad.html"><span>Laboratorio</span><strong>Bits de seguridad</strong></a><a class="resource-button" href="../modulo-02/confusion-difusion.html"><span>Puente</span><strong>Confusión y difusión</strong></a></div>
+  </article>
+
+  <article class="phase-card phase-symmetric">
+    <div class="phase-number">02</div>
+    <div class="phase-copy"><span class="phase-kicker">Confidencialidad y autenticación</span><h3>Criptografía simétrica</h3><p>Compará bloque y flujo, AES y ChaCha20, padding y modos de operación. Observá por qué una primitiva segura puede fallar cuando se reutiliza un nonce, se elige ECB o no se verifica autenticidad.</p><div class="phase-outcome"><strong>Resultado:</strong> elegir entre AES-GCM y ChaCha20-Poly1305 y explicar las condiciones de seguridad.</div></div>
+    <div class="phase-resources"><a class="resource-button primary" href="algoritmos-simetricos.html"><span>Comparador</span><strong>AES, ChaCha20 y modos</strong></a><a class="resource-button" href="bloques-vs-flujo.html"><span>Laboratorio</span><strong>Bloques frente a flujo</strong></a><a class="resource-button" href="modos-aes-aead.html"><span>Web Crypto</span><strong>CBC, CTR y GCM</strong></a><a class="resource-button" href="padding-oracle.html"><span>Ataque</span><strong>Padding oracle</strong></a></div>
+  </article>
+
+  <article class="phase-card phase-passwords">
+    <div class="phase-number">03</div>
+    <div class="phase-copy"><span class="phase-kicker">De secreto humano a clave</span><h3>Contraseñas, salts y KDF</h3><p>Seguís el camino desde Unicode y UTF-8 hasta PBKDF2. Después invertís la perspectiva y actuás como atacante offline para comprobar qué aporta una KDF y qué debilidad continúa perteneciendo a la contraseña.</p><div class="phase-outcome"><strong>Resultado:</strong> separar entropía, longitud de salida, salt y costo por intento.</div></div>
+    <div class="phase-resources"><a class="resource-button primary" href="contrasena-salt-kdf.html"><span>Laboratorio</span><strong>Contraseña, salt y PBKDF2</strong></a><a class="resource-button danger-link" href="ataque-contrasenas.html"><span>Ataque controlado</span><strong>Recuperar una contraseña débil</strong></a><a class="resource-button" href="ruta-guiada.html"><span>Clase guiada</span><strong>De la contraseña a AES-GCM</strong></a></div>
+  </article>
+
+  <article class="phase-card phase-applied">
+    <div class="phase-number">04</div>
+    <div class="phase-copy"><span class="phase-kicker">Composición aplicada</span><h3>Archivos, hashes, MAC y firmas</h3><p>Componé PBKDF2 con AES-GCM para proteger archivos, medí avalancha con SHA-256 y diferenciá integridad sin clave, autenticación simétrica y verificabilidad pública.</p><div class="phase-outcome"><strong>Resultado:</strong> seleccionar hash, HMAC, firma o AEAD según el objetivo y el modelo de confianza.</div></div>
+    <div class="phase-resources"><a class="resource-button primary" href="cifrado-local-archivos.html"><span>Práctica</span><strong>Cifrado local de archivos</strong></a><a class="resource-button" href="hash-hmac-firmas.html"><span>Comparador</span><strong>Hash, HMAC y firma</strong></a><a class="resource-button" href="../03-criptografia-moderna.html"><span>Síntesis</span><strong>Laboratorio integral Web Crypto</strong></a></div>
+  </article>
+
+  <article class="phase-card phase-public">
+    <div class="phase-number">05</div>
+    <div class="phase-copy"><span class="phase-kicker">Clave pública y sesión</span><h3>RSA, curvas elípticas y cifrado híbrido</h3><p>Separá cifrado, firma y acuerdo de claves. Compará RSA-OAEP, ECDH, X25519, ECIES y HPKE, derivá una clave de sesión con HKDF y comprobá por qué la identidad es necesaria frente a un MITM.</p><div class="phase-outcome"><strong>Resultado:</strong> reconstruir la cadena acuerdo o encapsulación → HKDF → AEAD → autenticación.</div></div>
+    <div class="phase-resources"><a class="resource-button primary" href="cifrado-hibrido-sesion.html"><span>Arquitectura</span><strong>RSA, ECC, HPKE y sesión</strong></a><a class="resource-button" href="rsa-ecdh-hibrido.html"><span>Web Crypto</span><strong>RSA-OAEP y ECDH real</strong></a><a class="resource-button" href="teoria-programa.html#rsa-ec"><span>Teoría</span><strong>Funciones de RSA y EC</strong></a></div>
+  </article>
+
+  <article class="phase-card phase-synthesis">
+    <div class="phase-number">06</div>
+    <div class="phase-copy"><span class="phase-kicker">Síntesis y evaluación</span><h3>Relacionar, explicar y decidir</h3><p>Consolidá las relaciones entre propiedades, primitivas, parámetros y ataques. Usá mapas mentales, buscá conceptos y resolvé evaluaciones con retroalimentación.</p><div class="phase-outcome"><strong>Resultado:</strong> justificar una arquitectura criptográfica completa y reconocer sus límites.</div></div>
+    <div class="phase-resources"><a class="resource-button primary" href="mapas-programa.html"><span>Síntesis visual</span><strong>Mapas mentales interactivos</strong></a><a class="resource-button" href="glosario-programa.html"><span>90 conceptos</span><strong>Glosario integral</strong></a><a class="resource-button" href="glosario.html"><span>Profundización</span><strong>Glosario técnico del módulo</strong></a><a class="resource-button" href="cuestionario-programa.html"><span>45 preguntas</span><strong>Evaluación del programa</strong></a><a class="resource-button" href="cuestionario.html"><span>Banco aplicado</span><strong>Evaluación por categorías</strong></a></div>
+  </article>
 </section>
 
-<section class="grid">
-<article class="panel full"><h2>Laboratorios existentes preservados</h2>
-<div class="resource-grid">
-<a class="resource-card" href="ruta-modulo.html"><h3>Ruta completa original</h3><p>Diez estaciones de la primitiva al protocolo.</p></a>
-<a class="resource-card" href="ruta-guiada.html"><h3>Clase 3</h3><p>De la contraseña a AES-GCM.</p></a>
-<a class="resource-card" href="contrasena-salt-kdf.html"><h3>Contraseña, salt y KDF</h3><p>Unicode, NFC, PBKDF2 y costo offline.</p></a>
-<a class="resource-card" href="bloques-vs-flujo.html"><h3>Bloques frente a flujo</h3><p>PKCS#7, keystream y reutilización.</p></a>
-<a class="resource-card" href="modos-aes-aead.html"><h3>Modos AES y AEAD</h3><p>CBC, CTR, GCM, AAD y tag.</p></a>
-<a class="resource-card" href="cifrado-local-archivos.html"><h3>Cifrado local de archivos</h3><p>PBKDF2 + AES-256-GCM.</p></a>
-<a class="resource-card" href="hash-hmac-firmas.html"><h3>Hash, HMAC y firma</h3><p>SHA-256, HMAC y ECDSA.</p></a>
-<a class="resource-card" href="padding-oracle.html"><h3>Padding oracle</h3><p>AES-CBC real y respuestas distinguibles.</p></a>
-<a class="resource-card" href="rsa-ecdh-hibrido.html"><h3>RSA, ECDH e híbrido</h3><p>RSA-OAEP, P-256, MITM, HKDF y GCM.</p></a>
-<a class="resource-card" href="glosario.html"><h3>Glosario del módulo</h3><p>Banco previo de términos técnicos.</p></a>
-<a class="resource-card" href="cuestionario.html"><h3>Cuestionario del módulo</h3><p>Evaluación original por categorías.</p></a>
-<a class="resource-card" href="../03-criptografia-moderna.html"><h3>Laboratorio integral</h3><p>Síntesis con Web Crypto.</p></a>
-</div>
-</article>
+<section class="completion-panel" aria-labelledby="cobertura-titulo">
+  <div><div class="eyebrow">Cobertura curricular</div><h2 id="cobertura-titulo">Los doce puntos forman una sola red conceptual</h2><p>No se estudian como temas independientes: fundamentos y bits de seguridad orientan la elección; bloque, flujo, modos y padding explican la simétrica; RSA y EC establecen o protegen claves de sesión; el laboratorio de contraseñas muestra el modelo del atacante.</p></div>
+  <div class="coverage-grid" aria-label="Puntos cubiertos"><span>Fundamentos</span><span>Clasificación</span><span>Simétrica</span><span>Bits de seguridad</span><span>Bloque y flujo</span><span>Modos</span><span>Padding</span><span>Algoritmos simétricos</span><span>Asimétrica</span><span>RSA y EC</span><span>Claves de sesión</span><span>Ataque offline</span></div>
 </section>
 
-<footer class="footer">
-<p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
-<p>Los modelos y ataques se ejecutan con datos ficticios y fines educativos. Para producción deben utilizarse bibliotecas mantenidas, estándares vigentes y revisión profesional.</p>
-</footer>
+<footer class="footer"><p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p><p>Los modelos y ataques utilizan datos ficticios con fines educativos. Los sistemas reales requieren estándares vigentes, bibliotecas mantenidas, gestión segura de claves y revisión profesional.</p></footer>
 </main>
-<script src="../assets/lab.js"></script>
-<script src="assets/modulo-03.js"></script>
-<script src="assets/programa-glosario-data.js"></script>
-<script src="assets/programa-cuestionario-data.js"></script>
-<script src="assets/programa-moderno.js"></script>
-</body></html>
+<script src="../assets/lab.js"></script><script src="assets/modulo-03.js"></script><script src="assets/programa-glosario-data.js"></script><script src="assets/programa-cuestionario-data.js"></script><script src="assets/programa-moderno.js"></script>
+</body>
+</html>
