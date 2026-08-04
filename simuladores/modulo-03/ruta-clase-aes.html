@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Ruta docente de 90 minutos desde sustitución, transposición, Hill, Vernam y Shannon hasta las rondas de AES y AES-GCM.">
+  <meta name="theme-color" content="#06101d">
+  <title>Clase 3 | Del cifrado clásico a AES</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+  <link rel="stylesheet" href="assets/aes-completo.css">
+</head>
+<body data-module-page="bloques-flujo">
+<a class="skip-link" href="#recorrido">Saltar al recorrido</a>
+<main class="aes-shell">
+  <header class="aes-topbar"><div class="aes-brand"><a href="index.html">← Módulo 3 integrado</a></div><nav class="aes-nav"><a href="aes-teoria-completa.html">Teoría AES</a><a href="aes-laboratorio-integral.html">Laboratorio AES</a><a href="ruta-guiada.html">Clase KDF y archivos</a><label class="aes-theme">Tema<select data-theme-select aria-label="Tema visual"><option value="nocturno">Nocturno</option><option value="claro">Claro</option><option value="contraste">Alto contraste</option><option value="oceano">Océano</option></select></label></nav></header>
+  <section class="aes-hero"><div><div class="aes-eyebrow">Ruta docente · 90 minutos</div><h1>Del cifrado clásico a AES</h1><p>La clase construye AES como una conclusión razonada: operaciones del Módulo 1, propiedades del Módulo 2 y aplicación moderna en el Módulo 3.</p><div class="aes-actions"><a class="aes-button" href="#recorrido">Comenzar</a><button class="aes-button secondary" id="reset-aes-class" type="button">Reiniciar progreso</button></div></div><div class="aes-orbit"><div class="aes-core">90 min</div><span>Módulo 1</span><span>Módulo 2</span><span>AES</span><span>GCM</span></div></section>
+
+  <section class="aes-section"><div class="aes-grid"><article class="aes-card half"><h2>Resultados observables</h2><ul><li>Reconocer sustitución, transposición, mezcla y XOR como antecedentes conceptuales.</li><li>Distinguir confusión, difusión y avalancha.</li><li>Explicar bloque, estado, clave y ronda.</li><li>Relacionar SubBytes, ShiftRows, MixColumns y AddRoundKey.</li><li>Justificar por qué AES necesita un modo y qué agrega GCM.</li></ul></article><article class="aes-card half"><h2>Reglas del laboratorio</h2><ul><li>Predecir antes de ejecutar.</li><li>Cambiar una variable por vez.</li><li>Distinguir modelo educativo de Web Crypto real.</li><li>No confundir apariencia aleatoria con prueba de seguridad.</li><li>Usar exclusivamente datos ficticios.</li></ul></article></div></section>
+
+  <section class="aes-section" data-class-progress><div class="progress-heading"><div><div class="aes-eyebrow">Progreso local</div><h2><span id="aes-class-count">0</span> de 6 estaciones</h2></div><strong id="aes-class-percent">0%</strong></div><div class="route-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="aes-class-bar"></span></div></section>
+
+  <section class="aes-section" id="recorrido"><div class="aes-eyebrow">Secuencia acumulativa</div><h2>Recorrido de la clase</h2><div class="station-list">
+    <article class="station"><span class="station-number">0</span><div><h3>La ilegibilidad no equivale a seguridad</h3><p>César, frecuencias, determinismo y espacio de claves. Recuperación rápida de sustitución, transposición y Hill.</p><label class="station-check"><input type="checkbox" data-class-station="0"> Puedo explicar qué estructura conserva cada método</label><div class="station-resource-grid"><a class="button" href="../modulo-01/comparador-criptosistemas.html">Comparador</a><a class="button secondary" href="../modulo-01/index.html">Módulo 1</a></div></div><div><span class="station-time">10 min</span></div></article>
+    <article class="station"><span class="station-number">1</span><div><h3>De letras a bytes: XOR, Vernam y OTP</h3><p>Representación digital, reversibilidad, flujo de clave, secreto perfecto y reutilización.</p><label class="station-check"><input type="checkbox" data-class-station="1"> Distingo Vernam de las condiciones de un OTP</label><div class="station-resource-grid"><a class="button" href="vernam-a-criptografia-moderna.html">Puente visual</a><a class="button secondary" href="../modulo-02/laboratorio-xor-flujo.html">XOR y flujo</a><a class="button secondary" href="../modulo-02/secreto-perfecto.html">Secreto perfecto</a></div></div><div><span class="station-time">15 min</span></div></article>
+    <article class="station"><span class="station-number">2</span><div><h3>Shannon: confusión, difusión y avalancha</h3><p>Comparar XOR aislado, sustitución no lineal, permutación, mezcla y propagación por rondas.</p><label class="station-check"><input type="checkbox" data-class-station="2"> Puedo interpretar una distancia de Hamming sin sobreafirmar</label><div class="station-resource-grid"><a class="button" href="../modulo-02/confusion-difusion.html">Laboratorio de Shannon</a></div></div><div><span class="station-time">15 min</span></div></article>
+    <article class="station"><span class="station-number">3</span><div><h3>AES desde cero</h3><p>Bloque de 128 bits, estado 4 × 4, tamaños de clave, SubBytes, ShiftRows, MixColumns, AddRoundKey y expansión.</p><label class="station-check"><input type="checkbox" data-class-station="3"> Reconstruyo una ronda y su relación con los módulos anteriores</label><div class="station-resource-grid"><a class="button" href="aes-teoria-completa.html">Teoría completa</a></div></div><div><span class="station-time">20 min</span></div></article>
+    <article class="station"><span class="station-number">4</span><div><h3>Aplicar: ronda, vector, avalancha y GCM</h3><p>Validar AES-128 con FIPS 197, cambiar un bit y ejecutar AES-GCM real con alteración de ciphertext y AAD.</p><label class="station-check"><input type="checkbox" data-class-station="4"> Validé AES y observé rechazo por autenticación</label><div class="station-resource-grid"><a class="button" href="aes-laboratorio-integral.html">Laboratorio integral</a><a class="button secondary" href="modos-aes-aead.html">CBC, CTR y GCM</a></div></div><div><span class="station-time">22 min</span></div></article>
+    <article class="station"><span class="station-number">5</span><div><h3>Evaluación de salida</h3><p>Cinco preguntas para integrar antecedentes, estructura y uso de AES.</p><label class="station-check"><input type="checkbox" data-class-station="5"> Alcancé el criterio de salida</label><div class="station-resource-grid"><a class="button secondary" href="#salida">Responder</a></div></div><div><span class="station-time">8 min</span></div></article>
+  </div></section>
+
+  <section class="aes-section" id="salida"><div class="aes-eyebrow">Exit ticket</div><h2>Evaluación de salida</h2><form id="aes-class-ticket">
+    <fieldset class="aes-card full"><legend><strong>1. ¿AES-256 transforma bloques de 256 bits?</strong></legend><label><input type="radio" name="q1" value="a"> Sí, bloque y clave siempre miden lo mismo.</label><label><input type="radio" name="q1" value="b"> No; el bloque mide 128 bits y la clave puede medir 256.</label></fieldset>
+    <fieldset class="aes-card full"><legend><strong>2. ¿Qué transformación aporta no linealidad?</strong></legend><label><input type="radio" name="q2" value="a"> ShiftRows.</label><label><input type="radio" name="q2" value="b"> SubBytes.</label></fieldset>
+    <fieldset class="aes-card full"><legend><strong>3. ¿Qué operación relaciona Vernam con AddRoundKey?</strong></legend><label><input type="radio" name="q3" value="a"> XOR.</label><label><input type="radio" name="q3" value="b"> Concatenación.</label></fieldset>
+    <fieldset class="aes-card full"><legend><strong>4. ¿Por qué AES necesita un modo?</strong></legend><label><input type="radio" name="q4" value="a"> Porque AES básico transforma un bloque y los mensajes contienen muchos bloques.</label><label><input type="radio" name="q4" value="b"> Porque AES no acepta claves secretas.</label></fieldset>
+    <fieldset class="aes-card full"><legend><strong>5. ¿Qué agrega GCM frente a CTR aislado?</strong></legend><label><input type="radio" name="q5" value="a"> Un bloque más grande.</label><label><input type="radio" name="q5" value="b"> Autenticación e integridad mediante un tag, además de AAD.</label></fieldset>
+    <div class="aes-actions"><button class="aes-button" type="submit">Corregir evaluación</button></div>
+  </form><div class="aes-status" id="aes-class-status">Respondé las cinco preguntas.</div></section>
+
+  <section class="aes-section"><div class="aes-eyebrow">Continuidad</div><h2>La clase aplicada sigue disponible</h2><p>Después de comprender AES, la ruta anterior desarrolla contraseña, salt, PBKDF2, modos, cifrado local de archivos y el puente conceptual con VeraCrypt.</p><a class="aes-button secondary" href="ruta-guiada.html">Abrir “De la contraseña a AES-GCM”</a></section>
+
+  <footer class="aes-footer"><p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p><p>Ruta de 90 minutos. Los experimentos educativos se conectan con AES real mediante Web Crypto en el laboratorio integral.</p></footer>
+</main>
+<script src="../assets/lab.js"></script><script src="assets/modulo-03.js"></script><script src="assets/ruta-clase-aes.js"></script>
+</body>
+</html>
