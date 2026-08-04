@@ -1,156 +1,252 @@
-# 03 · Criptografía moderna
+# 03 · Criptografía moderna — programa completo
 
-La criptografía moderna combina primitivas matemáticas, protocolos y prácticas de ingeniería. El objetivo no es solamente ocultar un mensaje, sino proporcionar propiedades precisas: **confidencialidad, integridad, autenticidad, no repudio y derivación segura de claves**.
+La criptografía moderna combina primitivas matemáticas, esquemas, protocolos e ingeniería de seguridad. El objetivo no es únicamente ocultar datos: debe declarar qué propiedad protege, frente a qué adversario, con qué recursos, bajo qué supuestos y durante cuánto tiempo.
 
-> **Recorrido interactivo:** [ruta completa del Módulo 3](../../simuladores/modulo-03/ruta-modulo.html) · [Clase 3: de la contraseña a AES-GCM](../../simuladores/modulo-03/ruta-guiada.html) · [glosario](../../simuladores/modulo-03/glosario.html) · [cuestionario](../../simuladores/modulo-03/cuestionario.html)
+> **Recorrido ampliado:** [índice del Módulo 3](../../simuladores/modulo-03/index.html) · [teoría HTML](../../simuladores/modulo-03/teoria-programa.html) · [mapas mentales](../../simuladores/modulo-03/mapas-programa.html) · [glosario integral](../../simuladores/modulo-03/glosario-programa.html) · [cuestionario integral](../../simuladores/modulo-03/cuestionario-programa.html)
 
-## 1. Cifrado simétrico
+## 1. Fundamentos
 
-Usa la misma clave secreta para cifrar y descifrar. Es rápido y adecuado para grandes volúmenes de datos.
+Una definición moderna de seguridad debe especificar:
+
+1. **Propiedad:** confidencialidad, integridad, autenticidad, no repudio, anonimato u otra.
+2. **Adversario:** capacidades, acceso, información auxiliar y oráculos.
+3. **Condición de victoria:** distinguir, recuperar, falsificar, alterar o correlacionar.
+4. **Recursos:** tiempo, memoria, datos, consultas, energía y paralelización.
+5. **Supuesto:** problema difícil, modelo de aleatoriedad, custodia de claves y entorno de ejecución.
+
+El principio de Kerckhoffs establece que el algoritmo puede ser público. La seguridad no debe depender de ocultar el diseño.
+
+### Seguridad perfecta y computacional
+
+- **Secreto perfecto:** observar el criptograma no modifica la distribución del mensaje. El one-time pad lo alcanza solo con clave uniforme, secreta, de longitud suficiente y utilizada una vez.
+- **Seguridad computacional:** un ataque puede existir en teoría, pero su ventaja debe ser despreciable para adversarios eficientes con recursos acotados.
+
+## 2. Clasificación de criptosistemas modernos
+
+| Familia | Modelo de clave | Propiedad | Ejemplos |
+|---|---|---|---|
+| Cifrado simétrico | Secreto compartido | Confidencialidad; con AEAD también integridad | AES-GCM, ChaCha20-Poly1305 |
+| Cifrado/acuerdo asimétrico | Par pública/privada | Encapsulación, acuerdo o protección de material pequeño | RSA-OAEP, ECDH, X25519, HPKE |
+| Firma digital | Privada firma; pública verifica | Autenticidad e integridad verificables públicamente | RSA-PSS, ECDSA, EdDSA |
+| Hash | Sin clave | Huella fija y componente de protocolos | SHA-256, SHA-3 |
+| MAC | Secreto compartido | Integridad y autenticación simétrica | HMAC, Poly1305 |
+| KDF | Secreto o contraseña | Derivación, endurecimiento y separación de claves | HKDF, PBKDF2, Argon2id |
+| KEM | Par pública/privada | Encapsulación de un secreto compartido | ML-KEM, componente de HPKE |
+
+También debe distinguirse entre **primitiva**, **esquema**, **protocolo** y **sistema**. AES es una primitiva; AES-GCM es una construcción AEAD; TLS 1.3 es un protocolo; una aplicación con identidad, almacenamiento y operación es un sistema.
+
+## 3. Criptografía simétrica
+
+La misma clave secreta cifra y descifra. Es rápida y adecuada para datos voluminosos, pero exige resolver generación, distribución, almacenamiento, rotación, revocación y destrucción de claves.
 
 ### AES
 
-AES es un cifrador por bloques de 128 bits con claves de 128, 192 o 256 bits. No debe usarse “solo”: necesita un modo de operación.
+AES es un cifrador por bloques de **128 bits**. Sus claves pueden medir 128, 192 o 256 bits. El tamaño de bloque no cambia con la longitud de la clave.
 
-| Modo | Propósito | Observación |
-|---|---|---|
-| ECB | Cifra bloques independientemente | No preserva confidencialidad estructural; evitar |
-| CBC | Encadena bloques | Requiere IV impredecible y autenticación separada |
-| CTR | Convierte el bloque en flujo | Nunca reutilizar nonce/contador con la misma clave |
-| GCM | Cifrado autenticado | Proporciona confidencialidad e integridad; exige nonce único |
+### ChaCha20
 
-La recomendación general es preferir **AEAD** —Authenticated Encryption with Associated Data—, por ejemplo AES-GCM o ChaCha20-Poly1305.
+ChaCha20 es un cifrador de flujo con clave de 256 bits. Se utiliza normalmente junto con Poly1305 como construcción AEAD.
 
-## 2. Cifradores de flujo
+## 4. Bits de seguridad
 
-Generan un flujo pseudoaleatorio que se combina con el mensaje mediante XOR. ChaCha20 es un ejemplo moderno, eficiente en software y ampliamente usado junto con Poly1305 para autenticación.
+Para una clave ideal de \(k\) bits existen \(2^k\) candidatos. Una búsqueda exhaustiva clásica necesita, en promedio, aproximadamente \(2^{k-1}\) pruebas.
 
-Reutilizar el mismo flujo con dos mensajes produce el mismo problema conceptual que reutilizar un One-Time Pad.
+Los bits de seguridad representan el costo logarítmico del mejor ataque conocido. No tienen por qué coincidir con:
 
-## 3. Funciones hash
+- longitud nominal de clave;
+- longitud de una contraseña;
+- tamaño de una salida hash;
+- cantidad de caracteres;
+- parámetros de un algoritmo.
 
-Una función hash transforma una entrada arbitraria en una salida de tamaño fijo.
+Una contraseña humana larga puede tener poca entropía si sigue patrones. Derivar 256 bits desde ella no crea 256 bits de incertidumbre.
 
-Propiedades buscadas:
+### Impacto cuántico
 
-- resistencia a preimagen;
-- resistencia a segunda preimagen;
-- resistencia a colisiones;
-- efecto avalancha;
-- distribución uniforme.
+Grover ofrece una aceleración cuadrática idealizada para búsqueda no estructurada. Shor amenaza factorización y logaritmo discreto, por lo que afecta RSA, DH y ECC.
 
-Familias relevantes: SHA-2, SHA-3 y BLAKE2/BLAKE3 según el contexto. MD5 y SHA-1 no son adecuados para seguridad de colisiones.
+## 5. Cifrado por bloques y por flujo
 
-## 4. MAC y autenticación
+### Bloques
 
-Un **Message Authentication Code** verifica integridad y autenticidad usando una clave compartida.
+Un cifrador por bloques transforma unidades fijas. Para mensajes largos necesita un modo de operación.
+
+### Flujo
+
+Un cifrador de flujo genera un keystream que se combina con el mensaje mediante XOR.
+
+Si se reutiliza el mismo flujo:
 
 ```text
-Tag = MAC(K, mensaje)
+C1 = M1 XOR K
+C2 = M2 XOR K
+C1 XOR C2 = M1 XOR M2
 ```
 
-HMAC combina una función hash con una construcción robusta. No debe confundirse con una firma digital: ambas partes conocen la misma clave y cualquiera podría producir el tag.
+La clave desaparece de la ecuación y se expone una relación entre mensajes.
 
-## 5. Contraseñas y derivación de claves
+## 6. Modos de operación
 
-Las contraseñas tienen poca entropía y no deben almacenarse con un hash rápido simple.
+| Modo | Garantía | Condición crítica |
+|---|---|---|
+| ECB | No oculta estructura repetida | Evitar |
+| CBC | Confidencialidad si se usa correctamente | IV apropiado y MAC separado |
+| CTR | Confidencialidad tipo flujo | Contador/nonce no repetido |
+| GCM | AEAD: confidencialidad, integridad y AAD | Nonce único por clave |
+| XTS | Protección de sectores | No sustituye AEAD general |
 
-Se usan funciones deliberadamente costosas:
+La recomendación general para datos y protocolos es preferir AEAD, por ejemplo AES-GCM o ChaCha20-Poly1305.
 
-- Argon2id;
-- scrypt;
-- bcrypt;
-- PBKDF2 en entornos que requieren compatibilidad normativa.
+## 7. Padding
 
-Elementos clave:
+PKCS#7 completa el último bloque agregando \(n\) bytes cuyo valor es \(n\). Si faltan cinco bytes, se añaden cinco bytes `05`.
 
-- salt único y aleatorio;
-- parámetros de costo actualizables;
-- comparación en tiempo constante;
-- protección adicional con pepper cuando la arquitectura lo justifique.
+El padding no autentica. Una aplicación que revela si el relleno es válido puede crear un **padding oracle**. Las defensas incluyen:
 
-Una **KDF** también sirve para derivar varias claves independientes desde un secreto maestro. HKDF es una construcción habitual basada en HMAC.
+- preferir AEAD;
+- verificar autenticidad antes de procesar;
+- uniformar errores;
+- evitar diferencias temporales observables.
 
-## 6. Criptografía asimétrica
+## 8. Algoritmos simétricos
 
-Usa un par de claves: pública y privada.
+### AES
+
+- bloque fijo de 128 bits;
+- claves de 128, 192 o 256 bits;
+- adecuado con GCM para AEAD;
+- XTS para almacenamiento por sectores;
+- no usar ECB.
+
+### ChaCha20-Poly1305
+
+- cifrador de flujo + autenticador;
+- eficiente en software;
+- habitual en móviles y protocolos;
+- nonce único por clave.
+
+### DES y 3DES
+
+Deben tratarse como antecedentes históricos o legado en migración. DES posee una clave efectiva demasiado pequeña y 3DES tiene bloques de 64 bits y margen insuficiente para diseños nuevos.
+
+## 9. Criptografía asimétrica
+
+Usa un par de claves pública y privada. Su costo hace que normalmente se utilice para:
+
+- acuerdo de claves;
+- encapsulación;
+- firmas;
+- autenticación;
+- protección de claves de sesión.
+
+No se utiliza normalmente para cifrar archivos completos.
+
+## 10. RSA y curvas elípticas
 
 ### RSA
 
-Puede utilizarse para cifrado o firmas, pero requiere esquemas de relleno seguros:
+- **RSA-OAEP:** cifrado o encapsulación de material pequeño.
+- **RSA-PSS:** firma.
+- **Textbook RSA:** inseguro y determinista.
 
-- RSA-OAEP para cifrado;
-- RSA-PSS para firmas.
+### ECC
 
-“RSA puro” o textbook RSA es inseguro.
+- **ECDH/X25519:** acuerdo de claves.
+- **ECDSA/EdDSA:** firma.
+- **ECIES:** familia de composiciones híbridas basadas en acuerdo EC, KDF y cifrado simétrico.
+- **HPKE:** KEM + KDF + AEAD.
 
-### Diffie–Hellman
+La expresión “cifrado EC” debe interpretarse como una composición híbrida, no como una operación de curva que cifra directamente grandes volúmenes.
 
-Permite acordar un secreto sobre un canal público. Por sí solo no autentica a las partes, por lo que puede sufrir un ataque man-in-the-middle.
+## 11. Claves de sesión
 
-### Curvas elípticas
-
-ECC permite intercambio y firma con claves compactas:
-
-- ECDH/X25519 para acuerdo de claves;
-- ECDSA o EdDSA/Ed25519 para firmas.
-
-La seguridad depende de parámetros correctos, validación de claves y nonces seguros.
-
-## 7. Firmas digitales
-
-Una firma ofrece autenticidad, integridad y verificabilidad pública.
-
-Flujo conceptual:
+Una clave de sesión es efímera y se limita a una conexión, archivo o intercambio. El patrón moderno es:
 
 ```text
-firma = Sign(clave_privada, mensaje)
-Verify(clave_pública, mensaje, firma)
+autenticación de claves públicas
+→ acuerdo o KEM
+→ KDF
+→ clave de sesión
+→ AEAD
 ```
 
-La clave privada debe protegerse rigurosamente. En ECDSA, reutilizar o predecir el nonce puede revelar la clave privada.
+Ejemplos:
 
-## 8. Certificados y PKI
+```text
+ECDH → HKDF → AES-GCM
+X25519 → HKDF → ChaCha20-Poly1305
+KEM → KDF → AEAD
+```
 
-La criptografía asimétrica no resuelve por sí sola quién controla una clave pública. Una infraestructura de clave pública vincula identidades con claves mediante certificados, autoridades certificantes, cadenas de confianza, revocación y políticas.
+ECDH sin autenticación es vulnerable a man-in-the-middle. La identidad se establece mediante certificados, firmas, huellas verificadas, PSK u otro canal autenticado.
 
-## 9. Protocolos seguros
+## 12. Laboratorio: vulnerar contraseña
 
-TLS 1.3 integra acuerdo de claves, autenticación, derivación y cifrado autenticado. La seguridad surge de la composición correcta de primitivas, no de un único algoritmo.
+Una contraseña humana no es una clave uniforme. Un atacante offline puede probar candidatos sin consultar al servidor cuando posee:
 
-## 10. Errores frecuentes
+- salt;
+- parámetros;
+- hash o clave derivada;
+- información sobre hábitos humanos.
 
-- diseñar algoritmos propios;
-- reutilizar nonces;
-- usar cifrado sin autenticación;
-- hardcodear claves;
-- almacenar contraseñas con SHA-256 directo;
-- confundir encoding con cifrado;
-- ignorar rotación y revocación;
-- no validar certificados o claves públicas;
-- elegir parámetros obsoletos.
+### Estrategias
 
-## Laboratorios del módulo
+- diccionario;
+- reglas y sustituciones;
+- palabras + años;
+- máscaras;
+- PIN;
+- fuerza bruta acotada.
 
-1. [Bloques frente a flujo](../../simuladores/modulo-03/bloques-vs-flujo.html): partición, PKCS#7, keystream y reutilización.
-2. [Contraseña, salt y KDF](../../simuladores/modulo-03/contrasena-salt-kdf.html): NFC, UTF-8, PBKDF2 y costo offline.
-3. [Modos AES y AEAD](../../simuladores/modulo-03/modos-aes-aead.html): CBC, CTR, GCM, AAD y tag.
-4. [Cifrado local de archivos](../../simuladores/modulo-03/cifrado-local-archivos.html): composición PBKDF2 + AES-256-GCM.
-5. [Hash, HMAC y firma](../../simuladores/modulo-03/hash-hmac-firmas.html): SHA-256, HMAC-SHA-256 y ECDSA P-256.
-6. [Padding y oráculo controlado](../../simuladores/modulo-03/padding-oracle.html): respuestas distinguibles sobre AES-CBC.
-7. [RSA, ECDH y cifrado híbrido](../../simuladores/modulo-03/rsa-ecdh-hibrido.html): RSA-OAEP, MITM y ECDH → HKDF → AES-GCM.
+### Salt
 
-## Referencias técnicas primarias
+La salt es pública, única y aleatoria. Evita precálculo compartido y hashes idénticos entre usuarios, pero no impide probar candidatos.
 
-- [W3C · Web Cryptography API](https://www.w3.org/TR/webcrypto/): operaciones y algoritmos disponibles en el navegador.
-- [NIST SP 800-38D · GCM y GMAC](https://csrc.nist.gov/pubs/sp/800/38/d/final): cifrado autenticado con datos asociados.
-- [NIST SP 800-132 · derivación basada en contraseñas](https://csrc.nist.gov/pubs/sp/800/132/final): salts y factores de iteración para datos almacenados.
-- [RFC 5869 · HKDF](https://www.rfc-editor.org/info/rfc5869): extracción, expansión y separación contextual.
-- [RFC 8017 · PKCS #1](https://www.rfc-editor.org/info/rfc8017): RSA-OAEP y RSA-PSS.
-- [RFC 9846 · TLS 1.3](https://www.rfc-editor.org/info/rfc9846): ejemplo de composición protocolar de acuerdo, autenticación, KDF y AEAD.
+### KDF de contraseña
 
-> **Regla de producción:** usar bibliotecas mantenidas, estándares vigentes y APIs de alto nivel. La implementación didáctica no debe trasladarse directamente a sistemas reales.
+PBKDF2, bcrypt, scrypt o Argon2id elevan el costo de cada intento. No crean entropía inexistente.
+
+### Cadena de ataque
+
+```text
+candidato
+→ normalización y codificación
+→ KDF con la misma salt y parámetros
+→ comparación con objetivo
+```
+
+### Recomendaciones
+
+- Argon2id cuando sea posible;
+- parámetros actualizables;
+- salts únicas;
+- gestor de contraseñas;
+- MFA;
+- límites y detección para ataques online;
+- protección adicional de secretos de servidor cuando corresponda.
+
+## Recursos interactivos nuevos
+
+1. [Clasificación de criptosistemas modernos](../../simuladores/modulo-03/clasificacion-criptosistemas.html)
+2. [AES, ChaCha20, modos y padding](../../simuladores/modulo-03/algoritmos-simetricos.html)
+3. [RSA, ECC, HPKE y claves de sesión](../../simuladores/modulo-03/cifrado-hibrido-sesion.html)
+4. [Ataque offline controlado a contraseñas ficticias](../../simuladores/modulo-03/ataque-contrasenas.html)
+5. [Mapas mentales del programa](../../simuladores/modulo-03/mapas-programa.html)
+6. [Glosario integral](../../simuladores/modulo-03/glosario-programa.html)
+7. [Cuestionario integral](../../simuladores/modulo-03/cuestionario-programa.html)
+
+## Recursos interactivos existentes
+
+1. [Bloques frente a flujo](../../simuladores/modulo-03/bloques-vs-flujo.html)
+2. [Contraseña, salt y KDF](../../simuladores/modulo-03/contrasena-salt-kdf.html)
+3. [Modos AES y AEAD](../../simuladores/modulo-03/modos-aes-aead.html)
+4. [Cifrado local de archivos](../../simuladores/modulo-03/cifrado-local-archivos.html)
+5. [Hash, HMAC y firma](../../simuladores/modulo-03/hash-hmac-firmas.html)
+6. [Padding oracle](../../simuladores/modulo-03/padding-oracle.html)
+7. [RSA, ECDH y cifrado híbrido](../../simuladores/modulo-03/rsa-ecdh-hibrido.html)
+
+> **Regla profesional:** utilizar estándares vigentes, APIs de alto nivel, bibliotecas mantenidas, generación segura de claves, gestión de nonces y revisión de protocolo. Los laboratorios son educativos.
 
 ---
 
-[⬅️ Fundamentos matemáticos](./02-fundamentos-matematicos.md) · [Campus](./README.md) · [Esteganografía ➡️](./04-esteganografia.md)
+Material elaborado por el profesor Sergio Gevatschnaider.
