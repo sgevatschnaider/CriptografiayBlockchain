@@ -35,12 +35,13 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Validar HTML, JavaScript y enlaces locales
+      - name: Validar HTML, JavaScript, enlaces locales y programa moderno
         run: |
           node scripts/validate-simulators.mjs
           node scripts/validate-module-02.mjs
           node scripts/validate-module-03.mjs
           node scripts/validate-fundamentos-matematicos.mjs
+          node scripts/validate-modern-program.mjs
 
   deploy:
     name: Publicar GitHub Pages
