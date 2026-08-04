@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Teoría integral de AES desde sustitución, transposición, Hill, Vernam y Shannon hasta el estado, las rondas, la expansión de clave, los modos y AES-GCM.">
+  <meta name="theme-color" content="#06101d">
+  <title>AES desde sus fundamentos | Teoría completa</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/aes-completo.css">
+</head>
+<body data-module-page="bloques-flujo">
+<div class="aes-progress" data-reading-progress aria-hidden="true"></div>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<main class="aes-shell">
+  <header class="aes-topbar">
+    <div class="aes-brand"><a href="index.html">← Módulo 3 integrado</a></div>
+    <nav class="aes-nav" aria-label="Navegación de la teoría de AES">
+      <a href="#genealogia">Genealogía</a><a href="#estado">Estado</a><a href="#ronda">Ronda</a><a href="#clave">Clave</a><a href="#modos">Modos</a><a href="aes-laboratorio-integral.html">Laboratorio</a>
+      <label class="aes-theme">Tema<select data-theme-select aria-label="Tema visual"><option value="nocturno">Nocturno</option><option value="claro">Claro</option><option value="contraste">Alto contraste</option><option value="oceano">Océano</option></select></label>
+    </nav>
+  </header>
+
+  <section class="aes-hero" id="contenido">
+    <div>
+      <div class="aes-eyebrow">Módulo 3 · teoría integral</div>
+      <h1>AES desde sus fundamentos</h1>
+      <p>Un recorrido completo que parte de sustitución, transposición, matrices y XOR; recupera confusión, difusión y avalancha; y culmina en el estado de 128 bits, las rondas, la expansión de clave y el uso correcto de AES dentro de modos autenticados.</p>
+      <div class="aes-actions"><a class="aes-button" href="#genealogia">Comenzar el recorrido</a><a class="aes-button secondary" href="aes-laboratorio-integral.html">Aplicar en el laboratorio</a><button class="aes-button secondary" type="button" data-complete-page="bloques-flujo">Marcar como completado</button></div>
+    </div>
+    <div class="aes-orbit" aria-label="Componentes de una ronda AES"><div class="aes-core">AES</div><span>SubBytes</span><span>ShiftRows</span><span>MixColumns</span><span>AddRoundKey</span></div>
+  </section>
+
+  <nav class="aes-jump" aria-label="Índice de la teoría"><a href="#genealogia">1. Del clásico a AES</a><a href="#representacion">2. Bytes</a><a href="#bloque">3. Bloque</a><a href="#estado">4. Estado</a><a href="#ronda">5. Transformaciones</a><a href="#clave">6. Expansión</a><a href="#seguridad">7. Diseño</a><a href="#descifrado">8. Descifrado</a><a href="#modos">9. Modos</a><a href="#errores">10. Errores</a></nav>
+
+  <section class="aes-section reveal-on-scroll" id="genealogia">
+    <div class="aes-eyebrow">1 · Genealogía conceptual</div><h2>AES no aparece de la nada</h2>
+    <p class="aes-lead">La criptografía clásica permite aislar operaciones fundamentales, mientras que la teoría de Shannon explica qué propiedades deben emerger de su composición. Las relaciones siguientes son pedagógicas: ayudan a comprender la estructura, pero no significan que AES sea una suma literal de cifrados históricos.</p>
+    <div class="aes-genealogy">
+      <div class="aes-genealogy-row"><strong>Sustitución clásica</strong><b>→</b><strong>SubBytes: sustitución no lineal de bytes</strong></div>
+      <div class="aes-genealogy-row"><strong>Transposición</strong><b>→</b><strong>ShiftRows: redistribución de posiciones</strong></div>
+      <div class="aes-genealogy-row"><strong>Hill y mezcla matricial</strong><b>→</b><strong>MixColumns: difusión lineal en GF(2⁸)</strong></div>
+      <div class="aes-genealogy-row"><strong>Vernam y XOR</strong><b>→</b><strong>AddRoundKey: estado XOR subclave</strong></div>
+      <div class="aes-genealogy-row"><strong>Shannon</strong><b>→</b><strong>Rondas que acumulan confusión y difusión</strong></div>
+    </div>
+    <div class="aes-grid">
+      <article class="aes-card"><span class="tag">Módulo 1</span><h3>Qué aportan los cifrados clásicos</h3><p>César muestra sustitución y patrones; la transposición reorganiza; Hill mezcla linealmente; Vernam introduce XOR; OTP fija un ideal de seguridad y su enorme costo logístico.</p></article>
+      <article class="aes-card"><span class="tag">Módulo 2</span><h3>Qué aporta Shannon</h3><p>Confusión para ocultar relaciones simples, difusión para repartir influencia y avalancha para observar cómo una perturbación pequeña se propaga por la salida.</p></article>
+      <article class="aes-card"><span class="tag">Módulo 3</span><h3>Qué aporta AES</h3><p>Una permutación con clave, definida sobre bloques de 128 bits, construida mediante transformaciones invertibles y repetida durante 10, 12 o 14 rondas.</p></article>
+    </div>
+    <div class="aes-actions"><a class="aes-button secondary" href="../modulo-01/index.html">Repasar Módulo 1</a><a class="aes-button secondary" href="../modulo-02/confusion-difusion.html">Abrir confusión y difusión</a><a class="aes-button secondary" href="vernam-a-criptografia-moderna.html">Vernam → AEAD</a></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="representacion">
+    <div class="aes-eyebrow">2 · Representación</div><h2>De caracteres a bytes</h2>
+    <p class="aes-lead">AES no conoce letras ni palabras. Recibe secuencias de bits. Antes de cifrar texto, una codificación como UTF-8 lo convierte en bytes; luego esos bytes se expresan habitualmente en hexadecimal para inspeccionarlos.</p>
+    <div class="aes-flow"><div>Texto<br><strong>«AES»</strong></div><div>UTF-8<br><strong>41 45 53</strong></div><div>Binario<br><strong>01000001…</strong></div><div>Bloque<br><strong>16 bytes</strong></div><div>Estado<br><strong>4 × 4</strong></div></div>
+    <div class="aes-state-lab">
+      <div class="aes-controls">
+        <div class="aes-control"><label for="theory-text">Texto de demostración</label><input id="theory-text" value="Criptografia AES" maxlength="16"></div>
+        <div class="aes-actions"><button class="aes-button" id="encode-theory" type="button">Convertir a estado</button><button class="aes-button secondary" id="use-vector-theory" type="button">Usar vector FIPS</button></div>
+        <div class="aes-status" id="theory-encoding-status">El texto se codificará con UTF-8, se truncará o completará a 16 bytes y se ordenará por columnas.</div>
+        <div class="aes-code" id="theory-hex">—</div>
+      </div>
+      <div><h3>Matriz de estado</h3><div class="aes-state" id="theory-state" aria-label="Estado AES de cuatro por cuatro bytes"></div><p>La especificación ordena los bytes por columnas: los primeros cuatro bytes forman la primera columna del estado.</p></div>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="bloque">
+    <div class="aes-eyebrow">3 · Cifrador por bloques</div><h2>Bloque fijo, tres tamaños de clave</h2>
+    <div class="aes-grid">
+      <article class="aes-card half insight"><h3>El bloque siempre mide 128 bits</h3><div class="aes-formula">128 bits = 16 bytes = estado 4 × 4</div><p>AES-256 no significa que el bloque mida 256 bits. El sufijo indica la longitud de la clave.</p></article>
+      <article class="aes-card half"><h3>La clave determina las rondas</h3><div class="aes-table-wrap"><table class="aes-table"><thead><tr><th>Variante</th><th>Bloque</th><th>Clave</th><th>Rondas</th></tr></thead><tbody><tr><td>AES-128</td><td>128 bits</td><td>128 bits</td><td>10</td></tr><tr><td>AES-192</td><td>128 bits</td><td>192 bits</td><td>12</td></tr><tr><td>AES-256</td><td>128 bits</td><td>256 bits</td><td>14</td></tr></tbody></table></div></article>
+      <article class="aes-card full warning"><h3>Una clave larga no corrige una entrada humana débil</h3><p>Si una contraseña predecible se transforma en una clave AES-256, la resistencia práctica puede quedar limitada por la contraseña y la KDF. La longitud de salida de la KDF no crea automáticamente la misma cantidad de entropía.</p></article>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="estado">
+    <div class="aes-eyebrow">4 · Estado interno</div><h2>El bloque se transforma como una matriz</h2>
+    <p>La matriz no es una presentación decorativa: ShiftRows actúa sobre filas, MixColumns actúa sobre columnas y AddRoundKey combina cada byte con el byte correspondiente de una subclave.</p>
+    <div class="aes-formula">b₀  b₄  b₈   b₁₂
+b₁  b₅  b₉   b₁₃
+b₂  b₆  b₁₀  b₁₄
+b₃  b₇  b₁₁  b₁₅</div>
+    <div class="aes-grid"><article class="aes-card"><h3>Entrada</h3><p>Un bloque de 16 bytes, producido por el mensaje y el modo de operación.</p></article><article class="aes-card"><h3>Transformación</h3><p>Cada ronda modifica el estado sin cambiar su tamaño.</p></article><article class="aes-card"><h3>Salida</h3><p>Otro bloque de 16 bytes, que depende tanto de la entrada como de la clave.</p></article></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="ronda">
+    <div class="aes-eyebrow">5 · Núcleo de AES</div><h2>Cuatro transformaciones, una estructura por rondas</h2>
+    <div class="aes-grid">
+      <article class="aes-card half"><span class="tag">No linealidad</span><h3>SubBytes</h3><p>Cada byte se reemplaza por otro mediante una S-box de 256 entradas. La S-box se construye a partir del inverso multiplicativo en GF(2⁸), seguido por una transformación afín.</p><div class="aes-formula">s'ᵢ = SBox[sᵢ]</div><p>Su función principal es impedir que el cifrado completo sea una transformación lineal simple.</p></article>
+      <article class="aes-card half"><span class="tag">Permutación</span><h3>ShiftRows</h3><p>La primera fila queda inmóvil; las siguientes se desplazan 1, 2 y 3 posiciones hacia la izquierda. Los bytes abandonan sus columnas originales.</p><div class="aes-formula">fila 0: 0 · fila 1: 1 · fila 2: 2 · fila 3: 3</div></article>
+      <article class="aes-card half"><span class="tag">Difusión</span><h3>MixColumns</h3><p>Cada columna se multiplica por una matriz fija sobre GF(2⁸). Cada byte de salida depende de los cuatro bytes de entrada de esa columna.</p><div class="aes-formula">[02 03 01 01]
+[01 02 03 01]
+[01 01 02 03]
+[03 01 01 02]</div><p>Es una transformación lineal e invertible; necesita combinarse con SubBytes para aportar seguridad no lineal.</p></article>
+      <article class="aes-card half"><span class="tag">Clave</span><h3>AddRoundKey</h3><p>El estado se combina byte a byte mediante XOR con una subclave de ronda.</p><div class="aes-formula">Estado' = Estado ⊕ Kᵣ</div><p>La analogía con Vernam está en XOR. AES no es un One-Time Pad: sus subclaves se derivan de una clave principal y forman parte de una permutación por rondas.</p></article>
+      <article class="aes-card full insight"><h3>Orden del cifrado</h3><div class="aes-flow"><div>Estado inicial</div><div>AddRoundKey</div><div>SubBytes</div><div>ShiftRows</div><div>MixColumns</div><div>AddRoundKey</div></div><p>Las rondas intermedias contienen las cuatro transformaciones. La ronda final omite MixColumns.</p></article>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="clave">
+    <div class="aes-eyebrow">6 · Expansión de clave</div><h2>Una clave principal produce subclaves diferentes</h2>
+    <p class="aes-lead">AES no aplica exactamente la misma secuencia de bytes en todas las rondas. El calendario de claves expande la clave principal en una colección de palabras y subclaves.</p>
+    <div class="aes-flow"><div>Clave principal</div><div>Palabras de 32 bits</div><div>RotWord</div><div>SubWord</div><div>Rcon</div><div>K₀…Kᵣ</div></div>
+    <div class="aes-grid">
+      <article class="aes-card"><h3>RotWord</h3><p>Rota una palabra de cuatro bytes y cambia la posición de sus componentes.</p></article>
+      <article class="aes-card"><h3>SubWord</h3><p>Aplica la misma S-box de AES a cada byte de la palabra.</p></article>
+      <article class="aes-card"><h3>Rcon</h3><p>Introduce constantes dependientes de la ronda para romper simetrías.</p></article>
+      <article class="aes-card full warning"><h3>Precisión conceptual</h3><p>La expansión de clave no genera entropía nueva. Deriva material estructurado desde la clave principal; si esa clave es débil o fue obtenida de una contraseña predecible, el calendario no elimina esa debilidad.</p></article>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="seguridad">
+    <div class="aes-eyebrow">7 · Propiedades emergentes</div><h2>Confusión, difusión y avalancha se acumulan por rondas</h2>
+    <div class="aes-table-wrap"><table class="aes-table"><thead><tr><th>Componente</th><th>Contribución principal</th><th>Límite aislado</th></tr></thead><tbody><tr><td>SubBytes</td><td>No linealidad y confusión</td><td>No mueve los bytes</td></tr><tr><td>ShiftRows</td><td>Redistribución espacial</td><td>Solo permuta posiciones</td></tr><tr><td>MixColumns</td><td>Difusión dentro de columnas</td><td>Es lineal</td></tr><tr><td>AddRoundKey</td><td>Dependencia de la clave</td><td>XOR aislado difunde poco</td></tr><tr><td>Rondas</td><td>Propagación acumulada</td><td>Una observación visual no prueba seguridad</td></tr></tbody></table></div>
+    <div class="aes-grid"><article class="aes-card half"><h3>Distancia de Hamming</h3><p>Cuenta cuántos bits difieren entre dos salidas. Es útil para observar propagación, pero no certifica por sí sola SAC, BIC ni resistencia criptográfica.</p></article><article class="aes-card half"><h3>Avalancha esperada</h3><p>Después de suficientes rondas, cambiar un bit de entrada suele modificar aproximadamente la mitad de los bits de salida. “Aproximadamente” describe una propiedad estadística, no una exigencia para cada par individual.</p></article></div>
+    <div class="aes-actions"><a class="aes-button" href="aes-laboratorio-integral.html#avalancha">Medir avalancha</a><a class="aes-button secondary" href="../modulo-02/confusion-difusion.html">Comparar por capas</a></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="descifrado">
+    <div class="aes-eyebrow">8 · Invertibilidad</div><h2>Descifrar recorre transformaciones inversas</h2>
+    <p>AES es una permutación con clave: para cada clave, cada bloque de entrada tiene una única salida y puede recuperarse aplicando las operaciones inversas en el orden correspondiente.</p>
+    <div class="aes-flow"><div>Ciphertext</div><div>AddRoundKey</div><div>InvShiftRows</div><div>InvSubBytes</div><div>InvMixColumns</div><div>Plaintext</div></div>
+    <div class="aes-grid"><article class="aes-card"><h3>InvSubBytes</h3><p>Usa la S-box inversa.</p></article><article class="aes-card"><h3>InvShiftRows</h3><p>Desplaza las filas en sentido contrario.</p></article><article class="aes-card"><h3>InvMixColumns</h3><p>Usa la matriz inversa sobre GF(2⁸).</p></article><article class="aes-card full insight"><h3>AddRoundKey se invierte con XOR</h3><div class="aes-formula">X ⊕ K ⊕ K = X</div></article></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="modos">
+    <div class="aes-eyebrow">9 · De un bloque a mensajes reales</div><h2>AES necesita un modo de operación</h2>
+    <p class="aes-lead">El algoritmo básico transforma exactamente 16 bytes. Un modo define cómo procesar muchos bloques, cómo incorporar IV o nonces, si se necesita padding y cómo se obtiene integridad.</p>
+    <div class="aes-table-wrap"><table class="aes-table"><thead><tr><th>Modo</th><th>Idea</th><th>Padding</th><th>Autenticación</th><th>Decisión didáctica</th></tr></thead><tbody><tr><td>ECB</td><td>Cada bloque por separado</td><td>Sí</td><td>No</td><td>Contraejemplo: conserva patrones</td></tr><tr><td>CBC</td><td>Encadena bloques con un IV</td><td>Sí</td><td>No integrada</td><td>Legado; requiere MAC y manejo cuidadoso</td></tr><tr><td>CTR</td><td>AES genera un flujo desde nonce y contador</td><td>No</td><td>No integrada</td><td>Conecta con Vernam y Two-Time Pad</td></tr><tr><td>GCM</td><td>CTR + autenticación en un esquema AEAD</td><td>No</td><td>Sí</td><td>Opción general cuando la plataforma la ofrece</td></tr><tr><td>XTS</td><td>Cifrado por unidades de almacenamiento</td><td>No tradicional</td><td>No equivalente a AEAD</td><td>Discos y sectores, no mensajes generales</td></tr></tbody></table></div>
+    <div class="aes-grid">
+      <article class="aes-card half"><h3>CTR recupera la lógica de flujo</h3><div class="aes-formula">Sᵢ = AESₖ(N || i)
+Cᵢ = Mᵢ ⊕ Sᵢ</div><p>Repetir clave, nonce y contador reproduce el flujo y reabre el problema del Two-Time Pad.</p></article>
+      <article class="aes-card half"><h3>GCM cifra y autentica</h3><div class="aes-formula">(C,T) = Enc(K,N,M,A)</div><p>El receptor solo acepta el resultado si la etiqueta es válida. Los datos asociados pueden permanecer visibles, pero quedan protegidos contra modificaciones.</p></article>
+    </div>
+    <div class="aes-actions"><a class="aes-button" href="aes-laboratorio-integral.html#gcm">Ejecutar AES-GCM real</a><a class="aes-button secondary" href="modos-aes-aead.html">Comparar CBC, CTR y GCM</a><a class="aes-button secondary" href="cifrado-local-archivos.html">Cifrar un archivo</a></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="errores">
+    <div class="aes-eyebrow">10 · Errores frecuentes</div><h2>Un algoritmo sólido puede utilizarse mal</h2>
+    <div class="aes-checklist">
+      <div class="aes-check"><b>1</b><div><strong>Confundir bloque con clave.</strong><p>AES siempre usa bloques de 128 bits; 128, 192 y 256 describen longitudes de clave.</p></div></div>
+      <div class="aes-check"><b>2</b><div><strong>Usar una contraseña directamente.</strong><p>Una contraseña requiere una KDF con salt y parámetros adecuados; la KDF encarece ataques, pero no fabrica entropía.</p></div></div>
+      <div class="aes-check"><b>3</b><div><strong>Reutilizar nonce en CTR o GCM.</strong><p>Puede repetir el flujo y, en GCM, comprometer además la autenticación.</p></div></div>
+      <div class="aes-check"><b>4</b><div><strong>Cifrar sin autenticar.</strong><p>Confidencialidad aislada no impide modificaciones activas.</p></div></div>
+      <div class="aes-check"><b>5</b><div><strong>Usar ECB o formatos improvisados.</strong><p>El nombre AES no garantiza que la composición, el formato y la gestión de claves sean correctos.</p></div></div>
+      <div class="aes-check"><b>6</b><div><strong>Interpretar “parece aleatorio” como prueba.</strong><p>Avalancha y apariencia caótica son evidencias didácticas parciales, no una demostración de seguridad.</p></div></div>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="sintesis">
+    <div class="aes-eyebrow">11 · Síntesis activa</div><h2>Mapa mental y glosario mínimo</h2>
+    <div class="aes-flow"><div>Módulo 1<br><strong>operaciones</strong></div><div>Módulo 2<br><strong>propiedades</strong></div><div>AES<br><strong>rondas</strong></div><div>Modo<br><strong>mensajes</strong></div><div>AEAD<br><strong>aceptar o rechazar</strong></div></div>
+    <div class="aes-glossary" id="aes-glossary">
+      <article class="aes-term" aria-expanded="false"><button type="button">Estado</button><p>Matriz 4 × 4 que contiene los 16 bytes del bloque durante el cifrado.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">S-box</button><p>Tabla de sustitución no lineal utilizada por SubBytes y por la expansión de clave.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">GF(2⁸)</button><p>Cuerpo finito de 256 elementos donde AES define operaciones de bytes y MixColumns.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">Subclave</button><p>Bloque de material derivado de la clave principal para una ronda específica.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">Nonce</button><p>Valor que separa ejecuciones y debe respetar las reglas de unicidad del modo.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">AEAD</button><p>Cifrado autenticado con datos asociados: protege confidencialidad e integridad dentro de una interfaz integrada.</p></article>
+    </div>
+    <div class="aes-actions"><a class="aes-button" href="aes-laboratorio-integral.html">Continuar al laboratorio integral</a><a class="aes-button secondary" href="glosario-programa.html">Abrir glosario de 112 conceptos</a><a class="aes-button secondary" href="cuestionario-programa.html">Abrir evaluación integral</a></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="fuentes">
+    <div class="aes-eyebrow">12 · Referencias técnicas</div><h2>Estándares y alcance</h2>
+    <div class="aes-grid"><article class="aes-card half"><h3>FIPS 197</h3><p>Especifica AES, las transformaciones de cifrado y descifrado y los calendarios de clave de AES-128, AES-192 y AES-256.</p><a class="aes-button secondary" href="https://csrc.nist.gov/pubs/fips/197/final" target="_blank" rel="noopener">Abrir NIST FIPS 197</a></article><article class="aes-card half"><h3>NIST SP 800-38D</h3><p>Especifica GCM y GMAC, incluido el cifrado autenticado con datos asociados.</p><a class="aes-button secondary" href="https://csrc.nist.gov/pubs/sp/800/38/d/final" target="_blank" rel="noopener">Abrir NIST SP 800-38D</a></article></div>
+    <div class="aes-card full warning"><h3>Alcance educativo</h3><p>La teoría describe AES conforme al estándar y enlaza laboratorios que usan Web Crypto para las operaciones reales. Las visualizaciones internas sirven para comprender y no reemplazan bibliotecas auditadas ni políticas de gestión de claves.</p></div>
+  </section>
+
+  <footer class="aes-footer"><p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p><p>Teoría educativa integrada con los Módulos 1 y 2. Para sistemas reales deben utilizarse estándares vigentes, bibliotecas mantenidas, parámetros correctos y gestión segura de claves.</p></footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/modulo-03.js"></script>
+<script src="assets/aes-teoria-completa.js"></script>
+</body>
+</html>

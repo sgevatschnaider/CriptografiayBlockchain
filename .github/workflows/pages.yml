@@ -43,6 +43,7 @@ jobs:
           node scripts/validate-fundamentos-matematicos.mjs
           node scripts/validate-modern-program.mjs
           node scripts/validate-vernam-integration.mjs
+          node scripts/validate-aes-integration.mjs
 
   deploy:
     name: Publicar GitHub Pages
