@@ -1,4 +1,3 @@
-
 (() => {
   'use strict';
   const STORAGE_KEY='criptografia-modulo-03-progreso';
@@ -6,6 +5,16 @@
   const CURRICULUM=Object.freeze(['fundamentos','bloques-flujo','kdf','aes-aead','archivos','hash-mac-firma','oraculo-padding','clave-publica','glosario','cuestionario']);
   const pageId=document.body.dataset.modulePage||'';
   let toastTimer=0;
+
+  function injectIntegratedStyles(){
+    if(document.querySelector('link[data-module-integrated-styles]'))return;
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='assets/modulo-integrado.css';
+    link.dataset.moduleIntegratedStyles='true';
+    document.head.append(link);
+  }
+  injectIntegratedStyles();
 
   function emptyProgress(){return {visited:[],completed:[],bestQuiz:0,updatedAt:null};}
   function readProgress(){try{const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!p||typeof p!=='object')return emptyProgress();return{visited:Array.isArray(p.visited)?p.visited:[],completed:Array.isArray(p.completed)?p.completed:[],bestQuiz:Number(p.bestQuiz)||0,updatedAt:p.updatedAt||null};}catch{return emptyProgress();}}
