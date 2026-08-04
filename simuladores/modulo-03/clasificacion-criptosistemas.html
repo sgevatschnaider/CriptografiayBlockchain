@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Simulación didáctica para clasificar primitivas, esquemas y protocolos criptográficos modernos.">
+<meta name="theme-color" content="#06101d">
+<title>Clasificación de criptosistemas modernos</title>
+<link rel="stylesheet" href="../assets/lab.css">
+<link rel="stylesheet" href="assets/programa-moderno.css">
+</head>
+<body data-modern-page="clasificacion">
+<main class="shell">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <div class="brand"><a href="index.html">← Módulo 3</a></div>
+  <nav class="nav" aria-label="Navegación">
+    <a href="teoria-programa.html">Teoría</a>
+    <a href="clasificacion-criptosistemas.html">Clasificación</a>
+    <a href="algoritmos-simetricos.html">Simétrica</a>
+    <a href="cifrado-hibrido-sesion.html">Asimétrica</a>
+    <a href="ataque-contrasenas.html">Contraseñas</a>
+    <a href="mapas-programa.html">Mapas</a>
+    <a href="glosario-programa.html">Glosario</a>
+    <a href="cuestionario-programa.html">Evaluación</a>
+    <label class="theme-control">Tema
+      <select data-theme-select aria-label="Tema visual">
+        <option value="nocturno">Nocturno</option><option value="claro">Claro</option>
+        <option value="contraste">Alto contraste</option><option value="oceano">Océano</option>
+      </select>
+    </label>
+  </nav>
+</header>
+<div id="contenido" tabindex="-1"></div>
+
+<section class="hero">
+<div class="eyebrow">Simulación conceptual · clasificación completa</div>
+<h1>Clasificador de criptosistemas modernos</h1>
+<p>Elegí una necesidad de seguridad, recorré el árbol de familias y verificá qué primitiva aporta cada propiedad. El laboratorio evita clasificar solo por nombres: compara claves, objetivos, garantías y límites.</p>
+</section>
+<section class="grid">
+<article class="panel full">
+<h2>Árbol de familias</h2>
+<div class="mindmap">
+<div class="mind-node family-card" data-detail="Sin clave: produce una huella fija. Sirve como componente de integridad, firmas, HMAC y estructuras Merkle."><strong>Hash</strong><p class="muted">SHA-256 · SHA-3</p></div>
+<div class="mind-node family-card" data-detail="Clave secreta compartida: cifra grandes volúmenes. Con AEAD añade integridad y autenticación de datos asociados."><strong>Simétrica</strong><p class="muted">AES-GCM · ChaCha20-Poly1305</p></div>
+<div class="mind-node family-card" data-detail="Par pública/privada: se usa para acuerdo, encapsulación o cifrado de material pequeño."><strong>Asimétrica</strong><p class="muted">RSA-OAEP · ECDH · HPKE</p></div>
+<div class="mind-center"><strong>Criptosistemas modernos</strong><p>Elegir por propiedad y modelo de claves</p></div>
+<div class="mind-node family-card" data-detail="Clave secreta compartida: autentica mensajes, pero no ofrece verificabilidad pública."><strong>MAC</strong><p class="muted">HMAC · Poly1305</p></div>
+<div class="mind-node family-card" data-detail="La clave privada firma y la pública verifica. Aporta autenticidad e integridad verificables por terceros."><strong>Firma</strong><p class="muted">RSA-PSS · ECDSA · EdDSA</p></div>
+<div class="mind-node family-card" data-detail="Transforma un secreto o contraseña en claves separadas. HKDF y PBKDF2 resuelven problemas distintos."><strong>KDF</strong><p class="muted">HKDF · PBKDF2 · Argon2id</p></div>
+</div>
+<div id="family-detail" class="status">Seleccioná una familia para ver su función y su límite.</div>
+</article>
+
+<article class="panel">
+<h2>Asistente de decisión</h2>
+<div class="control"><label for="scenario">¿Qué problema necesitás resolver?</label>
+<select id="scenario">
+<option value="">Seleccionar…</option><option value="archivo">Proteger un archivo grande</option>
+<option value="firma">Permitir verificación pública</option><option value="sesion">Crear una clave de sesión</option>
+<option value="password">Almacenar o derivar desde contraseña</option><option value="hash">Calcular una huella</option>
+<option value="certificado">Vincular identidad y clave pública</option>
+</select></div>
+<div id="classification-result" class="status">La respuesta debe incluir primitiva, propiedad y condición crítica.</div>
+</article>
+
+<article class="panel">
+<h2>Matriz de propiedades</h2>
+<div class="matrix" aria-label="Matriz conceptual">
+<div class="cell"><strong>Familia</strong></div><div class="cell"><strong>Confid.</strong></div><div class="cell"><strong>Integridad</strong></div><div class="cell"><strong>Aut. pública</strong></div><div class="cell"><strong>Clave</strong></div>
+<div class="cell">AEAD</div><div class="cell good">Sí</div><div class="cell good">Sí</div><div class="cell warn">No</div><div class="cell">Secreta</div>
+<div class="cell">HMAC</div><div class="cell bad">No</div><div class="cell good">Sí</div><div class="cell warn">No</div><div class="cell">Secreta</div>
+<div class="cell">Firma</div><div class="cell bad">No</div><div class="cell good">Sí</div><div class="cell good">Sí</div><div class="cell">Par</div>
+<div class="cell">Hash</div><div class="cell bad">No</div><div class="cell warn">Huella</div><div class="cell bad">No</div><div class="cell">Ninguna</div>
+</div>
+</article>
+
+<article class="panel full">
+<h2>Clasificación por capas</h2>
+<div class="flow">
+<div class="flow-node"><strong>Primitiva</strong><p class="muted">AES, SHA-256, ECDH, ECDSA.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Esquema</strong><p class="muted">AES-GCM, RSA-OAEP, RSA-PSS.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Protocolo</strong><p class="muted">TLS 1.3, HPKE, Signal.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Sistema</strong><p class="muted">Aplicación, identidad, almacenamiento y operación.</p></div>
+</div>
+<p class="muted">Una primitiva segura puede quedar debilitada por un esquema incorrecto, una composición incompleta o una operación defectuosa.</p>
+</article>
+</section>
+
+<footer class="footer">
+<p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+<p>Los modelos y ataques se ejecutan con datos ficticios y fines educativos. Para producción deben utilizarse bibliotecas mantenidas, estándares vigentes y revisión profesional.</p>
+</footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/programa-glosario-data.js"></script>
+<script src="assets/programa-cuestionario-data.js"></script>
+<script src="assets/programa-moderno.js"></script>
+</body></html>

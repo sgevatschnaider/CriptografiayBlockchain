@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Simulación conceptual de RSA, ECDH, ECIES, HPKE, HKDF, AEAD y ataques MITM.">
+<meta name="theme-color" content="#06101d">
+<title>Cifrado híbrido y claves de sesión</title>
+<link rel="stylesheet" href="../assets/lab.css">
+<link rel="stylesheet" href="assets/programa-moderno.css">
+</head>
+<body data-modern-page="hibrido">
+<main class="shell">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <div class="brand"><a href="index.html">← Módulo 3</a></div>
+  <nav class="nav" aria-label="Navegación">
+    <a href="teoria-programa.html">Teoría</a>
+    <a href="clasificacion-criptosistemas.html">Clasificación</a>
+    <a href="algoritmos-simetricos.html">Simétrica</a>
+    <a href="cifrado-hibrido-sesion.html">Asimétrica</a>
+    <a href="ataque-contrasenas.html">Contraseñas</a>
+    <a href="mapas-programa.html">Mapas</a>
+    <a href="glosario-programa.html">Glosario</a>
+    <a href="cuestionario-programa.html">Evaluación</a>
+    <label class="theme-control">Tema
+      <select data-theme-select aria-label="Tema visual">
+        <option value="nocturno">Nocturno</option><option value="claro">Claro</option>
+        <option value="contraste">Alto contraste</option><option value="oceano">Océano</option>
+      </select>
+    </label>
+  </nav>
+</header>
+<div id="contenido" tabindex="-1"></div>
+
+<section class="hero">
+<div class="eyebrow">Simulación conceptual · RSA, ECC, HPKE y sesión</div>
+<h1>Cifrado híbrido y claves de sesión</h1>
+<p>Construí una arquitectura moderna sin caer en la idea de “cifrar todo con RSA o con una curva”. El laboratorio muestra cómo el componente asimétrico autentica, acuerda o encapsula; HKDF separa claves; y AEAD protege los datos.</p>
+</section>
+<section class="grid">
+<article class="panel">
+<h2>Elegí la familia híbrida</h2>
+<div class="control"><label for="hybrid-method">Mecanismo</label><select id="hybrid-method">
+<option value="ecdh">ECDH/X25519 + HKDF + AEAD</option>
+<option value="rsa">RSA-OAEP + clave aleatoria + AEAD</option>
+<option value="hpke">HPKE: KEM + KDF + AEAD</option>
+</select></div>
+<div class="control"><label><input id="hybrid-auth" type="checkbox" checked> Autenticar la clave pública</label></div>
+<div id="mitm-status" class="status"></div>
+</article>
+<article class="panel">
+<h2>Flujo de composición</h2>
+<div id="hybrid-flow" class="flow"></div>
+</article>
+
+<article class="panel full">
+<h2>RSA frente a criptografía elíptica</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Dimensión</th><th>RSA</th><th>ECC</th><th>Interpretación</th></tr></thead>
+<tbody>
+<tr><td>Supuesto</td><td>Factorización</td><td>Logaritmo discreto elíptico</td><td>Ambos dependen de problemas difíciles clásicos</td></tr>
+<tr><td>Cifrado/acuerdo</td><td>RSA-OAEP encapsula o cifra material pequeño</td><td>ECDH/X25519 acuerda secreto</td><td>Los datos grandes van a AEAD</td></tr>
+<tr><td>Firma</td><td>RSA-PSS</td><td>ECDSA/EdDSA</td><td>La firma no cifra</td></tr>
+<tr><td>Tamaño de clave</td><td>Mayor</td><td>Menor para seguridad clásica comparable</td><td>No comparar solo bits nominales</td></tr>
+<tr><td>Amenaza cuántica</td><td>Shor</td><td>Shor</td><td>Ambos requieren migración poscuántica</td></tr>
+</tbody></table></div>
+</article>
+
+<article class="panel">
+<h2>ECIES y HPKE</h2>
+<p><strong>ECIES</strong> representa una familia de composiciones basadas en acuerdo elíptico, KDF y cifrado simétrico. No es “una curva que cifra el archivo”.</p>
+<p><strong>HPKE</strong> formaliza una composición modular: KEM para secreto compartido, KDF para claves contextuales y AEAD para datos.</p>
+<p>En esta ruta, el AEAD puede ser <strong>AES-GCM</strong> o ChaCha20-Poly1305.</p>
+<div class="flow">
+<div class="flow-node"><strong>KEM</strong><p class="muted">Encapsula secreto.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>KDF</strong><p class="muted">Deriva claves.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>AEAD</strong><p class="muted">Cifra y autentica.</p></div>
+</div>
+</article>
+
+<article class="panel">
+<h2>Claves de sesión</h2>
+<ul>
+<li>Se limitan a una conexión, archivo o intercambio.</li>
+<li>Permiten rotación frecuente y separación por contexto.</li>
+<li>Reducen el impacto de una clave expuesta.</li>
+<li>Con claves efímeras pueden aportar forward secrecy.</li>
+<li>No deben reutilizarse en protocolos o propósitos distintos sin KDF.</li>
+</ul>
+</article>
+
+<article class="panel full">
+<h2>Modelo de ataque man-in-the-middle</h2>
+<div class="flow">
+<div class="flow-node"><strong>Alice</strong><p class="muted">Cree recibir la pública de Bob.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node" style="border-color:var(--bad)"><strong>Mallory</strong><p class="muted">Sustituye claves y crea dos secretos.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Bob</strong><p class="muted">Cree recibir la pública de Alice.</p></div>
+</div>
+<p>El acuerdo matemático puede funcionar perfectamente en ambos lados y, sin embargo, la comunicación quedar interceptada. La solución es autenticar las claves mediante firmas, certificados, huellas verificadas, PSK o un protocolo autenticado.</p>
+</article>
+</section>
+
+<footer class="footer">
+<p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+<p>Los modelos y ataques se ejecutan con datos ficticios y fines educativos. Para producción deben utilizarse bibliotecas mantenidas, estándares vigentes y revisión profesional.</p>
+</footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/programa-glosario-data.js"></script>
+<script src="assets/programa-cuestionario-data.js"></script>
+<script src="assets/programa-moderno.js"></script>
+</body></html>

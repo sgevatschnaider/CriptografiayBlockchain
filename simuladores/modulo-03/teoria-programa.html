@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Teoría integral sobre fundamentos, clasificación, criptografía simétrica y asimétrica, bits de seguridad, modos, padding, RSA, ECC, claves de sesión y contraseñas.">
+<meta name="theme-color" content="#06101d">
+<title>Teoría completa de criptografía moderna</title>
+<link rel="stylesheet" href="../assets/lab.css">
+<link rel="stylesheet" href="assets/programa-moderno.css">
+</head>
+<body data-modern-page="teoria">
+<main class="shell">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <div class="brand"><a href="index.html">← Módulo 3</a></div>
+  <nav class="nav" aria-label="Navegación">
+    <a href="teoria-programa.html">Teoría</a>
+    <a href="clasificacion-criptosistemas.html">Clasificación</a>
+    <a href="algoritmos-simetricos.html">Simétrica</a>
+    <a href="cifrado-hibrido-sesion.html">Asimétrica</a>
+    <a href="ataque-contrasenas.html">Contraseñas</a>
+    <a href="mapas-programa.html">Mapas</a>
+    <a href="glosario-programa.html">Glosario</a>
+    <a href="cuestionario-programa.html">Evaluación</a>
+    <label class="theme-control">Tema
+      <select data-theme-select aria-label="Tema visual">
+        <option value="nocturno">Nocturno</option><option value="claro">Claro</option>
+        <option value="contraste">Alto contraste</option><option value="oceano">Océano</option>
+      </select>
+    </label>
+  </nav>
+</header>
+<div id="contenido" tabindex="-1"></div>
+
+<section class="hero">
+  <div class="eyebrow">Programa completo · material exclusivamente teórico</div>
+  <h1>Criptografía moderna: de los fundamentos a las claves de sesión</h1>
+  <p>Desarrollo integrado de los doce puntos del programa. La unidad distingue primitivas, esquemas, protocolos, propiedades, supuestos y errores de implementación. No ejecuta operaciones criptográficas: organiza la teoría mediante mapas, diagramas, tablas y preguntas de control.</p>
+  <div class="actions"><a class="button" href="#fundamentos">Comenzar la lectura</a><a class="button secondary" href="mapas-programa.html">Abrir mapas mentales</a></div>
+</section>
+
+<section class="grid">
+<article class="panel full" id="fundamentos">
+<h2>1. Fundamentos de la criptografía moderna</h2>
+<p>La criptografía moderna no se define por usar computadoras, sino por expresar la seguridad como una propiedad medible frente a un adversario con capacidades delimitadas. Una construcción debe declarar qué protege, quién ataca, qué información recibe, cuándo gana, cuánto puede gastar y de qué supuesto depende la garantía.</p>
+<div class="flow">
+<div class="flow-node"><strong>Propiedad</strong><p class="muted">Confidencialidad, integridad, autenticidad, no repudio, anonimato o privacidad.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Adversario</strong><p class="muted">Acceso a criptogramas, oráculos, claves públicas, tiempos o dispositivos.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Victoria</strong><p class="muted">Distinguir, falsificar, recuperar, correlacionar o alterar sin detección.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Recursos</strong><p class="muted">Tiempo, memoria, datos, consultas, energía y paralelismo.</p></div>
+</div>
+<details open><summary>Principio de Kerckhoffs</summary><p>El diseño del sistema puede ser público. La seguridad no debe depender de ocultar el algoritmo, sino de claves protegidas, parámetros correctos, supuestos públicos y una implementación verificable.</p></details>
+<details><summary>Seguridad perfecta y seguridad computacional</summary><p>El secreto perfecto exige que observar el criptograma no cambie la distribución del mensaje. La seguridad computacional admite que un ataque pueda existir en teoría, pero exige que su costo sea inviable para adversarios eficientes.</p></details>
+</article>
+
+<article class="panel full" id="clasificacion">
+<h2>2. Clasificación de criptosistemas modernos</h2>
+<p>La clasificación más útil no separa solamente “simétrica” y “asimétrica”. También distingue la propiedad aportada y el modelo de claves.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Familia</th><th>Clave</th><th>Propiedad principal</th><th>Ejemplos</th><th>No debe confundirse con</th></tr></thead>
+<tbody>
+<tr><td>Cifrado simétrico</td><td>Secreto compartido</td><td>Confidencialidad; con AEAD también integridad</td><td>AES-GCM, ChaCha20-Poly1305</td><td>Firma digital</td></tr>
+<tr><td>Cifrado/asociación asimétrica</td><td>Par pública/privada</td><td>Encapsulación, acuerdo o cifrado de material pequeño</td><td>RSA-OAEP, ECDH, HPKE</td><td>Cifrar archivos completos con RSA</td></tr>
+<tr><td>Firma digital</td><td>Privada firma; pública verifica</td><td>Autenticidad e integridad verificables públicamente</td><td>RSA-PSS, ECDSA, EdDSA</td><td>MAC</td></tr>
+<tr><td>Hash</td><td>Sin clave</td><td>Huella, compromiso de integridad, componente de protocolos</td><td>SHA-256, SHA-3</td><td>Cifrado</td></tr>
+<tr><td>MAC</td><td>Secreto compartido</td><td>Integridad y autenticación simétrica</td><td>HMAC-SHA-256, Poly1305</td><td>Firma pública</td></tr>
+<tr><td>KDF</td><td>Secreto o contraseña</td><td>Derivación y separación de claves</td><td>HKDF, PBKDF2, Argon2id</td><td>Generador aleatorio</td></tr>
+<tr><td>KEM</td><td>Par pública/privada</td><td>Encapsular un secreto compartido</td><td>ML-KEM, componente KEM de HPKE</td><td>AEAD</td></tr>
+</tbody></table></div>
+</article>
+
+<article class="panel" id="simetrica">
+<h2>3. Criptografía simétrica</h2>
+<p>Emisor y receptor comparten una clave secreta. Su velocidad y eficiencia la convierten en la herramienta normal para proteger datos voluminosos. El problema principal no es la matemática del cifrador, sino distribuir, almacenar, rotar y revocar la clave.</p>
+<ul><li>Alta velocidad y baja sobrecarga.</li><li>Escala mal si cada par de participantes necesita un secreto distinto.</li><li>Requiere nonces, IV, modos y autenticación correctamente elegidos.</li><li>La clave debe provenir de un CSPRNG o de una derivación adecuada.</li></ul>
+</article>
+
+<article class="panel" id="bits">
+<h2>4. Bits de seguridad</h2>
+<p>Los bits de seguridad expresan el costo logarítmico del mejor ataque conocido. Una clave ideal de <em>k</em> bits ofrece un espacio de <em>2<sup>k</sup></em> candidatos, pero la seguridad efectiva puede ser menor por ataques estructurales, contraseñas predecibles, protocolos defectuosos o computación cuántica.</p>
+<div class="diagram-bars">
+<div class="diagram-bar"><strong>64 bits</strong><div class="bar-track"><div class="bar-fill" style="--w:25%"></div></div><span>histórico</span></div>
+<div class="diagram-bar"><strong>112 bits</strong><div class="bar-track"><div class="bar-fill" style="--w:58%"></div></div><span>transición</span></div>
+<div class="diagram-bar"><strong>128 bits</strong><div class="bar-track"><div class="bar-fill" style="--w:72%"></div></div><span>fuerte</span></div>
+<div class="diagram-bar"><strong>256 bits</strong><div class="bar-track"><div class="bar-fill" style="--w:100%"></div></div><span>margen</span></div>
+</div>
+<p class="muted">El gráfico es conceptual: no representa tiempos físicos concretos. Paralelizar reduce tiempo de pared, pero no elimina trabajo total.</p>
+</article>
+
+<article class="panel" id="bloques">
+<h2>5. Cifrado por bloques y por flujo</h2>
+<p>Un cifrador por bloques transforma unidades de tamaño fijo bajo una clave. AES procesa bloques de 128 bits. Un cifrador de flujo genera una secuencia pseudoaleatoria que se combina con el mensaje mediante XOR.</p>
+<div class="flow">
+<div class="flow-node"><strong>Bloques</strong><p class="muted">AES + modo. Necesita definir encadenamiento, nonce, padding y autenticación.</p></div>
+<div class="flow-arrow">↔</div>
+<div class="flow-node"><strong>Flujo</strong><p class="muted">ChaCha20 o AES-CTR. No debe repetirse el keystream.</p></div>
+</div>
+<p><strong>Error fatal:</strong> si se reutiliza el mismo flujo, <code>C₁ ⊕ C₂ = M₁ ⊕ M₂</code>. La clave desaparece de la ecuación y queda expuesta una relación entre mensajes.</p>
+</article>
+
+<article class="panel" id="modos">
+<h2>6. Modos de operación</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Modo</th><th>Tipo</th><th>Garantía</th><th>Condición crítica</th></tr></thead>
+<tbody>
+<tr><td>ECB</td><td>Bloques independientes</td><td>No oculta estructura repetida</td><td>Evitar</td></tr>
+<tr><td>CBC</td><td>Encadenado</td><td>Confidencialidad si se usa bien</td><td>IV apropiado + MAC separado</td></tr>
+<tr><td>CTR</td><td>Bloque convertido en flujo</td><td>Confidencialidad</td><td>Contador/nonce no repetido</td></tr>
+<tr><td>GCM</td><td>AEAD</td><td>Confidencialidad + integridad + AAD</td><td>Nonce único por clave</td></tr>
+<tr><td>XTS</td><td>Almacenamiento</td><td>Protección de sectores</td><td>No sustituye AEAD general</td></tr>
+</tbody></table></div>
+</article>
+
+<article class="panel" id="padding">
+<h2>7. Padding</h2>
+<p>Cuando un modo exige bloques completos, el último bloque debe rellenarse de forma inequívoca. PKCS#7 agrega <em>n</em> bytes cuyo valor es <em>n</em>. Si faltan cinco bytes, se agregan cinco bytes <code>05</code>.</p>
+<div class="bit-row"><span class="byte">41</span><span class="byte">42</span><span class="byte">43</span><span class="byte" style="border-color:var(--warn)">0d</span><span class="byte" style="border-color:var(--warn)">0d</span><span class="byte" style="border-color:var(--warn)">…</span></div>
+<p>El padding no autentica. Si una aplicación revela si el relleno es válido, puede crear un <strong>oráculo de padding</strong>. La defensa moderna es preferir AEAD, uniformar errores y no procesar datos antes de verificar autenticidad.</p>
+</article>
+
+<article class="panel full" id="algoritmos-simetricos">
+<h2>8. Algoritmos de cifrado simétrico</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Algoritmo</th><th>Naturaleza</th><th>Fortaleza</th><th>Uso recomendado</th><th>Advertencia</th></tr></thead>
+<tbody>
+<tr><td>AES</td><td>Bloques de 128 bits</td><td>Claves 128/192/256</td><td>AES-GCM para datos y protocolos; XTS para sectores</td><td>No usar “AES solo” ni ECB</td></tr>
+<tr><td>ChaCha20</td><td>Flujo</td><td>Clave de 256 bits</td><td>ChaCha20-Poly1305, especialmente en software y móviles</td><td>Nonce único</td></tr>
+<tr><td>DES</td><td>Bloques de 64 bits</td><td>Clave efectiva de 56 bits</td><td>Solo historia</td><td>Roto por fuerza bruta</td></tr>
+<tr><td>3DES</td><td>Bloques de 64 bits</td><td>Margen limitado y bloques pequeños</td><td>Migración desde legado</td><td>Retirado de usos modernos</td></tr>
+</tbody></table></div>
+<p>El algoritmo no determina por sí solo la seguridad. Importan el modo, la generación de claves, el nonce, la autenticación, la implementación y el protocolo.</p>
+</article>
+
+<article class="panel" id="asimetrica">
+<h2>9. Criptografía asimétrica</h2>
+<p>Utiliza pares de claves relacionadas matemáticamente. La clave pública puede distribuirse; la privada debe permanecer protegida. Su costo hace que se use principalmente para acuerdo, encapsulación, firmas y protección de claves de sesión.</p>
+<ul><li>Resuelve distribución de claves mejor que un secreto previo.</li><li>No resuelve automáticamente la identidad de la clave pública.</li><li>Necesita certificados, firmas, huellas o canales autenticados.</li><li>Los sistemas reales combinan asimétrica y simétrica.</li></ul>
+</article>
+
+<article class="panel" id="rsa-ec">
+<h2>10. RSA y curvas elípticas</h2>
+<p><strong>RSA</strong> se basa en la dificultad de factorización y debe usarse con esquemas seguros: OAEP para cifrado y PSS para firma. El RSA “de libro” es determinista e inseguro.</p>
+<p><strong>ECC</strong> se basa en el logaritmo discreto sobre grupos de puntos de curvas. ECDH/X25519 acuerdan secretos; ECDSA/EdDSA firman. No se usa una operación EC aislada para cifrar archivos enteros.</p>
+<p><strong>ECIES y HPKE</strong> son composiciones híbridas: un acuerdo o KEM produce un secreto, una KDF deriva claves y un AEAD protege los datos.</p>
+</article>
+
+<article class="panel full" id="sesion">
+<h2>11. Claves de sesión</h2>
+<p>Una clave de sesión es efímera, está limitada a una conexión o intercambio y reduce el impacto de una exposición. El patrón moderno es:</p>
+<div class="flow">
+<div class="flow-node"><strong>Autenticar claves públicas</strong><p class="muted">Certificado, firma, huella o clave precompartida.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Acuerdo/KEM</strong><p class="muted">ECDH, X25519, RSA-OAEP o ML-KEM.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>KDF</strong><p class="muted">HKDF extrae, expande y separa contextos.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>AEAD</strong><p class="muted">AES-GCM o ChaCha20-Poly1305.</p></div>
+</div>
+<p>La autenticación es indispensable: ECDH sin autenticación permite un ataque man-in-the-middle. La renovación de claves y la <em>forward secrecy</em> limitan el daño de compromisos futuros.</p>
+</article>
+
+<article class="panel full" id="passwords">
+<h2>12. Vulneración de contraseñas: modelo teórico</h2>
+<p>Una contraseña no es una clave aleatoria. Los atacantes explotan diccionarios, fechas, nombres, patrones de teclado, reglas de sustitución y máscaras. En un ataque offline, el atacante posee una representación verificable y puede probar candidatos sin bloqueos de cuenta.</p>
+<div class="flow">
+<div class="flow-node"><strong>Objetivo robado</strong><p class="muted">Salt, parámetros y hash o clave derivada.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Candidato</strong><p class="muted">Diccionario, máscara o fuerza bruta acotada.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>KDF</strong><p class="muted">Se repite con mismos parámetros.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Comparación</strong><p class="muted">Coincidencia significa recuperación del candidato.</p></div>
+</div>
+<div class="table-wrap"><table>
+<thead><tr><th>Medida</th><th>Qué aporta</th><th>Qué no aporta</th></tr></thead>
+<tbody>
+<tr><td>Salt única</td><td>Evita tablas reutilizables y hashes idénticos entre usuarios</td><td>No impide probar cada candidato</td></tr>
+<tr><td>KDF costosa</td><td>Aumenta tiempo/memoria por intento</td><td>No crea entropía humana</td></tr>
+<tr><td>Contraseña larga y aleatoria</td><td>Aumenta espacio efectivo</td><td>No compensa filtración o reutilización</td></tr>
+<tr><td>MFA</td><td>Agrega otro factor en autenticación online</td><td>No cambia necesariamente un hash offline robado</td></tr>
+</tbody></table></div>
+<p><strong>Regla:</strong> usar Argon2id cuando el entorno lo permita; scrypt, bcrypt o PBKDF2 según compatibilidad y requisitos; salts únicas; parámetros actualizables; gestores de contraseñas y MFA.</p>
+</article>
+
+<article class="panel full">
+<h2>Mapa mental de integración</h2>
+<div class="mindmap" aria-label="Mapa mental de criptografía moderna">
+<div class="mind-node"><strong>Fundamentos</strong><p class="muted">Propiedad · adversario · ventaja · supuestos</p></div>
+<div class="mind-node"><strong>Simétrica</strong><p class="muted">AES · ChaCha20 · modos · nonces · AEAD</p></div>
+<div class="mind-node"><strong>Asimétrica</strong><p class="muted">RSA · ECC · firmas · acuerdo · KEM</p></div>
+<div class="mind-center"><strong>Criptografía moderna</strong><p>Composición segura de primitivas</p></div>
+<div class="mind-node"><strong>Claves</strong><p class="muted">CSPRNG · KDF · sesión · rotación · revocación</p></div>
+<div class="mind-node"><strong>Implementación</strong><p class="muted">Web Crypto · errores uniformes · canales laterales</p></div>
+<div class="mind-node"><strong>Protocolos</strong><p class="muted">TLS · HPKE · PKI · cifrado híbrido</p></div>
+</div>
+</article>
+</section>
+
+<footer class="footer">
+<p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+<p>Los modelos y ataques se ejecutan con datos ficticios y fines educativos. Para producción deben utilizarse bibliotecas mantenidas, estándares vigentes y revisión profesional.</p>
+</footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/programa-glosario-data.js"></script>
+<script src="assets/programa-cuestionario-data.js"></script>
+<script src="assets/programa-moderno.js"></script>
+</body></html>

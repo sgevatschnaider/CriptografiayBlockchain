@@ -1,208 +1,50 @@
+
 (() => {
   'use strict';
+  const STORAGE_KEY='criptografia-modulo-03-progreso';
+  const THEME_KEY='criptografia-tema-global';
+  const CURRICULUM=Object.freeze(['fundamentos','bloques-flujo','kdf','aes-aead','archivos','hash-mac-firma','oraculo-padding','clave-publica','glosario','cuestionario']);
+  const pageId=document.body.dataset.modulePage||'';
+  let toastTimer=0;
 
-  const STORAGE_KEY = 'criptografia-modulo-03-progreso';
-  const CURRICULUM = Object.freeze([
-    'fundamentos',
-    'bloques-flujo',
-    'kdf',
-    'aes-aead',
-    'archivos',
-    'hash-mac-firma',
-    'oraculo-padding',
-    'clave-publica',
-    'glosario',
-    'cuestionario'
-  ]);
-
-  const pageId = document.body.dataset.modulePage || '';
-  let toastTimer = 0;
-
-  function emptyProgress() {
-    return { visited: [], completed: [], bestQuiz: 0, updatedAt: null };
+  function emptyProgress(){return {visited:[],completed:[],bestQuiz:0,updatedAt:null};}
+  function readProgress(){try{const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!p||typeof p!=='object')return emptyProgress();return{visited:Array.isArray(p.visited)?p.visited:[],completed:Array.isArray(p.completed)?p.completed:[],bestQuiz:Number(p.bestQuiz)||0,updatedAt:p.updatedAt||null};}catch{return emptyProgress();}}
+  function writeProgress(progress){const next={visited:[...new Set(progress.visited||[])].filter(id=>CURRICULUM.includes(id)),completed:[...new Set(progress.completed||[])].filter(id=>CURRICULUM.includes(id)),bestQuiz:Math.max(0,Math.min(100,Number(progress.bestQuiz)||0)),updatedAt:new Date().toISOString()};try{localStorage.setItem(STORAGE_KEY,JSON.stringify(next));}catch{} updateProgressUi(next);return next;}
+  function markVisited(id){if(!CURRICULUM.includes(id))return readProgress();const p=readProgress();p.visited.push(id);return writeProgress(p);}
+  function setCompleted(id,complete=true){if(!CURRICULUM.includes(id))return readProgress();const p=readProgress();p.visited.push(id);p.completed=complete?[...p.completed,id]:p.completed.filter(x=>x!==id);return writeProgress(p);}
+  function setBestQuiz(score){const p=readProgress();p.bestQuiz=Math.max(p.bestQuiz,Number(score)||0);if(score>=70)p.completed.push('cuestionario');return writeProgress(p);}
+  function updateProgressUi(progress=readProgress()){const completed=new Set(progress.completed);const percent=Math.round(completed.size/CURRICULUM.length*100);
+    document.querySelectorAll('[data-module-progress]').forEach(root=>{const bar=root.querySelector('[data-progress-bar]'),label=root.querySelector('[data-progress-label]'),count=root.querySelector('[data-progress-count]');if(bar)bar.style.width=`${percent}%`;if(label)label.textContent=`${percent}%`;if(count)count.textContent=`${completed.size}/${CURRICULUM.length}`;root.setAttribute('aria-label',`Progreso del Módulo 3: ${completed.size} de ${CURRICULUM.length}`);});
+    document.querySelectorAll('[data-module-station]').forEach(c=>c.checked=completed.has(c.dataset.moduleStation));
+    document.querySelectorAll('[data-complete-page]').forEach(b=>{const id=b.dataset.completePage||pageId,isComplete=completed.has(id);b.setAttribute('aria-pressed',String(isComplete));b.textContent=isComplete?'✓ Recurso completado':'Marcar como completado';});
+    document.querySelectorAll('[data-best-quiz]').forEach(e=>e.textContent=`${progress.bestQuiz}%`);
   }
+  function announce(message,type='good'){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.setAttribute('aria-live','polite');document.body.append(t);}t.dataset.type=type;t.textContent=message;t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.hidden=true,3200);}
+  function initCompleteButtons(){document.querySelectorAll('[data-complete-page]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.completePage||pageId;const done=readProgress().completed.includes(id);setCompleted(id,!done);announce(done?'El recurso volvió a quedar pendiente.':'Recurso guardado como completado.');}));}
+  function safeText(value){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
+  function randomInt(max){if(!Number.isInteger(max)||max<=0)throw new RangeError('El máximo debe ser un entero positivo.');const limit=Math.floor(0x1_0000_0000/max)*max,value=new Uint32Array(1);do crypto.getRandomValues(value);while(value[0]>=limit);return value[0]%max;}
+  function shuffle(values){const r=values.slice();for(let i=r.length-1;i>0;i--){const j=randomInt(i+1);[r[i],r[j]]=[r[j],r[i]];}return r;}
+  function randomBytes(length){const bytes=new Uint8Array(length);crypto.getRandomValues(bytes);return bytes;}
+  function popcount(value){let current=value>>>0,count=0;while(current){current&=current-1;count++;}return count;}
+  function hammingBytes(a,b){const length=Math.min(a.length,b.length);let distance=Math.abs(a.length-b.length)*8;for(let i=0;i<length;i++)distance+=popcount(a[i]^b[i]);return distance;}
 
-  function readProgress() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-      if (!parsed || typeof parsed !== 'object') return emptyProgress();
-      return {
-        visited: Array.isArray(parsed.visited) ? parsed.visited : [],
-        completed: Array.isArray(parsed.completed) ? parsed.completed : [],
-        bestQuiz: Number(parsed.bestQuiz) || 0,
-        updatedAt: parsed.updatedAt || null
-      };
-    } catch {
-      return emptyProgress();
-    }
+  const THEMES={
+    nocturno:{bg:'#06101d',surface:'#0d1d31',surface2:'#102943',text:'#edf6ff',muted:'#a9bdd0',accent:'#5de4ff',accent2:'#b48cff',line:'#29465f'},
+    claro:{bg:'#f3f7fb',surface:'#ffffff',surface2:'#eaf2f8',text:'#102033',muted:'#4f6476',accent:'#0068a8',accent2:'#6747b8',line:'#c5d3df'},
+    contraste:{bg:'#000000',surface:'#080808',surface2:'#151515',text:'#ffffff',muted:'#eeeeee',accent:'#00ffff',accent2:'#ffff00',line:'#ffffff'},
+    oceano:{bg:'#021a24',surface:'#062c3a',surface2:'#0b4353',text:'#effcff',muted:'#b6dfe7',accent:'#4fffe1',accent2:'#60a5fa',line:'#287789'}
+  };
+  function applyTheme(name){const theme=THEMES[name]||THEMES.nocturno;document.documentElement.dataset.theme=name in THEMES?name:'nocturno';document.documentElement.style.colorScheme=name==='claro'?'light':'dark';
+    const root=document.documentElement;root.style.setProperty('--bg',theme.bg);root.style.setProperty('--panel',theme.surface);root.style.setProperty('--surface',theme.surface);root.style.setProperty('--surface-strong',theme.surface2);root.style.setProperty('--surface-soft',theme.surface2);root.style.setProperty('--text',theme.text);root.style.setProperty('--muted',theme.muted);root.style.setProperty('--accent',theme.accent);root.style.setProperty('--cyan',theme.accent);root.style.setProperty('--violet',theme.accent2);root.style.setProperty('--accent-2',theme.accent2);root.style.setProperty('--line',theme.line);root.style.setProperty('--border',theme.line);root.style.setProperty('--border-strong',theme.accent);
+    try{localStorage.setItem(THEME_KEY,name);}catch{} document.querySelectorAll('[data-theme-select]').forEach(s=>s.value=name);
   }
-
-  function writeProgress(progress) {
-    const next = {
-      visited: [...new Set(progress.visited || [])].filter((id) => CURRICULUM.includes(id)),
-      completed: [...new Set(progress.completed || [])].filter((id) => CURRICULUM.includes(id)),
-      bestQuiz: Math.max(0, Math.min(100, Number(progress.bestQuiz) || 0)),
-      updatedAt: new Date().toISOString()
-    };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // El recorrido sigue disponible si el navegador bloquea localStorage.
-    }
-    updateProgressUi(next);
-    return next;
+  function injectThemeControl(){if(document.querySelector('[data-theme-select]'))return;const style=document.createElement('style');style.textContent='.crypto-theme-switch{position:fixed;right:14px;bottom:14px;z-index:950;display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid var(--border,var(--line));border-radius:999px;background:var(--surface-strong,var(--panel));color:var(--text);box-shadow:0 12px 32px #0005}.crypto-theme-switch select{border:0;background:transparent;color:inherit;font:700 .82rem inherit}.crypto-theme-switch label{font-size:.75rem;font-weight:900}@media(max-width:640px){.crypto-theme-switch{right:8px;bottom:8px}}';document.head.append(style);
+    const box=document.createElement('div');box.className='crypto-theme-switch';box.innerHTML='<label for="crypto-theme-select">Tema</label><select id="crypto-theme-select" data-theme-select><option value="nocturno">Nocturno</option><option value="claro">Claro</option><option value="contraste">Contraste</option><option value="oceano">Océano</option></select>';document.body.append(box);
   }
-
-  function markVisited(id) {
-    if (!CURRICULUM.includes(id)) return readProgress();
-    const progress = readProgress();
-    progress.visited.push(id);
-    return writeProgress(progress);
-  }
-
-  function setCompleted(id, complete = true) {
-    if (!CURRICULUM.includes(id)) return readProgress();
-    const progress = readProgress();
-    progress.visited.push(id);
-    progress.completed = complete
-      ? [...progress.completed, id]
-      : progress.completed.filter((item) => item !== id);
-    return writeProgress(progress);
-  }
-
-  function setBestQuiz(score) {
-    const progress = readProgress();
-    progress.bestQuiz = Math.max(progress.bestQuiz, Number(score) || 0);
-    if (score >= 70) progress.completed.push('cuestionario');
-    return writeProgress(progress);
-  }
-
-  function updateProgressUi(progress = readProgress()) {
-    const completed = new Set(progress.completed);
-    const percent = Math.round((completed.size / CURRICULUM.length) * 100);
-
-    document.querySelectorAll('[data-module-progress]').forEach((root) => {
-      const bar = root.querySelector('[data-progress-bar]');
-      const label = root.querySelector('[data-progress-label]');
-      const count = root.querySelector('[data-progress-count]');
-      if (bar) bar.style.width = `${percent}%`;
-      if (label) label.textContent = `${percent}%`;
-      if (count) count.textContent = `${completed.size}/${CURRICULUM.length}`;
-      root.setAttribute('aria-label', `Progreso del Módulo 3: ${completed.size} de ${CURRICULUM.length}`);
-    });
-
-    document.querySelectorAll('[data-module-station]').forEach((checkbox) => {
-      checkbox.checked = completed.has(checkbox.dataset.moduleStation);
-    });
-
-    document.querySelectorAll('[data-complete-page]').forEach((button) => {
-      const id = button.dataset.completePage || pageId;
-      const isComplete = completed.has(id);
-      button.setAttribute('aria-pressed', String(isComplete));
-      button.textContent = isComplete ? '✓ Recurso completado' : 'Marcar como completado';
-    });
-
-    document.querySelectorAll('[data-best-quiz]').forEach((element) => {
-      element.textContent = `${progress.bestQuiz}%`;
-    });
-  }
-
-  function announce(message, type = 'good') {
-    let toast = document.querySelector('.toast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.setAttribute('role', 'status');
-      toast.setAttribute('aria-live', 'polite');
-      document.body.append(toast);
-    }
-    toast.dataset.type = type;
-    toast.textContent = message;
-    toast.hidden = false;
-    window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => {
-      toast.hidden = true;
-    }, 3200);
-  }
-
-  function initCompleteButtons() {
-    document.querySelectorAll('[data-complete-page]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const id = button.dataset.completePage || pageId;
-        const completed = readProgress().completed.includes(id);
-        setCompleted(id, !completed);
-        announce(completed ? 'El recurso volvió a quedar pendiente.' : 'Recurso guardado como completado.');
-      });
-    });
-  }
-
-  function safeText(value) {
-    return String(value)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-  }
-
-  function randomInt(max) {
-    if (!Number.isInteger(max) || max <= 0) throw new RangeError('El máximo debe ser un entero positivo.');
-    const limit = Math.floor(0x1_0000_0000 / max) * max;
-    const value = new Uint32Array(1);
-    do crypto.getRandomValues(value); while (value[0] >= limit);
-    return value[0] % max;
-  }
-
-  function shuffle(values) {
-    const result = values.slice();
-    for (let index = result.length - 1; index > 0; index -= 1) {
-      const other = randomInt(index + 1);
-      [result[index], result[other]] = [result[other], result[index]];
-    }
-    return result;
-  }
-
-  function randomBytes(length) {
-    const bytes = new Uint8Array(length);
-    crypto.getRandomValues(bytes);
-    return bytes;
-  }
-
-  function popcount(value) {
-    let current = value >>> 0;
-    let count = 0;
-    while (current) {
-      current &= current - 1;
-      count += 1;
-    }
-    return count;
-  }
-
-  function hammingBytes(a, b) {
-    const length = Math.min(a.length, b.length);
-    let distance = Math.abs(a.length - b.length) * 8;
-    for (let index = 0; index < length; index += 1) distance += popcount(a[index] ^ b[index]);
-    return distance;
-  }
-
-  if (pageId) markVisited(pageId);
-  else updateProgressUi();
+  function initThemes(){injectThemeControl();let selected='nocturno';try{selected=localStorage.getItem(THEME_KEY)||'nocturno';}catch{}applyTheme(selected);document.querySelectorAll('[data-theme-select]').forEach(s=>s.addEventListener('change',()=>applyTheme(s.value)));}
+  if(pageId)markVisited(pageId);else updateProgressUi();
   initCompleteButtons();
-  window.addEventListener('storage', () => updateProgressUi());
-
-  window.Module03 = Object.freeze({
-    curriculum: CURRICULUM,
-    readProgress,
-    writeProgress,
-    markVisited,
-    setCompleted,
-    setBestQuiz,
-    updateProgressUi,
-    announce,
-    safeText,
-    randomInt,
-    shuffle,
-    randomBytes,
-    hammingBytes
-  });
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initThemes,{once:true});else initThemes();
+  window.addEventListener('storage',()=>updateProgressUi());
+  window.Module03=Object.freeze({curriculum:CURRICULUM,readProgress,writeProgress,markVisited,setCompleted,setBestQuiz,updateProgressUi,announce,safeText,randomInt,shuffle,randomBytes,hammingBytes,applyTheme});
 })();

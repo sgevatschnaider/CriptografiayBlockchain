@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 11,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -118,8 +118,50 @@
       "pagina": "modulo-03/index.html",
       "ruta_guiada": "modulo-03/ruta-modulo.html",
       "ruta_clase_03": "modulo-03/ruta-guiada.html",
+      "teoria": "modulo-03/teoria-programa.html",
       "laboratorio_integral": "03-criptografia-moderna.html",
       "simulaciones": [
+        {
+          "titulo": "Teoría completa del programa",
+          "archivo": "modulo-03/teoria-programa.html",
+          "estado": "disponible",
+          "tipo": "teoria"
+        },
+        {
+          "titulo": "Clasificación de criptosistemas modernos",
+          "archivo": "modulo-03/clasificacion-criptosistemas.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Algoritmos simétricos, modos y padding",
+          "archivo": "modulo-03/algoritmos-simetricos.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "RSA, ECC, HPKE y claves de sesión",
+          "archivo": "modulo-03/cifrado-hibrido-sesion.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Ataque offline controlado a contraseñas",
+          "archivo": "modulo-03/ataque-contrasenas.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Mapas mentales del programa",
+          "archivo": "modulo-03/mapas-programa.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Glosario integral del programa",
+          "archivo": "modulo-03/glosario-programa.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Cuestionario integral del programa",
+          "archivo": "modulo-03/cuestionario-programa.html",
+          "estado": "disponible"
+        },
         {
           "titulo": "Ruta completa: de la primitiva al protocolo",
           "archivo": "modulo-03/ruta-modulo.html",

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Laboratorio local y controlado para demostrar ataques offline, diccionarios, salts y PBKDF2.">
+<meta name="theme-color" content="#06101d">
+<title>Laboratorio de vulneración de contraseñas</title>
+<link rel="stylesheet" href="../assets/lab.css">
+<link rel="stylesheet" href="assets/programa-moderno.css">
+</head>
+<body data-modern-page="password">
+<main class="shell">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <div class="brand"><a href="index.html">← Módulo 3</a></div>
+  <nav class="nav" aria-label="Navegación">
+    <a href="teoria-programa.html">Teoría</a>
+    <a href="clasificacion-criptosistemas.html">Clasificación</a>
+    <a href="algoritmos-simetricos.html">Simétrica</a>
+    <a href="cifrado-hibrido-sesion.html">Asimétrica</a>
+    <a href="ataque-contrasenas.html">Contraseñas</a>
+    <a href="mapas-programa.html">Mapas</a>
+    <a href="glosario-programa.html">Glosario</a>
+    <a href="cuestionario-programa.html">Evaluación</a>
+    <label class="theme-control">Tema
+      <select data-theme-select aria-label="Tema visual">
+        <option value="nocturno">Nocturno</option><option value="claro">Claro</option>
+        <option value="contraste">Alto contraste</option><option value="oceano">Océano</option>
+      </select>
+    </label>
+  </nav>
+</header>
+<div id="contenido" tabindex="-1"></div>
+
+<section class="hero">
+<div class="eyebrow">Laboratorio controlado · ataque offline local</div>
+<h1>Vulnerar una contraseña débil</h1>
+<p>El laboratorio usa exclusivamente contraseñas ficticias predefinidas y Web Crypto local. Genera un objetivo PBKDF2 y ejecuta un ataque de diccionario, máscara o PIN para demostrar qué aportan —y qué no aportan— la salt y el costo.</p>
+<div class="status warn"><strong>No introduzcas contraseñas reales.</strong> No se transmite ningún dato y el conjunto de objetivos está limitado a ejemplos docentes.</div>
+</section>
+<section class="grid">
+<article class="panel">
+<h2>1. Objetivo ficticio</h2>
+<div class="control"><label for="demo-password">Contraseña del laboratorio</label><select id="demo-password">
+<option value="mate2026">mate2026</option><option value="profesor">profesor</option>
+<option value="argentina">argentina</option><option value="2026">2026</option>
+<option value="Clave2026!">Clave2026!</option>
+</select></div>
+<div class="control"><label for="attack-iterations">Iteraciones PBKDF2</label><select id="attack-iterations">
+<option value="1000">1.000 · demostración rápida</option><option value="5000" selected>5.000 · comparación</option><option value="15000">15.000 · más costoso</option>
+</select></div>
+<p><strong>Salt pública:</strong> <code>laboratorio-publico-2026</code></p>
+<p><strong>Objetivo derivado:</strong></p><div id="target-hash" class="status">Se calculará al iniciar el ataque.</div>
+</article>
+
+<article class="panel">
+<h2>2. Estrategia</h2>
+<div class="control"><label for="attack-mode">Conjunto de candidatos</label><select id="attack-mode">
+<option value="breve">Diccionario breve</option><option value="ampliado">Diccionario con reglas</option>
+<option value="mascara">Máscara palabra + año</option><option value="pin">PIN 0000–9999</option>
+</select></div>
+<div class="actions"><button id="run-attack" class="danger">Ejecutar ataque local</button></div>
+<div id="attack-status" class="status">Elegí un objetivo y una estrategia.</div>
+</article>
+
+<article class="panel full">
+<h2>3. Evidencia observable</h2>
+<div class="kpi-grid">
+<div class="kpi"><strong id="attack-attempts">0</strong><span>candidatos probados</span></div>
+<div class="kpi"><strong id="attack-time">0 ms</strong><span>tiempo local</span></div>
+<div class="kpi"><strong id="attack-rate">0/s</strong><span>tasa observada</span></div>
+<div class="kpi"><strong>PBKDF2</strong><span>HMAC-SHA-256 · 128 bits de salida</span></div>
+</div>
+<p class="muted">La tasa depende del dispositivo y no representa GPU, FPGA, ASIC ni hardware especializado. El objetivo es comparar condiciones en la misma sesión.</p>
+</article>
+
+<article class="panel">
+<h2>Qué demuestra</h2>
+<ul>
+<li>La salt no impide probar candidatos.</li>
+<li>La salt evita precálculo reutilizable entre registros.</li>
+<li>PBKDF2 aumenta el costo de cada intento.</li>
+<li>Una contraseña predecible continúa dentro de un diccionario.</li>
+<li>Un ataque que falla solo demuestra que ese conjunto no contenía el candidato.</li>
+</ul>
+</article>
+<article class="panel">
+<h2>Qué no demuestra</h2>
+<ul>
+<li>No mide la capacidad de un atacante profesional.</li>
+<li>No autoriza probar credenciales ajenas.</li>
+<li>No evalúa contraseñas reales ni servicios remotos.</li>
+<li>No convierte 5.000 iteraciones en un parámetro de producción.</li>
+<li>No sustituye Argon2id, políticas de autenticación ni MFA.</li>
+</ul>
+</article>
+
+<article class="panel full">
+<h2>Comparación de defensas</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Construcción</th><th>Precálculo compartido</th><th>Costo por candidato</th><th>Evaluación</th></tr></thead>
+<tbody>
+<tr><td>SHA-256 directo</td><td>Posible</td><td>Muy bajo</td><td class="requirement-partial">Inadecuado</td></tr>
+<tr><td>SHA-256 + salt</td><td>Se dificulta</td><td>Muy bajo</td><td class="requirement-partial">Todavía inadecuado</td></tr>
+<tr><td>PBKDF2 + salt</td><td>Por registro</td><td>Ajustable por iteraciones</td><td class="requirement-ok">Compatible en ciertos entornos</td></tr>
+<tr><td>Argon2id + salt</td><td>Por registro</td><td>Tiempo + memoria</td><td class="requirement-ok">Preferencia moderna habitual</td></tr>
+</tbody></table></div>
+</article>
+</section>
+
+<footer class="footer">
+<p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+<p>Los modelos y ataques se ejecutan con datos ficticios y fines educativos. Para producción deben utilizarse bibliotecas mantenidas, estándares vigentes y revisión profesional.</p>
+</footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/programa-glosario-data.js"></script>
+<script src="assets/programa-cuestionario-data.js"></script>
+<script src="assets/programa-moderno.js"></script>
+</body></html>
