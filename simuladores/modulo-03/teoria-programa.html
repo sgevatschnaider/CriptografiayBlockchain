@@ -2,7 +2,7 @@
 <html lang="es" data-theme="nocturno">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Teoría integral sobre fundamentos, clasificación, criptografía simétrica y asimétrica, bits de seguridad, modos, padding, RSA, ECC, claves de sesión y contraseñas.">
+<meta name="description" content="Teoría integral sobre fundamentos, clasificación, criptografía simétrica y asimétrica, bits de seguridad, modos, padding, ChaCha20, RSA, ECC, claves de sesión y contraseñas.">
 <meta name="theme-color" content="#06101d">
 <title>Teoría completa de criptografía moderna</title>
 <link rel="stylesheet" href="../assets/lab.css">
@@ -60,9 +60,9 @@
 <thead><tr><th>Familia</th><th>Clave</th><th>Propiedad principal</th><th>Ejemplos</th><th>No debe confundirse con</th></tr></thead>
 <tbody>
 <tr><td>Cifrado simétrico</td><td>Secreto compartido</td><td>Confidencialidad; con AEAD también integridad</td><td>AES-GCM, ChaCha20-Poly1305</td><td>Firma digital</td></tr>
-<tr><td>Cifrado/asociación asimétrica</td><td>Par pública/privada</td><td>Encapsulación, acuerdo o cifrado de material pequeño</td><td>RSA-OAEP, ECDH, HPKE</td><td>Cifrar archivos completos con RSA</td></tr>
+<tr><td>Transporte, acuerdo y encapsulación asimétrica</td><td>Par pública/privada</td><td>Transportar, acordar o encapsular material secreto pequeño</td><td>RSA-OAEP, ECDH/X25519, ML-KEM/HPKE</td><td>Tratar RSA-OAEP como acuerdo de claves o cifrar archivos completos con RSA</td></tr>
 <tr><td>Firma digital</td><td>Privada firma; pública verifica</td><td>Autenticidad e integridad verificables públicamente</td><td>RSA-PSS, ECDSA, EdDSA</td><td>MAC</td></tr>
-<tr><td>Hash</td><td>Sin clave</td><td>Huella, compromiso de integridad, componente de protocolos</td><td>SHA-256, SHA-3</td><td>Cifrado</td></tr>
+<tr><td>Hash</td><td>Sin clave</td><td>Huella y componente de protocolos</td><td>SHA-256, SHA-3</td><td>Autenticación: un atacante también puede recalcular un hash</td></tr>
 <tr><td>MAC</td><td>Secreto compartido</td><td>Integridad y autenticación simétrica</td><td>HMAC-SHA-256, Poly1305</td><td>Firma pública</td></tr>
 <tr><td>KDF</td><td>Secreto o contraseña</td><td>Derivación y separación de claves</td><td>HKDF, PBKDF2, Argon2id</td><td>Generador aleatorio</td></tr>
 <tr><td>KEM</td><td>Par pública/privada</td><td>Encapsular un secreto compartido</td><td>ML-KEM, componente KEM de HPKE</td><td>AEAD</td></tr>
@@ -77,7 +77,7 @@
 
 <article class="panel" id="bits">
 <h2>4. Bits de seguridad</h2>
-<p>Los bits de seguridad expresan el costo logarítmico del mejor ataque conocido. Una clave ideal de <em>k</em> bits ofrece un espacio de <em>2<sup>k</sup></em> candidatos, pero la seguridad efectiva puede ser menor por ataques estructurales, contraseñas predecibles, protocolos defectuosos o computación cuántica.</p>
+<p>Los bits de seguridad expresan el costo logarítmico del mejor ataque conocido. Una clave ideal de <em>k</em> bits ofrece un espacio de <em>2<sup>k</sup></em> candidatos, pero la seguridad efectiva puede ser menor por ataques estructurales, contraseñas predecibles, protocolos defectuosos o computación cuántica. El valor debe interpretarse junto con la vida útil y el año objetivo del dato: 112 bits es un nivel clásico heredado para ciertos horizontes, no una recomendación universal perpetua.</p>
 <div class="diagram-bars">
 <div class="diagram-bar"><strong>64 bits</strong><div class="bar-track"><div class="bar-fill" style="--w:25%"></div></div><span>histórico</span></div>
 <div class="diagram-bar"><strong>112 bits</strong><div class="bar-track"><div class="bar-fill" style="--w:58%"></div></div><span>transición</span></div>
@@ -96,6 +96,7 @@
 <div class="flow-node"><strong>Flujo</strong><p class="muted">ChaCha20 o AES-CTR. No debe repetirse el keystream.</p></div>
 </div>
 <p><strong>Error fatal:</strong> si se reutiliza el mismo flujo, <code>C₁ ⊕ C₂ = M₁ ⊕ M₂</code>. La clave desaparece de la ecuación y queda expuesta una relación entre mensajes.</p>
+<p><a class="button secondary" href="chacha20.html">Abrir laboratorio verificable de ChaCha20</a></p>
 </article>
 
 <article class="panel" id="modos">
@@ -124,16 +125,16 @@
 <thead><tr><th>Algoritmo</th><th>Naturaleza</th><th>Fortaleza</th><th>Uso recomendado</th><th>Advertencia</th></tr></thead>
 <tbody>
 <tr><td>AES</td><td>Bloques de 128 bits</td><td>Claves 128/192/256</td><td>AES-GCM para datos y protocolos; XTS para sectores</td><td>No usar “AES solo” ni ECB</td></tr>
-<tr><td>ChaCha20</td><td>Flujo</td><td>Clave de 256 bits</td><td>ChaCha20-Poly1305, especialmente en software y móviles</td><td>Nonce único</td></tr>
+<tr><td>ChaCha20</td><td>Flujo ARX</td><td>Clave de 256 bits; 20 rondas</td><td>ChaCha20-Poly1305, especialmente en software y móviles</td><td>Nonce único por clave; ChaCha20 solo no autentica</td></tr>
 <tr><td>DES</td><td>Bloques de 64 bits</td><td>Clave efectiva de 56 bits</td><td>Solo historia</td><td>Roto por fuerza bruta</td></tr>
-<tr><td>3DES</td><td>Bloques de 64 bits</td><td>Margen limitado y bloques pequeños</td><td>Migración desde legado</td><td>Retirado de usos modernos</td></tr>
+<tr><td>3DES/TDEA</td><td>Bloques de 64 bits</td><td>Margen limitado y bloques pequeños</td><td>Solo descifrado de datos heredados durante una migración controlada</td><td>NIST ya no permite aplicarlo para protección nueva</td></tr>
 </tbody></table></div>
 <p>El algoritmo no determina por sí solo la seguridad. Importan el modo, la generación de claves, el nonce, la autenticación, la implementación y el protocolo.</p>
 </article>
 
 <article class="panel" id="asimetrica">
 <h2>9. Criptografía asimétrica</h2>
-<p>Utiliza pares de claves relacionadas matemáticamente. La clave pública puede distribuirse; la privada debe permanecer protegida. Su costo hace que se use principalmente para acuerdo, encapsulación, firmas y protección de claves de sesión.</p>
+<p>Utiliza pares de claves relacionadas matemáticamente. La clave pública puede distribuirse; la privada debe permanecer protegida. Su costo hace que se use principalmente para transporte de claves, acuerdo, encapsulación, firmas y protección de claves de sesión.</p>
 <ul><li>Resuelve distribución de claves mejor que un secreto previo.</li><li>No resuelve automáticamente la identidad de la clave pública.</li><li>Necesita certificados, firmas, huellas o canales autenticados.</li><li>Los sistemas reales combinan asimétrica y simétrica.</li></ul>
 </article>
 
@@ -149,11 +150,11 @@
 <p>Una clave de sesión es efímera, está limitada a una conexión o intercambio y reduce el impacto de una exposición. El patrón moderno es:</p>
 <div class="flow">
 <div class="flow-node"><strong>Autenticar claves públicas</strong><p class="muted">Certificado, firma, huella o clave precompartida.</p></div><div class="flow-arrow">→</div>
-<div class="flow-node"><strong>Acuerdo/KEM</strong><p class="muted">ECDH, X25519, RSA-OAEP o ML-KEM.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Transporte, acuerdo o KEM</strong><p class="muted">RSA-OAEP transporta; ECDH/X25519 acuerdan; ML-KEM encapsula.</p></div><div class="flow-arrow">→</div>
 <div class="flow-node"><strong>KDF</strong><p class="muted">HKDF extrae, expande y separa contextos.</p></div><div class="flow-arrow">→</div>
 <div class="flow-node"><strong>AEAD</strong><p class="muted">AES-GCM o ChaCha20-Poly1305.</p></div>
 </div>
-<p>La autenticación es indispensable: ECDH sin autenticación permite un ataque man-in-the-middle. La renovación de claves y la <em>forward secrecy</em> limitan el daño de compromisos futuros.</p>
+<p>La autenticación es indispensable: ECDH sin autenticación permite un ataque man-in-the-middle. El secreto hacia adelante no aparece por usar una clave de sesión: requiere un acuerdo efímero autenticado y eliminar los secretos efímeros después de derivar las claves. El transporte RSA-OAEP con una clave privada estática no aporta por sí mismo esa propiedad.</p>
 </article>
 
 <article class="panel full" id="passwords">
@@ -173,7 +174,18 @@
 <tr><td>Contraseña larga y aleatoria</td><td>Aumenta espacio efectivo</td><td>No compensa filtración o reutilización</td></tr>
 <tr><td>MFA</td><td>Agrega otro factor en autenticación online</td><td>No cambia necesariamente un hash offline robado</td></tr>
 </tbody></table></div>
-<p><strong>Regla:</strong> usar Argon2id cuando el entorno lo permita; scrypt, bcrypt o PBKDF2 según compatibilidad y requisitos; salts únicas; parámetros actualizables; gestores de contraseñas y MFA.</p>
+<p><strong>Regla:</strong> usar Argon2id cuando el entorno lo permita y ajustar memoria, iteraciones y paralelismo al servidor y al perfil de riesgo; RFC 9106 ofrece perfiles de referencia, no valores inmutables. Usar scrypt, bcrypt o PBKDF2 según compatibilidad y requisitos; salts únicas; parámetros actualizables; gestores de contraseñas y MFA.</p>
+</article>
+
+<article class="panel full" id="referencias">
+<h2>Referencias normativas y técnicas</h2>
+<ul>
+<li>NIST SP 800-57 Part 1 Rev. 5 y NIST SP 800-131A Rev. 2: niveles de seguridad, transiciones y retiro de TDEA.</li>
+<li>NIST FIPS 197: Advanced Encryption Standard; NIST SP 800-38A y SP 800-38D: modos clásicos y GCM.</li>
+<li>RFC 8439: ChaCha20 y Poly1305 para protocolos IETF.</li>
+<li>RFC 8017: RSA-OAEP y RSA-PSS; RFC 9180: HPKE.</li>
+<li>RFC 5869: HKDF; RFC 9106: Argon2; NIST SP 800-63B-4: autenticadores y contraseñas.</li>
+</ul>
 </article>
 
 <article class="panel full">

@@ -41,9 +41,9 @@
 <article class="panel full">
 <h2>Árbol de familias</h2>
 <div class="mindmap">
-<div class="mind-node family-card" data-detail="Sin clave: produce una huella fija. Sirve como componente de integridad, firmas, HMAC y estructuras Merkle."><strong>Hash</strong><p class="muted">SHA-256 · SHA-3</p></div>
+<div class="mind-node family-card" data-detail="Sin clave: produce una huella fija. Es componente de firmas, HMAC y estructuras Merkle, pero por sí solo no autentica frente a un atacante que puede recalcularlo."><strong>Hash</strong><p class="muted">SHA-256 · SHA-3</p></div>
 <div class="mind-node family-card" data-detail="Clave secreta compartida: cifra grandes volúmenes. Con AEAD añade integridad y autenticación de datos asociados."><strong>Simétrica</strong><p class="muted">AES-GCM · ChaCha20-Poly1305</p></div>
-<div class="mind-node family-card" data-detail="Par pública/privada: se usa para acuerdo, encapsulación o cifrado de material pequeño."><strong>Asimétrica</strong><p class="muted">RSA-OAEP · ECDH · HPKE</p></div>
+<div class="mind-node family-card" data-detail="Par pública/privada: RSA-OAEP transporta material pequeño, ECDH acuerda y los KEM encapsulan. La identidad de la pública debe autenticarse."><strong>Asimétrica</strong><p class="muted">RSA-OAEP · ECDH · ML-KEM</p></div>
 <div class="mind-center"><strong>Criptosistemas modernos</strong><p>Elegir por propiedad y modelo de claves</p></div>
 <div class="mind-node family-card" data-detail="Clave secreta compartida: autentica mensajes, pero no ofrece verificabilidad pública."><strong>MAC</strong><p class="muted">HMAC · Poly1305</p></div>
 <div class="mind-node family-card" data-detail="La clave privada firma y la pública verifica. Aporta autenticidad e integridad verificables por terceros."><strong>Firma</strong><p class="muted">RSA-PSS · ECDSA · EdDSA</p></div>

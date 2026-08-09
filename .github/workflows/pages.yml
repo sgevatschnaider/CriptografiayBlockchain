@@ -35,6 +35,11 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
       - name: Validar HTML, JavaScript, enlaces locales y programa moderno
         run: |
           node scripts/validate-simulators.mjs
@@ -44,6 +49,8 @@ jobs:
           node scripts/validate-modern-program.mjs
           node scripts/validate-vernam-integration.mjs
           node scripts/validate-aes-integration.mjs
+          node scripts/validate-chacha20-integration.mjs
+          python -m unittest -v tests.test_afin
 
   deploy:
     name: Publicar GitHub Pages

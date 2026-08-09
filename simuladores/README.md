@@ -22,7 +22,7 @@ Esta carpeta reúne el campus ejecutable del repositorio. Cada módulo posee:
 |---|---|---|
 | 1 | [Criptografía clásica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-01/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) |
 | 2 | [Fundamentos de la criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/) | [Ruta guiada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) |
-| 3 | [Criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/) | [Ruta completa](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-modulo.html) · [Clase 3](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html) |
+| 3 | [Criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/) | [Ruta completa](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-modulo.html) · [ChaCha20](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/chacha20.html) · [Clase 3](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html) |
 | 4 | [Esteganografía](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-04/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) |
 | 5 | [Blockchain](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-05/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) |
 | 6 | [Protocolos y privacidad](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-06/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) |
@@ -65,6 +65,7 @@ simuladores/
 ├── modulo-03/
 │   ├── index.html
 │   ├── ruta-modulo.html
+│   ├── chacha20.html
 │   ├── ruta-guiada.html
 │   ├── contrasena-salt-kdf.html
 │   ├── bloques-vs-flujo.html
@@ -135,7 +136,7 @@ Los laboratorios comparten `assets/lab.css` y `assets/lab.js`, que proporcionan 
 
 ## Validación
 
-El script `scripts/validate-simulators.mjs` revisa la estructura común de los laboratorios. Las validaciones especializadas recorren los recursos de Fundamentos matemáticos y de los módulos 2 y 3, comprueban contenido, enlaces, sintaxis, accesibilidad e integración en el catálogo. La acción `.github/workflows/pages.yml` ejecuta las validaciones en cada Pull Request y publica el sitio después de actualizar `main`.
+El script `scripts/validate-simulators.mjs` revisa la estructura común de los laboratorios. Las validaciones especializadas recorren los recursos de Fundamentos matemáticos y de los módulos 2 y 3, comprueban contenido, enlaces, sintaxis, accesibilidad e integración en el catálogo. `scripts/validate-chacha20-integration.mjs` verifica quarter round, bloque RFC 8439, round trip y reutilización de nonce. La acción `.github/workflows/pages.yml` ejecuta las validaciones en cada Pull Request y publica el sitio después de actualizar `main`.
 
 ## Alcance de seguridad
 

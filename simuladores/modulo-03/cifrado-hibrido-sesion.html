@@ -59,7 +59,7 @@
 <thead><tr><th>Dimensión</th><th>RSA</th><th>ECC</th><th>Interpretación</th></tr></thead>
 <tbody>
 <tr><td>Supuesto</td><td>Factorización</td><td>Logaritmo discreto elíptico</td><td>Ambos dependen de problemas difíciles clásicos</td></tr>
-<tr><td>Cifrado/acuerdo</td><td>RSA-OAEP encapsula o cifra material pequeño</td><td>ECDH/X25519 acuerda secreto</td><td>Los datos grandes van a AEAD</td></tr>
+<tr><td>Establecimiento de clave</td><td>RSA-OAEP transporta una clave aleatoria al titular de la privada</td><td>ECDH/X25519 acuerda material compartido</td><td>No son la misma operación; los datos grandes van a AEAD</td></tr>
 <tr><td>Firma</td><td>RSA-PSS</td><td>ECDSA/EdDSA</td><td>La firma no cifra</td></tr>
 <tr><td>Tamaño de clave</td><td>Mayor</td><td>Menor para seguridad clásica comparable</td><td>No comparar solo bits nominales</td></tr>
 <tr><td>Amenaza cuántica</td><td>Shor</td><td>Shor</td><td>Ambos requieren migración poscuántica</td></tr>
@@ -84,7 +84,8 @@
 <li>Se limitan a una conexión, archivo o intercambio.</li>
 <li>Permiten rotación frecuente y separación por contexto.</li>
 <li>Reducen el impacto de una clave expuesta.</li>
-<li>Con claves efímeras pueden aportar forward secrecy.</li>
+<li>Solo un acuerdo efímero autenticado, seguido de la eliminación de los secretos efímeros, puede aportar secreto hacia adelante.</li>
+<li>RSA-OAEP con una clave privada estática no aporta secreto hacia adelante por sí mismo.</li>
 <li>No deben reutilizarse en protocolos o propósitos distintos sin KDF.</li>
 </ul>
 </article>

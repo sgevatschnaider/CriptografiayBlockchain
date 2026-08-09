@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio ejecutable de ChaCha20 con estado, quarter rounds, vector RFC 8439, cifrado local y demostración de reutilización de nonce.">
+  <meta name="theme-color" content="#071321">
+  <title>ChaCha20 verificable | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/clase-03.css">
+</head>
+<body data-module-page="bloques-flujo">
+  <main class="shell lesson-shell">
+    <a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 3</a></div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="bloques-vs-flujo.html">Bloques y flujo</a>
+        <a href="algoritmos-simetricos.html">Algoritmos simétricos</a>
+        <a href="modos-aes-aead.html">AES y AEAD</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Criptografía simétrica · cifrador de flujo</div>
+      <h1>ChaCha20: suma, rotación y XOR verificables</h1>
+      <p>Construí el estado de 16 palabras, ejecutá 20 rondas, comprobá el vector oficial de RFC 8439 y observá por qué repetir clave, nonce y contador repite el keystream.</p>
+      <div class="lesson-kicker"><span>Clave de 256 bits</span><span>Nonce de 96 bits</span><span>Contador de 32 bits</span><span>20 rondas</span><span>Bloques de 64 bytes</span><span>ARX</span></div>
+      <div class="actions"><button class="secondary" type="button" data-complete-page="bloques-flujo">Marcar como completado</button></div>
+    </section>
+
+    <section class="privacy-banner"><span aria-hidden="true">🔐</span><div><strong>Ejecución local y reproducible.</strong> La implementación permite inspeccionar ChaCha20 y se valida contra RFC 8439. No transmite claves ni mensajes y no debe utilizarse como biblioteca de producción.</div></section>
+
+    <section class="lab-grid" id="laboratorio">
+      <article class="lab-panel full">
+        <div class="eyebrow">Modelo</div>
+        <h2>Estado inicial y función de bloque</h2>
+        <p>El estado 4 × 4 contiene cuatro constantes, ocho palabras de clave, un contador y tres palabras de nonce. Cada <em>quarter round</em> aplica suma módulo 2³², XOR y rotaciones de 16, 12, 8 y 7 bits.</p>
+        <div class="concept-flow" aria-label="Construcción del estado ChaCha20">
+          <div class="flow-node"><strong>Constantes</strong><span>4 palabras</span></div><span class="flow-arrow">+</span>
+          <div class="flow-node"><strong>Clave</strong><span>8 palabras</span></div><span class="flow-arrow">+</span>
+          <div class="flow-node"><strong>Contador</strong><span>1 palabra</span></div><span class="flow-arrow">+</span>
+          <div class="flow-node"><strong>Nonce</strong><span>3 palabras</span></div>
+        </div>
+        <div class="callout"><strong>ChaCha20 solo no autentica.</strong> Aporta confidencialidad, pero es maleable. Los protocolos utilizan ChaCha20-Poly1305 para incorporar un tag y rechazar modificaciones.</div>
+      </article>
+
+      <article class="lab-panel full">
+        <div class="eyebrow">Experimento 1 · RFC 8439 § 2.3.2</div>
+        <h2>Comprobar un vector conocido</h2>
+        <div class="actions"><button id="run-rfc-vector" type="button">Ejecutar vector RFC</button></div>
+        <div class="status" id="vector-status">Pendiente.</div>
+        <div class="metric-grid">
+          <div class="metric"><strong>20</strong><span>rondas</span></div>
+          <div class="metric"><strong id="double-round-count">0</strong><span>rondas dobles</span></div>
+          <div class="metric"><strong>64</strong><span>bytes de salida</span></div>
+          <div class="metric"><strong>0</strong><span>bytes enviados</span></div>
+        </div>
+        <h3>Estado inicial</h3>
+        <div class="chacha-state" id="initial-state" aria-label="Estado inicial ChaCha20"></div>
+        <h3>Estado final tras sumar el estado inicial</h3>
+        <div class="chacha-state" id="final-state" aria-label="Estado final ChaCha20"></div>
+        <div class="data-grid">
+          <div class="data-box"><b>Obtenido</b><output id="vector-obtained">—</output></div>
+          <div class="data-box"><b>Esperado</b><output id="vector-expected">—</output></div>
+        </div>
+      </article>
+
+      <article class="lab-panel full">
+        <div class="eyebrow">Experimento 2 · cifrado y descifrado</div>
+        <h2>Generar el keystream y aplicar XOR</h2>
+        <div class="controls">
+          <div class="control full"><label for="chacha-key">Clave · 64 caracteres hexadecimales</label><textarea id="chacha-key" spellcheck="false">000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f</textarea></div>
+          <div class="control"><label for="chacha-nonce">Nonce · 24 caracteres hexadecimales</label><input id="chacha-nonce" value="000000090000004a00000000" spellcheck="false"></div>
+          <div class="control"><label for="chacha-counter">Contador inicial</label><input id="chacha-counter" type="number" min="0" max="4294967295" value="1"></div>
+          <div class="control full"><label for="chacha-message">Mensaje UTF-8 ficticio</label><textarea id="chacha-message">ChaCha20 protege este mensaje mediante un flujo verificable.</textarea></div>
+        </div>
+        <div class="actions">
+          <button id="run-chacha" type="button">Cifrar y recuperar</button>
+          <button class="secondary" id="randomize-chacha" type="button">Generar clave y nonce</button>
+        </div>
+        <div class="status" id="cipher-status">Preparado.</div>
+        <div class="metric-grid">
+          <div class="metric"><strong id="message-bytes">0</strong><span>bytes de mensaje</span></div>
+          <div class="metric"><strong id="stream-blocks">0</strong><span>bloques de flujo</span></div>
+          <div class="metric"><strong>256</strong><span>bits de clave</span></div>
+          <div class="metric"><strong id="sent-bytes">0</strong><span>bytes enviados</span></div>
+        </div>
+        <div class="controls">
+          <div class="control"><label for="chacha-ciphertext">Ciphertext hexadecimal</label><textarea id="chacha-ciphertext" readonly></textarea></div>
+          <div class="control"><label for="chacha-recovered">Texto recuperado</label><textarea id="chacha-recovered" readonly></textarea></div>
+        </div>
+        <details><summary><strong>Ver primer bloque de keystream</strong></summary><output class="hex-output" id="chacha-keystream">—</output></details>
+      </article>
+
+      <article class="lab-panel full" id="reutilizacion">
+        <div class="eyebrow">Experimento 3 · falla crítica</div>
+        <h2>Reutilizar nonce reproduce el flujo</h2>
+        <div class="controls">
+          <div class="control"><label for="reuse-message-a">Mensaje M₁</label><textarea id="reuse-message-a">TRANSFERIR 1000 A ANA</textarea></div>
+          <div class="control"><label for="reuse-message-b">Mensaje M₂</label><textarea id="reuse-message-b">TRANSFERIR 9000 A LUIS</textarea></div>
+        </div>
+        <div class="actions"><button id="run-reuse" type="button">Reutilizar clave y nonce</button></div>
+        <div class="status" id="reuse-status">Preparado.</div>
+        <div class="data-grid">
+          <div class="data-box"><b>M₁ XOR M₂</b><output id="reuse-plain-xor">—</output></div>
+          <div class="data-box"><b>C₁ XOR C₂</b><output id="reuse-cipher-xor">—</output></div>
+          <div class="data-box"><b>¿Coinciden?</b><output id="reuse-equality">—</output></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="lab-grid">
+      <article class="lab-panel"><h2>Cuándo elegir ChaCha20</h2><p>ChaCha20-Poly1305 suele ser eficiente en software y equipos sin aceleración AES. La selección debe formar parte de un protocolo y una política de algoritmos negociables.</p></article>
+      <article class="lab-panel"><h2>Condiciones críticas</h2><ul><li>No repetir nonce con la misma clave.</li><li>Controlar el límite del contador.</li><li>Usar ChaCha20-Poly1305 cuando se necesita autenticación.</li><li>Verificar el tag antes de entregar texto claro.</li></ul></article>
+    </section>
+
+    <section class="lab-panel full">
+      <div class="eyebrow">Desafío de transferencia</div>
+      <h2>Explicar la decisión de arquitectura</h2>
+      <ol><li>Compará ChaCha20 con AES-CTR: ambos producen flujo, pero parten de primitivas distintas.</li><li>Justificá por qué un nonce puede ser público y aun así debe ser único.</li><li>Explicá qué propiedad agrega Poly1305 y por qué ChaCha20 aislado no detecta alteraciones.</li><li>Relacioná la reutilización observada con el Two-Time Pad.</li></ol>
+      <div class="actions"><a class="button" href="vernam-a-criptografia-moderna.html">Vernam → flujo moderno</a><a class="button secondary" href="ruta-modulo.html">Volver a la ruta completa</a></div>
+    </section>
+
+    <footer class="footer">
+      <p class="author-line">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+      <p>Implementación educativa interoperable con el vector de RFC 8439. Para producción utilizá una biblioteca mantenida y una construcción AEAD estandarizada.</p>
+    </footer>
+  </main>
+  <script src="../assets/lab.js"></script>
+  <script src="assets/modulo-03.js"></script>
+  <script src="assets/chacha20-core.js"></script>
+  <script src="assets/chacha20-laboratorio.js"></script>
+</body>
+</html>
