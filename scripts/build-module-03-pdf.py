@@ -70,7 +70,14 @@ FONT, FONT_BOLD, FONT_MONO = register_fonts()
 
 
 class CourseDocument(BaseDocTemplate):
-    def __init__(self, filename: str):
+    def __init__(
+        self,
+        filename: str,
+        *,
+        title: str = "Módulo 3 - Criptografía moderna",
+        subject: str = "Material didáctico de criptografía moderna",
+        footer: str = "Módulo 3 · Criptografía moderna",
+    ):
         super().__init__(
             filename,
             pagesize=A4,
@@ -78,10 +85,11 @@ class CourseDocument(BaseDocTemplate):
             rightMargin=19 * mm,
             topMargin=21 * mm,
             bottomMargin=19 * mm,
-            title="Módulo 3 - Criptografía moderna",
+            title=title,
             author="Profesor Sergio Gevatschnaider",
-            subject="Material didáctico de criptografía moderna",
+            subject=subject,
         )
+        self.course_footer = footer
         frame = Frame(self.leftMargin, self.bottomMargin, self.width, self.height, id="normal")
         self.addPageTemplates(PageTemplate(id="content", frames=frame, onPage=draw_page))
 
@@ -108,7 +116,7 @@ def draw_page(canvas, doc):
         canvas.line(doc.leftMargin, 14 * mm, A4[0] - doc.rightMargin, 14 * mm)
         canvas.setFont(FONT, 8)
         canvas.setFillColor(MUTED)
-        canvas.drawString(doc.leftMargin, 9.2 * mm, "Módulo 3 · Criptografía moderna")
+        canvas.drawString(doc.leftMargin, 9.2 * mm, doc.course_footer)
         canvas.drawRightString(A4[0] - doc.rightMargin, 9.2 * mm, f"Página {doc.page}")
     canvas.restoreState()
 

@@ -2,7 +2,7 @@
 
 La criptografía moderna combina primitivas matemáticas, esquemas, protocolos e ingeniería de seguridad. El objetivo no es únicamente ocultar datos: debe declarar qué propiedad protege, frente a qué adversario, con qué recursos, bajo qué supuestos y durante cuánto tiempo.
 
-> **Recorrido del módulo:** [índice](../../simuladores/modulo-03/index.html) · [teoría HTML](../../simuladores/modulo-03/teoria-programa.html) · [laboratorio ChaCha20](../../simuladores/modulo-03/chacha20.html) · [mapas mentales](../../simuladores/modulo-03/mapas-programa.html) · [glosario integral](../../simuladores/modulo-03/glosario-programa.html) · [cuestionario integral](../../simuladores/modulo-03/cuestionario-programa.html)
+> **Recorrido del módulo:** [índice](../../simuladores/modulo-03/index.html) · [teoría HTML](../../simuladores/modulo-03/teoria-programa.html) · [biblioteca PDF por tema](pdf/modulo-03/README.md) · [laboratorio ChaCha20](../../simuladores/modulo-03/chacha20.html) · [mapas mentales](../../simuladores/modulo-03/mapas-programa.html) · [glosario integral](../../simuladores/modulo-03/glosario-programa.html) · [cuestionario integral](../../simuladores/modulo-03/cuestionario-programa.html)
 
 ## Objetivos de aprendizaje
 

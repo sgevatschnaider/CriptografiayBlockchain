@@ -9,6 +9,7 @@ Educational campus with theory, interactive simulations, guided routes, glossari
 - [ChaCha20 verified laboratory](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/chacha20.html)
 - [Module 3 theory](docs/criptografia/03-criptografia-moderna.md)
 - [Module 3 PDF](docs/criptografia/pdf/modulo-03-criptografia-moderna.pdf)
+- [Module 3 topic PDF library](docs/criptografia/pdf/modulo-03/README.md)
 - [Spanish README](README.md)
 
 ## Coverage

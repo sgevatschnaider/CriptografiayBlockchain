@@ -50,6 +50,7 @@ jobs:
           node scripts/validate-vernam-integration.mjs
           node scripts/validate-aes-integration.mjs
           node scripts/validate-chacha20-integration.mjs
+          node scripts/validate-module-03-pdfs.mjs
           python -m unittest -v tests.test_afin
 
   deploy:

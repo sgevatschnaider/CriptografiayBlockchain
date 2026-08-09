@@ -113,6 +113,7 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 
 [![Campus teórico](https://img.shields.io/badge/ABRIR-CAMPUS%20TEÓRICO-7c3aed?style=for-the-badge&logo=markdown&logoColor=white)](docs/criptografia/README.md)
 [![PDF Módulo 3](https://img.shields.io/badge/PDF-MÓDULO%203-059669?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](docs/criptografia/pdf/modulo-03-criptografia-moderna.pdf)
+[![PDF por tema](https://img.shields.io/badge/PDF-13%20DOSSIERS-0f766e?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](docs/criptografia/pdf/modulo-03/README.md)
 [![Plan de simuladores](https://img.shields.io/badge/ABRIR-PLAN%20DE%20SIMULADORES-0f766e?style=for-the-badge&logo=checkmarx&logoColor=white)](docs/criptografia/plan-desarrollo-simuladores.md)
 [![Catálogo JSON](https://img.shields.io/badge/DATA-CATÁLOGO%20DE%20SIMULACIONES-334155?style=for-the-badge&logo=json&logoColor=white)](simuladores/catalogo.json)
 
