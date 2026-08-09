@@ -11,6 +11,7 @@ Este campus complementa —sin reemplazar— los contenidos existentes del repos
   <a href="./02-fundamentos-criptografia-moderna.md"><img src="https://img.shields.io/badge/02-Fundamentos_modernos-2563EB?style=for-the-badge" alt="Fundamentos de la criptografía moderna"></a>
   <a href="./03-criptografia-moderna.md"><img src="https://img.shields.io/badge/03-Criptografía_moderna-059669?style=for-the-badge" alt="Criptografía moderna"></a>
   <a href="./pdf/modulo-03-criptografia-moderna.pdf"><img src="https://img.shields.io/badge/PDF-Módulo_3-047857?style=for-the-badge" alt="PDF del Módulo 3"></a>
+  <a href="./pdf/modulo-03/README.md"><img src="https://img.shields.io/badge/PDF-13_dossiers-0F766E?style=for-the-badge" alt="Biblioteca PDF del Módulo 3"></a>
   <a href="./04-esteganografia.md"><img src="https://img.shields.io/badge/04-Esteganografía-D97706?style=for-the-badge" alt="Esteganografía"></a>
 </p>
 
