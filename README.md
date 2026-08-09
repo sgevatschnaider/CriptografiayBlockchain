@@ -64,6 +64,7 @@ Cada módulo posee una **página propia** que organiza su laboratorio integral, 
 [![Clase 3](https://img.shields.io/badge/RUTA-CLASE%203%20KDF%20Y%20AES-4338ca?style=for-the-badge&logo=googlescholar&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html)
 [![Contraseña y KDF](https://img.shields.io/badge/LAB-CONTRASEÑA%20Y%20KDF-7c3aed?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/contrasena-salt-kdf.html)
 [![AES y AEAD](https://img.shields.io/badge/LAB-AES%20Y%20AEAD-6d28d9?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/modos-aes-aead.html)
+[![ChaCha20](https://img.shields.io/badge/LAB-CHACHA20-0f766e?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/chacha20.html)
 [![Cifrado de archivos](https://img.shields.io/badge/LAB-CIFRADO%20LOCAL%20DE%20ARCHIVOS-5b21b6?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/cifrado-local-archivos.html)
 [![Hash, HMAC y firma](https://img.shields.io/badge/LAB-HASH%2C%20HMAC%20Y%20FIRMA-7c3aed?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/hash-hmac-firmas.html)
 [![RSA, ECDH e híbrido](https://img.shields.io/badge/LAB-RSA%2C%20ECDH%20E%20HÍBRIDO-4338ca?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/rsa-ecdh-hibrido.html)
@@ -111,6 +112,7 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 <div align="center">
 
 [![Campus teórico](https://img.shields.io/badge/ABRIR-CAMPUS%20TEÓRICO-7c3aed?style=for-the-badge&logo=markdown&logoColor=white)](docs/criptografia/README.md)
+[![PDF Módulo 3](https://img.shields.io/badge/PDF-MÓDULO%203-059669?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](docs/criptografia/pdf/modulo-03-criptografia-moderna.pdf)
 [![Plan de simuladores](https://img.shields.io/badge/ABRIR-PLAN%20DE%20SIMULADORES-0f766e?style=for-the-badge&logo=checkmarx&logoColor=white)](docs/criptografia/plan-desarrollo-simuladores.md)
 [![Catálogo JSON](https://img.shields.io/badge/DATA-CATÁLOGO%20DE%20SIMULACIONES-334155?style=for-the-badge&logo=json&logoColor=white)](simuladores/catalogo.json)
 
@@ -144,11 +146,12 @@ python -m http.server 8000
 
 Luego abrí `http://localhost:8000/`.
 
-Para los proyectos de blockchain y contratos inteligentes:
+Para ejecutar las validaciones disponibles:
 
 ```bash
-npm install
-npx hardhat test
+node scripts/validate-module-03.mjs
+node scripts/validate-chacha20-integration.mjs
+python -m unittest -v tests.test_afin
 ```
 
 ---
@@ -157,10 +160,11 @@ npx hardhat test
 
 El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 
-- valida la existencia de los ocho laboratorios;
+- valida la estructura y los recursos integrados del campus;
 - revisa sintaxis JavaScript y enlaces locales;
 - detecta identificadores HTML duplicados y utilidades no importadas;
 - ejecuta pruebas de PBKDF2, normalización NFC y round trips AES-CBC, AES-CTR y AES-GCM;
+- verifica ChaCha20 con los vectores oficiales de RFC 8439 y ejecuta las pruebas Python del cifrado afín;
 - publica automáticamente el repositorio en GitHub Pages al actualizar `main`.
 
 ---

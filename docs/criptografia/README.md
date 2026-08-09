@@ -10,6 +10,7 @@ Este campus complementa —sin reemplazar— los contenidos existentes del repos
   <a href="./01-criptografia-clasica.md"><img src="https://img.shields.io/badge/01-Criptografía_clásica-8B5CF6?style=for-the-badge" alt="Criptografía clásica"></a>
   <a href="./02-fundamentos-criptografia-moderna.md"><img src="https://img.shields.io/badge/02-Fundamentos_modernos-2563EB?style=for-the-badge" alt="Fundamentos de la criptografía moderna"></a>
   <a href="./03-criptografia-moderna.md"><img src="https://img.shields.io/badge/03-Criptografía_moderna-059669?style=for-the-badge" alt="Criptografía moderna"></a>
+  <a href="./pdf/modulo-03-criptografia-moderna.pdf"><img src="https://img.shields.io/badge/PDF-Módulo_3-047857?style=for-the-badge" alt="PDF del Módulo 3"></a>
   <a href="./04-esteganografia.md"><img src="https://img.shields.io/badge/04-Esteganografía-D97706?style=for-the-badge" alt="Esteganografía"></a>
 </p>
 
@@ -34,7 +35,7 @@ Los enlaces siguientes apuntan a **GitHub Pages**. Al abrirlos, el navegador eje
 |---|---|---|
 | 1 | [César, Vigenère y frecuencias](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) | ¿Por qué un texto ilegible puede seguir siendo fácil de atacar? |
 | 2 | [Fundamentos modernos: ruta guiada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) | ¿Cómo se transforma la incertidumbre en seguridad frente a un adversario definido? |
-| 3 | [Clase 3: contraseña, KDF y AES-GCM](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html) | ¿Cómo se deriva una clave y cómo se detecta una alteración? |
+| 3 | [Ruta completa de criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-modulo.html) · [ChaCha20](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/chacha20.html) | ¿Cómo se eligen, combinan y validan primitivas modernas? |
 | 4 | [Ocultamiento LSB](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) | ¿Ocultar la existencia equivale a proteger el contenido? |
 | 5 | [Blockchain y Merkle trees](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) | ¿Qué detecta el encadenamiento y qué no garantiza? |
 | 6 | [Shamir, commitments y Schnorr](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) | ¿Cómo distribuir confianza o demostrar conocimiento sin revelar? |

@@ -97,7 +97,7 @@ for (const time of ['10 min','15 min','20 min','22 min','8 min']) if (!route.inc
 
 const index = read('index.html');
 const preservedResources = [
-  'vernam-a-criptografia-moderna.html','clasificacion-criptosistemas.html','teoria-programa.html','algoritmos-simetricos.html','bloques-vs-flujo.html','modos-aes-aead.html','padding-oracle.html','contrasena-salt-kdf.html','ataque-contrasenas.html','cifrado-local-archivos.html','ruta-guiada.html','hash-hmac-firmas.html','cifrado-hibrido-sesion.html','rsa-ecdh-hibrido.html','mapas-programa.html','glosario-programa.html','glosario.html','cuestionario-programa.html','cuestionario.html','ruta-modulo.html'
+  'vernam-a-criptografia-moderna.html','clasificacion-criptosistemas.html','teoria-programa.html','algoritmos-simetricos.html','chacha20.html','bloques-vs-flujo.html','modos-aes-aead.html','padding-oracle.html','contrasena-salt-kdf.html','ataque-contrasenas.html','cifrado-local-archivos.html','ruta-guiada.html','hash-hmac-firmas.html','cifrado-hibrido-sesion.html','rsa-ecdh-hibrido.html','mapas-programa.html','glosario-programa.html','glosario.html','cuestionario-programa.html','cuestionario.html','ruta-modulo.html'
 ];
 for (const resource of preservedResources) if (!index.includes(resource)) fail(`index.html: el recurso existente ${resource} dejó de estar integrado`);
 for (const resource of ['aes-teoria-completa.html','aes-laboratorio-integral.html','ruta-clase-aes.html']) if (!index.includes(resource)) fail(`index.html: falta el recurso nuevo ${resource}`);
@@ -106,17 +106,17 @@ const moduleRoute = read('ruta-modulo.html');
 const moduleStations = [...moduleRoute.matchAll(/data-module-station=["']([^"']+)["']/g)].map((match) => match[1]);
 const expected = ['fundamentos','bloques-flujo','kdf','aes-aead','archivos','hash-mac-firma','oraculo-padding','clave-publica','glosario','cuestionario'];
 if (moduleStations.join('|') !== expected.join('|')) fail('ruta-modulo.html: se alteraron las diez claves de progreso');
-for (const resource of ['aes-teoria-completa.html','aes-laboratorio-integral.html','ruta-clase-aes.html','../modulo-02/confusion-difusion.html']) if (!moduleRoute.includes(resource)) fail(`ruta-modulo.html: falta ${resource}`);
+for (const resource of ['aes-teoria-completa.html','aes-laboratorio-integral.html','chacha20.html','ruta-clase-aes.html','../modulo-02/confusion-difusion.html']) if (!moduleRoute.includes(resource)) fail(`ruta-modulo.html: falta ${resource}`);
 
 try {
   const catalog = JSON.parse(fs.readFileSync(path.join(root, 'simuladores', 'catalogo.json'), 'utf8'));
-  if (catalog.version < 13) fail('catalogo.json: la versión debe ser al menos 13');
+  if (catalog.version < 14) fail('catalogo.json: la versión debe ser al menos 14');
   const module = catalog.modulos.find((item) => item.id === 'modulo-03');
   if (!module) fail('catalogo.json: falta modulo-03');
   else {
     const files = new Set(module.simulaciones.map((item) => item.archivo));
-    for (const file of ['modulo-03/aes-teoria-completa.html','modulo-03/aes-laboratorio-integral.html','modulo-03/ruta-clase-aes.html']) if (!files.has(file)) fail(`catalogo.json: falta ${file}`);
-    if (module.simulaciones.length !== 24) fail(`catalogo.json: se esperaban 24 recursos del Módulo 3 y hay ${module.simulaciones.length}`);
+    for (const file of ['modulo-03/aes-teoria-completa.html','modulo-03/aes-laboratorio-integral.html','modulo-03/chacha20.html','modulo-03/ruta-clase-aes.html']) if (!files.has(file)) fail(`catalogo.json: falta ${file}`);
+    if (module.simulaciones.length !== 25) fail(`catalogo.json: se esperaban 25 recursos del Módulo 3 y hay ${module.simulaciones.length}`);
   }
 } catch (error) { fail(`catalogo.json: ${error.message}`); }
 

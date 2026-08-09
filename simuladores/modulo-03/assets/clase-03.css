@@ -751,6 +751,35 @@
   display: none;
 }
 
+.chacha-state {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0.8rem 0;
+}
+
+.chacha-word {
+  display: block;
+  min-width: 0;
+  padding: 0.7rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  color: var(--accent);
+  background: rgba(6, 19, 33, 0.78);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: clamp(0.72rem, 2.2vw, 0.92rem);
+  text-align: center;
+}
+
+.hex-output,
+.data-box output {
+  display: block;
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -778,6 +807,10 @@
   .section-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .chacha-state {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

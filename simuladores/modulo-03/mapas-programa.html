@@ -45,7 +45,7 @@
 <div class="mind-node" data-title="Integridad" data-detail="Un tag AEAD o MAC detecta alteraciones. Un hash solo no autentica el origen." data-question="¿Quién puede producir una modificación aceptada?"><strong>Integridad</strong><p class="muted">AEAD · HMAC</p></div>
 <div class="mind-node" data-title="Autenticidad pública" data-detail="Una firma vincula mensaje y clave privada; la identidad de la pública requiere PKI o verificación." data-question="¿Cómo sabe un tercero quién firmó?"><strong>Autenticidad</strong><p class="muted">ECDSA · EdDSA · RSA-PSS</p></div>
 <div class="mind-center"><strong>Objetivo de seguridad</strong><p>Elegir antes del algoritmo</p></div>
-<div class="mind-node" data-title="Acuerdo de claves" data-detail="ECDH/X25519 o un KEM crea material compartido, que debe pasar por una KDF." data-question="¿La clave pública está autenticada?"><strong>Acuerdo/KEM</strong><p class="muted">ECDH · X25519 · ML-KEM</p></div>
+<div class="mind-node" data-title="Establecimiento de claves" data-detail="RSA-OAEP transporta un secreto; ECDH/X25519 lo acuerdan; un KEM lo encapsula. El material resultante debe pasar por una KDF." data-question="¿La clave pública está autenticada?"><strong>Transporte · acuerdo · KEM</strong><p class="muted">RSA-OAEP · X25519 · ML-KEM</p></div>
 <div class="mind-node" data-title="Contraseñas" data-detail="Las contraseñas requieren KDF costosa, salt única y parámetros actualizables." data-question="¿El atacante puede probar candidatos offline?"><strong>Contraseñas</strong><p class="muted">Argon2id · PBKDF2</p></div>
 <div class="mind-node" data-title="Huella" data-detail="El hash resume datos, pero no reemplaza MAC, firma ni cifrado." data-question="¿Se necesita una clave o verificación pública?"><strong>Hash</strong><p class="muted">SHA-256 · SHA-3</p></div>
 </div>
@@ -56,7 +56,7 @@
 <h2>Mapa 2 · Cifrado híbrido</h2>
 <div class="flow">
 <div class="flow-node"><strong>Identidad</strong><p class="muted">Certificado, firma, PSK o huella.</p></div><div class="flow-arrow">→</div>
-<div class="flow-node"><strong>Acuerdo/KEM</strong><p class="muted">ECDH, X25519, RSA-OAEP, ML-KEM.</p></div><div class="flow-arrow">→</div>
+<div class="flow-node"><strong>Establecimiento</strong><p class="muted">Transporte RSA-OAEP, acuerdo ECDH/X25519 o ML-KEM.</p></div><div class="flow-arrow">→</div>
 <div class="flow-node"><strong>HKDF</strong><p class="muted">Extrae y separa claves por contexto.</p></div><div class="flow-arrow">→</div>
 <div class="flow-node"><strong>AEAD</strong><p class="muted">Cifra y autentica datos + AAD.</p></div><div class="flow-arrow">→</div>
 <div class="flow-node"><strong>Rotación</strong><p class="muted">Expiración, revocación y nueva sesión.</p></div>
