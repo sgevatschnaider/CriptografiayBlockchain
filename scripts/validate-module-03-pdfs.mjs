@@ -55,7 +55,8 @@ const generator = readText('scripts/build-module-03-topic-pdfs.py');
 const publicCatalogText = readText('simuladores/catalogo.json');
 
 for (const [filename, title] of topics) {
-  inspectPdf(path.join(pdfDir, filename), `docs/criptografia/pdf/modulo-03/${filename}`, 4);
+  const minimumPages = filename === '09-criptografia-asimetrica.pdf' ? 10 : 4;
+  inspectPdf(path.join(pdfDir, filename), `docs/criptografia/pdf/modulo-03/${filename}`, minimumPages);
   for (const [label, source] of [
     ['catálogo Markdown', catalog],
     ['índice del módulo', moduleIndex],
@@ -79,7 +80,7 @@ try {
   fail(`simuladores/catalogo.json: JSON inválido (${error.message})`);
 }
 if (parsedCatalog) {
-  if (parsedCatalog.version < 15) fail('catálogo público: la versión debe reflejar la biblioteca PDF');
+  if (parsedCatalog.version < 16) fail('catálogo público: la versión debe reflejar la biblioteca PDF y la ruta asimétrica');
   const module03 = parsedCatalog.modulos?.find((module) => module.id === 'modulo-03');
   if (!module03) {
     fail('catálogo público: falta modulo-03');

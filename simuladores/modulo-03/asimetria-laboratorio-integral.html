@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Laboratorio integral de RSA-OAEP, RSA-PSS, ECDSA, ECDH autenticado, X25519, HKDF, AES-GCM y cadena de confianza verificable con Web Crypto.">
+  <meta name="theme-color" content="#06101d">
+  <title>Laboratorio integral de criptografía asimétrica | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/aes-completo.css">
+  <link rel="stylesheet" href="assets/asimetria-completa.css">
+</head>
+<body>
+<a class="skip-link" href="#laboratorio-asimetrico">Saltar al laboratorio</a>
+<main class="aes-shell" id="laboratorio-asimetrico">
+  <header class="aes-topbar"><div class="aes-brand"><a href="index.html">← Módulo 3</a></div><nav class="aes-nav" aria-label="Navegación del laboratorio"><a href="asimetria-teoria-completa.html">Teoría integral</a><a href="ruta-clase-asimetria.html">Ruta guiada</a><a href="rsa-ecdh-hibrido.html">Laboratorio anterior</a><label class="aes-theme">Tema<select data-theme-select aria-label="Tema visual"><option value="nocturno">Nocturno</option><option value="claro">Claro</option><option value="contraste">Alto contraste</option><option value="oceano">Océano</option></select></label></nav></header>
+
+  <section class="aes-hero">
+    <div><div class="aes-eyebrow">Módulo 3 · laboratorio integral</div><h1>Construir, autenticar y verificar asimetría</h1><p>Cinco experimentos separan modelos inspeccionables de operaciones reales: RSA-OAEP, RSA-PSS, ECDSA, ECDH autenticado, X25519, HKDF, AES-GCM y una cadena de confianza educativa firmada.</p><div class="aes-actions"><a class="aes-button" href="#experimentos">Comenzar</a><a class="aes-button secondary" href="asimetria-teoria-completa.html">Repasar teoría</a><button class="aes-button secondary" type="button" data-complete-page="asimetria-laboratorio">Marcar como completado</button></div></div>
+    <div class="aes-orbit" aria-label="Primitivas del laboratorio"><div class="aes-core">REAL</div><span>OAEP</span><span>PSS</span><span>ECDH</span><span>PKI</span></div>
+  </section>
+
+  <section class="aes-section"><div class="aes-eyebrow">Arquitectura del recurso</div><h2>Transparencia matemática y primitivas de plataforma</h2><div class="aes-grid"><article class="aes-card half insight"><h3>Nivel A · modelos inspeccionables</h3><p>La teoría ejecuta RSA con enteros pequeños y una curva sobre F17. Sirven para explicar modularidad, inversos, suma de puntos y multiplicación escalar.</p></article><article class="aes-card half"><h3>Nivel B · criptografía real</h3><p>Este laboratorio delega RSA-2048, ECDSA P-256, ECDH P-256, X25519 cuando está disponible, HKDF y AES-GCM a Web Crypto. Las privadas son no exportables.</p></article><article class="aes-card full warning"><h3>Separación obligatoria</h3><p>Los modelos educativos no son bibliotecas de producción. Las operaciones reales no transmiten datos y desaparecen al recargar la pestaña.</p></article></div></section>
+
+  <section class="aes-section" id="experimentos">
+    <div class="aes-tabs asym-tabs" role="tablist" aria-label="Experimentos asimétricos">
+      <button class="aes-tab asym-tab" id="tab-asym-rsa" type="button" role="tab" aria-selected="true" aria-controls="panel-asym-rsa">RSA</button>
+      <button class="aes-tab asym-tab" id="tab-asym-signatures" type="button" role="tab" aria-selected="false" aria-controls="panel-asym-signatures">Firmas</button>
+      <button class="aes-tab asym-tab" id="tab-asym-auth" type="button" role="tab" aria-selected="false" aria-controls="panel-asym-auth">ECDH autenticado</button>
+      <button class="aes-tab asym-tab" id="tab-asym-x25519" type="button" role="tab" aria-selected="false" aria-controls="panel-asym-x25519">X25519</button>
+      <button class="aes-tab asym-tab" id="tab-asym-pki" type="button" role="tab" aria-selected="false" aria-controls="panel-asym-pki">Cadena de confianza</button>
+    </div>
+
+    <div class="aes-tab-panel asym-panel" id="panel-asym-rsa" role="tabpanel" aria-labelledby="tab-asym-rsa">
+      <div class="aes-eyebrow">Experimento 1 · cifrado y firma RSA</div><h2>OAEP protege material pequeño; PSS firma mensajes</h2>
+      <div class="aes-grid">
+        <article class="aes-card half"><div class="aes-control"><label for="asym-rsa-message">Mensaje ficticio</label><textarea id="asym-rsa-message">clave-de-sesion-ficticia</textarea></div><div class="aes-actions"><button class="aes-button" id="asym-rsa-generate" type="button">Generar pares RSA</button><button class="aes-button secondary" id="asym-rsa-encrypt" type="button">Cifrar OAEP</button><button class="aes-button secondary" id="asym-rsa-decrypt" type="button">Descifrar OAEP</button></div><div class="aes-actions"><button class="aes-button" id="asym-rsa-sign" type="button">Firmar PSS</button><button class="aes-button secondary" id="asym-rsa-verify" type="button">Verificar PSS</button><button class="aes-button danger" id="asym-rsa-tamper" type="button">Alterar mensaje y ciphertext</button></div><div class="aes-status" id="asym-rsa-status">Genere los pares RSA-OAEP y RSA-PSS.</div></article>
+        <article class="aes-card half"><h3>Huella pública OAEP</h3><div class="aes-code" id="asym-rsa-fingerprint">—</div><h3>Ciphertext</h3><div class="aes-code" id="asym-rsa-cipher">—</div><h3>Texto recuperado</h3><div class="aes-code" id="asym-rsa-recovered">—</div></article>
+        <article class="aes-card full"><h3>Firma RSA-PSS</h3><div class="aes-code" id="asym-rsa-signature">—</div><p>Se usa SHA-256 y saltLength=32. OAEP y PSS disponen de pares separados para evitar usos cruzados de clave.</p></article>
+      </div>
+    </div>
+
+    <div class="aes-tab-panel asym-panel" id="panel-asym-signatures" role="tabpanel" aria-labelledby="tab-asym-signatures" hidden>
+      <div class="aes-eyebrow">Experimento 2 · firma elíptica</div><h2>ECDSA P-256 detecta cambio de documento y clave incorrecta</h2>
+      <div class="aes-grid"><article class="aes-card half"><div class="aes-control"><label for="asym-ecdsa-message">Documento</label><textarea id="asym-ecdsa-message">Contrato educativo: versión=1;curso=criptografía.</textarea></div><div class="aes-actions"><button class="aes-button" id="asym-ecdsa-generate" type="button">Generar identidad ECDSA</button><button class="aes-button secondary" id="asym-ecdsa-sign" type="button">Firmar</button><button class="aes-button secondary" id="asym-ecdsa-verify" type="button">Verificar</button></div><div class="aes-actions"><button class="aes-button danger" id="asym-ecdsa-tamper" type="button">Alterar documento</button><button class="aes-button warn" id="asym-ecdsa-wrong" type="button">Probar otra pública</button></div><div class="aes-status" id="asym-ecdsa-status">Genere una identidad ECDSA.</div></article><article class="aes-card half"><h3>Huella de identidad</h3><div class="aes-code" id="asym-ecdsa-fingerprint">—</div><h3>Firma</h3><div class="aes-code" id="asym-ecdsa-signature">—</div><h3>Resultado</h3><div class="aes-code" id="asym-ecdsa-result">—</div></article><article class="aes-card full warning"><h3>Interpretación</h3><p>La firma valida bytes y clave, no el significado humano del documento. La aplicación debe fijar formato, versión, dominio y canonicalización.</p></article></div>
+    </div>
+
+    <div class="aes-tab-panel asym-panel" id="panel-asym-auth" role="tabpanel" aria-labelledby="tab-asym-auth" hidden>
+      <div class="aes-eyebrow">Experimento 3 · sesión autenticada</div><h2>ECDSA firma la efímera; ECDH, HKDF y AES-GCM protegen la sesión</h2>
+      <div class="aes-grid"><article class="aes-card half"><div class="aes-control"><label for="asym-auth-message">Mensaje de sesión</label><textarea id="asym-auth-message">Alicia acepta la efímera de Bob únicamente después de verificar su firma de identidad.</textarea></div><div class="aes-control"><label for="asym-auth-context">Transcript y contexto</label><input id="asym-auth-context" value="modulo-03|p256|ecdsa|hkdf|aes-gcm|v1"></div><div class="aes-actions"><button class="aes-button" id="asym-auth-generate" type="button">Crear identidades y efímeras</button><button class="aes-button secondary" id="asym-auth-verify" type="button">Verificar efímera firmada</button><button class="aes-button secondary" id="asym-auth-encrypt" type="button">Derivar y cifrar</button><button class="aes-button secondary" id="asym-auth-decrypt" type="button">Verificar y recuperar</button></div><div class="aes-actions"><button class="aes-button danger" id="asym-auth-tamper-key" type="button">Alterar efímera</button><button class="aes-button danger" id="asym-auth-tamper-package" type="button">Alterar paquete</button><button class="aes-button warn" id="asym-auth-mitm" type="button">Simular MITM</button></div><div class="aes-status" id="asym-auth-status">Cree identidades de largo plazo y pares ECDH efímeros.</div></article>
+        <article class="aes-card half"><h3>Huella de identidad de Bob</h3><div class="aes-code" id="asym-auth-identity">—</div><h3>Efímera de Bob firmada</h3><div class="aes-code" id="asym-auth-ephemeral">—</div><h3>Paquete de sesión</h3><div class="aes-code" id="asym-auth-package">—</div><h3>Texto recuperado</h3><div class="aes-code" id="asym-auth-recovered">—</div></article>
+        <article class="aes-card full"><div class="aes-flow"><div>Identidad ECDSA</div><div>Firma efímera + transcript</div><div>ECDH P-256</div><div>HKDF-SHA-256</div><div>AES-256-GCM</div></div></article>
+      </div>
+    </div>
+
+    <div class="aes-tab-panel asym-panel" id="panel-asym-x25519" role="tabpanel" aria-labelledby="tab-asym-x25519" hidden>
+      <div class="aes-eyebrow">Experimento 4 · acuerdo moderno</div><h2>X25519 produce el mismo secreto en ambos extremos</h2>
+      <div class="aes-grid"><article class="aes-card half"><p>El laboratorio detecta si el navegador expone X25519 mediante Web Crypto. La derivación se ejecuta localmente; el secreto solo se muestra como huella truncada.</p><div class="aes-actions"><button class="aes-button" id="asym-x25519-run" type="button">Generar y derivar X25519</button></div><div class="aes-status" id="asym-x25519-status">Todavía no se verificó la capacidad.</div></article><article class="aes-card half"><h3>Alicia calcula</h3><div class="aes-code" id="asym-x25519-alice">—</div><h3>Bob calcula</h3><div class="aes-code" id="asym-x25519-bob">—</div><h3>Comparación</h3><div class="aes-code" id="asym-x25519-match">—</div></article><article class="aes-card full warning"><h3>Acuerdo no es autenticación</h3><p>X25519 sigue necesitando firmas, PSK, certificados o un protocolo autenticado. Después del acuerdo se emplea una KDF con contexto.</p></article></div>
+    </div>
+
+    <div class="aes-tab-panel asym-panel" id="panel-asym-pki" role="tabpanel" aria-labelledby="tab-asym-pki" hidden>
+      <div class="aes-eyebrow">Experimento 5 · raíz de confianza</div><h2>Validar una cadena firmada y rechazar un certificado alterado</h2>
+      <p class="aes-lead">Es un modelo verificable de certificación, no un analizador X.509. Una raíz ECDSA firma la afirmación de una CA intermedia y la intermedia firma la identidad final.</p>
+      <div class="aes-actions"><button class="aes-button" id="asym-pki-generate" type="button">Emitir cadena educativa</button><button class="aes-button secondary" id="asym-pki-validate" type="button">Validar cadena</button><button class="aes-button danger" id="asym-pki-tamper" type="button">Alterar certificado final</button><button class="aes-button warn" id="asym-pki-wrong-root" type="button">Usar otra raíz</button></div><div class="aes-status" id="asym-pki-status">Emita la cadena para comenzar.</div>
+      <div class="aes-grid"><article class="aes-card"><h3>Raíz confiable</h3><div class="asym-certificate" id="asym-pki-root">—</div></article><article class="aes-card"><h3>CA intermedia</h3><div class="asym-certificate" id="asym-pki-intermediate">—</div></article><article class="aes-card"><h3>Entidad final</h3><div class="asym-certificate" id="asym-pki-leaf">—</div></article></div>
+      <div class="aes-card full insight"><h3>Controles ejecutados</h3><p>Firma raíz, firma intermedia, issuer/subject, período de validez, restricciones de CA, usos de clave y coincidencia con la raíz de confianza.</p></div>
+    </div>
+  </section>
+
+  <section class="aes-section"><div class="aes-eyebrow">Mapa de decisión</div><h2>Elegir la primitiva por propiedad</h2><div class="aes-table-wrap"><table class="aes-table"><thead><tr><th>Necesidad</th><th>Construcción</th><th>Control obligatorio</th><th>No confundir con</th></tr></thead><tbody><tr><td>Transportar secreto pequeño</td><td>RSA-OAEP</td><td>Autenticar pública y uniformar errores</td><td>Firma o cifrado masivo</td></tr><tr><td>Firmar</td><td>RSA-PSS, ECDSA, Ed25519</td><td>Contexto, formato y clave confiable</td><td>Cifrado</td></tr><tr><td>Acordar secreto</td><td>ECDH o X25519</td><td>Autenticar efímeras y aplicar KDF</td><td>Identidad automática</td></tr><tr><td>Canal</td><td>Acuerdo/KEM + HKDF + AEAD</td><td>Transcript, nonces y claves por dirección</td><td>Primitiva aislada</td></tr><tr><td>Identidad</td><td>PKI, PSK o huella verificada</td><td>Raíz, nombre, usos, validez y revocación</td><td>Clave recibida por el mismo canal</td></tr></tbody></table></div></section>
+
+  <section class="aes-section"><div class="aes-eyebrow">Transferencia</div><h2>Continuar la ruta asimétrica</h2><div class="aes-grid"><article class="aes-card"><h3>Teoría integral</h3><p>RSA, curvas, firmas, PKI, HPKE y sesiones.</p><a class="aes-button secondary" href="asimetria-teoria-completa.html">Abrir teoría</a></article><article class="aes-card"><h3>Ruta guiada</h3><p>Estaciones, productos y evaluación de dominio.</p><a class="aes-button secondary" href="ruta-clase-asimetria.html">Abrir ruta</a></article><article class="aes-card"><h3>Arquitectura híbrida</h3><p>Comparador conceptual RSA, ECDH y HPKE.</p><a class="aes-button secondary" href="cifrado-hibrido-sesion.html">Abrir comparador</a></article></div></section>
+
+  <footer class="aes-footer"><p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p><p>Las operaciones reales se ejecutan mediante Web Crypto y no transmiten datos. La cadena educativa verifica firmas y reglas esenciales, pero no reemplaza una implementación X.509.</p></footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/modulo-03.js"></script>
+<script src="assets/asimetria-core.js"></script>
+<script src="assets/asimetria-laboratorio-integral.js"></script>
+</body>
+</html>

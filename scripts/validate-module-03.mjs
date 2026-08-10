@@ -17,6 +17,9 @@ const requiredPages = [
   'hash-hmac-firmas.html',
   'padding-oracle.html',
   'rsa-ecdh-hibrido.html',
+  'asimetria-teoria-completa.html',
+  'asimetria-laboratorio-integral.html',
+  'ruta-clase-asimetria.html',
   'glosario.html',
   'cuestionario.html'
 ];
@@ -34,6 +37,10 @@ const requiredAssets = [
   'assets/hash-hmac-firmas.js',
   'assets/padding-oracle.js',
   'assets/rsa-ecdh-hibrido.js',
+  'assets/asimetria-core.js',
+  'assets/asimetria-teoria-completa.js',
+  'assets/asimetria-laboratorio-integral.js',
+  'assets/ruta-clase-asimetria.js',
   'assets/glosario-data.js',
   'assets/glosario.js',
   'assets/cuestionario-data.js',
@@ -270,6 +277,9 @@ try {
     'modulo-03/hash-hmac-firmas.html',
     'modulo-03/padding-oracle.html',
     'modulo-03/rsa-ecdh-hibrido.html',
+    'modulo-03/asimetria-teoria-completa.html',
+    'modulo-03/asimetria-laboratorio-integral.html',
+    'modulo-03/ruta-clase-asimetria.html',
     'modulo-03/glosario.html',
     'modulo-03/cuestionario.html'
   ];
