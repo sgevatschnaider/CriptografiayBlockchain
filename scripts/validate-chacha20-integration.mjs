@@ -89,7 +89,7 @@ try {
   const module = catalog.modulos.find((item) => item.id === 'modulo-03');
   const entry = module?.simulaciones?.find((item) => item.archivo === 'modulo-03/chacha20.html');
   if (!entry || entry.estado !== 'disponible') fail('catalogo.json: ChaCha20 no figura disponible');
-  if (module?.simulaciones?.length !== 25) fail(`catalogo.json: se esperaban 25 recursos y hay ${module?.simulaciones?.length ?? 0}`);
+  if (module?.simulaciones?.length !== 28) fail(`catalogo.json: se esperaban 28 recursos y hay ${module?.simulaciones?.length ?? 0}`);
 } catch (error) {
   fail(`catalogo.json: ${error.message}`);
 }

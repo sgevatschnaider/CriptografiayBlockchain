@@ -12,12 +12,12 @@ Cada punto del programa dispone de un dossier independiente. El [manual integral
 | 6 | Modos de operación | [Abrir](06-modos-de-operacion.pdf) |
 | 7 | Padding | [Abrir](07-padding.pdf) |
 | 8 | Algoritmos de cifrado simétrico | [Abrir](08-algoritmos-simetricos.pdf) |
-| 9 | Criptografía asimétrica | [Abrir](09-criptografia-asimetrica.pdf) |
+| 9 | Criptografía asimétrica integral: RSA, ECC, firmas, ECDH, PKI y sesiones | [Abrir](09-criptografia-asimetrica.pdf) |
 | 10 | RSA y curvas elípticas | [Abrir](10-rsa-y-curvas-elipticas.pdf) |
 | 11 | Claves de sesión | [Abrir](11-claves-de-sesion.pdf) |
 | 12 | Laboratorio: vulnerar contraseñas | [Abrir](12-laboratorio-contrasenas.pdf) |
 | 13 | ChaCha20 | [Abrir](13-chacha20.pdf) |
 
-Los documentos se generan con `scripts/build-module-03-topic-pdfs.py` a partir de la fuente curricular y se verifican mediante `scripts/validate-module-03-pdfs.mjs`.
+Los documentos se generan con `scripts/build-module-03-topic-pdfs.py` a partir de la fuente curricular y se verifican mediante `scripts/validate-module-03-pdfs.mjs`. El dossier 09 se amplió a diez páginas para igualar el nivel pedagógico de AES, con matemática inspeccionable, protocolos autenticados, cadena de confianza, fallos y transición poscuántica.
 
 Material elaborado por el profesor Sergio Gevatschnaider.

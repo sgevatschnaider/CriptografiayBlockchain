@@ -68,6 +68,8 @@ Cada módulo posee una **página propia** que organiza su laboratorio integral, 
 [![Cifrado de archivos](https://img.shields.io/badge/LAB-CIFRADO%20LOCAL%20DE%20ARCHIVOS-5b21b6?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/cifrado-local-archivos.html)
 [![Hash, HMAC y firma](https://img.shields.io/badge/LAB-HASH%2C%20HMAC%20Y%20FIRMA-7c3aed?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/hash-hmac-firmas.html)
 [![RSA, ECDH e híbrido](https://img.shields.io/badge/LAB-RSA%2C%20ECDH%20E%20HÍBRIDO-4338ca?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/rsa-ecdh-hibrido.html)
+[![Asimetría integral](https://img.shields.io/badge/LAB-ASIMETRÍA%20INTEGRAL-6d28d9?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/asimetria-laboratorio-integral.html)
+[![Ruta asimétrica](https://img.shields.io/badge/RUTA-ASIMETRÍA%20AUTENTICADA-5b21b6?style=for-the-badge&logo=googlescholar&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-clase-asimetria.html)
 [![Blockchain y Merkle](https://img.shields.io/badge/LAB-BLOCKCHAIN%20Y%20MERKLE-111827?style=for-the-badge&logo=bitcoin&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html)
 
 </div>

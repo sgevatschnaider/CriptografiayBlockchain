@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Teoría integral de criptografía asimétrica: RSA, curvas elípticas, firmas, ECDH, X25519, PKI, HPKE, claves de sesión y seguridad operacional.">
+  <meta name="theme-color" content="#06101d">
+  <title>Criptografía asimétrica desde sus fundamentos | Módulo 3</title>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <link rel="stylesheet" href="assets/aes-completo.css">
+  <link rel="stylesheet" href="assets/asimetria-completa.css">
+</head>
+<body>
+<div class="aes-progress" data-reading-progress aria-hidden="true"></div>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<main class="aes-shell" id="contenido">
+  <header class="aes-topbar">
+    <div class="aes-brand"><a href="index.html">← Módulo 3</a></div>
+    <nav class="aes-nav" aria-label="Navegación de teoría asimétrica">
+      <a href="asimetria-laboratorio-integral.html">Laboratorio integral</a>
+      <a href="ruta-clase-asimetria.html">Ruta guiada</a>
+      <a href="rsa-ecdh-hibrido.html">Laboratorio anterior</a>
+      <label class="aes-theme">Tema<select data-theme-select aria-label="Tema visual"><option value="nocturno">Nocturno</option><option value="claro">Claro</option><option value="contraste">Alto contraste</option><option value="oceano">Océano</option></select></label>
+    </nav>
+  </header>
+
+  <section class="aes-hero">
+    <div>
+      <div class="aes-eyebrow">Módulo 3 · teoría integral</div>
+      <h1>Criptografía asimétrica desde sus fundamentos</h1>
+      <p>De la aritmética modular y los grupos de curvas a RSA-OAEP, RSA-PSS, ECDH, X25519, ECDSA, EdDSA, certificados, HPKE y sesiones con secreto hacia adelante.</p>
+      <div class="aes-actions"><a class="aes-button" href="#modelo">Comenzar el recorrido</a><a class="aes-button secondary" href="asimetria-laboratorio-integral.html">Aplicar en el laboratorio</a><button class="aes-button secondary" type="button" data-complete-page="asimetria-teoria">Marcar como completado</button></div>
+    </div>
+    <div class="aes-orbit" aria-label="Ecosistema de criptografía asimétrica"><div class="aes-core">CLAVE</div><span>RSA</span><span>ECC</span><span>KEM</span><span>PKI</span></div>
+  </section>
+
+  <nav class="aes-jump" aria-label="Índice de secciones">
+    <a href="#modelo">Modelo</a><a href="#matematica">Matemática</a><a href="#rsa">RSA</a><a href="#esquemas-rsa">OAEP y PSS</a><a href="#curvas">Curvas</a><a href="#acuerdo">Acuerdo</a><a href="#firmas">Firmas</a><a href="#pki">PKI</a><a href="#hibrido">Híbrido</a><a href="#sesiones">Sesiones</a><a href="#ataques">Ataques</a><a href="#fuentes">Estándares</a>
+  </nav>
+
+  <section class="aes-section reveal-on-scroll" id="modelo">
+    <div class="aes-eyebrow">1 · Modelo y propiedades</div><h2>La clave pública no convierte todo en “cifrado”</h2>
+    <p class="aes-lead">La asimetría separa capacidades entre una clave privada y una pública. Cada esquema resuelve una propiedad concreta; confundirlas produce diseños inseguros.</p>
+    <div class="aes-grid">
+      <article class="aes-card"><span class="tag">Cifrado</span><h3>RSA-OAEP</h3><p>Protege material pequeño para quien posee la privada. No firma, no autentica por sí solo la pública y no debe cifrar archivos completos.</p></article>
+      <article class="aes-card"><span class="tag">Firma</span><h3>RSA-PSS, ECDSA, EdDSA</h3><p>La privada produce una prueba y la pública la verifica. Una firma aporta autenticidad e integridad verificable, no confidencialidad.</p></article>
+      <article class="aes-card"><span class="tag">Acuerdo</span><h3>ECDH y X25519</h3><p>Dos participantes calculan un secreto común. Sin autenticación son vulnerables a sustitución de claves y man-in-the-middle.</p></article>
+      <article class="aes-card half"><span class="tag">Encapsulación</span><h3>KEM</h3><p>Encapsula un secreto bajo una clave pública mediante una interfaz diseñada para protocolos híbridos. HPKE combina KEM, KDF y AEAD.</p></article>
+      <article class="aes-card half warning"><h3>Regla de composición</h3><p>Asimétrica establece o autentica material de clave; HKDF separa claves; AEAD protege datos. La identidad de la clave pública siempre requiere una raíz de confianza.</p></article>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="matematica">
+    <div class="aes-eyebrow">2 · Fundamento matemático</div><h2>Funciones fáciles, inversas difíciles y estructura algebraica</h2>
+    <div class="aes-grid">
+      <article class="aes-card half"><h3>Aritmética modular</h3><div class="aes-formula">a ≡ b (mod n)
+gcd(e, φ(n)) = 1
+d = e⁻¹ mod φ(n)</div><p>RSA usa exponentiación modular e inversos. Los parámetros pequeños permiten aprender; la seguridad real depende de módulos grandes, padding seguro y una implementación resistente a canales laterales.</p></article>
+      <article class="aes-card half"><h3>Grupos de curvas</h3><div class="aes-formula">E: y² = x³ + ax + b sobre Fp
+Q = kG</div><p>Los puntos de una curva forman un grupo. Multiplicar un punto por un escalar es eficiente; recuperar el escalar desde G y Q es el problema de logaritmo discreto elíptico.</p></article>
+      <article class="aes-card full insight"><h3>Los tamaños no se comparan directamente</h3><p>RSA-3072 y una curva de aproximadamente 256 bits pueden perseguir una fortaleza clásica semejante mediante supuestos distintos. El tamaño nominal no equivale a bits de seguridad.</p></article>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="rsa">
+    <div class="aes-eyebrow">3 · RSA inspeccionable</div><h2>Generación, cifrado y recuperación con enteros pequeños</h2>
+    <p class="aes-lead">Este modelo reproduce la identidad matemática de textbook RSA. No incluye OAEP y jamás debe utilizarse para proteger información real.</p>
+    <div class="aes-state-lab">
+      <div class="aes-controls">
+        <div class="aes-grid">
+          <div class="aes-control half"><label for="rsa-theory-p">Primo p</label><input id="rsa-theory-p" type="number" min="3" max="997" value="61"></div>
+          <div class="aes-control half"><label for="rsa-theory-q">Primo q</label><input id="rsa-theory-q" type="number" min="3" max="997" value="53"></div>
+          <div class="aes-control half"><label for="rsa-theory-e">Exponente público e</label><input id="rsa-theory-e" type="number" min="3" value="17"></div>
+          <div class="aes-control half"><label for="rsa-theory-message">Mensaje entero m</label><input id="rsa-theory-message" type="number" min="0" value="65"></div>
+        </div>
+        <div class="aes-actions"><button class="aes-button" id="rsa-theory-run" type="button">Calcular traza</button><button class="aes-button secondary" id="rsa-theory-vector" type="button">Cargar ejemplo conocido</button></div>
+        <div class="aes-status" id="rsa-theory-status">Calculando.</div>
+      </div>
+      <div><h3>Traza algebraica</h3><div class="aes-code" id="rsa-theory-equations"></div></div>
+    </div>
+    <div class="asym-metrics" aria-label="Resultados RSA"><div class="asym-metric"><strong id="rsa-theory-n">—</strong><span>módulo n</span></div><div class="asym-metric"><strong id="rsa-theory-phi">—</strong><span>φ(n)</span></div><div class="asym-metric"><strong id="rsa-theory-d">—</strong><span>privado d</span></div><div class="asym-metric"><strong id="rsa-theory-cipher">—</strong><span>cifrado c</span></div><div class="asym-metric"><strong id="rsa-theory-recovered">—</strong><span>recuperado</span></div></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="esquemas-rsa">
+    <div class="aes-eyebrow">4 · Esquemas RSA</div><h2>La primitiva matemática necesita transformaciones seguras</h2>
+    <div class="aes-grid">
+      <article class="aes-card half"><span class="tag">RFC 8017</span><h3>RSA-OAEP</h3><p>Codifica probabilísticamente el mensaje antes de aplicar RSA. El límite de entrada depende del módulo y del hash: para RSA-2048 con SHA-256 es 190 bytes.</p><div class="aes-formula">mLen ≤ k - 2·hLen - 2</div></article>
+      <article class="aes-card half"><span class="tag">FIPS 186-5</span><h3>RSA-PSS</h3><p>Firma el hash con sal aleatoria y parámetros explícitos. La verificación debe fijar hash, longitud de sal, clave y contexto esperados.</p><div class="aes-formula">firma = RSASP1(privada, EMSA-PSS(hash(M)))</div></article>
+      <article class="aes-card full warning"><h3>Textbook RSA es determinista y maleable</h3><p>No aporta seguridad semántica. Tampoco deben mezclarse claves de cifrado y firma ni exponerse diferencias de error que funcionen como oráculos.</p></article>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="curvas">
+    <div class="aes-eyebrow">5 · Curvas elípticas inspeccionables</div><h2>Suma de puntos y multiplicación escalar sobre un cuerpo finito</h2>
+    <p class="aes-lead">La curva educativa y² = x³ + 2x + 2 sobre F17 tiene el punto base G=(5,1) de orden 19. Permite visualizar el grupo sin fingir que esos parámetros son seguros.</p>
+    <div class="aes-state-lab">
+      <div class="aes-controls">
+        <div class="aes-control"><label for="ecc-scalar">Escalar k: <span id="ecc-scalar-value">7</span></label><input id="ecc-scalar" type="range" min="1" max="19" value="7"></div>
+        <div class="aes-card insight"><h3 id="ecc-result">7G = —</h3><p>El resultado se obtiene con doble-y-suma. El punto al infinito O actúa como identidad del grupo.</p></div>
+        <div class="aes-code" id="ecc-trace"></div>
+      </div>
+      <svg class="asym-curve" id="ecc-curve-plot" viewBox="0 0 560 340" role="img" aria-label="Puntos de la curva elíptica educativa sobre F17"></svg>
+    </div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="acuerdo">
+    <div class="aes-eyebrow">6 · Acuerdo de claves</div><h2>ECDH y X25519 calculan secretos; no identidades</h2>
+    <div class="aes-flow" aria-label="Flujo de acuerdo de claves"><div>Alicia: a, A=aG</div><div>Bob: b, B=bG</div><div>Alicia: aB</div><div>Bob: bA</div><div>Secreto común abG</div></div>
+    <div class="aes-grid"><article class="aes-card half"><h3>ECDH P-256</h3><p>Opera sobre una curva de Weierstrass estandarizada. Debe validar entradas según la API y derivar claves mediante una KDF con contexto.</p></article><article class="aes-card half"><h3>X25519</h3><p>Usa Curve25519 con una interfaz diseñada para acuerdo. El resultado compartido tampoco autentica al par y debe pasar por HKDF.</p></article><article class="aes-card full warning"><h3>MITM</h3><p>Si Mallory sustituye A y B, establece dos secretos distintos. La defensa firma las claves efímeras o las vincula a certificados, PSK, huellas verificadas o un protocolo autenticado.</p></article></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="firmas">
+    <div class="aes-eyebrow">7 · Firma digital</div><h2>Firmar no es cifrar con la privada</h2>
+    <div class="aes-grid"><article class="aes-card"><h3>RSA-PSS</h3><p>La seguridad depende de la codificación PSS, hash, sal, módulo y protección de la privada.</p></article><article class="aes-card"><h3>ECDSA</h3><p>Cada firma requiere un nonce secreto y único. Su repetición o sesgo puede revelar la clave privada.</p></article><article class="aes-card"><h3>Ed25519</h3><p>Define un esquema EdDSA concreto con codificación y generación determinista del nonce a partir del secreto y el mensaje.</p></article><article class="aes-card full insight"><h3>Contexto y canonicalización</h3><p>Debe firmarse una representación inequívoca que incluya versión, propósito, identidad, transcript y dominio. Firmar texto ambiguo o JSON no canonicalizado permite interpretaciones divergentes.</p></article></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="pki">
+    <div class="aes-eyebrow">8 · Identidad, certificados y PKI</div><h2>Una clave pública solo es útil si se sabe a quién pertenece</h2>
+    <div class="asym-chain" aria-label="Cadena de certificación"><div class="asym-chain-node"><strong>Raíz</strong>Confianza instalada</div><div class="asym-chain-arrow">→</div><div class="asym-chain-node"><strong>Intermedia</strong>CA delegada</div><div class="asym-chain-arrow">→</div><div class="asym-chain-node"><strong>Entidad</strong>Identidad + clave</div></div>
+    <div class="aes-grid"><article class="aes-card half"><h3>Validaciones mínimas</h3><ul><li>firmas de cada eslabón;</li><li>período de validez;</li><li>issuer y subject;</li><li>usos de clave y restricciones de CA;</li><li>nombre esperado;</li><li>revocación o estado equivalente.</li></ul></article><article class="aes-card half"><h3>Huella fuera de banda</h3><p>Un hash de la clave pública puede verificarse por un canal independiente. Publicar clave y huella en el mismo canal comprometido no crea confianza adicional.</p></article></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="hibrido">
+    <div class="aes-eyebrow">9 · Cifrado híbrido</div><h2>KEM o acuerdo, KDF y AEAD forman una arquitectura</h2>
+    <div class="aes-flow"><div>Clave pública autenticada</div><div>KEM o ECDH</div><div>Secreto compartido</div><div>HKDF + transcript</div><div>AEAD por dirección</div></div>
+    <div class="aes-grid"><article class="aes-card half"><h3>HPKE</h3><p>RFC 9180 define modos y suites que combinan KEM, KDF y AEAD. Los datos se protegen con AES-GCM o ChaCha20-Poly1305 según la suite; no es “RSA más AES” ni una etiqueta para cualquier composición artesanal.</p></article><article class="aes-card half"><h3>Separación por contexto</h3><p>Las etiquetas de HKDF deben incorporar protocolo, versión, roles, suite, transcript y dirección. Claves diferentes protegen envío, recepción y exportación.</p></article></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="sesiones">
+    <div class="aes-eyebrow">10 · Sesiones y secreto hacia adelante</div><h2>Efimeridad, autenticación y borrado deben coexistir</h2>
+    <div class="aes-grid"><article class="aes-card"><h3>Efímero</h3><p>Generar un par nuevo limita la exposición temporal, pero no autentica al participante.</p></article><article class="aes-card"><h3>Transcript</h3><p>Vincula versiones, algoritmos, identidades y claves públicas para evitar downgrade o confusión de contexto.</p></article><article class="aes-card"><h3>Borrado</h3><p>El secreto hacia adelante requiere eliminar secretos efímeros después de derivar las claves de sesión.</p></article><article class="aes-card full warning"><h3>RSA estático no aporta PFS</h3><p>Si se registra el tráfico y posteriormente se obtiene la privada RSA histórica, pueden recuperarse claves transportadas. Un acuerdo efímero autenticado evita esa dependencia cuando los secretos efímeros fueron destruidos.</p></article></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="ataques">
+    <div class="aes-eyebrow">11 · Ataques y operación</div><h2>La matemática correcta puede fallar en la implementación</h2>
+    <div class="aes-grid"><article class="aes-card"><h3>Oráculos</h3><p>Diferencias de tiempo o error pueden filtrar validez de padding, firma o certificado.</p></article><article class="aes-card"><h3>Canales laterales</h3><p>Tiempo, caché, potencia y fallos físicos exigen implementaciones constantes y endurecidas.</p></article><article class="aes-card"><h3>Nonce de firma</h3><p>ECDSA pierde la privada si reutiliza o sesga el nonce. Debe delegarse a una biblioteca auditada.</p></article><article class="aes-card"><h3>Validación</h3><p>Claves, puntos, parámetros, certificados y usos deben validarse antes de operar.</p></article><article class="aes-card"><h3>Inventario</h3><p>Algoritmo, tamaño, dueño, período, datos protegidos y dependencias deben quedar registrados.</p></article><article class="aes-card"><h3>Transición poscuántica</h3><p>Shor afecta RSA y ECC. FIPS 203 estandariza ML-KEM para establecimiento poscuántico. La migración requiere agilidad criptográfica y perfiles definidos, no sustituciones improvisadas.</p></article></div>
+  </section>
+
+  <section class="aes-section reveal-on-scroll" id="fuentes">
+    <div class="aes-eyebrow">12 · Síntesis y estándares</div><h2>Referencias primarias y glosario activo</h2>
+    <div class="aes-glossary">
+      <article class="aes-term" aria-expanded="false"><button type="button">OAEP</button><p>Codificación probabilística para cifrado RSA definida en PKCS #1.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">PSS</button><p>Codificación probabilística recomendada para firmas RSA.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">ECDH</button><p>Acuerdo de claves sobre curvas elípticas; no autentica por sí solo.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">KEM</button><p>Mecanismo que encapsula un secreto bajo una clave pública.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">PKI</button><p>Infraestructura que vincula identidades con claves mediante certificados y raíces de confianza.</p></article>
+      <article class="aes-term" aria-expanded="false"><button type="button">PFS</button><p>Propiedad que protege sesiones históricas aun si luego se compromete una clave de largo plazo.</p></article>
+    </div>
+    <div class="aes-grid">
+      <article class="aes-card"><h3>RSA</h3><p><a href="https://www.rfc-editor.org/rfc/rfc8017" target="_blank" rel="noopener">RFC 8017 · PKCS #1 v2.2</a></p></article>
+      <article class="aes-card"><h3>Firmas</h3><p><a href="https://csrc.nist.gov/pubs/fips/186-5/final" target="_blank" rel="noopener">NIST FIPS 186-5</a> · <a href="https://www.rfc-editor.org/rfc/rfc8032" target="_blank" rel="noopener">RFC 8032</a></p></article>
+      <article class="aes-card"><h3>Acuerdo</h3><p><a href="https://csrc.nist.gov/pubs/sp/800/56/a/r3/final" target="_blank" rel="noopener">NIST SP 800-56A Rev. 3</a> · <a href="https://www.rfc-editor.org/rfc/rfc7748" target="_blank" rel="noopener">RFC 7748</a></p></article>
+      <article class="aes-card"><h3>PKI</h3><p><a href="https://www.rfc-editor.org/rfc/rfc5280" target="_blank" rel="noopener">RFC 5280</a></p></article>
+      <article class="aes-card"><h3>HPKE</h3><p><a href="https://www.rfc-editor.org/rfc/rfc9180" target="_blank" rel="noopener">RFC 9180</a></p></article>
+      <article class="aes-card"><h3>Sesiones</h3><p><a href="https://www.rfc-editor.org/rfc/rfc8446" target="_blank" rel="noopener">RFC 8446 · TLS 1.3</a></p></article>
+    </div>
+    <div class="aes-card full warning"><h3>Alcance educativo</h3><p>Los ejemplos de enteros pequeños y curva F17 hacen visible la matemática, pero no son criptografía segura. El laboratorio integral separa esos modelos de las operaciones reales ejecutadas por Web Crypto.</p></div>
+  </section>
+
+  <footer class="aes-footer"><p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p><p>Teoría integral de criptografía asimétrica. Para producción deben utilizarse protocolos estandarizados, bibliotecas mantenidas, parámetros vigentes, validación estricta y gestión segura de claves.</p></footer>
+</main>
+<script src="../assets/lab.js"></script>
+<script src="assets/modulo-03.js"></script>
+<script src="assets/asimetria-core.js"></script>
+<script src="assets/asimetria-teoria-completa.js"></script>
+</body>
+</html>

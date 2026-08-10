@@ -65,6 +65,9 @@ simuladores/
 ├── modulo-03/
 │   ├── index.html
 │   ├── ruta-modulo.html
+│   ├── asimetria-teoria-completa.html
+│   ├── asimetria-laboratorio-integral.html
+│   ├── ruta-clase-asimetria.html
 │   ├── chacha20.html
 │   ├── ruta-guiada.html
 │   ├── contrasena-salt-kdf.html
