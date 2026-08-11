@@ -48,19 +48,6 @@
     else delete element.dataset.kind;
   }
 
-  function hamming(left, right) {
-    const limit = Math.min(left.length, right.length);
-    let distance = Math.abs(left.length - right.length) * 8;
-    for (let index = 0; index < limit; index += 1) {
-      let value = left[index] ^ right[index];
-      while (value) {
-        distance += value & 1;
-        value >>>= 1;
-      }
-    }
-    return distance;
-  }
-
   async function digest(algorithm, value) {
     return new Uint8Array(
       await crypto.subtle.digest(
@@ -68,34 +55,6 @@
         typeof value === "string" ? encoder.encode(value) : value,
       ),
     );
-  }
-
-  async function calculateHashes() {
-    try {
-      requireCrypto();
-      const algorithm = byId("hash-algorithm").value;
-      const [left, right] = await Promise.all([
-        digest(algorithm, byId("hash-a").value),
-        digest(algorithm, byId("hash-b").value),
-      ]);
-      const distance = hamming(left, right);
-      const bits = left.length * 8;
-      const ratio = distance / bits;
-      byId("hash-output-a").textContent = hex(left);
-      byId("hash-output-b").textContent = hex(right);
-      byId("hash-distance").textContent = `${distance} / ${bits} bits`;
-      byId("hash-ratio").textContent = `${(ratio * 100).toFixed(1)}%`;
-      byId("hash-meter").style.width = `${ratio * 100}%`;
-      status(
-        "hash-status",
-        distance
-          ? `Las entradas produjeron salidas diferentes. ${distance} bits cambiaron; esto ilustra avalancha, no demuestra por sí solo todas las propiedades de seguridad.`
-          : "Las entradas son idénticas y el algoritmo determinista produjo el mismo digest.",
-        distance ? "good" : "warn",
-      );
-    } catch (error) {
-      status("hash-status", error.message, "bad");
-    }
   }
 
   async function generateMacKey() {
@@ -467,13 +426,6 @@
     }
   }
 
-  byId("hash-calculate").addEventListener("click", calculateHashes);
-  byId("hash-one-bit").addEventListener("click", () => {
-    byId("hash-a").value = "A";
-    byId("hash-b").value = "C";
-    calculateHashes();
-  });
-  byId("hash-algorithm").addEventListener("change", calculateHashes);
   byId("mac-new-key").addEventListener("click", () =>
     generateMacKey().catch((error) =>
       status("mac-status", error.message, "bad"),
@@ -527,7 +479,6 @@
   byId("signature-wrong-key").addEventListener("click", verifyWithWrongKey);
   byId("signature-scenario").addEventListener("change", recommendSignature);
 
-  calculateHashes();
   newPbkdfSalt();
   newHkdfIkm();
   recommendSignature();

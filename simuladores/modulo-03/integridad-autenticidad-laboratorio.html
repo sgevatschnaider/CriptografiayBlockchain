@@ -11,6 +11,7 @@
     <title>Laboratorio integral | Hash, MAC, KDF y firmas</title>
     <link rel="stylesheet" href="../assets/lab.css" />
     <link rel="stylesheet" href="assets/integridad-autenticidad.css" />
+    <link rel="stylesheet" href="assets/hash-laboratorio.css" />
   </head>
   <body
     data-modern-page="integridad-autenticidad-laboratorio"
@@ -96,73 +97,813 @@
 
       <div id="laboratorios">
         <section
-          class="ia-section"
+          class="ia-section hash-lab"
           id="lab-hash"
           aria-labelledby="lab-hash-titulo"
         >
           <header>
             <div>
-              <div class="ia-eyebrow">Experimento 1 · sin clave</div>
-              <h2 id="lab-hash-titulo">Algoritmos hash y efecto avalancha</h2>
+              <div class="ia-eyebrow">
+                Laboratorio de funciones hash · 8 estaciones
+              </div>
+              <h2 id="lab-hash-titulo">
+                De los bytes a las arquitecturas y sus usos
+              </h2>
+              <p class="ia-muted hash-lead">
+                Cada estación ejecuta operaciones reales y separa lo que se
+                observa de lo que puede afirmarse criptográficamente.
+              </p>
             </div>
-            <span class="ia-support good">Web Crypto</span>
+            <span class="ia-support good">SHA-2 + SHA-3 verificables</span>
           </header>
-          <div class="ia-grid">
-            <article class="ia-card full">
-              <div class="ia-grid">
-                <div class="ia-card">
-                  <div class="ia-control">
-                    <label for="hash-algorithm">Algoritmo</label
-                    ><select id="hash-algorithm">
-                      <option>SHA-256</option>
-                      <option>SHA-512</option>
-                    </select>
-                  </div>
-                  <div class="ia-control">
-                    <label for="hash-a">Mensaje A</label
-                    ><textarea id="hash-a">
-Transferir 1000 unidades a Ana.</textarea
-                    >
-                  </div>
+
+          <div
+            class="hash-progress"
+            role="group"
+            aria-label="Progreso de las estaciones de hash"
+          >
+            <div>
+              <strong id="hash-progress-label"
+                >0 de 8 estaciones exploradas</strong
+              ><span>Diapositivas 1–22</span>
+            </div>
+            <div
+              class="ia-progress"
+              id="hash-progress-track"
+              role="progressbar"
+              aria-label="Estaciones exploradas"
+              aria-valuemin="0"
+              aria-valuemax="8"
+              aria-valuenow="0"
+            >
+              <span id="hash-progress-bar"></span>
+            </div>
+          </div>
+
+          <nav
+            class="hash-station-nav"
+            aria-label="Estaciones del laboratorio hash"
+          >
+            <button
+              type="button"
+              class="is-active"
+              aria-selected="true"
+              aria-controls="hash-station-1"
+              data-hash-station="1"
+            >
+              <b>H1</b><span>Huella y bytes</span>
+            </button>
+            <button
+              type="button"
+              aria-selected="false"
+              aria-controls="hash-station-2"
+              data-hash-station="2"
+            >
+              <b>H2</b><span>Avalancha</span>
+            </button>
+            <button
+              type="button"
+              aria-selected="false"
+              aria-controls="hash-station-3"
+              data-hash-station="3"
+            >
+              <b>H3</b><span>Resistencias</span>
+            </button>
+            <button
+              type="button"
+              aria-selected="false"
+              aria-controls="hash-station-4"
+              data-hash-station="4"
+            >
+              <b>H4</b><span>SHA-2</span>
+            </button>
+            <button
+              type="button"
+              aria-selected="false"
+              aria-controls="hash-station-5"
+              data-hash-station="5"
+            >
+              <b>H5</b><span>SHA-3</span>
+            </button>
+            <button
+              type="button"
+              aria-selected="false"
+              aria-controls="hash-station-6"
+              data-hash-station="6"
+            >
+              <b>H6</b><span>Archivos</span>
+            </button>
+            <button
+              type="button"
+              aria-selected="false"
+              aria-controls="hash-station-7"
+              data-hash-station="7"
+            >
+              <b>H7</b><span>Contraseñas</span>
+            </button>
+            <button
+              type="button"
+              aria-selected="false"
+              aria-controls="hash-station-8"
+              data-hash-station="8"
+            >
+              <b>H8</b><span>Merkle</span>
+            </button>
+          </nav>
+
+          <article
+            class="hash-station-panel"
+            id="hash-station-1"
+            data-hash-panel="1"
+          >
+            <header class="hash-panel-heading">
+              <div>
+                <span>Diapositivas 1–6</span>
+                <h3>Entrada, codificación, determinismo y longitud fija</h3>
+              </div>
+              <span class="hash-observation"
+                >Observar ≠ demostrar seguridad</span
+              >
+            </header>
+            <div class="ia-grid">
+              <div class="ia-card">
+                <div class="ia-control">
+                  <label for="hash-input">Mensaje</label>
+                  <textarea id="hash-input">Criptografía segura</textarea>
                 </div>
-                <div class="ia-card">
-                  <div class="ia-control">
-                    <label for="hash-b">Mensaje B</label
-                    ><textarea id="hash-b">
-Transferir 1001 unidades a Ana.</textarea
-                    >
+                <div class="ia-control">
+                  <label for="hash-digest-algorithm">Función</label>
+                  <select id="hash-digest-algorithm">
+                    <option value="SHA-256">SHA-256</option>
+                    <option value="SHA-512">SHA-512</option>
+                    <option value="SHA3-256">SHA3-256</option>
+                  </select>
+                </div>
+                <div class="ia-actions">
+                  <button class="primary" id="hash-digest-run" type="button">
+                    Calcular huella
+                  </button>
+                  <button id="hash-digest-long" type="button">
+                    Probar entrada 100× mayor
+                  </button>
+                </div>
+              </div>
+              <div class="ia-card hash-byte-card">
+                <h4>La función recibe bytes, no “letras”</h4>
+                <div
+                  class="hash-byte-stream"
+                  id="hash-byte-stream"
+                  aria-live="polite"
+                >
+                  —
+                </div>
+                <div class="ia-output-grid">
+                  <div class="ia-output">
+                    <b>Entrada UTF-8</b><output id="hash-input-size">—</output>
                   </div>
-                  <div class="ia-actions">
-                    <button class="primary" id="hash-calculate" type="button">
-                      Calcular y comparar</button
-                    ><button id="hash-one-bit" type="button">
-                      Diferencia de un bit
-                    </button>
+                  <div class="ia-output">
+                    <b>Salida fija</b><output id="hash-output-size">—</output>
                   </div>
                 </div>
               </div>
-              <div class="ia-output-grid">
-                <div class="ia-output">
-                  <b>Digest A</b><output id="hash-output-a">—</output>
+            </div>
+            <div class="ia-output hash-digest-output">
+              <b>Digest hexadecimal</b
+              ><output id="hash-digest-output">—</output>
+            </div>
+            <div class="ia-status" id="hash-digest-status">
+              Calculá dos veces: la misma secuencia de bytes debe producir
+              exactamente la misma huella.
+            </div>
+          </article>
+
+          <article
+            class="hash-station-panel"
+            id="hash-station-2"
+            data-hash-panel="2"
+            hidden
+          >
+            <header class="hash-panel-heading">
+              <div>
+                <span>Diapositiva 10</span>
+                <h3>Efecto avalancha: una muestra no alcanza</h3>
+              </div>
+              <span class="hash-observation">32 ensayos · SHA-256 real</span>
+            </header>
+            <div class="ia-grid">
+              <div class="ia-card">
+                <div class="ia-control">
+                  <label for="avalanche-message">Mensaje base</label
+                  ><textarea id="avalanche-message">
+Transferir 1000 unidades a Ana.</textarea>
                 </div>
-                <div class="ia-output">
-                  <b>Digest B</b><output id="hash-output-b">—</output>
+                <div class="ia-control">
+                  <label for="avalanche-bit"
+                    >Bit de entrada a invertir:
+                    <span id="avalanche-bit-label">0</span></label
+                  >
+                  <input
+                    id="avalanche-bit"
+                    type="range"
+                    min="0"
+                    max="7"
+                    value="0"
+                  />
                 </div>
-                <div class="ia-output">
-                  <b>Distancia de Hamming</b
-                  ><output id="hash-distance">—</output>
-                </div>
-                <div class="ia-output">
-                  <b>Proporción</b><output id="hash-ratio">—</output>
+                <div class="ia-actions">
+                  <button class="primary" id="avalanche-one" type="button">
+                    Invertir un bit</button
+                  ><button id="avalanche-series" type="button">
+                    Ejecutar 32 ensayos
+                  </button>
                 </div>
               </div>
-              <div class="ia-meter" aria-label="Proporción de bits modificados">
-                <span id="hash-meter"></span>
+              <div class="ia-card">
+                <div class="ia-output-grid">
+                  <div class="ia-output">
+                    <b>Distancia</b><output id="avalanche-distance">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Bits modificados</b
+                    ><output id="avalanche-ratio">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Media de ensayos</b
+                    ><output id="avalanche-average">—</output>
+                  </div>
+                </div>
+                <div
+                  class="ia-meter"
+                  id="avalanche-meter-track"
+                  role="progressbar"
+                  aria-label="Porcentaje de bits del digest modificados"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                >
+                  <span id="avalanche-meter"></span>
+                </div>
+                <div
+                  class="hash-bit-diff"
+                  id="avalanche-bit-diff"
+                  role="img"
+                  aria-label="Comparación visual de bits del digest"
+                >
+                  —
+                </div>
               </div>
-              <div class="ia-status" id="hash-status">
-                Calculá las dos huellas y medí el cambio.
+            </div>
+            <div
+              class="hash-histogram"
+              id="avalanche-histogram"
+              role="img"
+              aria-label="Distribución de distancias de Hamming en 32 ensayos"
+            ></div>
+            <div class="ia-status" id="avalanche-status">
+              La expectativa estadística ronda el 50 %, pero avalancha no prueba
+              resistencia a preimagen ni a colisiones.
+            </div>
+          </article>
+
+          <article
+            class="hash-station-panel"
+            id="hash-station-3"
+            data-hash-panel="3"
+            hidden
+          >
+            <header class="hash-panel-heading">
+              <div>
+                <span>Diapositivas 5, 7–9 y 21</span>
+                <h3>Preimagen, segunda preimagen y colisiones</h3>
               </div>
-            </article>
+              <span class="hash-observation"
+                >Prefijos truncados para experimentar</span
+              >
+            </header>
+            <div class="ia-callout warn">
+              <strong>Modelo didáctico seguro:</strong> se buscan coincidencias
+              sobre 8, 12 o 16 bits iniciales de SHA-256. No es un ataque contra
+              SHA-256 completo; truncar reduce deliberadamente el trabajo.
+            </div>
+            <div class="ia-grid">
+              <div class="ia-card">
+                <div class="ia-control">
+                  <label for="resistance-mode">Desafío</label
+                  ><select id="resistance-mode">
+                    <option value="preimage">
+                      Preimagen: igualar un prefijo objetivo
+                    </option>
+                    <option value="second">
+                      Segunda preimagen: igualar un mensaje dado
+                    </option>
+                    <option value="collision">
+                      Colisión: hallar cualquier par
+                    </option>
+                  </select>
+                </div>
+                <div class="ia-control">
+                  <label for="resistance-bits">Longitud observada</label
+                  ><select id="resistance-bits">
+                    <option value="8">8 bits</option>
+                    <option value="12" selected>12 bits</option>
+                    <option value="16">16 bits</option>
+                  </select>
+                </div>
+                <div class="ia-actions">
+                  <button class="primary" id="resistance-run" type="button">
+                    Iniciar búsqueda
+                  </button>
+                </div>
+                <div
+                  class="ia-progress"
+                  id="resistance-progress-track"
+                  role="progressbar"
+                  aria-label="Progreso relativo de búsqueda"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                >
+                  <span id="resistance-progress"></span>
+                </div>
+              </div>
+              <div class="ia-card">
+                <div class="ia-output-grid">
+                  <div class="ia-output">
+                    <b>Objetivo / prefijo</b
+                    ><output id="resistance-target">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Intentos reales</b
+                    ><output id="resistance-attempts">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Trabajo esperado</b
+                    ><output id="resistance-expected">—</output>
+                  </div>
+                </div>
+                <div class="ia-output">
+                  <b>Resultado encontrado</b
+                  ><output id="resistance-result">—</output>
+                </div>
+              </div>
+            </div>
+            <div class="ia-status" id="resistance-status">
+              Elegí una propiedad y compará el orden de trabajo esperado: 2ⁿ
+              frente a 2ⁿᐟ².
+            </div>
+          </article>
+
+          <article
+            class="hash-station-panel"
+            id="hash-station-4"
+            data-hash-panel="4"
+            hidden
+          >
+            <header class="hash-panel-heading">
+              <div>
+                <span>Diapositivas 11–14</span>
+                <h3>SHA-256: Merkle–Damgård sin caja negra</h3>
+              </div>
+              <span class="hash-observation"
+                >Implementación local cotejada con Web Crypto</span
+              >
+            </header>
+            <div class="ia-grid">
+              <div class="ia-card">
+                <div class="ia-control">
+                  <label for="sha2-message">Mensaje</label
+                  ><textarea id="sha2-message">abc</textarea>
+                </div>
+                <div class="ia-actions">
+                  <button class="primary" id="sha2-run" type="button">
+                    Procesar SHA-256</button
+                  ><a class="ia-button" href="#lab-mac"
+                    >Ver por qué se usa HMAC</a
+                  >
+                </div>
+                <div class="ia-output-grid">
+                  <div class="ia-output">
+                    <b>Longitud original</b
+                    ><output id="sha2-original-bits">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Padding agregado</b><output id="sha2-padding">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Bloques de 512 bits</b
+                    ><output id="sha2-block-count">—</output>
+                  </div>
+                </div>
+              </div>
+              <div class="ia-card">
+                <div
+                  class="hash-architecture"
+                  role="img"
+                  aria-label="Flujo de SHA-256"
+                >
+                  <span>UTF-8</span><b>→</b><span>padding 1‖0…‖len</span><b>→</b
+                  ><span>bloques 512</span><b>→</b><span>64 rondas</span><b>→</b
+                  ><span>digest 256</span>
+                </div>
+                <div
+                  class="hash-blocks"
+                  id="sha2-blocks"
+                  role="group"
+                  aria-label="Bloques acolchados del mensaje"
+                ></div>
+                <div class="ia-output hash-digest-output">
+                  <b>Digest SHA-256</b><output id="sha2-digest">—</output>
+                </div>
+              </div>
+            </div>
+            <div class="hash-round-inspector">
+              <div class="ia-control">
+                <label for="sha2-round"
+                  >Ronda del primer bloque:
+                  <span id="sha2-round-label">0</span> / 63</label
+                ><input
+                  id="sha2-round"
+                  type="range"
+                  min="0"
+                  max="63"
+                  value="0"
+                />
+              </div>
+              <div
+                class="hash-word-grid"
+                id="sha2-state"
+                aria-live="polite"
+              ></div>
+              <div class="ia-output">
+                <b>Palabra del calendario W[t]</b
+                ><output id="sha2-schedule-word">—</output>
+              </div>
+            </div>
+            <div class="ia-status" id="sha2-status">
+              El último estado encadenado debe coincidir bit a bit con Web
+              Crypto.
+            </div>
+          </article>
+
+          <article
+            class="hash-station-panel"
+            id="hash-station-5"
+            data-hash-panel="5"
+            hidden
+          >
+            <header class="hash-panel-heading">
+              <div>
+                <span>Diapositivas 11, 15 y 16</span>
+                <h3>SHA3-256: absorber, permutar y exprimir</h3>
+              </div>
+              <span class="hash-observation">Keccak-f[1600] · 24 rondas</span>
+            </header>
+            <div class="ia-grid">
+              <div class="ia-card">
+                <div class="ia-control">
+                  <label for="sha3-message">Mensaje</label
+                  ><textarea id="sha3-message">abc</textarea>
+                </div>
+                <div class="ia-actions">
+                  <button class="primary" id="sha3-run" type="button">
+                    Procesar SHA3-256</button
+                  ><button id="sha3-nist" type="button">
+                    Validar vectores NIST
+                  </button>
+                </div>
+                <div class="ia-output-grid">
+                  <div class="ia-output">
+                    <b>Tasa r</b><output>1088 bits</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Capacidad c</b><output>512 bits</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Estado r + c</b><output>1600 bits</output>
+                  </div>
+                </div>
+              </div>
+              <div class="ia-card">
+                <div
+                  class="hash-sponge"
+                  role="img"
+                  aria-label="Construcción esponja SHA-3"
+                >
+                  <div>
+                    <strong>Absorber</strong><span>XOR en la zona de tasa</span>
+                  </div>
+                  <b>→</b>
+                  <div>
+                    <strong>Keccak-f</strong><span>θ · ρ · π · χ · ι</span>
+                  </div>
+                  <b>→</b>
+                  <div>
+                    <strong>Exprimir</strong><span>leer 256 bits de tasa</span>
+                  </div>
+                </div>
+                <div class="ia-output hash-digest-output">
+                  <b>Digest SHA3-256</b><output id="sha3-digest">—</output>
+                </div>
+                <div class="ia-output-grid">
+                  <div class="ia-output">
+                    <b>Bloques absorbidos</b><output id="sha3-blocks">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Vector conocido</b><output id="sha3-vector">—</output>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="hash-round-inspector">
+              <div class="ia-control">
+                <label for="sha3-round"
+                  >Estado después de la ronda:
+                  <span id="sha3-round-label">0</span> / 23</label
+                ><input
+                  id="sha3-round"
+                  type="range"
+                  min="0"
+                  max="23"
+                  value="0"
+                />
+              </div>
+              <div
+                class="keccak-state"
+                id="sha3-state"
+                role="img"
+                aria-label="Matriz de 25 lanes de 64 bits del estado Keccak"
+              ></div>
+            </div>
+            <div class="ia-status" id="sha3-status">
+              π es solo uno de los cinco pasos de cada ronda; la permutación
+              completa es Keccak-f[1600].
+            </div>
+          </article>
+
+          <article
+            class="hash-station-panel"
+            id="hash-station-6"
+            data-hash-panel="6"
+            hidden
+          >
+            <header class="hash-panel-heading">
+              <div>
+                <span>Diapositivas 6, 19 y 21</span>
+                <h3>Integridad de archivos y confianza en la referencia</h3>
+              </div>
+              <span class="hash-observation"
+                >El archivo nunca sale del navegador</span
+              >
+            </header>
+            <div class="ia-grid">
+              <div class="ia-card">
+                <div class="ia-control">
+                  <label for="file-input">Archivo local</label
+                  ><input id="file-input" type="file" />
+                </div>
+                <div class="ia-actions">
+                  <button id="file-demo" type="button">
+                    Usar archivo didáctico</button
+                  ><button class="primary" id="file-hash" type="button">
+                    Calcular SHA-256
+                  </button>
+                </div>
+                <div class="ia-output-grid">
+                  <div class="ia-output">
+                    <b>Archivo</b><output id="file-name">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Tamaño</b><output id="file-size">—</output>
+                  </div>
+                </div>
+              </div>
+              <div class="ia-card">
+                <div class="ia-control">
+                  <label for="file-expected"
+                    >Hash esperado (64 hexadecimales)</label
+                  ><input id="file-expected" type="text" spellcheck="false" />
+                </div>
+                <div class="ia-control">
+                  <label for="file-channel">Origen del hash esperado</label
+                  ><select id="file-channel">
+                    <option value="trusted">
+                      Canal confiable o valor firmado
+                    </option>
+                    <option value="untrusted">
+                      Misma página no autenticada que el archivo
+                    </option>
+                  </select>
+                </div>
+                <div class="ia-actions">
+                  <button id="file-use-current" type="button">
+                    Usar el calculado como referencia</button
+                  ><button class="primary" id="file-compare" type="button">
+                    Comparar
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="ia-output hash-digest-output">
+              <b>SHA-256 local</b><output id="file-digest">—</output>
+            </div>
+            <div class="ia-status" id="file-status">
+              Una coincidencia solo es tan confiable como el canal por el que
+              llegó la huella esperada.
+            </div>
+          </article>
+
+          <article
+            class="hash-station-panel"
+            id="hash-station-7"
+            data-hash-panel="7"
+            hidden
+          >
+            <header class="hash-panel-heading">
+              <div>
+                <span>Diapositiva 17</span>
+                <h3>
+                  Contraseñas: digest rápido frente a verificador derivado
+                </h3>
+              </div>
+              <span class="hash-observation"
+                >SHA-256 no es almacenamiento de contraseñas</span
+              >
+            </header>
+            <div class="ia-grid">
+              <div class="ia-card">
+                <div class="ia-control">
+                  <label for="password-demo">Contraseña ficticia</label
+                  ><input
+                    id="password-demo"
+                    type="text"
+                    value="Faro violeta cruza 7 mares!"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="ia-control">
+                  <label for="password-demo-salt"
+                    >Salt pública de 16 bytes</label
+                  ><input
+                    id="password-demo-salt"
+                    type="text"
+                    maxlength="32"
+                    spellcheck="false"
+                  />
+                </div>
+                <div class="ia-control">
+                  <label for="password-demo-cost"
+                    >Costo PBKDF2:
+                    <span id="password-demo-cost-label">150.000</span></label
+                  ><input
+                    id="password-demo-cost"
+                    type="range"
+                    min="50000"
+                    max="300000"
+                    step="50000"
+                    value="150000"
+                  />
+                </div>
+                <div class="ia-actions">
+                  <button id="password-demo-new-salt" type="button">
+                    Nueva salt</button
+                  ><button class="primary" id="password-demo-run" type="button">
+                    Comparar</button
+                  ><a class="ia-button" href="#lab-kdf">Continuar con KDF</a>
+                </div>
+              </div>
+              <div class="ia-card">
+                <div class="hash-race">
+                  <div>
+                    <span>SHA-256 directo</span
+                    ><strong id="password-sha-time">—</strong>
+                    <div class="hash-race-track">
+                      <i id="password-sha-bar"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <span>PBKDF2-HMAC-SHA-256</span
+                    ><strong id="password-kdf-time">—</strong>
+                    <div class="hash-race-track">
+                      <i id="password-kdf-bar"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="ia-output-grid">
+                  <div class="ia-output">
+                    <b>Digest rápido</b
+                    ><output id="password-sha-output">—</output>
+                  </div>
+                  <div class="ia-output">
+                    <b>Verificador derivado</b
+                    ><output id="password-kdf-output">—</output>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ia-status" id="password-demo-status">
+              La base guarda verificador, salt, algoritmo y costo. La salt no es
+              secreta; el costo debe calibrarse.
+            </div>
+          </article>
+
+          <article
+            class="hash-station-panel"
+            id="hash-station-8"
+            data-hash-panel="8"
+            hidden
+          >
+            <header class="hash-panel-heading">
+              <div>
+                <span>Diapositiva 20</span>
+                <h3>Árbol de Merkle: una raíz para muchas transacciones</h3>
+              </div>
+              <span class="hash-observation"
+                >SHA-256 con separación de dominio</span
+              >
+            </header>
+            <div class="ia-grid">
+              <div class="ia-card merkle-inputs">
+                <div class="ia-control">
+                  <label for="merkle-tx-1">Transacción 1</label
+                  ><input id="merkle-tx-1" type="text" value="Ana → Bruno: 5" />
+                </div>
+                <div class="ia-control">
+                  <label for="merkle-tx-2">Transacción 2</label
+                  ><input
+                    id="merkle-tx-2"
+                    type="text"
+                    value="Carla → Diego: 8"
+                  />
+                </div>
+                <div class="ia-control">
+                  <label for="merkle-tx-3">Transacción 3</label
+                  ><input id="merkle-tx-3" type="text" value="Eva → Fabio: 3" />
+                </div>
+                <div class="ia-control">
+                  <label for="merkle-tx-4">Transacción 4</label
+                  ><input id="merkle-tx-4" type="text" value="Gina → Hugo: 2" />
+                </div>
+                <div class="ia-actions">
+                  <button class="primary" id="merkle-build" type="button">
+                    Construir raíz</button
+                  ><button class="warn" id="merkle-tamper" type="button">
+                    Alterar transacción 2
+                  </button>
+                </div>
+              </div>
+              <div class="ia-card">
+                <div
+                  class="merkle-tree"
+                  id="merkle-tree"
+                  role="img"
+                  aria-label="Árbol binario con cuatro hojas, dos nodos internos y una raíz"
+                >
+                  <div class="merkle-node root" data-merkle-node="root">
+                    <b>Raíz</b><span>—</span>
+                  </div>
+                  <div class="merkle-row">
+                    <div class="merkle-node" data-merkle-node="p12">
+                      <b>P12</b><span>—</span>
+                    </div>
+                    <div class="merkle-node" data-merkle-node="p34">
+                      <b>P34</b><span>—</span>
+                    </div>
+                  </div>
+                  <div class="merkle-row leaves">
+                    <div class="merkle-node" data-merkle-node="l1">
+                      <b>L1</b><span>—</span>
+                    </div>
+                    <div class="merkle-node" data-merkle-node="l2">
+                      <b>L2</b><span>—</span>
+                    </div>
+                    <div class="merkle-node" data-merkle-node="l3">
+                      <b>L3</b><span>—</span>
+                    </div>
+                    <div class="merkle-node" data-merkle-node="l4">
+                      <b>L4</b><span>—</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="ia-output">
+                  <b>Raíz completa</b><output id="merkle-root">—</output>
+                </div>
+              </div>
+            </div>
+            <div class="ia-callout">
+              <strong>Construcción usada:</strong> hoja = SHA-256(0x00 ‖ datos)
+              y padre = SHA-256(0x01 ‖ hijo izquierdo ‖ hijo derecho). La
+              separación de dominio evita confundir hojas con nodos internos.
+            </div>
+            <div class="ia-status" id="merkle-status">
+              Construí el árbol y luego alterá una hoja para seguir exactamente
+              qué camino cambia.
+            </div>
+          </article>
+
+          <div class="hash-slide-bridge">
+            <strong>Puentes de la presentación:</strong>
+            <a href="#lab-mac">diapositiva 14 → HMAC y extensión de longitud</a>
+            <a href="#lab-firmas">diapositiva 18 → firma y hash interno</a>
           </div>
         </section>
 
@@ -183,8 +924,7 @@ Transferir 1001 unidades a Ana.</textarea
               <div class="ia-control">
                 <label for="mac-message">Mensaje autenticado</label
                 ><textarea id="mac-message">
-operacion=transferencia;destino=ANA;monto=1000;secuencia=42</textarea
-                >
+operacion=transferencia;destino=ANA;monto=1000;secuencia=42</textarea>
               </div>
               <div class="ia-output">
                 <b>Clave didáctica de 256 bits</b
@@ -243,13 +983,19 @@ operacion=transferencia;destino=ANA;monto=1000;secuencia=42</textarea
                 <label for="pbkdf-password">Contraseña ficticia</label
                 ><input
                   id="pbkdf-password"
+                  type="text"
                   value="Faro violeta cruza 7 mares!"
                   autocomplete="off"
                 />
               </div>
               <div class="ia-control">
                 <label for="pbkdf-salt">Salt hexadecimal (16 bytes)</label
-                ><input id="pbkdf-salt" maxlength="32" spellcheck="false" />
+                ><input
+                  id="pbkdf-salt"
+                  type="text"
+                  maxlength="32"
+                  spellcheck="false"
+                />
               </div>
               <div class="ia-control">
                 <label for="pbkdf-iterations"
@@ -292,6 +1038,7 @@ operacion=transferencia;destino=ANA;monto=1000;secuencia=42</textarea
                 <label for="hkdf-context-a">Contexto A (info)</label
                 ><input
                   id="hkdf-context-a"
+                  type="text"
                   value="curso/2026/cliente-a-servidor/aes-gcm"
                 />
               </div>
@@ -299,6 +1046,7 @@ operacion=transferencia;destino=ANA;monto=1000;secuencia=42</textarea
                 <label for="hkdf-context-b">Contexto B (info)</label
                 ><input
                   id="hkdf-context-b"
+                  type="text"
                   value="curso/2026/servidor-a-cliente/aes-gcm"
                 />
               </div>
@@ -354,8 +1102,7 @@ operacion=transferencia;destino=ANA;monto=1000;secuencia=42</textarea
               <div class="ia-control">
                 <label for="signature-message">Documento</label
                 ><textarea id="signature-message">
-Acepto el contrato CRIPTO-03 por el importe de 1000 unidades.</textarea
-                >
+Acepto el contrato CRIPTO-03 por el importe de 1000 unidades.</textarea>
               </div>
               <div class="ia-actions">
                 <button id="signature-generate" type="button">
@@ -499,6 +1246,7 @@ Acepto el contrato CRIPTO-03 por el importe de 1000 unidades.</textarea
     </main>
     <script src="../assets/lab.js"></script>
     <script src="assets/modulo-03.js"></script>
+    <script src="assets/hash-laboratorio.js"></script>
     <script src="assets/integridad-autenticidad-laboratorio.js"></script>
   </body>
 </html>
