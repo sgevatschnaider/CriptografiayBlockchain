@@ -79,15 +79,15 @@ try {
 const terms = Array.isArray(context.window.ModernTerms) ? context.window.ModernTerms : [];
 const names = terms.map((term) => String(term[0]).toLocaleLowerCase('es'));
 const duplicatedTerms = [...new Set(names.filter((name, index) => names.indexOf(name) !== index))];
-if (terms.length !== 112) fail(`Glosario: se esperaban 112 términos y se detectaron ${terms.length}`);
+if (terms.length !== 124) fail(`Glosario: se esperaban 124 términos y se detectaron ${terms.length}`);
 if (duplicatedTerms.length) fail(`Glosario: términos duplicados: ${duplicatedTerms.join(', ')}`);
 for (const required of ['Vernam','One-Time Pad','Two-Time Pad','Uniformidad','Impredecibilidad','Independencia','Maleabilidad','Forward secrecy','PRF']) {
   if (!names.includes(required.toLocaleLowerCase('es'))) fail(`Glosario: falta ${required}`);
 }
 if (!/programa-glosario-data\.js[\s\S]*programa-glosario-vernam-data\.js[\s\S]*programa-moderno\.js/.test(content.glossaryPage)) fail(`${files.glossaryPage}: orden de scripts incorrecto`);
-for (const snippet of ['112 conceptos','vernam-a-criptografia-moderna.html']) if (!content.glossaryPage.includes(snippet)) fail(`${files.glossaryPage}: falta ${snippet}`);
+for (const snippet of ['124 conceptos','vernam-a-criptografia-moderna.html']) if (!content.glossaryPage.includes(snippet)) fail(`${files.glossaryPage}: falta ${snippet}`);
 for (const [label, html] of [[files.m3Index, content.m3Index], [files.m3Route, content.m3Route]]) {
-  for (const snippet of ['vernam-a-criptografia-moderna.html','112']) if (!html.includes(snippet)) fail(`${label}: falta ${snippet}`);
+  for (const snippet of ['vernam-a-criptografia-moderna.html','124']) if (!html.includes(snippet)) fail(`${label}: falta ${snippet}`);
 }
 if (!content.m1Route.includes('vernam-one-time-pad.html')) fail(`${files.m1Route}: no enlaza el centro teórico`);
 
@@ -107,4 +107,4 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
-console.log('Validación correcta: teoría Vernam/OTP, puente moderno, 112 términos, enlaces, temas y catálogo.');
+console.log('Validación correcta: teoría Vernam/OTP, puente moderno, 124 términos, enlaces, temas y catálogo.');

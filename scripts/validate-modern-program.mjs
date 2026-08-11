@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 
 const root=process.cwd();
 const moduleDir=path.join(root,'simuladores','modulo-03');
@@ -86,11 +87,25 @@ for(const concept of ['THEMES','pbkdf2Hex','PBKDF2','TERMS','QUESTIONS','initPas
 if(/\b(?:fetch|XMLHttpRequest|WebSocket|sendBeacon)\s*\(/.test(script))fail('programa-moderno.js: no debe transmitir datos');
 const glossaryData=read('assets/programa-glosario-data.js');
 const questionData=read('assets/programa-cuestionario-data.js');
-const termsMatch=glossaryData.match(/window\.ModernTerms\s*=\s*(\[[\s\S]*\]);/);
-const questionsMatch=questionData.match(/window\.ModernQuestions\s*=\s*(\[[\s\S]*\]);/);
-let termCount=0,questionCount=0;
-try{termCount=JSON.parse(termsMatch?.[1]||'[]').length;}catch(error){fail(`Glosario: JSON inválido: ${error.message}`);}
-try{questionCount=JSON.parse(questionsMatch?.[1]||'[]').length;}catch(error){fail(`Cuestionario: JSON inválido: ${error.message}`);}
+const loadDataArray=(source,property,label)=>{
+  const context=vm.createContext({window:Object.create(null)});
+  try{
+    new vm.Script(source,{filename:label}).runInContext(context,{timeout:1000});
+  }catch(error){
+    fail(`${label}: JavaScript inválido: ${error.message}`);
+    return [];
+  }
+  const value=context.window[property];
+  if(!Array.isArray(value)){
+    fail(`${label}: window.${property} debe ser un arreglo`);
+    return [];
+  }
+  return value;
+};
+const terms=loadDataArray(glossaryData,'ModernTerms','Glosario');
+const questions=loadDataArray(questionData,'ModernQuestions','Cuestionario');
+const termCount=terms.length;
+const questionCount=questions.length;
 if(termCount<85)fail(`Glosario: se esperaban al menos 85 términos y se detectaron ${termCount}`);
 if(questionCount<40)fail(`Cuestionario: se esperaban al menos 40 preguntas y se detectaron ${questionCount}`);
 

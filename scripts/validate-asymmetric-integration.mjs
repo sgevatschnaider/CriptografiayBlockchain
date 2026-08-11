@@ -222,7 +222,7 @@ try {
       'modulo-03/ruta-clase-asimetria.html'
     ]) if (!files.has(file)) fail(`catalogo.json: falta ${file}`);
     if (module.ruta_clase_asimetria !== 'modulo-03/ruta-clase-asimetria.html') fail('catalogo.json: falta ruta_clase_asimetria');
-    if (module.simulaciones.length !== 28) fail(`catalogo.json: se esperaban 28 recursos del Módulo 3 y hay ${module.simulaciones.length}`);
+    if (module.simulaciones.length !== 31) fail(`catalogo.json: se esperaban 31 recursos del Módulo 3 y hay ${module.simulaciones.length}`);
   }
 } catch (error) { fail(`catalogo.json: ${error.message}`); }
 

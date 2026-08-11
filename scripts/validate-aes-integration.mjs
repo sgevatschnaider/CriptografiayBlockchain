@@ -116,7 +116,7 @@ try {
   else {
     const files = new Set(module.simulaciones.map((item) => item.archivo));
     for (const file of ['modulo-03/aes-teoria-completa.html','modulo-03/aes-laboratorio-integral.html','modulo-03/chacha20.html','modulo-03/ruta-clase-aes.html']) if (!files.has(file)) fail(`catalogo.json: falta ${file}`);
-    if (module.simulaciones.length !== 28) fail(`catalogo.json: se esperaban 28 recursos del Módulo 3 y hay ${module.simulaciones.length}`);
+    if (module.simulaciones.length !== 31) fail(`catalogo.json: se esperaban 31 recursos del Módulo 3 y hay ${module.simulaciones.length}`);
   }
 } catch (error) { fail(`catalogo.json: ${error.message}`); }
 

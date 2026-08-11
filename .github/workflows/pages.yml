@@ -45,6 +45,7 @@ jobs:
           node scripts/validate-simulators.mjs
           node scripts/validate-module-02.mjs
           node scripts/validate-module-03.mjs
+          node scripts/validate-hash-lab.mjs
           node scripts/validate-fundamentos-matematicos.mjs
           node scripts/validate-modern-program.mjs
           node scripts/validate-vernam-integration.mjs
