@@ -1,26 +1,400 @@
 <!doctype html>
 <html lang="es" data-theme="nocturno">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Presentaciones docentes del Módulo 3 con apertura directa en Google Slides y vínculos a los laboratorios HTML.">
-<meta name="theme-color" content="#06101d"><title>Presentaciones docentes | Módulo 3</title>
-<link rel="stylesheet" href="../assets/lab.css"><link rel="stylesheet" href="assets/programa-moderno.css"><link rel="stylesheet" href="assets/modulo-integrado.css">
-<style>
-.deck-hero{margin-top:18px;padding:clamp(28px,5vw,58px);border:1px solid var(--border);border-radius:30px;background:radial-gradient(circle at 12% 0,rgba(93,228,255,.22),transparent 30rem),linear-gradient(135deg,rgba(16,41,67,.98),rgba(7,22,37,.98));box-shadow:0 28px 70px rgba(0,0,0,.32)}.deck-hero h1{font-size:clamp(2.3rem,6vw,5rem);line-height:.98;margin:.2em 0}.deck-hero p{max-width:900px;color:var(--muted);font-size:1.08rem}.deck-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:24px 0}.deck-card{display:flex;flex-direction:column;gap:12px;min-height:310px;padding:22px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(150deg,rgba(16,41,67,.98),rgba(7,22,37,.98));box-shadow:0 18px 48px rgba(0,0,0,.24)}.deck-card h2{margin:0;font-size:1.28rem}.deck-card p{margin:0;color:var(--muted)}.deck-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto}.deck-tags span{padding:5px 9px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.75rem;font-weight:850}.deck-actions{display:flex;flex-wrap:wrap;gap:8px}.deck-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:41px;padding:8px 12px;border:1px solid var(--border);border-radius:999px;color:var(--text);text-decoration:none;font-weight:850}.deck-actions a.primary{background:var(--accent);color:#03111d;border-color:transparent}.deck-note{padding:18px;border:1px solid var(--border);border-radius:20px;background:rgba(255,255,255,.04);color:var(--muted)}@media(max-width:900px){.deck-grid{grid-template-columns:1fr 1fr}}@media(max-width:640px){.deck-grid{grid-template-columns:1fr}.deck-card{min-height:auto}}
-</style>
-</head>
-<body data-modern-page="presentaciones"><main class="shell"><a class="skip-link" href="#presentaciones">Saltar a las presentaciones</a>
-<header class="topbar"><div class="brand"><a href="index.html">← Módulo 3</a></div><nav class="nav"><a href="index.html">Portada</a><a href="ruta-modulo.html">Ruta</a><a href="aes-teoria-completa.html">AES</a><a href="hash-hmac-firmas.html">Hash/HMAC</a><a href="glosario-programa.html">Glosario</a><label class="theme-control">Tema<select data-theme-select aria-label="Tema visual"><option value="nocturno">Nocturno</option><option value="claro">Claro</option><option value="contraste">Alto contraste</option><option value="oceano">Océano</option></select></label></nav></header>
-<section class="deck-hero"><div class="eyebrow">Material docente complementario</div><h1>Presentaciones para abrir desde el repositorio</h1><p>Cada botón abre la presentación en Google Slides desde esta página de GitHub Pages. Desde Google Slides también podés iniciar la exposición, editar una copia o descargar el archivo como PowerPoint.</p></section>
-<section id="presentaciones" class="deck-grid" aria-label="Presentaciones disponibles">
-<article class="deck-card"><div class="eyebrow">Apertura conceptual</div><h2>De la criptografía clásica a AES</h2><p>Paradigma moderno, Kerckhoffs, adversario, confusión, difusión y puente hacia AES.</p><div class="deck-tags"><span>Antes de AES</span><span>Introducción</span></div><div class="deck-actions"><a class="primary" target="_blank" rel="noopener" href="https://docs.google.com/presentation/d/1DOdnRq0Xu373Ju9ToLs0lBrY3eQHYd-5g8jBfxVazcg/edit?usp=drivesdk">Abrir presentación</a><a href="aes-teoria-completa.html">Ver teoría HTML</a></div></article>
-<article class="deck-card"><div class="eyebrow">Clasificación</div><h2>Familias, claves y sistemas híbridos</h2><p>Criptografía simétrica, asimétrica, funciones hash y arquitectura híbrida.</p><div class="deck-tags"><span>Familias modernas</span><span>Kleopatra</span></div><div class="deck-actions"><a class="primary" target="_blank" rel="noopener" href="https://docs.google.com/presentation/d/1y150cdIjOotkW01qmFvIN0N83tq3yxRdJTDUNubQPpk/edit?usp=drivesdk">Abrir presentación</a><a href="clasificacion-criptosistemas.html">Ver clasificador</a></div></article>
-<article class="deck-card"><div class="eyebrow">Medida de resistencia</div><h2>Bits de seguridad antes de AES</h2><p>Escala 2ⁿ, fuerza bruta y comparación entre AES, RSA, ECC y hash.</p><div class="deck-tags"><span>Bits de seguridad</span><span>Antes de AES</span></div><div class="deck-actions"><a class="primary" target="_blank" rel="noopener" href="https://docs.google.com/presentation/d/1pUGiB0kLyXeN01LKWP7q8TsSNaoFn4refGOaXydLe9w/edit?usp=drivesdk">Abrir presentación</a><a href="../modulo-02/espacio-claves-complejidad.html">Ver simulación</a></div></article>
-<article class="deck-card"><div class="eyebrow">Núcleo técnico</div><h2>AES: estructura interna, rondas, modos y seguridad</h2><p>Bloque de 128 bits, matriz de estado, expansión de clave, rondas, SubBytes, ShiftRows, MixColumns, AddRoundKey, modos de operación y seguridad práctica.</p><div class="deck-tags"><span>AES</span><span>Arquitectura y uso</span></div><div class="deck-actions"><a class="primary" target="_blank" rel="noopener" href="https://docs.google.com/presentation/d/1GnX3av6Il7JmEVWDoDSSGkRnbAom8SrRju7g4ZpTJMc/edit?usp=drivesdk">Abrir presentación</a><a href="aes-laboratorio-integral.html">Abrir laboratorio</a></div></article>
-<article class="deck-card"><div class="eyebrow">Integridad</div><h2>Funciones hash criptográficas</h2><p>Digest, irreversibilidad, preimagen, colisiones, avalancha, SHA-2, SHA-3 y HMAC.</p><div class="deck-tags"><span>Hash</span><span>Integridad</span></div><div class="deck-actions"><a class="primary" target="_blank" rel="noopener" href="https://docs.google.com/presentation/d/17r_-2txh1VyXrsSrSc1iU-edu_3sGt8o28Dj1uPEwAA/edit?usp=drivesdk">Abrir presentación</a><a href="hash-hmac-firmas.html">Abrir laboratorio</a></div></article>
-<article class="deck-card"><div class="eyebrow">Colisiones</div><h2>Paradoja del cumpleaños y funciones hash</h2><p>Pares, raíz cuadrada del espacio y resistencia aproximada de n/2 bits frente a colisiones.</p><div class="deck-tags"><span>Cumpleaños</span><span>Colisiones</span></div><div class="deck-actions"><a class="primary" target="_blank" rel="noopener" href="https://docs.google.com/presentation/d/1UdL1J-O6U1dNPFsxTKEQVChRJu0qbGGEcdYqtFSBrD0/edit?usp=drivesdk">Abrir presentación</a><a href="hash-hmac-firmas.html">Ver aplicación</a></div></article>
-</section>
-<section class="deck-note"><strong>Cómo exponer:</strong> pulsá <em>Abrir presentación</em>, luego en Google Slides elegí <strong>Presentación</strong>. Para recuperar el PowerPoint: <strong>Archivo → Descargar → Microsoft PowerPoint (.pptx)</strong>.</section>
-<footer class="footer"><p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p><p>Las presentaciones complementan los HTML interactivos sin reemplazarlos.</p></footer></main>
-<script src="../assets/lab.js"></script><script src="assets/modulo-03.js"></script>
-</body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Presentaciones docentes del Módulo 3 con apertura directa en Google Slides y vínculos a los laboratorios HTML."
+    />
+    <meta name="theme-color" content="#06101d" />
+    <title>Presentaciones docentes | Módulo 3</title>
+    <link rel="stylesheet" href="../assets/lab.css" />
+    <link rel="stylesheet" href="assets/programa-moderno.css" />
+    <link rel="stylesheet" href="assets/modulo-integrado.css" />
+    <style>
+      .deck-hero {
+        margin-top: 18px;
+        padding: clamp(28px, 5vw, 58px);
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        background: radial-gradient(
+            circle at 12% 0,
+            rgba(93, 228, 255, 0.22),
+            transparent 30rem
+          ),
+          linear-gradient(135deg, rgba(16, 41, 67, 0.98), rgba(7, 22, 37, 0.98));
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
+      }
+      .deck-hero h1 {
+        font-size: clamp(2.3rem, 6vw, 5rem);
+        line-height: 0.98;
+        margin: 0.2em 0;
+      }
+      .deck-hero p {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 1.08rem;
+      }
+      .deck-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin: 24px 0;
+      }
+      .deck-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 310px;
+        padding: 22px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: linear-gradient(
+          150deg,
+          rgba(16, 41, 67, 0.98),
+          rgba(7, 22, 37, 0.98)
+        );
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+      }
+      .deck-card h2 {
+        margin: 0;
+        font-size: 1.28rem;
+      }
+      .deck-card p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .deck-tags {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin-top: auto;
+      }
+      .deck-tags span {
+        padding: 5px 9px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 850;
+      }
+      .deck-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .deck-actions a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 41px;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 850;
+      }
+      .deck-actions a.primary {
+        background: var(--accent);
+        color: #03111d;
+        border-color: transparent;
+      }
+      .deck-note {
+        padding: 18px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+      }
+      @media (max-width: 900px) {
+        .deck-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 640px) {
+        .deck-grid {
+          grid-template-columns: 1fr;
+        }
+        .deck-card {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body data-modern-page="presentaciones">
+    <main class="shell">
+      <a class="skip-link" href="#presentaciones"
+        >Saltar a las presentaciones</a
+      >
+      <header class="topbar">
+        <div class="brand"><a href="index.html">← Módulo 3</a></div>
+        <nav class="nav">
+          <a href="index.html">Portada</a><a href="ruta-modulo.html">Ruta</a
+          ><a href="aes-teoria-completa.html">AES</a
+          ><a href="hash-hmac-firmas.html">Hash/HMAC</a
+          ><a href="glosario-programa.html">Glosario</a
+          ><label class="theme-control"
+            >Tema<select data-theme-select aria-label="Tema visual">
+              <option value="nocturno">Nocturno</option>
+              <option value="claro">Claro</option>
+              <option value="contraste">Alto contraste</option>
+              <option value="oceano">Océano</option>
+            </select></label
+          >
+        </nav>
+      </header>
+      <section class="deck-hero">
+        <div class="eyebrow">Material docente complementario</div>
+        <h1>Presentaciones para abrir desde el repositorio</h1>
+        <p>
+          Cada botón abre la presentación en Google Slides desde esta página de
+          GitHub Pages. Desde Google Slides también podés iniciar la exposición,
+          editar una copia o descargar el archivo como PowerPoint.
+        </p>
+      </section>
+      <section
+        id="presentaciones"
+        class="deck-grid"
+        aria-label="Presentaciones disponibles"
+      >
+        <article class="deck-card" id="intro-aes">
+          <div class="eyebrow">Apertura conceptual</div>
+          <h2>De la criptografía clásica a AES</h2>
+          <p>
+            Paradigma moderno, Kerckhoffs, adversario, confusión, difusión y
+            puente hacia AES.
+          </p>
+          <div class="deck-tags">
+            <span>Antes de AES</span><span>Introducción</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/1DOdnRq0Xu373Ju9ToLs0lBrY3eQHYd-5g8jBfxVazcg/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="aes-teoria-completa.html">Ver teoría HTML</a>
+          </div>
+        </article>
+        <article class="deck-card" id="familias">
+          <div class="eyebrow">Clasificación</div>
+          <h2>Familias, claves y sistemas híbridos</h2>
+          <p>
+            Criptografía simétrica, asimétrica, funciones hash y arquitectura
+            híbrida.
+          </p>
+          <div class="deck-tags">
+            <span>Familias modernas</span><span>Kleopatra</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/1y150cdIjOotkW01qmFvIN0N83tq3yxRdJTDUNubQPpk/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="clasificacion-criptosistemas.html">Ver clasificador</a>
+          </div>
+        </article>
+        <article class="deck-card" id="bits">
+          <div class="eyebrow">Medida de resistencia</div>
+          <h2>Bits de seguridad antes de AES</h2>
+          <p>
+            Escala 2ⁿ, fuerza bruta y comparación entre AES, RSA, ECC y hash.
+          </p>
+          <div class="deck-tags">
+            <span>Bits de seguridad</span><span>Antes de AES</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/1pUGiB0kLyXeN01LKWP7q8TsSNaoFn4refGOaXydLe9w/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="../modulo-02/espacio-claves-complejidad.html"
+              >Ver simulación</a
+            >
+          </div>
+        </article>
+        <article class="deck-card" id="aes">
+          <div class="eyebrow">Núcleo técnico</div>
+          <h2>AES: estructura interna, rondas, modos y seguridad</h2>
+          <p>
+            Bloque de 128 bits, matriz de estado, expansión de clave, rondas,
+            SubBytes, ShiftRows, MixColumns, AddRoundKey, modos de operación y
+            seguridad práctica.
+          </p>
+          <div class="deck-tags">
+            <span>AES</span><span>Arquitectura y uso</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/1GnX3av6Il7JmEVWDoDSSGkRnbAom8SrRju7g4ZpTJMc/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="aes-laboratorio-integral.html">Abrir laboratorio</a>
+          </div>
+        </article>
+        <article class="deck-card" id="hash">
+          <div class="eyebrow">Integridad</div>
+          <h2>Funciones hash criptográficas</h2>
+          <p>
+            Digest, irreversibilidad, preimagen, colisiones, avalancha, SHA-2,
+            SHA-3 y HMAC.
+          </p>
+          <div class="deck-tags"><span>Hash</span><span>Integridad</span></div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/17r_-2txh1VyXrsSrSc1iU-edu_3sGt8o28Dj1uPEwAA/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="integridad-autenticidad-laboratorio.html#lab-hash"
+              >Abrir laboratorio</a
+            ><a href="integridad-autenticidad-teoria.html#hash">Ver teoría</a
+            >
+          </div>
+        </article>
+        <article class="deck-card" id="cumpleanos">
+          <div class="eyebrow">Colisiones</div>
+          <h2>Paradoja del cumpleaños y funciones hash</h2>
+          <p>
+            Pares, raíz cuadrada del espacio y resistencia aproximada de n/2
+            bits frente a colisiones.
+          </p>
+          <div class="deck-tags">
+            <span>Cumpleaños</span><span>Colisiones</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/1UdL1J-O6U1dNPFsxTKEQVChRJu0qbGGEcdYqtFSBrD0/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="hash-hmac-firmas.html">Ver aplicación</a>
+          </div>
+        </article>
+        <article class="deck-card" id="mac">
+          <div class="eyebrow">Autenticación simétrica</div>
+          <h2>Códigos de autenticación de mensajes (MAC)</h2>
+          <p>
+            Diferencia entre hash y MAC, modelo de seguridad, HMAC, CMAC, KMAC,
+            verificación y límites del secreto compartido.
+          </p>
+          <div class="deck-tags">
+            <span>MAC</span><span>HMAC</span><span>Autenticidad</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/1C2twCstLb0CGoq6eH4PL2E-rhVo4xDi7Dz67jjcJL6c/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="integridad-autenticidad-laboratorio.html#lab-mac"
+              >Abrir laboratorio</a
+            ><a href="integridad-autenticidad-teoria.html#mac">Ver teoría</a
+            >
+          </div>
+        </article>
+        <article class="deck-card" id="kdf">
+          <div class="eyebrow">Derivación de claves</div>
+          <h2>Funciones derivadoras de clave (KDF)</h2>
+          <p>
+            PBKDF2 y Argon2id para contraseñas; HKDF para material secreto de
+            alta entropía, separación de dominios y parámetros.
+          </p>
+          <div class="deck-tags">
+            <span>KDF</span><span>PBKDF2</span><span>HKDF</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/1v9LUtIS3tHOrjgdF9qgINcxPJJNvAPocy0PStu0xq2Y/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="integridad-autenticidad-laboratorio.html#lab-kdf"
+              >Abrir laboratorio</a
+            ><a href="integridad-autenticidad-teoria.html#kdf">Ver teoría</a
+            >
+          </div>
+        </article>
+        <article class="deck-card" id="firmas">
+          <div class="eyebrow">Verificación pública</div>
+          <h2>Firmas digitales</h2>
+          <p>
+            Generación, firma y verificación; integridad, confianza en la clave
+            pública, contexto, custodia y no repudio condicionado.
+          </p>
+          <div class="deck-tags">
+            <span>Firmas</span><span>Clave pública</span><span>Confianza</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/1zj-vBaeVFjfauZD1AY7-k1ZtujMJCuVtpnnGS_qx5ms/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="integridad-autenticidad-laboratorio.html#lab-firmas"
+              >Abrir laboratorio</a
+            ><a href="integridad-autenticidad-teoria.html#firmas">Ver teoría</a
+            >
+          </div>
+        </article>
+        <article class="deck-card" id="algoritmos-firma">
+          <div class="eyebrow">Selección y transición</div>
+          <h2>Algoritmos de firmas digitales</h2>
+          <p>
+            Comparación de RSA-PSS, ECDSA, EdDSA, ML-DSA y SLH-DSA por
+            supuestos, tamaños, operación, interoperabilidad y migración.
+          </p>
+          <div class="deck-tags">
+            <span>RSA-PSS</span><span>EdDSA</span><span>Poscuántica</span>
+          </div>
+          <div class="deck-actions">
+            <a
+              class="primary"
+              target="_blank"
+              rel="noopener"
+              href="https://docs.google.com/presentation/d/19pbow3l6U068sd4w5FxDMW4mP_s-_Ip6LKD-h1Ps-OA/edit?usp=drivesdk"
+              >Abrir presentación</a
+            ><a href="integridad-autenticidad-teoria.html#algoritmos-firma"
+              >Ver comparación</a
+            ><a href="integridad-autenticidad-laboratorio.html#lab-firmas"
+              >Probar algoritmos</a
+            >
+          </div>
+        </article>
+      </section>
+      <section class="deck-note">
+        <strong>Cómo exponer:</strong> pulsá <em>Abrir presentación</em>, luego
+        en Google Slides elegí <strong>Presentación</strong>. Para recuperar el
+        PowerPoint:
+        <strong>Archivo → Descargar → Microsoft PowerPoint (.pptx)</strong>.
+      </section>
+      <footer class="footer">
+        <p>
+          <strong
+            >Material elaborado por el profesor Sergio Gevatschnaider.</strong
+          >
+        </p>
+        <p>
+          Las presentaciones complementan los HTML interactivos sin
+          reemplazarlos.
+        </p>
+      </footer>
+    </main>
+    <script src="../assets/lab.js"></script>
+    <script src="assets/modulo-03.js"></script>
+  </body>
+</html>

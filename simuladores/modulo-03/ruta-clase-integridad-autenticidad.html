@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Ruta docente de 120 minutos sobre hash, MAC, KDF, firmas digitales y algoritmos de firma."
+    />
+    <meta name="theme-color" content="#06101d" />
+    <title>Clase de 120 minutos | Hash, MAC, KDF y firmas</title>
+    <link rel="stylesheet" href="../assets/lab.css" />
+    <link rel="stylesheet" href="assets/integridad-autenticidad.css" />
+  </head>
+  <body data-modern-page="ruta-integridad-autenticidad">
+    <a class="skip-link" href="#recorrido">Saltar al recorrido</a>
+    <main class="ia-shell">
+      <header class="ia-topbar">
+        <div class="ia-brand">
+          <a href="index.html">← Módulo 3 integrado</a>
+        </div>
+        <nav>
+          <a href="integridad-autenticidad-teoria.html">Teoría</a
+          ><a href="integridad-autenticidad-laboratorio.html">Laboratorio</a
+          ><a href="presentaciones-docentes.html#hash">Presentaciones</a
+          ><label
+            >Tema
+            <select data-theme-select aria-label="Tema visual">
+              <option value="nocturno">Nocturno</option>
+              <option value="claro">Claro</option>
+              <option value="contraste">Alto contraste</option>
+              <option value="oceano">Océano</option>
+            </select></label
+          >
+        </nav>
+      </header>
+
+      <section class="ia-hero">
+        <div class="ia-eyebrow">Ruta docente · 120 minutos</div>
+        <h1>De la huella sin clave a la verificación pública</h1>
+        <p>
+          La clase avanza mediante una pregunta estable: quién puede producir y
+          quién puede verificar. Cada estación agrega una capacidad —hash, MAC,
+          derivación o firma— y termina en una evidencia observable en el
+          laboratorio.
+        </p>
+        <div class="ia-actions">
+          <a class="ia-button primary" href="#recorrido"
+            >Comenzar la secuencia</a
+          ><button id="route-reset" type="button">Reiniciar progreso</button>
+        </div>
+      </section>
+
+      <section class="ia-section">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Resultados</div>
+            <h2>Al finalizar, el estudiante podrá</h2>
+          </div>
+        </header>
+        <div class="ia-grid">
+          <article class="ia-card">
+            <ul>
+              <li>
+                Diferenciar hash, MAC, KDF y firma por su modelo de claves.
+              </li>
+              <li>
+                Explicar preimagen, segunda preimagen, colisión y avalancha.
+              </li>
+              <li>Producir y verificar HMAC sin confundirlo con firma.</li>
+              <li>Separar PBKDF2/Argon2id de HKDF.</li>
+            </ul>
+          </article>
+          <article class="ia-card">
+            <ul>
+              <li>
+                Firmar y verificar con RSA-PSS, ECDSA o Ed25519 disponible.
+              </li>
+              <li>
+                Reconocer que una pública no identifica por sí sola al firmante.
+              </li>
+              <li>Comparar RSA-PSS, ECDSA, EdDSA, ML-DSA y SLH-DSA.</li>
+              <li>Justificar una elección sin inventar protocolos.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="ia-section" data-route-progress>
+        <header>
+          <div>
+            <div class="ia-eyebrow">Progreso local</div>
+            <h2><span id="route-count">0</span> de 8 estaciones</h2>
+          </div>
+          <strong id="route-percent">0%</strong>
+        </header>
+        <div
+          class="ia-progress"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <span id="route-bar"></span>
+        </div>
+      </section>
+
+      <section class="ia-section" id="recorrido">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Secuencia acumulativa</div>
+            <h2>Recorrido minuto a minuto</h2>
+          </div>
+        </header>
+        <div class="ia-stations">
+          <article class="ia-station">
+            <span class="ia-station-number">0</span>
+            <div>
+              <h3>Diagnóstico: cuatro objetos parecidos</h3>
+              <p>
+                Presentar digest, tag HMAC, clave derivada y firma sin
+                nombrarlos. El grupo predice cuál usa clave y quién puede
+                verificar.
+              </p>
+              <label
+                ><input type="checkbox" data-route-station="0" /> Formulé una
+                hipótesis antes de revelar las primitivas</label
+              >
+              <div class="ia-actions">
+                <a class="ia-button" href="integridad-autenticidad-teoria.html"
+                  >Mapa comparativo</a
+                >
+              </div>
+            </div>
+            <span class="ia-time">8 min</span>
+          </article>
+          <article class="ia-station">
+            <span class="ia-station-number">1</span>
+            <div>
+              <h3>Hash: huella, propiedades y colisiones</h3>
+              <p>
+                Construir H(m), distinguir hash de cifrado y comparar costos
+                ideales de preimagen y colisión. Ejecutar SHA-256/SHA-512 con un
+                cambio mínimo.
+              </p>
+              <label
+                ><input type="checkbox" data-route-station="1" /> Medí avalancha
+                y expliqué por qué no prueba seguridad completa</label
+              >
+              <div class="ia-actions">
+                <a
+                  class="ia-button"
+                  href="integridad-autenticidad-laboratorio.html#lab-hash"
+                  >Simulación hash</a
+                ><a class="ia-button" href="presentaciones-docentes.html#hash"
+                  >Presentación</a
+                >
+              </div>
+            </div>
+            <span class="ia-time">17 min</span>
+          </article>
+          <article class="ia-station">
+            <span class="ia-station-number">2</span>
+            <div>
+              <h3>MAC y HMAC: autenticación simétrica</h3>
+              <p>
+                Agregar una clave compartida, estudiar ipad/opad, verificar un
+                tag y rechazar mensaje alterado o tag al azar.
+              </p>
+              <label
+                ><input type="checkbox" data-route-station="2" /> Expliqué por
+                qué ambos poseedores pueden crear el tag</label
+              >
+              <div class="ia-actions">
+                <a
+                  class="ia-button"
+                  href="integridad-autenticidad-laboratorio.html#lab-mac"
+                  >Laboratorio HMAC</a
+                ><a class="ia-button" href="presentaciones-docentes.html#mac"
+                  >Presentación</a
+                >
+              </div>
+            </div>
+            <span class="ia-time">17 min</span>
+          </article>
+          <article class="ia-station">
+            <span class="ia-station-number">3</span>
+            <div>
+              <h3>KDF I: contraseña, salt y costo</h3>
+              <p>
+                Normalizar Unicode, medir PBKDF2 y separar salt pública, pepper
+                secreta y parámetro de costo. Contrastar con Argon2id.
+              </p>
+              <label
+                ><input type="checkbox" data-route-station="3" /> Puedo
+                justificar una KDF lenta y con memoria para contraseñas</label
+              >
+              <div class="ia-actions">
+                <a class="ia-button" href="contrasena-salt-kdf.html"
+                  >PBKDF2 profundo</a
+                ><a class="ia-button" href="presentaciones-docentes.html#kdf"
+                  >Presentación</a
+                >
+              </div>
+            </div>
+            <span class="ia-time">16 min</span>
+          </article>
+          <article class="ia-station">
+            <span class="ia-station-number">4</span>
+            <div>
+              <h3>KDF II: HKDF y separación de dominios</h3>
+              <p>
+                Partir de material de alta entropía, aplicar extract-then-expand
+                y cambiar info para derivar claves por rol y propósito.
+              </p>
+              <label
+                ><input type="checkbox" data-route-station="4" /> Obtuve claves
+                distintas al cambiar solamente el contexto</label
+              >
+              <div class="ia-actions">
+                <a
+                  class="ia-button"
+                  href="integridad-autenticidad-laboratorio.html#lab-kdf"
+                  >Laboratorio HKDF</a
+                >
+              </div>
+            </div>
+            <span class="ia-time">14 min</span>
+          </article>
+          <article class="ia-station">
+            <span class="ia-station-number">5</span>
+            <div>
+              <h3>Firma digital: crear, alterar y verificar</h3>
+              <p>
+                Firmar un documento, verificarlo, modificarlo y probar otra
+                clave pública. Separar validez criptográfica de identidad.
+              </p>
+              <label
+                ><input type="checkbox" data-route-station="5" /> Rechacé el
+                documento alterado y la clave pública incorrecta</label
+              >
+              <div class="ia-actions">
+                <a
+                  class="ia-button"
+                  href="integridad-autenticidad-laboratorio.html#lab-firmas"
+                  >Laboratorio de firmas</a
+                ><a class="ia-button" href="presentaciones-docentes.html#firmas"
+                  >Presentación</a
+                >
+              </div>
+            </div>
+            <span class="ia-time">18 min</span>
+          </article>
+          <article class="ia-station">
+            <span class="ia-station-number">6</span>
+            <div>
+              <h3>Familias de firma y transición poscuántica</h3>
+              <p>
+                Comparar RSA-PSS, ECDSA y EdDSA; introducir ML-DSA y SLH-DSA sin
+                confundir estandarización con disponibilidad automática en cada
+                protocolo.
+              </p>
+              <label
+                ><input type="checkbox" data-route-station="6" /> Elegí una
+                familia y enumeré los controles pendientes</label
+              >
+              <div class="ia-actions">
+                <a
+                  class="ia-button"
+                  href="integridad-autenticidad-teoria.html#algoritmos-firma"
+                  >Matriz comparativa</a
+                ><a
+                  class="ia-button"
+                  href="presentaciones-docentes.html#algoritmos-firma"
+                  >Presentación</a
+                >
+              </div>
+            </div>
+            <span class="ia-time">18 min</span>
+          </article>
+          <article class="ia-station">
+            <span class="ia-station-number">7</span>
+            <div>
+              <h3>Evaluación y transferencia</h3>
+              <p>
+                Resolver ocho situaciones breves y justificar la primitiva o
+                familia elegida.
+              </p>
+              <label
+                ><input type="checkbox" data-route-station="7" /> Alcancé el
+                criterio de salida</label
+              >
+              <div class="ia-actions">
+                <a class="ia-button" href="#salida">Responder exit ticket</a>
+              </div>
+            </div>
+            <span class="ia-time">12 min</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="ia-section" id="salida">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Exit ticket</div>
+            <h2>Ocho decisiones breves</h2>
+          </div>
+        </header>
+        <form id="route-ticket">
+          <div class="ia-grid">
+            <fieldset class="ia-card">
+              <legend>
+                <strong
+                  >1. Una descarga y su SHA-256 llegan por el mismo sitio
+                  comprometido. ¿El hash basta?</strong
+                >
+              </legend>
+              <label><input type="radio" name="q1" value="a" /> Sí.</label
+              ><label
+                ><input type="radio" name="q1" value="b" /> No; el atacante
+                puede reemplazar ambos.</label
+              >
+            </fieldset>
+            <fieldset class="ia-card">
+              <legend>
+                <strong>2. ¿Qué distingue HMAC de una firma?</strong>
+              </legend>
+              <label
+                ><input type="radio" name="q2" value="a" /> HMAC usa secreto
+                compartido; la firma se verifica públicamente.</label
+              ><label
+                ><input type="radio" name="q2" value="b" /> HMAC cifra y la
+                firma comprime.</label
+              >
+            </fieldset>
+            <fieldset class="ia-card">
+              <legend>
+                <strong>3. ¿Qué KDF corresponde a una salida ECDH?</strong>
+              </legend>
+              <label><input type="radio" name="q3" value="a" /> HKDF.</label
+              ><label
+                ><input type="radio" name="q3" value="b" /> Un hash rápido sin
+                contexto.</label
+              >
+            </fieldset>
+            <fieldset class="ia-card">
+              <legend>
+                <strong
+                  >4. ¿Qué KDF está diseñada para contraseñas y costo de
+                  memoria?</strong
+                >
+              </legend>
+              <label><input type="radio" name="q4" value="a" /> HKDF.</label
+              ><label
+                ><input type="radio" name="q4" value="b" /> Argon2id.</label
+              >
+            </fieldset>
+            <fieldset class="ia-card">
+              <legend>
+                <strong
+                  >5. Una firma valida con una clave pública desconocida.
+                  ¿Identifica a Ana?</strong
+                >
+              </legend>
+              <label
+                ><input type="radio" name="q5" value="a" /> No; falta vincular y
+                validar la clave de Ana.</label
+              ><label
+                ><input type="radio" name="q5" value="b" /> Sí, por
+                definición.</label
+              >
+            </fieldset>
+            <fieldset class="ia-card">
+              <legend>
+                <strong
+                  >6. ¿Por qué ECDSA exige cuidado con el nonce por
+                  firma?</strong
+                >
+              </legend>
+              <label
+                ><input type="radio" name="q6" value="a" /> Su repetición o
+                sesgo puede exponer la privada.</label
+              ><label
+                ><input type="radio" name="q6" value="b" /> Porque cambia el
+                tamaño de la curva.</label
+              >
+            </fieldset>
+            <fieldset class="ia-card">
+              <legend>
+                <strong>7. ¿Cuál es la opción RSA para firmas modernas?</strong>
+              </legend>
+              <label><input type="radio" name="q7" value="a" /> RSA-OAEP.</label
+              ><label
+                ><input type="radio" name="q7" value="b" /> RSA-PSS.</label
+              >
+            </fieldset>
+            <fieldset class="ia-card">
+              <legend>
+                <strong
+                  >8. ¿Qué algoritmo de firma está estandarizado como
+                  poscuántico en FIPS 204?</strong
+                >
+              </legend>
+              <label><input type="radio" name="q8" value="a" /> ML-DSA.</label
+              ><label><input type="radio" name="q8" value="b" /> ECDSA.</label>
+            </fieldset>
+          </div>
+          <div class="ia-actions">
+            <button class="primary" type="submit">Corregir evaluación</button>
+          </div>
+        </form>
+        <div class="ia-status" id="route-ticket-status">
+          Respondé las ocho preguntas.
+        </div>
+      </section>
+
+      <footer class="ia-footer">
+        <p>
+          <strong
+            >Material elaborado por el profesor Sergio Gevatschnaider.</strong
+          >
+        </p>
+        <p>
+          Duración sugerida: 120 minutos. La ruta puede dividirse en dos bloques
+          de 60 minutos: hash/MAC/KDF y firmas/algoritmos.
+        </p>
+      </footer>
+    </main>
+    <script src="../assets/lab.js"></script>
+    <script src="assets/modulo-03.js"></script>
+    <script src="assets/ruta-clase-integridad-autenticidad.js"></script>
+  </body>
+</html>

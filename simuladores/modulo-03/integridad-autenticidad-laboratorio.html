@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Laboratorio Web Crypto de hash, HMAC, PBKDF2, HKDF, RSA-PSS, ECDSA y Ed25519 con alteración y verificación."
+    />
+    <meta name="theme-color" content="#06101d" />
+    <title>Laboratorio integral | Hash, MAC, KDF y firmas</title>
+    <link rel="stylesheet" href="../assets/lab.css" />
+    <link rel="stylesheet" href="assets/integridad-autenticidad.css" />
+  </head>
+  <body
+    data-modern-page="integridad-autenticidad-laboratorio"
+    data-module-page="hash-mac-firma"
+  >
+    <a class="skip-link" href="#laboratorios">Saltar a los experimentos</a>
+    <main class="ia-shell">
+      <header class="ia-topbar">
+        <div class="ia-brand">
+          <a href="index.html">← Módulo 3 integrado</a>
+        </div>
+        <nav aria-label="Navegación del laboratorio">
+          <a href="integridad-autenticidad-teoria.html">Teoría integral</a
+          ><a href="ruta-clase-integridad-autenticidad.html">Ruta docente</a
+          ><a href="hash-hmac-firmas.html">Comparador breve</a
+          ><label
+            >Tema
+            <select data-theme-select aria-label="Tema visual">
+              <option value="nocturno">Nocturno</option>
+              <option value="claro">Claro</option>
+              <option value="contraste">Alto contraste</option>
+              <option value="oceano">Océano</option>
+            </select></label
+          >
+        </nav>
+      </header>
+
+      <section class="ia-hero">
+        <div class="ia-eyebrow">Laboratorio verificable · Web Crypto local</div>
+        <h1>De la huella a la firma: observar, alterar y verificar</h1>
+        <p>
+          Los experimentos usan primitivas reales del navegador. Ningún mensaje,
+          contraseña o clave se transmite. El objetivo es identificar qué cambia
+          cuando aparece una clave, qué función cumple una KDF y por qué una
+          firma válida todavía requiere confiar en la clave pública correcta.
+        </p>
+        <div class="ia-chips">
+          <span>SHA-256 / SHA-512</span><span>HMAC-SHA-256</span
+          ><span>PBKDF2</span><span>HKDF</span><span>RSA-PSS</span
+          ><span>ECDSA P-256</span><span>Ed25519 si está disponible</span>
+        </div>
+        <div class="ia-actions">
+          <button
+            class="primary"
+            type="button"
+            data-complete-page="hash-mac-firma"
+          >
+            Marcar como completado</button
+          ><a class="ia-button" href="#laboratorios">Comenzar</a>
+        </div>
+      </section>
+
+      <section class="ia-section" aria-labelledby="reglas-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Antes de ejecutar</div>
+            <h2 id="reglas-titulo">Método del laboratorio</h2>
+          </div>
+        </header>
+        <div class="ia-grid">
+          <article class="ia-card third">
+            <h3>1. Predecir</h3>
+            <p>Anticipá si el resultado debería coincidir o fallar.</p>
+          </article>
+          <article class="ia-card third">
+            <h3>2. Cambiar una variable</h3>
+            <p>Mensaje, clave, salt, contexto o algoritmo: una sola por vez.</p>
+          </article>
+          <article class="ia-card third">
+            <h3>3. Explicar la garantía</h3>
+            <p>
+              No te quedes con “válido/inválido”: identificá quién puede
+              producir la prueba.
+            </p>
+          </article>
+        </div>
+        <div class="ia-callout warn">
+          <strong>Datos ficticios únicamente.</strong> Las claves se conservan
+          en memoria durante esta sesión y se descartan al cerrar o recargar la
+          página.
+        </div>
+      </section>
+
+      <div id="laboratorios">
+        <section
+          class="ia-section"
+          id="lab-hash"
+          aria-labelledby="lab-hash-titulo"
+        >
+          <header>
+            <div>
+              <div class="ia-eyebrow">Experimento 1 · sin clave</div>
+              <h2 id="lab-hash-titulo">Algoritmos hash y efecto avalancha</h2>
+            </div>
+            <span class="ia-support good">Web Crypto</span>
+          </header>
+          <div class="ia-grid">
+            <article class="ia-card full">
+              <div class="ia-grid">
+                <div class="ia-card">
+                  <div class="ia-control">
+                    <label for="hash-algorithm">Algoritmo</label
+                    ><select id="hash-algorithm">
+                      <option>SHA-256</option>
+                      <option>SHA-512</option>
+                    </select>
+                  </div>
+                  <div class="ia-control">
+                    <label for="hash-a">Mensaje A</label
+                    ><textarea id="hash-a">
+Transferir 1000 unidades a Ana.</textarea
+                    >
+                  </div>
+                </div>
+                <div class="ia-card">
+                  <div class="ia-control">
+                    <label for="hash-b">Mensaje B</label
+                    ><textarea id="hash-b">
+Transferir 1001 unidades a Ana.</textarea
+                    >
+                  </div>
+                  <div class="ia-actions">
+                    <button class="primary" id="hash-calculate" type="button">
+                      Calcular y comparar</button
+                    ><button id="hash-one-bit" type="button">
+                      Diferencia de un bit
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="ia-output-grid">
+                <div class="ia-output">
+                  <b>Digest A</b><output id="hash-output-a">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Digest B</b><output id="hash-output-b">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Distancia de Hamming</b
+                  ><output id="hash-distance">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Proporción</b><output id="hash-ratio">—</output>
+                </div>
+              </div>
+              <div class="ia-meter" aria-label="Proporción de bits modificados">
+                <span id="hash-meter"></span>
+              </div>
+              <div class="ia-status" id="hash-status">
+                Calculá las dos huellas y medí el cambio.
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section
+          class="ia-section"
+          id="lab-mac"
+          aria-labelledby="lab-mac-titulo"
+        >
+          <header>
+            <div>
+              <div class="ia-eyebrow">Experimento 2 · secreto compartido</div>
+              <h2 id="lab-mac-titulo">HMAC: producir, verificar y rechazar</h2>
+            </div>
+            <span class="ia-support good">HMAC-SHA-256</span>
+          </header>
+          <div class="ia-grid">
+            <article class="ia-card">
+              <div class="ia-control">
+                <label for="mac-message">Mensaje autenticado</label
+                ><textarea id="mac-message">
+operacion=transferencia;destino=ANA;monto=1000;secuencia=42</textarea
+                >
+              </div>
+              <div class="ia-output">
+                <b>Clave didáctica de 256 bits</b
+                ><output id="mac-key">—</output>
+              </div>
+              <div class="ia-actions">
+                <button id="mac-new-key" type="button">Nueva clave</button
+                ><button class="primary" id="mac-create" type="button">
+                  Crear tag</button
+                ><button id="mac-verify" type="button">Verificar</button>
+              </div>
+            </article>
+            <article class="ia-card">
+              <div class="ia-output">
+                <b>Tag HMAC</b><output id="mac-tag">—</output>
+              </div>
+              <div class="ia-actions">
+                <button class="warn" id="mac-tamper" type="button">
+                  Alterar el mensaje</button
+                ><button id="mac-random-tag" type="button">
+                  Probar tag al azar
+                </button>
+              </div>
+              <div class="ia-status" id="mac-status">
+                Generá la clave y el tag.
+              </div>
+              <div class="ia-callout">
+                <strong>Pregunta:</strong> si Ana y el servidor comparten la
+                clave, ¿cuál de los dos pudo crear el tag? HMAC autentica al
+                grupo de poseedores del secreto, no atribuye autoría exclusiva.
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section
+          class="ia-section"
+          id="lab-kdf"
+          aria-labelledby="lab-kdf-titulo"
+        >
+          <header>
+            <div>
+              <div class="ia-eyebrow">
+                Experimento 3 · dos problemas de derivación
+              </div>
+              <h2 id="lab-kdf-titulo">PBKDF2 frente a HKDF</h2>
+            </div>
+            <a class="ia-button" href="contrasena-salt-kdf.html"
+              >Abrir laboratorio profundo de PBKDF2</a
+            >
+          </header>
+          <div class="ia-grid">
+            <article class="ia-card">
+              <h3>A. Contraseña humana → PBKDF2</h3>
+              <div class="ia-control">
+                <label for="pbkdf-password">Contraseña ficticia</label
+                ><input
+                  id="pbkdf-password"
+                  value="Faro violeta cruza 7 mares!"
+                  autocomplete="off"
+                />
+              </div>
+              <div class="ia-control">
+                <label for="pbkdf-salt">Salt hexadecimal (16 bytes)</label
+                ><input id="pbkdf-salt" maxlength="32" spellcheck="false" />
+              </div>
+              <div class="ia-control">
+                <label for="pbkdf-iterations"
+                  >Iteraciones:
+                  <span id="pbkdf-iterations-label">200.000</span></label
+                ><input
+                  id="pbkdf-iterations"
+                  type="range"
+                  min="50000"
+                  max="600000"
+                  step="50000"
+                  value="200000"
+                />
+              </div>
+              <div class="ia-actions">
+                <button id="pbkdf-new-salt" type="button">Nueva salt</button
+                ><button class="primary" id="pbkdf-run" type="button">
+                  Derivar 256 bits
+                </button>
+              </div>
+              <div class="ia-output-grid">
+                <div class="ia-output">
+                  <b>Clave derivada</b><output id="pbkdf-output">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Tiempo local</b><output id="pbkdf-time">—</output>
+                </div>
+              </div>
+              <div class="ia-status" id="pbkdf-status">
+                La salida será determinista para contraseña, salt y costo
+                idénticos.
+              </div>
+            </article>
+            <article class="ia-card">
+              <h3>B. Secreto de alta entropía → HKDF</h3>
+              <div class="ia-output">
+                <b>IKM aleatorio didáctico</b><output id="hkdf-ikm">—</output>
+              </div>
+              <div class="ia-control">
+                <label for="hkdf-context-a">Contexto A (info)</label
+                ><input
+                  id="hkdf-context-a"
+                  value="curso/2026/cliente-a-servidor/aes-gcm"
+                />
+              </div>
+              <div class="ia-control">
+                <label for="hkdf-context-b">Contexto B (info)</label
+                ><input
+                  id="hkdf-context-b"
+                  value="curso/2026/servidor-a-cliente/aes-gcm"
+                />
+              </div>
+              <div class="ia-actions">
+                <button id="hkdf-new-ikm" type="button">Nuevo IKM</button
+                ><button class="primary" id="hkdf-run" type="button">
+                  Extraer y expandir
+                </button>
+              </div>
+              <div class="ia-output-grid">
+                <div class="ia-output">
+                  <b>Clave A</b><output id="hkdf-output-a">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Clave B</b><output id="hkdf-output-b">—</output>
+                </div>
+              </div>
+              <div class="ia-status" id="hkdf-status">
+                Con el mismo IKM y salt, cambiar info debe separar las claves.
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section
+          class="ia-section"
+          id="lab-firmas"
+          aria-labelledby="lab-firmas-titulo"
+        >
+          <header>
+            <div>
+              <div class="ia-eyebrow">
+                Experimentos 4 y 5 · verificación pública
+              </div>
+              <h2 id="lab-firmas-titulo">
+                Firmas digitales y comparación de algoritmos
+              </h2>
+            </div>
+            <span class="ia-support" id="eddsa-support"
+              >Detectando Ed25519…</span
+            >
+          </header>
+          <div class="ia-grid">
+            <article class="ia-card">
+              <div class="ia-control">
+                <label for="signature-algorithm">Algoritmo</label
+                ><select id="signature-algorithm">
+                  <option value="RSA-PSS">RSA-PSS 2048 / SHA-256</option>
+                  <option value="ECDSA">ECDSA P-256 / SHA-256</option>
+                  <option value="Ed25519">Ed25519</option>
+                </select>
+              </div>
+              <div class="ia-control">
+                <label for="signature-message">Documento</label
+                ><textarea id="signature-message">
+Acepto el contrato CRIPTO-03 por el importe de 1000 unidades.</textarea
+                >
+              </div>
+              <div class="ia-actions">
+                <button id="signature-generate" type="button">
+                  Generar par</button
+                ><button class="primary" id="signature-sign" type="button">
+                  Firmar</button
+                ><button id="signature-verify" type="button">Verificar</button>
+              </div>
+            </article>
+            <article class="ia-card">
+              <div class="ia-output-grid">
+                <div class="ia-output">
+                  <b>Huella de clave pública</b
+                  ><output id="signature-fingerprint">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Firma (Base64)</b><output id="signature-output">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Longitud observada</b
+                  ><output id="signature-length">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Resultado</b><output id="signature-result">—</output>
+                </div>
+              </div>
+              <div class="ia-actions">
+                <button class="warn" id="signature-tamper" type="button">
+                  Alterar documento</button
+                ><button id="signature-wrong-key" type="button">
+                  Verificar con otra pública
+                </button>
+              </div>
+              <div class="ia-status" id="signature-status">
+                Elegí un algoritmo y generá el par.
+              </div>
+            </article>
+            <article class="ia-card full">
+              <h3>Selector razonado</h3>
+              <div class="ia-control">
+                <label for="signature-scenario">Escenario</label
+                ><select id="signature-scenario">
+                  <option value="legacy">
+                    Infraestructura empresarial con compatibilidad RSA existente
+                  </option>
+                  <option value="compact">
+                    Sistema clásico nuevo con claves y firmas compactas
+                  </option>
+                  <option value="simple">
+                    API moderna que prioriza reducir errores de nonce
+                  </option>
+                  <option value="pq">
+                    Plan de migración resistente a adversarios cuánticos
+                  </option>
+                </select>
+              </div>
+              <div class="ia-output-grid">
+                <div class="ia-output">
+                  <b>Recomendación inicial</b
+                  ><output id="signature-recommendation">—</output>
+                </div>
+                <div class="ia-output">
+                  <b>Qué validar después</b
+                  ><output id="signature-followup">—</output>
+                </div>
+              </div>
+              <div class="ia-callout warn">
+                <strong
+                  >El selector no reemplaza el perfil del protocolo.</strong
+                >
+                ML-DSA y SLH-DSA se estudian como algoritmos poscuánticos
+                estandarizados, pero este laboratorio no inventa una
+                implementación JavaScript ni confunde una maqueta con una
+                primitiva real.
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <section class="ia-section" aria-labelledby="transferencia-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Transferencia</div>
+            <h2 id="transferencia-titulo">
+              Cinco decisiones que deben quedar claras
+            </h2>
+          </div>
+        </header>
+        <div class="ia-grid">
+          <article class="ia-card third">
+            <h3>Hash</h3>
+            <p>
+              Huella sin clave; necesita un valor esperado confiable para
+              afirmar integridad.
+            </p>
+          </article>
+          <article class="ia-card third">
+            <h3>MAC</h3>
+            <p>
+              Autenticación entre poseedores de un secreto; ninguno puede probar
+              frente a terceros que fue el otro.
+            </p>
+          </article>
+          <article class="ia-card third">
+            <h3>KDF</h3>
+            <p>
+              Transforma material en claves; su familia depende de si la entrada
+              es una contraseña o un secreto de alta entropía.
+            </p>
+          </article>
+          <article class="ia-card">
+            <h3>Firma</h3>
+            <p>
+              La pública verifica; la identidad exige validar esa clave y el
+              contexto de la firma.
+            </p>
+          </article>
+          <article class="ia-card">
+            <h3>Algoritmo</h3>
+            <p>
+              La elección incluye supuestos, parámetros, formatos, bibliotecas,
+              transición y agilidad criptográfica.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="ia-footer">
+        <p>
+          <strong
+            >Material elaborado por el profesor Sergio Gevatschnaider.</strong
+          >
+        </p>
+        <p>
+          Todos los experimentos se ejecutan localmente. Los tiempos y tamaños
+          observados dependen del navegador y no constituyen una evaluación de
+          rendimiento de producción.
+        </p>
+      </footer>
+    </main>
+    <script src="../assets/lab.js"></script>
+    <script src="assets/modulo-03.js"></script>
+    <script src="assets/integridad-autenticidad-laboratorio.js"></script>
+  </body>
+</html>

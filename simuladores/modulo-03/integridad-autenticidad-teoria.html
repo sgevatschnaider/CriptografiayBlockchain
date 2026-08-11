@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Teoría integral sobre algoritmos hash, MAC, KDF, firmas digitales y familias de algoritmos de firma."
+    />
+    <meta name="theme-color" content="#06101d" />
+    <title>Teoría integral | Hash, MAC, KDF y firmas digitales</title>
+    <link rel="stylesheet" href="../assets/lab.css" />
+    <link rel="stylesheet" href="assets/integridad-autenticidad.css" />
+  </head>
+  <body
+    data-modern-page="integridad-autenticidad"
+    data-module-page="hash-mac-firma"
+  >
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <main class="ia-shell">
+      <header class="ia-topbar">
+        <div class="ia-brand">
+          <a href="index.html">← Módulo 3 integrado</a>
+        </div>
+        <nav aria-label="Navegación de la unidad">
+          <a href="#hash">Hash</a><a href="#mac">MAC</a><a href="#kdf">KDF</a
+          ><a href="#firmas">Firmas</a><a href="#algoritmos-firma">Algoritmos</a
+          ><a href="integridad-autenticidad-laboratorio.html">Laboratorio</a
+          ><a href="ruta-clase-integridad-autenticidad.html">Ruta docente</a>
+          <label
+            >Tema
+            <select data-theme-select aria-label="Tema visual">
+              <option value="nocturno">Nocturno</option>
+              <option value="claro">Claro</option>
+              <option value="contraste">Alto contraste</option>
+              <option value="oceano">Océano</option>
+            </select></label
+          >
+        </nav>
+      </header>
+
+      <section class="ia-hero" id="contenido">
+        <div class="ia-eyebrow">
+          Integridad, autenticación y derivación de claves
+        </div>
+        <h1>
+          Hash, MAC, KDF y firmas: primitivas relacionadas, garantías diferentes
+        </h1>
+        <p>
+          Esta unidad separa cinco ideas que suelen confundirse. Una función
+          hash crea una huella sin clave; un MAC autentica con un secreto
+          compartido; una KDF transforma material inicial en claves adecuadas;
+          una firma permite verificación pública; y cada algoritmo de firma
+          impone supuestos, tamaños y reglas operativas propios.
+        </p>
+        <div class="ia-chips">
+          <span>SHA-2 y SHA-3</span><span>HMAC · CMAC · KMAC · Poly1305</span
+          ><span>PBKDF2 · Argon2id · HKDF</span
+          ><span>RSA-PSS · ECDSA · EdDSA</span><span>ML-DSA · SLH-DSA</span>
+        </div>
+        <div class="ia-actions">
+          <a
+            class="ia-button primary"
+            href="integridad-autenticidad-laboratorio.html"
+            >Abrir laboratorio verificable</a
+          ><a class="ia-button" href="presentaciones-docentes.html#hash"
+            >Ver presentaciones</a
+          >
+        </div>
+      </section>
+
+      <section class="ia-section" aria-labelledby="mapa-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Mapa de orientación</div>
+            <h2 id="mapa-titulo">
+              La pregunta correcta es: ¿quién puede producir y quién puede
+              verificar?
+            </h2>
+          </div>
+        </header>
+        <div class="ia-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Primitiva</th>
+                <th>¿Usa clave?</th>
+                <th>Quién produce</th>
+                <th>Quién verifica</th>
+                <th>Garantía principal</th>
+                <th>No garantiza por sí sola</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Hash</strong></td>
+                <td>No</td>
+                <td>Cualquiera</td>
+                <td>Cualquiera</td>
+                <td>
+                  Huella compacta y detección de cambios respecto de un valor
+                  confiable
+                </td>
+                <td>Origen, identidad, confidencialidad</td>
+              </tr>
+              <tr>
+                <td><strong>MAC</strong></td>
+                <td>Secreta compartida</td>
+                <td>Cualquier poseedor del secreto</td>
+                <td>Cualquier poseedor del secreto</td>
+                <td>Integridad y autenticación simétrica</td>
+                <td>Verificación pública o autoría exclusiva</td>
+              </tr>
+              <tr>
+                <td><strong>KDF</strong></td>
+                <td>Material secreto o contraseña</td>
+                <td>Quien posee la entrada</td>
+                <td>No produce una prueba</td>
+                <td>Derivación, separación y/o endurecimiento</td>
+                <td>Autenticidad del mensaje</td>
+              </tr>
+              <tr>
+                <td><strong>Firma digital</strong></td>
+                <td>Privada para firmar; pública para verificar</td>
+                <td>Poseedor de la privada</td>
+                <td>Cualquiera con la pública validada</td>
+                <td>
+                  Integridad, autenticidad criptográfica y verificabilidad
+                  pública
+                </td>
+                <td>Identidad sin validar la clave; confidencialidad</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="ia-section" id="hash" aria-labelledby="hash-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Tema 1</div>
+            <h2 id="hash-titulo">Algoritmos de hash</h2>
+            <p class="ia-muted">
+              De una entrada arbitraria a un resumen de longitud determinada.
+            </p>
+          </div>
+          <a class="ia-button" href="presentaciones-docentes.html#hash"
+            >Presentación</a
+          >
+        </header>
+        <div class="ia-grid">
+          <article class="ia-card">
+            <h3>Modelo</h3>
+            <p>
+              Una función hash criptográfica calcula
+              <span class="ia-code">h = H(m)</span>. No tiene clave, es
+              determinista y procesa bytes: dos representaciones Unicode
+              visualmente iguales pueden producir huellas distintas si sus bytes
+              no coinciden.
+            </p>
+            <div class="ia-callout">
+              <strong>Hash no es cifrado.</strong> No existe una clave de
+              descifrado ni se pretende recuperar el mensaje desde el digest.
+            </div>
+          </article>
+          <article class="ia-card">
+            <h3>Propiedades de seguridad</h3>
+            <ul>
+              <li>
+                <strong>Preimagen:</strong> dado <span class="ia-code">h</span>,
+                hallar un mensaje que lo produzca debe ser inviable.
+              </li>
+              <li>
+                <strong>Segunda preimagen:</strong> dado
+                <span class="ia-code">m₁</span>, hallar otro
+                <span class="ia-code">m₂</span> con el mismo hash debe ser
+                inviable.
+              </li>
+              <li>
+                <strong>Colisión:</strong> hallar cualquier par distinto con
+                igual digest debe ser inviable.
+              </li>
+              <li>
+                <strong>Avalancha:</strong> un cambio mínimo debe dispersarse
+                por la salida.
+              </li>
+            </ul>
+          </article>
+          <article class="ia-card third">
+            <h3>SHA-2</h3>
+            <p>
+              Familia iterativa estandarizada en FIPS 180-4. SHA-256 produce 256
+              bits; SHA-384 y SHA-512 usan palabras y salidas mayores. SHA-1 no
+              debe elegirse para nuevos diseños de seguridad.
+            </p>
+          </article>
+          <article class="ia-card third">
+            <h3>SHA-3 y SHAKE</h3>
+            <p>
+              FIPS 202 usa la construcción esponja de Keccak. SHA3-256 ofrece
+              salida fija; SHAKE128 y SHAKE256 son funciones de salida
+              extensible.
+            </p>
+          </article>
+          <article class="ia-card third">
+            <h3>Uso correcto</h3>
+            <p>
+              Integridad de archivos, compromiso de datos, árboles de Merkle y
+              componente interno de firmas, HMAC o KDF. Un hash publicado debe
+              llegar por un canal confiable o estar firmado.
+            </p>
+          </article>
+        </div>
+        <div class="ia-callout warn">
+          <strong>Resistencia en bits:</strong> para una salida ideal de
+          <span class="ia-code">n</span> bits, la preimagen apunta a
+          aproximadamente <span class="ia-code">2ⁿ</span> operaciones y las
+          colisiones a <span class="ia-code">2ⁿᐟ²</span>. Truncar un digest
+          reduce esas metas.
+        </div>
+      </section>
+
+      <section class="ia-section" id="mac" aria-labelledby="mac-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Tema 2</div>
+            <h2 id="mac-titulo">Códigos de autenticación de mensajes (MAC)</h2>
+            <p class="ia-muted">
+              Una etiqueta que solo puede producirse o verificarse con el
+              secreto compartido.
+            </p>
+          </div>
+          <a class="ia-button" href="presentaciones-docentes.html#mac"
+            >Presentación</a
+          >
+        </header>
+        <div class="ia-flow" aria-label="Flujo de MAC">
+          <div><strong>Mensaje</strong><span>bytes exactos</span></div>
+          <b>+</b>
+          <div><strong>Clave K</strong><span>secreto compartido</span></div>
+          <b>→</b>
+          <div><strong>MAC</strong><span>tag</span></div>
+          <b>→</b>
+          <div><strong>Comparación</strong><span>aceptar o rechazar</span></div>
+          <b>✓/✗</b>
+        </div>
+        <div class="ia-grid">
+          <article class="ia-card">
+            <h3>HMAC</h3>
+            <p>
+              HMAC combina una función hash con dos capas y dos constantes:
+              <span class="ia-code">H((K′ ⊕ opad) ∥ H((K′ ⊕ ipad) ∥ m))</span>.
+              La construcción evita tratar ingenuamente
+              <span class="ia-code">Hash(K ∥ m)</span> como autenticador.
+            </p>
+            <p>
+              <strong>Regla:</strong> usar HMAC-SHA-256 o una opción estándar de
+              la plataforma; no inventar un MAC casero.
+            </p>
+          </article>
+          <article class="ia-card">
+            <h3>Otras familias</h3>
+            <ul>
+              <li>
+                <strong>CMAC:</strong> MAC basado en un cifrador por bloques,
+                normalmente AES.
+              </li>
+              <li>
+                <strong>KMAC:</strong> construcción basada en Keccak definida en
+                SP 800-185.
+              </li>
+              <li>
+                <strong>Poly1305:</strong> autenticador de un solo uso integrado
+                habitualmente con ChaCha20; las claves derivadas no se
+                reutilizan.
+              </li>
+              <li>
+                <strong>GMAC:</strong> autenticación de GCM sin cifrar el texto.
+              </li>
+            </ul>
+          </article>
+          <article class="ia-card full">
+            <h3>Propiedades operativas</h3>
+            <div class="ia-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Control</th>
+                    <th>Por qué importa</th>
+                    <th>Error típico</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Clave aleatoria y separada por propósito</td>
+                    <td>Evita correlaciones entre protocolos</td>
+                    <td>
+                      Usar la misma clave para cifrar y autenticar sin un
+                      esquema que lo defina
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Verificación antes de procesar</td>
+                    <td>Impide actuar sobre datos no autenticados</td>
+                    <td>
+                      Parsear o ejecutar el mensaje antes de comprobar el tag
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Comparación resistente a diferencias temporales</td>
+                    <td>Reduce filtraciones por tiempo</td>
+                    <td>Comparar carácter por carácter con salida temprana</td>
+                  </tr>
+                  <tr>
+                    <td>Contexto y secuencia</td>
+                    <td>Evita replays o trasplantes entre operaciones</td>
+                    <td>
+                      Autenticar solo el cuerpo y omitir versión, emisor o
+                      contador
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="ia-section" id="kdf" aria-labelledby="kdf-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Tema 3</div>
+            <h2 id="kdf-titulo">Funciones derivadoras de clave (KDF)</h2>
+            <p class="ia-muted">
+              La misma palabra KDF cubre dos problemas distintos: contraseñas
+              débiles y material criptográfico ya secreto.
+            </p>
+          </div>
+          <a class="ia-button" href="presentaciones-docentes.html#kdf"
+            >Presentación</a
+          >
+        </header>
+        <div class="ia-grid">
+          <article class="ia-card highlight">
+            <h3>KDF para contraseñas</h3>
+            <p>
+              PBKDF2, scrypt y Argon2id encarecen cada intento. Reciben
+              contraseña, salt público único y parámetros de costo. Argon2id
+              añade costo de memoria; PBKDF2 está ampliamente disponible en Web
+              Crypto, pero debe calibrarse en tiempo real para cada plataforma.
+            </p>
+            <div class="ia-callout">
+              <strong>La salt no es secreta.</strong> Evita que dos registros
+              iguales compartan resultado y vuelve inútiles las tablas
+              precalculadas comunes.
+            </div>
+          </article>
+          <article class="ia-card highlight">
+            <h3>KDF para secretos de alta entropía</h3>
+            <p>
+              HKDF recibe material como una salida ECDH y aplica el paradigma
+              <em>extract-then-expand</em>.
+              <span class="ia-code">Extract</span> concentra el material en una
+              clave seudorrandómica; <span class="ia-code">Expand</span> crea
+              claves independientes usando
+              <span class="ia-code">info</span> como contexto.
+            </p>
+            <div class="ia-callout">
+              <strong>Separación de dominios:</strong> cambiar
+              <span class="ia-code">info</span> permite obtener claves distintas
+              para “cifrado”, “autenticación” o “cliente→servidor”.
+            </div>
+          </article>
+          <article class="ia-card third">
+            <h3>Salt</h3>
+            <p>
+              Valor público que individualiza la derivación. En PBKDF2 debe ser
+              único por registro; en HKDF fortalece la extracción y separa
+              instancias.
+            </p>
+          </article>
+          <article class="ia-card third">
+            <h3>Info / contexto</h3>
+            <p>
+              Etiqueta que vincula la clave derivada con protocolo, versión, rol
+              y propósito. No reemplaza la salt.
+            </p>
+          </article>
+          <article class="ia-card third">
+            <h3>Pepper</h3>
+            <p>
+              Secreto adicional custodiado fuera de la base de contraseñas.
+              Puede limitar el impacto de una filtración, pero agrega operación
+              y rotación complejas.
+            </p>
+          </article>
+        </div>
+        <div class="ia-callout warn">
+          <strong
+            >No usar una KDF de contraseña como si fuera HKDF ni HKDF para
+            “hacer fuerte” una contraseña.</strong
+          >
+          La selección depende de la entropía de la entrada y del adversario.
+        </div>
+      </section>
+
+      <section class="ia-section" id="firmas" aria-labelledby="firmas-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Tema 4</div>
+            <h2 id="firmas-titulo">Firmas digitales</h2>
+            <p class="ia-muted">
+              La clave privada produce la firma; la pública verifica la
+              coherencia criptográfica.
+            </p>
+          </div>
+          <a class="ia-button" href="presentaciones-docentes.html#firmas"
+            >Presentación</a
+          >
+        </header>
+        <div class="ia-flow" aria-label="Creación y verificación de una firma">
+          <div><strong>Documento</strong><span>bytes canónicos</span></div>
+          <b>→</b>
+          <div><strong>Hash</strong><span>según el esquema</span></div>
+          <b>→</b>
+          <div><strong>Clave privada</strong><span>firmar</span></div>
+          <b>→</b>
+          <div><strong>Firma</strong><span>transmitir</span></div>
+          <b>→</b>
+          <div><strong>Clave pública</strong><span>verificar</span></div>
+        </div>
+        <div class="ia-grid">
+          <article class="ia-card">
+            <h3>Qué demuestra una verificación válida</h3>
+            <ul>
+              <li>El mensaje no cambió respecto de los bytes firmados.</li>
+              <li>
+                La firma fue producida por la clave privada correspondiente a la
+                pública usada.
+              </li>
+              <li>
+                El algoritmo, parámetros y codificación fueron interpretados de
+                manera compatible.
+              </li>
+            </ul>
+          </article>
+          <article class="ia-card warning">
+            <h3>Qué todavía debe validarse</h3>
+            <ul>
+              <li>Que la clave pública pertenece al firmante esperado.</li>
+              <li>
+                Que el certificado, huella o ancla de confianza es correcto.
+              </li>
+              <li>Que la clave no fue revocada o comprometida.</li>
+              <li>
+                Que el documento, versión y contexto firmados son los que la
+                aplicación cree procesar.
+              </li>
+            </ul>
+          </article>
+          <article class="ia-card full">
+            <h3>Proceso completo</h3>
+            <ol>
+              <li>
+                Definir una representación inequívoca de los datos y su
+                contexto.
+              </li>
+              <li>
+                Seleccionar esquema, parámetros y función hash permitidos.
+              </li>
+              <li>
+                Proteger la clave privada y generar la firma sin exponerla.
+              </li>
+              <li>
+                Transmitir mensaje, firma e identificador de clave/certificado.
+              </li>
+              <li>Validar la clave pública y luego verificar la firma.</li>
+              <li>
+                Registrar tiempo, política y estado de revocación cuando la
+                evidencia deba durar.
+              </li>
+            </ol>
+            <div class="ia-callout">
+              <strong
+                >No repudio no es una propiedad automática de una
+                ecuación.</strong
+              >
+              Requiere identidad, custodia de clave, evidencia temporal,
+              políticas y un procedimiento capaz de atribuir jurídicamente el
+              acto.
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="ia-section"
+        id="algoritmos-firma"
+        aria-labelledby="algoritmos-titulo"
+      >
+        <header>
+          <div>
+            <div class="ia-eyebrow">Tema 5</div>
+            <h2 id="algoritmos-titulo">Algoritmos de firmas digitales</h2>
+            <p class="ia-muted">
+              Comparar familias exige mirar supuestos, parámetros, tamaño,
+              determinismo, compatibilidad y horizonte poscuántico.
+            </p>
+          </div>
+          <a
+            class="ia-button"
+            href="presentaciones-docentes.html#algoritmos-firma"
+            >Presentación</a
+          >
+        </header>
+        <div class="ia-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Familia</th>
+                <th>Base matemática</th>
+                <th>Rasgo principal</th>
+                <th>Cuidados</th>
+                <th>Horizonte</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>RSA-PSS</strong></td>
+                <td>Factorización entera</td>
+                <td>
+                  Amplia interoperabilidad; firmas ligadas al tamaño del módulo
+                </td>
+                <td>
+                  Usar PSS, módulo y hash vigentes; no confundir con RSA-OAEP
+                </td>
+                <td>
+                  Clásico; vulnerable a computación cuántica a gran escala
+                </td>
+              </tr>
+              <tr>
+                <td><strong>ECDSA</strong></td>
+                <td>Logaritmo discreto en curvas elípticas</td>
+                <td>Claves y firmas compactas</td>
+                <td>
+                  El nonce por firma debe ser único o determinista de manera
+                  segura; codificaciones pueden variar
+                </td>
+                <td>
+                  Clásico; vulnerable a computación cuántica a gran escala
+                </td>
+              </tr>
+              <tr>
+                <td><strong>EdDSA</strong></td>
+                <td>Curvas de Edwards</td>
+                <td>
+                  Diseño determinista y API menos propensa a errores;
+                  Ed25519/Ed448
+                </td>
+                <td>
+                  Respetar variante, contexto y reglas de prehash; verificar
+                  compatibilidad
+                </td>
+                <td>
+                  Clásico; vulnerable a computación cuántica a gran escala
+                </td>
+              </tr>
+              <tr>
+                <td><strong>ML-DSA</strong></td>
+                <td>Retículos modulares</td>
+                <td>Estandarizada en FIPS 204 para resistencia poscuántica</td>
+                <td>
+                  Claves y firmas mayores; implementación, transición e
+                  interoperabilidad
+                </td>
+                <td>Poscuántico</td>
+              </tr>
+              <tr>
+                <td><strong>SLH-DSA</strong></td>
+                <td>Construcciones basadas en hash</td>
+                <td>
+                  Supuestos conservadores y firmas sin estado estandarizadas en
+                  FIPS 205
+                </td>
+                <td>Firmas grandes y menor rendimiento</td>
+                <td>Poscuántico</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ia-grid" style="margin-top: 14px">
+          <article class="ia-card third">
+            <h3>Para compatibilidad heredada</h3>
+            <p>
+              RSA-PSS suele ser una opción cuando existe infraestructura RSA y
+              el tamaño de firma no es crítico.
+            </p>
+          </article>
+          <article class="ia-card third">
+            <h3>Para sistemas clásicos compactos</h3>
+            <p>
+              ECDSA o EdDSA, según estándares y bibliotecas del ecosistema. No
+              implementar aritmética propia.
+            </p>
+          </article>
+          <article class="ia-card third">
+            <h3>Para transición poscuántica</h3>
+            <p>
+              Planificar inventario, agilidad criptográfica, pruebas y formatos
+              híbridos según el protocolo; no sustituir algoritmos sin
+              considerar tamaños y compatibilidad.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="ia-section" aria-labelledby="decision-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Síntesis</div>
+            <h2 id="decision-titulo">Árbol de decisión</h2>
+          </div>
+        </header>
+        <div class="ia-grid">
+          <article class="ia-card quarter">
+            <h3>¿Solo comparar contenido?</h3>
+            <p>Hash, si la huella esperada llega por un canal confiable.</p>
+          </article>
+          <article class="ia-card quarter">
+            <h3>¿Dos servicios comparten secreto?</h3>
+            <p>
+              HMAC o AEAD; agregar contador, contexto y política anti-replay.
+            </p>
+          </article>
+          <article class="ia-card quarter">
+            <h3>¿Necesitás claves desde contraseña o ECDH?</h3>
+            <p>KDF de contraseña o HKDF, respectivamente.</p>
+          </article>
+          <article class="ia-card quarter">
+            <h3>¿Terceros deben verificar?</h3>
+            <p>Firma digital y validación de identidad/clave pública.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="ia-section" aria-labelledby="fuentes-titulo">
+        <header>
+          <div>
+            <div class="ia-eyebrow">Fuentes primarias</div>
+            <h2 id="fuentes-titulo">Estándares para profundizar</h2>
+          </div>
+        </header>
+        <div class="ia-grid">
+          <article class="ia-card">
+            <ul>
+              <li>
+                <a
+                  href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final"
+                  target="_blank"
+                  rel="noopener"
+                  >NIST FIPS 180-4 — Secure Hash Standard</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://csrc.nist.gov/pubs/fips/202/final"
+                  target="_blank"
+                  rel="noopener"
+                  >NIST FIPS 202 — SHA-3</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://www.rfc-editor.org/rfc/rfc2104"
+                  target="_blank"
+                  rel="noopener"
+                  >RFC 2104 — HMAC</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://www.rfc-editor.org/rfc/rfc5869"
+                  target="_blank"
+                  rel="noopener"
+                  >RFC 5869 — HKDF</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://www.rfc-editor.org/rfc/rfc9106"
+                  target="_blank"
+                  rel="noopener"
+                  >RFC 9106 — Argon2</a
+                >
+              </li>
+            </ul>
+          </article>
+          <article class="ia-card">
+            <ul>
+              <li>
+                <a
+                  href="https://csrc.nist.gov/pubs/fips/186-5/final"
+                  target="_blank"
+                  rel="noopener"
+                  >NIST FIPS 186-5 — Digital Signature Standard</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://www.rfc-editor.org/rfc/rfc8017"
+                  target="_blank"
+                  rel="noopener"
+                  >RFC 8017 — RSA-PSS</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://www.rfc-editor.org/rfc/rfc8032"
+                  target="_blank"
+                  rel="noopener"
+                  >RFC 8032 — EdDSA</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://csrc.nist.gov/pubs/fips/204/final"
+                  target="_blank"
+                  rel="noopener"
+                  >NIST FIPS 204 — ML-DSA</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://csrc.nist.gov/pubs/fips/205/final"
+                  target="_blank"
+                  rel="noopener"
+                  >NIST FIPS 205 — SLH-DSA</a
+                >
+              </li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <footer class="ia-footer">
+        <p>
+          <strong
+            >Material elaborado por el profesor Sergio Gevatschnaider.</strong
+          >
+        </p>
+        <p>
+          La selección de algoritmos de producción debe seguir estándares
+          vigentes, bibliotecas mantenidas, perfiles del protocolo y una gestión
+          segura del ciclo de vida de claves.
+        </p>
+      </footer>
+    </main>
+    <script src="../assets/lab.js"></script>
+    <script src="assets/modulo-03.js"></script>
+  </body>
+</html>
