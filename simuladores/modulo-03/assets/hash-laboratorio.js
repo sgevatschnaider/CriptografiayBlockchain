@@ -457,7 +457,26 @@
     });
   }
 
-  function showStation(number, focusPanel = false) {
+  function updateStationUrl(number) {
+    const url = new URL(globalThis.location.href);
+    url.searchParams.set("station", String(number));
+    url.hash = `hash-station-${number}`;
+    globalThis.history.replaceState(null, "", url);
+  }
+
+  function stationFromUrl() {
+    const hashMatch = globalThis.location.hash.match(
+      /^#hash-station-([1-8])$/,
+    );
+    if (hashMatch) return Number(hashMatch[1]);
+    const queryStation = Number(
+      new URLSearchParams(globalThis.location.search).get("station"),
+    );
+    return queryStation >= 1 && queryStation <= 8 ? queryStation : 1;
+  }
+
+  function showStation(number, focusPanel = false, syncUrl = false) {
+    if (!Number.isInteger(number) || number < 1 || number > 8) number = 1;
     document.querySelectorAll("[data-hash-panel]").forEach((panel) => {
       panel.hidden = Number(panel.dataset.hashPanel) !== number;
     });
@@ -466,6 +485,7 @@
       button.classList.toggle("is-active", selected);
       button.setAttribute("aria-selected", String(selected));
     });
+    if (syncUrl) updateStationUrl(number);
     if (focusPanel)
       byId(`hash-station-${number}`).scrollIntoView({
         behavior: "smooth",
@@ -1117,7 +1137,7 @@
   function bindEvents() {
     document.querySelectorAll("[data-hash-station]").forEach((button) => {
       button.addEventListener("click", () =>
-        showStation(Number(button.dataset.hashStation), true),
+        showStation(Number(button.dataset.hashStation), true, true),
       );
       button.addEventListener("keydown", (event) => {
         if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
@@ -1131,8 +1151,11 @@
           `[data-hash-station="${next}"]`,
         );
         nextButton.focus();
-        showStation(next);
+        showStation(next, false, true);
       });
+    });
+    globalThis.addEventListener("hashchange", () => {
+      showStation(stationFromUrl(), true);
     });
     byId("hash-digest-run").addEventListener("click", () => runDigestStation());
     byId("hash-digest-algorithm").addEventListener("change", () =>
@@ -1183,6 +1206,8 @@
 
   function initialize() {
     bindEvents();
+    const initialStation = stationFromUrl();
+    showStation(initialStation);
     restoreProgress();
     updateAvalancheRange();
     newPasswordSalt();
@@ -1190,6 +1215,13 @@
     runSha2Station(false);
     runSha3Station(false);
     buildMerkleTree(false);
+    if (initialStation !== 1)
+      requestAnimationFrame(() =>
+        byId(`hash-station-${initialStation}`).scrollIntoView({
+          behavior: "auto",
+          block: "start",
+        }),
+      );
   }
 
   initialize();

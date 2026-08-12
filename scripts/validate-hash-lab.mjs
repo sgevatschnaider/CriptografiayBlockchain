@@ -99,20 +99,27 @@ for (const token of [
     throw new Error(`Falta el estilo principal .${token}.`);
 }
 
-if (!html.includes('src="assets/hash-laboratorio.js"'))
+if (!html.includes('src="assets/hash-laboratorio.js?v=4"'))
   throw new Error("El laboratorio no carga hash-laboratorio.js.");
-if (!html.includes('href="assets/hash-laboratorio.css"'))
+if (!html.includes('href="assets/hash-laboratorio.css?v=4"'))
   throw new Error("El laboratorio no carga hash-laboratorio.css.");
 if (
   !index.includes(
-    'href="integridad-autenticidad-laboratorio.html#lab-hash"',
+    'href="integridad-autenticidad-laboratorio.html?station=1#lab-hash"',
   ) ||
-  !index.includes("Laboratorio hash · 8 estaciones")
+  !index.includes("Laboratorio hash · 8 estaciones") ||
+  !index.includes(
+    'href="integridad-autenticidad-laboratorio.html?station=8#hash-station-8"',
+  ) ||
+  !index.includes("Árbol de Merkle interactivo")
 )
   throw new Error(
-    "La portada del Módulo 3 no ofrece un acceso explícito al laboratorio hash.",
+    "La portada del Módulo 3 no ofrece accesos explícitos al laboratorio hash y Merkle.",
   );
+for (const token of ["stationFromUrl", "URLSearchParams", "hashchange"])
+  if (!script.includes(token))
+    throw new Error(`Falta navegación profunda por estación: ${token}.`);
 
 console.log(
-  "Validación hash correcta: acceso visible, 8 estaciones, IDs completos y vectores SHA-256/SHA3-256 verificados.",
+  "Validación hash correcta: accesos visibles, navegación H1–H8, IDs completos y vectores SHA-256/SHA3-256 verificados.",
 );
