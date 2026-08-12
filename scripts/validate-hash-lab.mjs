@@ -8,6 +8,7 @@ const htmlPath = resolve(
   root,
   "simuladores/modulo-03/integridad-autenticidad-laboratorio.html",
 );
+const indexPath = resolve(root, "simuladores/modulo-03/index.html");
 const scriptPath = resolve(
   root,
   "simuladores/modulo-03/assets/hash-laboratorio.js",
@@ -17,8 +18,9 @@ const stylePath = resolve(
   "simuladores/modulo-03/assets/hash-laboratorio.css",
 );
 
-const [html, script, style] = await Promise.all([
+const [html, index, script, style] = await Promise.all([
   readFile(htmlPath, "utf8"),
+  readFile(indexPath, "utf8"),
   readFile(scriptPath, "utf8"),
   readFile(stylePath, "utf8"),
 ]);
@@ -101,7 +103,16 @@ if (!html.includes('src="assets/hash-laboratorio.js"'))
   throw new Error("El laboratorio no carga hash-laboratorio.js.");
 if (!html.includes('href="assets/hash-laboratorio.css"'))
   throw new Error("El laboratorio no carga hash-laboratorio.css.");
+if (
+  !index.includes(
+    'href="integridad-autenticidad-laboratorio.html#lab-hash"',
+  ) ||
+  !index.includes("Laboratorio hash · 8 estaciones")
+)
+  throw new Error(
+    "La portada del Módulo 3 no ofrece un acceso explícito al laboratorio hash.",
+  );
 
 console.log(
-  "Validación hash correcta: 8 estaciones, IDs completos y vectores SHA-256/SHA3-256 verificados.",
+  "Validación hash correcta: acceso visible, 8 estaciones, IDs completos y vectores SHA-256/SHA3-256 verificados.",
 );
