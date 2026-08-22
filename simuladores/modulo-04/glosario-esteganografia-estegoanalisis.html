@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Glosario de Esteganografía y Estegoanálisis</title>
+<meta name="description" content="Glosario navegable del Módulo 4: esteganografía, estegoanálisis, LSB, DCT, audio, Unicode, archivos, canales encubiertos, watermarking y criptografía integrada.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.2rem,6vw,4.7rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.panel{margin-top:18px;padding:20px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel))}
+.controls{display:grid;grid-template-columns:2fr 1fr auto;gap:10px}
+input,select,button{font:inherit}
+input,select{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:11px 12px}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+.alpha{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.alpha button{min-width:34px;padding:7px 9px;background:#071827;color:#cce6f8;border:1px solid var(--line)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.25rem}.metric span{font-size:.74rem;color:var(--muted)}
+.glossary{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:18px}
+.entry{grid-column:span 6;padding:20px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 12px 32px rgba(0,0,0,.16)}
+.entry h2{margin:.1em 0 .35em;font-size:1.22rem}
+.cat{display:inline-block;padding:5px 8px;border:1px solid var(--line);border-radius:999px;font-size:.72rem;font-weight:850;color:var(--accent);margin-bottom:10px}
+.entry p{color:#dbeaf5;line-height:1.55;margin:.55em 0}
+.entry .note{color:var(--muted);padding-top:10px;border-top:1px solid var(--line);font-size:.9rem}
+.empty{grid-column:1/-1;padding:28px;text-align:center;border:1px dashed var(--line);border-radius:20px;color:var(--muted)}
+.quiz{margin-top:18px;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel))}
+.quiz .answer{display:none;margin-top:12px;padding:14px;border-left:4px solid var(--good);background:rgba(124,240,176,.06);border-radius:10px}
+.quiz .answer.show{display:block}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media print{
+  body{background:#fff;color:#111}.topbar,.panel,.quiz{display:none}
+  .hero,.entry{box-shadow:none;background:#fff;color:#111;border-color:#bbb}
+  .entry p,.entry .note,.footer{color:#333}.cat{color:#135c73;border-color:#999}
+}
+@media(max-width:900px){.entry{grid-column:1/-1}.metrics{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr}}
+@media(max-width:620px){.metrics{grid-template-columns:1fr}.hero h1{font-size:2.3rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Glosario</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#buscar">Buscar</a>
+    <a href="#glosario">Términos</a>
+    <a href="#autoevaluacion">Autoevaluación</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Material de consulta · 97 conceptos</div>
+  <h1>Glosario de Esteganografía y Estegoanálisis</h1>
+  <p>
+    Diccionario navegable del Módulo 4. Reúne la terminología del material base y la amplía con los conceptos
+    necesarios para comprender los laboratorios de imágenes, DCT/JPEG, audio, Unicode, sistemas de archivos,
+    canales encubiertos, watermarking y composición con criptografía.
+  </p>
+  <div class="pills">
+    <span class="pill">97 términos</span>
+    <span class="pill">15 categorías</span>
+    <span class="pill">Búsqueda instantánea</span>
+    <span class="pill">Índice alfabético</span>
+    <span class="pill">Autoevaluación</span>
+  </div>
+</section>
+
+<section class="panel" id="buscar">
+  <div class="controls">
+    <input id="search" type="text" placeholder="Buscar: LSB, robustez, DCT, Unicode, AES-GCM…">
+    <select id="category">
+      <option value="">Todas las categorías</option>
+      <option value="Archivos y formatos">Archivos y formatos</option><option value="Audio">Audio</option><option value="Canales de comunicación">Canales de comunicación</option><option value="CTF y codificación">CTF y codificación</option><option value="DCT/JPEG">DCT/JPEG</option><option value="Estegoanálisis">Estegoanálisis</option><option value="Fundamentos">Fundamentos</option><option value="Imágenes">Imágenes</option><option value="Integración criptográfica">Integración criptográfica</option><option value="Integridad y verificación">Integridad y verificación</option><option value="Métricas">Métricas</option><option value="Modelo de amenaza">Modelo de amenaza</option><option value="Seguridad aplicada">Seguridad aplicada</option><option value="Texto y Unicode">Texto y Unicode</option><option value="Watermarking">Watermarking</option>
+    </select>
+    <button id="clear" class="secondary">Limpiar filtros</button>
+  </div>
+  <div id="alpha" class="alpha"></div>
+  <div class="metrics">
+    <div class="metric"><strong id="visibleCount">97</strong><span>términos visibles</span></div>
+    <div class="metric"><strong>97</strong><span>términos totales</span></div>
+    <div class="metric"><strong>15</strong><span>categorías</span></div>
+    <div class="metric"><strong>A–Z</strong><span>navegación</span></div>
+  </div>
+</section>
+
+<section id="glosario" class="glossary"></section>
+
+<section class="quiz" id="autoevaluacion">
+  <div class="eyebrow">Autoevaluación rápida</div>
+  <h2>¿Podés reconocer el concepto por su definición?</h2>
+  <p id="quizDefinition" style="color:#dbeaf5;line-height:1.6"></p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button id="newQuiz">Nuevo término</button>
+    <button id="showAnswer" class="secondary">Mostrar respuesta</button>
+  </div>
+  <div id="quizAnswer" class="answer"></div>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Módulo 4 · Esteganografía y Estegoanálisis.</p>
+</footer>
+</main>
+
+<script>
+const DATA=[{"term": "ADS (Alternate Data Streams)", "category": "Archivos y formatos", "definition": "Flujos de datos alternativos asociados a una entrada en NTFS. El material los presenta como una posible zona de ocultamiento dentro de sistemas de archivos.", "note": "En el laboratorio se modelan de forma virtual, sin crear ADS reales."}, {"term": "AES-GCM", "category": "Integración criptográfica", "definition": "Modo de cifrado autenticado basado en AES que aporta confidencialidad e integridad autenticada. En el módulo se utiliza como capa previa al ocultamiento: primero se cifra, luego se inserta el ciphertext en el estegomedio.", "note": "AES-GCM → ciphertext → esteganografía."}, {"term": "Algoritmo esteganográfico", "category": "Fundamentos", "definition": "Procedimiento que define cómo se inserta y, eventualmente, cómo se recupera información oculta utilizando un medio de cobertura.", "note": "Se evalúa por capacidad, invisibilidad/seguridad y robustez."}, {"term": "Análisis de pares", "category": "Estegoanálisis", "definition": "Familia de técnicas estadísticas que estudia pares de valores o muestras relacionados para detectar alteraciones compatibles con inserción LSB.", "note": "En el módulo se usa como intuición para comparar valores pares/impares."}, {"term": "Ataque activo", "category": "Modelo de amenaza", "definition": "Comportamiento de un guardián o adversario que modifica el estegomedio durante la comunicación para intentar destruir o alterar el mensaje oculto.", "note": "Ejemplo didáctico: cuantizar o reescalar una imagen estego."}, {"term": "Ataque de calibración", "category": "Estegoanálisis", "definition": "Técnica aplicada especialmente a imágenes JPEG que obtiene una referencia aproximada mediante recompresión u otra transformación y compara propiedades estadísticas entre ambas versiones.", "note": "El material fuente menciona la recompresión como mecanismo de calibración."}, {"term": "Ataque de fuerza bruta", "category": "Estegoanálisis", "definition": "Intento sistemático de probar claves, parámetros o posibilidades de extracción hasta encontrar una combinación que produzca un resultado plausible.", "note": "No reemplaza el análisis estructural o estadístico."}, {"term": "Ataque malicioso", "category": "Modelo de amenaza", "definition": "Modelo en el que el guardián no solo detecta o bloquea, sino que intenta modificar de manera deliberada la comunicación oculta para inducir resultados falsos o corruptos.", "note": "Se diferencia del guardián pasivo y del activo."}, {"term": "Autenticidad", "category": "Integración criptográfica", "definition": "Propiedad que permite verificar que los datos provienen de quien posee la clave adecuada y no fueron sustituidos sin detección.", "note": "En el laboratorio integrador se obtiene mediante AES-GCM, no mediante LSB."}, {"term": "Bit plane / plano de bits", "category": "Imágenes", "definition": "Representación formada por un único bit de cada píxel o canal. Una imagen de 8 bits por canal posee ocho planos, desde el LSB hasta el MSB.", "note": "El plano 0 suele ser especialmente relevante en LSB."}, {"term": "BMP", "category": "Imágenes", "definition": "Formato de imagen raster sin la compresión con pérdida típica de JPEG. Puede utilizarse como estegomedio en técnicas espaciales como LSB.", "note": "Su estructura hace que las modificaciones de bits sean más directas de estudiar."}, {"term": "Brainfuck", "category": "CTF y codificación", "definition": "Lenguaje de programación esotérico con un conjunto mínimo de símbolos. En el laboratorio adicional aparece como segunda capa de interpretación después de extraer un archivo oculto.", "note": "No es un cifrado criptográfico."}, {"term": "Cabecera / header", "category": "Fundamentos", "definition": "Estructura de control que acompaña a un payload y almacena información necesaria para interpretarlo, como versión, longitud, profundidad o checksum.", "note": "Los laboratorios LSB utilizan cabeceras didácticas."}, {"term": "Canal encubierto", "category": "Canales de comunicación", "definition": "Canal de comunicación que utiliza recursos o propiedades de un sistema de una manera no prevista por la política de seguridad para transmitir una señal adicional.", "note": "El material menciona HTTP, TCP, UDP, IP, ICMP, DNS y otros como posibles soportes."}, {"term": "Capacidad", "category": "Fundamentos", "definition": "Cantidad de información que puede ocultarse dentro de un estegomedio bajo un esquema determinado.", "note": "Es una de las tres características centrales de los algoritmos esteganográficos en el material fuente."}, {"term": "Caracteres invisibles", "category": "Texto y Unicode", "definition": "Puntos de código que no producen un glifo visible o tienen ancho cero, pero permanecen en la secuencia del texto y pueden representar información.", "note": "Ejemplos del módulo: U+200B y U+200C."}, {"term": "Checksum", "category": "Integridad y verificación", "definition": "Valor de comprobación calculado sobre datos para detectar corrupción accidental. No proporciona autenticación frente a un adversario que pueda recalcularlo.", "note": "El laboratorio LSB usa checksums únicamente con finalidad didáctica."}, {"term": "Ciphertext", "category": "Integración criptográfica", "definition": "Resultado de aplicar un algoritmo de cifrado a un mensaje en claro. Puede ocultarse posteriormente mediante esteganografía.", "note": "Encontrar el ciphertext no equivale a recuperar el mensaje en claro."}, {"term": "Coeficiente AC", "category": "DCT/JPEG", "definition": "Coeficiente DCT distinto de (0,0). Describe componentes de frecuencia espacial de un bloque.", "note": "Los coeficientes de frecuencia media son útiles para explicar compromisos entre visibilidad y robustez."}, {"term": "Coeficiente cuantizado", "category": "DCT/JPEG", "definition": "Valor obtenido al dividir un coeficiente DCT por un factor de cuantización y redondear el resultado.", "note": "El material fuente menciona la ocultación mediante coeficientes cuantificados DCT."}, {"term": "Coeficiente DC", "category": "DCT/JPEG", "definition": "Coeficiente DCT situado en (0,0), relacionado con el nivel medio del bloque de imagen.", "note": "En la simulación no se utiliza para insertar el bit secreto."}, {"term": "Confidencialidad", "category": "Integración criptográfica", "definition": "Propiedad que impide que una persona no autorizada comprenda el contenido protegido.", "note": "La esteganografía por sí sola no garantiza confidencialidad."}, {"term": "Correlación", "category": "Watermarking", "definition": "Medida de similitud entre una señal observada y un patrón esperado. Puede utilizarse para detectar una marca de agua pseudoaleatoria.", "note": "Una correlación alta no constituye por sí sola evidencia forense universal."}, {"term": "Cover / cubierta / tapadera", "category": "Fundamentos", "definition": "Objeto o medio aparentemente normal utilizado como soporte para insertar información oculta.", "note": "Puede ser una imagen, audio, texto, archivo o comunicación."}, {"term": "CRC32", "category": "Integridad y verificación", "definition": "Código de detección de errores de 32 bits utilizado para detectar cambios accidentales en datos.", "note": "No es un MAC ni una firma digital."}, {"term": "CTF (Capture The Flag)", "category": "CTF y codificación", "definition": "Formato de desafío práctico en el que el estudiante debe encontrar y justificar una solución a partir de pistas y evidencias.", "note": "El Stego CTF del módulo integra cinco retos."}, {"term": "Cuantización", "category": "DCT/JPEG", "definition": "Proceso que reduce la precisión de coeficientes o valores agrupándolos en niveles discretos. En JPEG contribuye a la compresión con pérdida.", "note": "Puede destruir canales LSB o modificar la robustez de marcas."}, {"term": "DCT", "category": "DCT/JPEG", "definition": "Transformada Discreta del Coseno. Convierte un bloque espacial en una representación de frecuencias.", "note": "El material fuente la presenta como técnica habitual de ocultamiento en imágenes."}, {"term": "Desbalance de paridad", "category": "Estegoanálisis", "definition": "Diferencia entre la frecuencia de valores pares e impares o entre LSB=0 y LSB=1.", "note": "Sirve como indicador didáctico, no como detector concluyente."}, {"term": "Dvorak", "category": "CTF y codificación", "definition": "Disposición alternativa de teclado utilizada como pista en el segundo ejercicio del laboratorio adicional.", "note": "La referencia a Barbara Blackburn orienta hacia esta distribución."}, {"term": "Echo hiding", "category": "Audio", "definition": "Técnica de ocultamiento en audio que introduce ecos con parámetros controlados para representar información.", "note": "En el módulo se presenta mediante una demostración conceptual."}, {"term": "Entropía binaria", "category": "Estegoanálisis", "definition": "Medida de incertidumbre de una secuencia binaria. Al aproximarse la proporción de 0 y 1 a 50/50, la entropía binaria se aproxima a su máximo.", "note": "Se usa en el microscopio de planos de bits como indicador didáctico."}, {"term": "EOF (End of File)", "category": "Archivos y formatos", "definition": "Concepto de fin lógico de un archivo o estructura. Algunas técnicas de ocultamiento aprovechan datos que quedan fuera de la porción interpretada por una aplicación.", "note": "El laboratorio modela bytes posteriores a un EOF virtual."}, {"term": "Esteganografía", "category": "Fundamentos", "definition": "Conjunto de procedimientos destinados a ocultar información almacenándola en un soporte o transmitiéndola por un canal, intentando que su existencia pase inadvertida.", "note": "Se diferencia del cifrado, que busca ocultar el contenido."}, {"term": "Esteganografía adaptativa", "category": "Imágenes", "definition": "Enfoque que elige regiones del medio según características locales como textura, ruido o complejidad para reducir detectabilidad o aumentar robustez.", "note": "Es una ampliación conceptual del módulo."}, {"term": "Esteganografía cuántica", "category": "Fundamentos", "definition": "Familia de sistemas que aprovecha fenómenos o técnicas de información cuántica para ocultar información.", "note": "El material fuente menciona ruido cuántico y códigos correctores de errores cuánticos."}, {"term": "Estegoanálisis", "category": "Fundamentos", "definition": "Disciplina que estudia la seguridad de los algoritmos esteganográficos mediante técnicas destinadas a detectar o eliminar posible información oculta.", "note": "Puede aplicarse incluso sin certeza previa de que exista un payload."}, {"term": "Estegoclave", "category": "Fundamentos", "definition": "Clave utilizada por un estegosistema para controlar la inserción o recuperación de información oculta.", "note": "En sistemas simétricos emisor y receptor comparten la misma estegoclave."}, {"term": "Estegomalware", "category": "Seguridad aplicada", "definition": "Uso de técnicas esteganográficas por malware para ocultar configuración, comunicaciones o información asociada a su operación.", "note": "En el módulo se estudia desde una perspectiva defensiva."}, {"term": "Estegomedio", "category": "Fundamentos", "definition": "Medio o soporte de comunicación utilizado para enmascarar la información a transmitir sin levantar sospecha.", "note": "Término definido explícitamente en el material fuente."}, {"term": "Estegoobjeto", "category": "Fundamentos", "definition": "Objeto resultante después de ocultar información dentro de un estegomedio.", "note": "Por ejemplo, una imagen después de insertar un mensaje mediante LSB."}, {"term": "Estegosistema de clave pública", "category": "Fundamentos", "definition": "Sistema esteganográfico que emplea una clave pública para ocultar y una clave privada para recuperar la información.", "note": "Analogía estructural con esquemas criptográficos asimétricos."}, {"term": "Estegosistema simétrico", "category": "Fundamentos", "definition": "Sistema en el que emisor y receptor comparten una estegoclave secreta.", "note": "El algoritmo y la tapadera pueden ser públicos mientras la seguridad descansa en la clave."}, {"term": "Exif / metadatos de imagen", "category": "Archivos y formatos", "definition": "Información asociada a una imagen que puede describir cámara, fecha, orientación, ubicación u otros atributos.", "note": "El análisis forense debe distinguir metadatos legítimos de anomalías."}, {"term": "Falso negativo", "category": "Estegoanálisis", "definition": "Caso en el que un detector clasifica como limpio un objeto que realmente contiene información oculta.", "note": "Debe considerarse al evaluar detectores."}, {"term": "Falso positivo", "category": "Estegoanálisis", "definition": "Caso en el que un detector marca como sospechoso un objeto que en realidad no contiene un payload esteganográfico.", "note": "Una sola anomalía estadística puede producir falsos positivos."}, {"term": "GIF", "category": "Imágenes", "definition": "Formato de imagen indexada que puede utilizarse como soporte de técnicas esteganográficas, aunque su paleta y procesamiento condicionan los métodos apropiados.", "note": "Mencionado entre los formatos de imagen del material."}, {"term": "Guardián activo", "category": "Modelo de amenaza", "definition": "Adversario del Problema del Prisionero que modifica los mensajes o medios para intentar neutralizar la comunicación oculta.", "note": "Puede aplicar transformaciones al estegomedio."}, {"term": "Guardián malicioso", "category": "Modelo de amenaza", "definition": "Adversario que puede modificar mensajes con la intención de engañar o introducir información falsa.", "note": "Representa un modelo más fuerte que el guardián pasivo."}, {"term": "Guardián pasivo", "category": "Modelo de amenaza", "definition": "Adversario que observa la comunicación y decide si parece sospechosa, pero no la modifica.", "note": "Es el caso más simple del Problema del Prisionero."}, {"term": "Histograma", "category": "Estegoanálisis", "definition": "Distribución de frecuencias de valores de píxel o muestra. Algunas técnicas de inserción alteran sutilmente esas frecuencias.", "note": "El módulo compara histogramas original/sospechosa."}, {"term": "HTML/XML esteganográfico", "category": "Texto y Unicode", "definition": "Ocultamiento de información aprovechando elementos de documentos HTML/XML, como caracteres invisibles, codificación de caracteres u orden de atributos.", "note": "El material fuente enumera estas tres posibilidades."}, {"term": "IDCT", "category": "DCT/JPEG", "definition": "Transformada inversa de la DCT. Reconstruye valores espaciales a partir de coeficientes de frecuencia.", "note": "El laboratorio la utiliza para comparar bloques reconstruidos."}, {"term": "Imperceptibilidad", "category": "Fundamentos", "definition": "Grado en que las modificaciones introducidas por el ocultamiento pasan inadvertidas para observadores humanos o sistemas de detección.", "note": "En el material aparece asociada a seguridad/invisibilidad."}, {"term": "Integridad autenticada", "category": "Integración criptográfica", "definition": "Propiedad de un esquema como AES-GCM que permite detectar modificaciones y verificar la autenticidad criptográfica del ciphertext.", "note": "No debe confundirse con un checksum."}, {"term": "Inter-protocolos (IPS)", "category": "Canales de comunicación", "definition": "Técnicas de ocultamiento que aprovechan relaciones o interacciones entre protocolos diferentes.", "note": "Mencionadas por el material fuente como una familia de canales."}, {"term": "Jitter", "category": "Canales de comunicación", "definition": "Variación aleatoria o no controlada de los intervalos temporales entre eventos o paquetes.", "note": "Puede degradar un timing channel y aumentar errores."}, {"term": "JPEG", "category": "DCT/JPEG", "definition": "Formato de imagen con compresión con pérdida basado, entre otros pasos, en transformaciones y cuantización por bloques.", "note": "Recomprimir una imagen puede destruir LSB espaciales y modificar coeficientes."}, {"term": "Kerckhoffs, principio de", "category": "Modelo de amenaza", "definition": "Principio de diseño según el cual la seguridad no debería depender de mantener secreto el algoritmo, sino de la clave u otros secretos bien definidos.", "note": "Se aplica en el módulo como criterio de diseño de estegosistemas."}, {"term": "LSB", "category": "Imágenes", "definition": "Least Significant Bit o bit menos significativo. Técnica común que reemplaza uno o más bits de menor peso de valores de píxel o muestras para transportar información.", "note": "El material fuente destaca su facilidad, alta capacidad y bajo impacto visual."}, {"term": "Machine Learning para estegoanálisis", "category": "Estegoanálisis", "definition": "Uso de modelos entrenados sobre características de objetos cover y stego para estimar si un medio contiene modificaciones compatibles con esteganografía.", "note": "El material fuente menciona explícitamente estegoanálisis por machine learning."}, {"term": "Marca de agua digital", "category": "Watermarking", "definition": "Información o señal asociada a un contenido digital para identificación, trazabilidad, autenticidad o integridad.", "note": "Puede ser visible o invisible, robusta o frágil."}, {"term": "Marca frágil", "category": "Watermarking", "definition": "Marca diseñada para dejar de verificarse cuando el contenido es modificado.", "note": "Su fragilidad es una característica deseada para detectar alteraciones."}, {"term": "Marca invisible", "category": "Watermarking", "definition": "Marca cuyo objetivo es no ser perceptible durante el uso normal del contenido.", "note": "Puede detectarse mediante una clave, correlación u otro procedimiento."}, {"term": "Marca reversible", "category": "Watermarking", "definition": "Esquema de watermarking que permite recuperar exactamente el contenido original después de retirar la marca.", "note": "Útil en contextos donde no se tolera distorsión permanente."}, {"term": "Marca robusta", "category": "Watermarking", "definition": "Marca diseñada para conservarse o seguir siendo detectable después de determinadas transformaciones del contenido.", "note": "Puede buscar tolerancia a compresión, ruido o reescalado."}, {"term": "Marca visible", "category": "Watermarking", "definition": "Marca perceptible incorporada deliberadamente al contenido, por ejemplo un texto de autoría sobre una imagen.", "note": "Prioriza identificación sobre invisibilidad."}, {"term": "MSB", "category": "Imágenes", "definition": "Most Significant Bit o bit más significativo. Es el bit de mayor peso dentro de un valor binario.", "note": "Modificar MSB suele provocar cambios visuales mucho mayores que modificar LSB."}, {"term": "MSE", "category": "Métricas", "definition": "Mean Squared Error o error cuadrático medio entre dos señales o imágenes.", "note": "Valores más bajos indican menor diferencia promedio cuadrática."}, {"term": "Normalización Unicode", "category": "Texto y Unicode", "definition": "Proceso que transforma secuencias Unicode equivalentes a una forma normalizada, como NFC.", "note": "Dependiendo del canal utilizado, una normalización o limpieza puede alterar información oculta."}, {"term": "NTFS", "category": "Archivos y formatos", "definition": "Sistema de archivos de Windows que, entre otras características, admite Alternate Data Streams.", "note": "Se menciona en el material al describir ADS."}, {"term": "Orden de atributos", "category": "Texto y Unicode", "definition": "Uso del orden de atributos en una etiqueta HTML/XML como portador de información.", "note": "El material fuente lo incluye entre las técnicas de esteganografía HTML/XML."}, {"term": "Packet size channel", "category": "Canales de comunicación", "definition": "Canal encubierto que representa información mediante variaciones controladas del tamaño de unidades de comunicación.", "note": "En el módulo se simula sin generar tráfico real."}, {"term": "Payload", "category": "Fundamentos", "definition": "Información que se desea ocultar o transportar dentro del estegomedio.", "note": "Puede ser texto, ciphertext, archivo u otra secuencia de bytes."}, {"term": "PBKDF2", "category": "Integración criptográfica", "definition": "Función de derivación de claves basada en contraseña. Aplica iteraciones y salt para dificultar ataques de adivinación sobre contraseñas.", "note": "En el laboratorio integrador deriva una clave AES-GCM."}, {"term": "Phase coding", "category": "Audio", "definition": "Técnica de esteganografía de audio basada en modificar relaciones de fase de una señal para transportar información.", "note": "El material fuente la menciona entre los métodos de audio."}, {"term": "PNG", "category": "Imágenes", "definition": "Formato de imagen raster con compresión sin pérdida. Es adecuado para laboratorios LSB porque guardar como PNG preserva exactamente los valores de píxel.", "note": "El material lo menciona como uno de los formatos utilizados."}, {"term": "Polyglot", "category": "Seguridad aplicada", "definition": "Archivo construido para ser interpretado válidamente de más de una manera o como más de un formato según el contexto.", "note": "El material fuente lo relaciona con técnicas de ocultamiento y evasión."}, {"term": "Problema del Prisionero", "category": "Fundamentos", "definition": "Modelo propuesto por G. J. Simmons en 1983: dos prisioneros deben comunicarse a través de un guardián que puede interrumpir la comunicación si sospecha que ocultan un plan.", "note": "Sirve para formalizar el objetivo de ocultar la existencia de la comunicación."}, {"term": "PSNR", "category": "Métricas", "definition": "Peak Signal-to-Noise Ratio. Métrica expresada en decibelios que compara una señal original y una alterada a partir del error cuadrático.", "note": "En los laboratorios se usa como aproximación a fidelidad, no como medida completa de percepción."}, {"term": "QR invertido", "category": "CTF y codificación", "definition": "Código QR con polaridad de colores invertida respecto de la representación habitual. En el laboratorio adicional constituye la primera transformación del segundo reto.", "note": "Después de invertirlo aparece una segunda capa de codificación."}, {"term": "Robustez", "category": "Fundamentos", "definition": "Cantidad o intensidad de alteraciones que un medio puede soportar antes de que se pierda la información oculta.", "note": "Es una de las tres características centrales del material fuente."}, {"term": "RS analysis", "category": "Estegoanálisis", "definition": "Familia de ataques estadísticos para detectar LSB mediante grupos regulares y singulares bajo transformaciones controladas.", "note": "El material fuente menciona ataques RS entre las técnicas de detección estructural."}, {"term": "Salt", "category": "Integración criptográfica", "definition": "Valor aleatorio utilizado en funciones de derivación de claves para evitar que la misma contraseña produzca siempre la misma clave derivada.", "note": "Debe almacenarse junto con los datos cifrados; no necesita ser secreto."}, {"term": "Seguridad / invisibilidad", "category": "Fundamentos", "definition": "En el material fuente, propiedad asociada a la probabilidad de detección por parte de un estegoanalista.", "note": "No debe interpretarse como sinónimo automático de confidencialidad criptográfica."}, {"term": "Slack space", "category": "Archivos y formatos", "definition": "Espacio no utilizado dentro de la última unidad de asignación ocupada por un archivo cuando su tamaño lógico no llena completamente dicha unidad.", "note": "El material lo menciona como técnica de ocultamiento en sistemas de archivos."}, {"term": "SSIM", "category": "Métricas", "definition": "Structural Similarity Index. Métrica perceptual para comparar estructura, luminancia y contraste entre imágenes.", "note": "Se presenta como complemento conceptual a métricas como PSNR."}, {"term": "Stego-CTF", "category": "CTF y codificación", "definition": "Desafío integrador del módulo que obliga a reconocer distintos canales de ocultamiento y justificar el procedimiento de extracción.", "note": "Incluye texto, Dvorak, Brainfuck, Unicode y LSB."}, {"term": "Stego-key", "category": "Fundamentos", "definition": "Forma inglesa de estegoclave: secreto utilizado para controlar o parametrizar un estegosistema.", "note": "La seguridad de un sistema bien diseñado no debería depender de ocultar el algoritmo."}, {"term": "Timing channel", "category": "Canales de comunicación", "definition": "Canal encubierto que representa información mediante intervalos temporales entre eventos o paquetes.", "note": "El jitter puede dificultar su decodificación y detección."}, {"term": "Unallocated space", "category": "Archivos y formatos", "definition": "Espacio del sistema de archivos que actualmente no está asignado a archivos activos. Puede contener restos de información borrada.", "note": "El material lo menciona como un área potencial de ocultamiento."}, {"term": "UTF-8", "category": "Texto y Unicode", "definition": "Codificación variable de caracteres Unicode en bytes. En los laboratorios se utiliza para convertir mensajes de texto a bytes antes de ocultarlos.", "note": "Es importante separar caracteres, puntos de código y bytes."}, {"term": "Wardens / guardianes", "category": "Modelo de amenaza", "definition": "Actores que controlan o inspeccionan un canal de comunicación en el modelo del Problema del Prisionero.", "note": "Pueden ser pasivos, activos o maliciosos."}, {"term": "Web Crypto API", "category": "Integración criptográfica", "definition": "API criptográfica del navegador utilizada en el laboratorio para ejecutar PBKDF2 y AES-GCM localmente.", "note": "Evita enviar claves o mensajes a un servidor durante la práctica."}, {"term": "Zero Width Non-Joiner (ZWNJ)", "category": "Texto y Unicode", "definition": "Carácter Unicode U+200C que normalmente no produce ancho visible y puede utilizarse como símbolo binario en un canal textual.", "note": "En el laboratorio representa uno de los dos estados binarios."}, {"term": "Zero Width Space (ZWSP)", "category": "Texto y Unicode", "definition": "Carácter Unicode U+200B de ancho cero. Puede incorporarse dentro de un texto sin producir un espacio visible convencional.", "note": "El laboratorio lo utiliza como uno de los símbolos de codificación binaria."}, {"term": "χ² / Chi-cuadrado", "category": "Estegoanálisis", "definition": "Estadístico que puede utilizarse para comparar frecuencias observadas y esperadas. En el módulo se emplea una versión simplificada para estudiar pares de valores LSB.", "note": "El indicador didáctico no sustituye un detector formal."}];
+const $=s=>document.querySelector(s);
+
+function normalize(s){
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function render(){
+  const q=normalize($('#search').value),cat=$('#category').value,letter=document.body.dataset.letter||'';
+  const filtered=DATA.filter(e=>{
+    const txt=normalize(e.term+' '+e.category+' '+e.definition+' '+e.note);
+    const matchQ=!q||txt.includes(q);
+    const matchC=!cat||e.category===cat;
+    const matchL=!letter||normalize(e.term).startsWith(normalize(letter));
+    return matchQ&&matchC&&matchL;
+  });
+  $('#visibleCount').textContent=filtered.length;
+  const root=$('#glosario');root.innerHTML='';
+  if(!filtered.length){
+    root.innerHTML='<div class="empty">No hay términos que coincidan con los filtros.</div>';return;
+  }
+  for(const e of filtered){
+    const art=document.createElement('article');art.className='entry';
+    art.innerHTML=`<span class="cat">${e.category}</span><h2>${e.term}</h2><p>${e.definition}</p><div class="note">${e.note}</div>`;
+    root.appendChild(art);
+  }
+}
+function buildAlpha(){
+  const letters=[...new Set(DATA.map(e=>normalize(e.term)[0].toUpperCase()))].sort();
+  const root=$('#alpha');
+  const all=document.createElement('button');all.textContent='Todos';all.onclick=()=>{delete document.body.dataset.letter;render()};root.appendChild(all);
+  for(const l of letters){
+    const b=document.createElement('button');b.textContent=l;b.onclick=()=>{document.body.dataset.letter=l;render()};root.appendChild(b);
+  }
+}
+$('#search').oninput=render;$('#category').onchange=render;
+$('#clear').onclick=()=>{$('#search').value='';$('#category').value='';delete document.body.dataset.letter;render()};
+
+let current=null;
+function newQuiz(){
+  current=DATA[Math.floor(Math.random()*DATA.length)];
+  $('#quizDefinition').textContent=current.definition;
+  $('#quizAnswer').classList.remove('show');
+  $('#quizAnswer').textContent='';
+}
+$('#newQuiz').onclick=newQuiz;
+$('#showAnswer').onclick=()=>{
+  if(!current)newQuiz();
+  $('#quizAnswer').innerHTML=`<strong>${current.term}</strong> · ${current.category}<br>${current.note}`;
+  $('#quizAnswer').classList.add('show');
+};
+
+buildAlpha();render();newQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Esteganografía en audio</title>
+<meta name="description" content="Laboratorio interactivo de esteganografía en audio: LSB sobre muestras PCM, forma de onda, espectro didáctico, phase coding y echo hiding conceptual.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.25rem,6vw,4.8rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+textarea,select,input,button{font:inherit}
+textarea,select,input[type=text],input[type=number]{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:10px 11px}
+textarea{min-height:110px;resize:vertical}
+input[type=range]{width:100%}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#02080d}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;background:#06121f;border:1px solid var(--line);border-radius:16px;padding:14px;min-height:92px;color:#d9efff}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.35rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Esteganografía en audio</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#pcm">PCM + LSB</a>
+    <a href="#forma">Forma de onda</a>
+    <a href="#phase">Fase</a>
+    <a href="#echo">Eco</a>
+    <a href="#robustez">Robustez</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio interactivo · Señales digitales</div>
+  <h1>Esteganografía en audio: muestras, fase y eco</h1>
+  <p>
+    El audio digital también puede transportar información oculta. Este laboratorio trabaja con una señal PCM
+    sintética y permite experimentar con LSB sobre muestras de 16 bits, observar la forma de onda y estudiar
+    de forma conceptual dos familias clásicas: <em>phase coding</em> y <em>echo hiding</em>.
+  </p>
+  <div class="pills">
+    <span class="pill">PCM 16 bits</span>
+    <span class="pill">LSB por muestra</span>
+    <span class="pill">Forma de onda</span>
+    <span class="pill">SNR</span>
+    <span class="pill">Phase coding conceptual</span>
+    <span class="pill">Echo hiding conceptual</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Idea central</div>
+  <h2>El oído y el análisis de señal observan cosas diferentes</h2>
+  <div class="two-col">
+    <div class="note">
+      Un cambio mínimo en una muestra de 16 bits puede resultar inaudible, del mismo modo que un cambio de ±1 en un canal RGB suele ser invisible.
+    </div>
+    <div class="note">
+      Pero una señal que parece idéntica puede revelar patrones cuando se estudian sus muestras, su energía, su espectro o la estructura temporal.
+    </div>
+  </div>
+</article>
+
+<article class="card full" id="pcm">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Generar una señal PCM de prueba</h2>
+  <div class="controls">
+    <div class="control"><label>Frecuencia base</label>
+      <input id="freq" type="range" min="220" max="1200" value="440">
+      <div class="muted"><span id="freqLabel">440</span> Hz</div>
+    </div>
+    <div class="control"><label>Duración</label>
+      <select id="duration">
+        <option value="1">1 s</option>
+        <option value="2" selected>2 s</option>
+        <option value="3">3 s</option>
+      </select>
+    </div>
+    <div class="control"><label>Frecuencia de muestreo</label>
+      <select id="sr">
+        <option value="8000">8 kHz</option>
+        <option value="16000" selected>16 kHz</option>
+        <option value="22050">22,05 kHz</option>
+      </select>
+    </div>
+    <div class="control"><label>Acción</label><button id="generate">Generar audio</button></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="samples">0</strong><span>muestras</span></div>
+    <div class="metric"><strong id="capacity">0</strong><span>bytes LSB disponibles</span></div>
+    <div class="metric"><strong id="sampleRate">—</strong><span>Hz</span></div>
+    <div class="metric"><strong id="durationOut">—</strong><span>duración</span></div>
+    <div class="metric"><strong id="peak">—</strong><span>pico PCM</span></div>
+    <div class="metric"><strong id="rms">—</strong><span>RMS</span></div>
+  </div>
+  <div class="actions">
+    <button id="playOriginal" class="secondary">▶ Reproducir original</button>
+    <button id="downloadOriginal" class="secondary">Descargar WAV original</button>
+  </div>
+  <div id="signalStatus" class="status">Se generará una señal compuesta por varios tonos suaves.</div>
+</article>
+
+<article class="card full" id="forma">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Ocultamiento LSB sobre muestras PCM</h2>
+  <div class="controls">
+    <div class="control"><label>Mensaje secreto</label>
+      <textarea id="message">audio oculto</textarea>
+    </div>
+    <div class="control"><label>Profundidad</label>
+      <select id="depth">
+        <option value="1" selected>1 LSB por muestra</option>
+        <option value="2">2 LSB por muestra</option>
+      </select>
+    </div>
+  </div>
+  <div class="actions">
+    <button id="embed">Insertar mensaje</button>
+    <button id="extract" class="secondary">Extraer mensaje</button>
+    <button id="playStego" class="secondary">▶ Reproducir estego</button>
+    <button id="downloadStego" class="secondary">Descargar WAV estego</button>
+  </div>
+  <div class="control" style="margin-top:12px"><label>Mensaje recuperado</label><textarea id="recovered" readonly></textarea></div>
+  <div class="two-col">
+    <div><label>Forma de onda original</label><div class="canvas-wrap"><canvas id="waveO" width="640" height="240"></canvas></div></div>
+    <div><label>Forma de onda estego</label><div class="canvas-wrap"><canvas id="waveS" width="640" height="240"></canvas></div></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="usedBytes">0</strong><span>bytes ocultos</span></div>
+    <div class="metric"><strong id="changedSamples">0</strong><span>muestras cambiadas</span></div>
+    <div class="metric"><strong id="changedPct">0%</strong><span>muestras cambiadas</span></div>
+    <div class="metric"><strong id="mse">0</strong><span>MSE</span></div>
+    <div class="metric"><strong id="snr">∞</strong><span>SNR dB</span></div>
+    <div class="metric"><strong id="maxDelta">0</strong><span>Δ máximo</span></div>
+  </div>
+  <div id="lsbStatus" class="status">La cabecera incluye longitud y suma de verificación didáctica.</div>
+</article>
+
+<article class="card full">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Microscopio de muestras</h2>
+  <p class="muted">Se muestran las primeras muestras alteradas y sus representaciones binarias de 16 bits.</p>
+  <div class="actions"><button id="inspect" class="secondary">Inspeccionar cambios</button></div>
+  <div id="sampleInspect" class="codebox"></div>
+</article>
+
+<article class="card full" id="phase">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Phase coding: intuición didáctica</h2>
+  <p class="muted">
+    La idea general consiste en modificar relaciones de fase para representar información. Aquí no se implementa
+    un esquema operativo de codificación por fase; se visualiza cómo dos ondas de igual frecuencia y amplitud
+    pueden diferir solo por un desplazamiento de fase.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Fase A</label>
+      <input id="phaseA" type="range" min="0" max="360" value="0">
+      <div class="muted"><span id="phaseALabel">0</span>°</div>
+    </div>
+    <div class="control"><label>Fase B</label>
+      <input id="phaseB" type="range" min="0" max="360" value="90">
+      <div class="muted"><span id="phaseBLabel">90</span>°</div>
+    </div>
+  </div>
+  <div class="canvas-wrap"><canvas id="phaseCanvas" width="900" height="260"></canvas></div>
+  <div class="note" style="margin-top:12px">
+    Dos señales con igual amplitud y frecuencia pueden tener distinta fase. Un sistema de ocultamiento puede aprovechar
+    variaciones controladas, pero la robustez y la detectabilidad dependen del diseño y del procesamiento posterior.
+  </div>
+</article>
+
+<article class="card full" id="echo">
+  <div class="eyebrow">Estación 5</div>
+  <h2>Echo hiding: representar bits con retardos diferentes</h2>
+  <p class="muted">
+    En una demostración conceptual, un bit puede asociarse a un retardo corto y otro a un retardo ligeramente distinto.
+    El laboratorio permite visualizar la correlación entre la señal original y dos ecos simulados.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Retardo para bit 0</label>
+      <input id="echo0" type="range" min="2" max="20" value="6">
+      <div class="muted"><span id="echo0Label">6</span> ms</div>
+    </div>
+    <div class="control"><label>Retardo para bit 1</label>
+      <input id="echo1" type="range" min="5" max="30" value="12">
+      <div class="muted"><span id="echo1Label">12</span> ms</div>
+    </div>
+    <div class="control"><label>Atenuación del eco</label>
+      <input id="echoGain" type="range" min="5" max="40" value="18">
+      <div class="muted"><span id="echoGainLabel">18</span>%</div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div><label>Correlación para retardo bit 0</label><div class="canvas-wrap"><canvas id="echoCanvas0" width="600" height="220"></canvas></div></div>
+    <div><label>Correlación para retardo bit 1</label><div class="canvas-wrap"><canvas id="echoCanvas1" width="600" height="220"></canvas></div></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="corr0">—</strong><span>correlación retardo 0</span></div>
+    <div class="metric"><strong id="corr1">—</strong><span>correlación retardo 1</span></div>
+    <div class="metric"><strong id="delaySamples0">—</strong><span>muestras retardo 0</span></div>
+    <div class="metric"><strong id="delaySamples1">—</strong><span>muestras retardo 1</span></div>
+  </div>
+</article>
+
+<article class="card full" id="robustez">
+  <div class="eyebrow">Estación 6</div>
+  <h2>Robustez del canal LSB</h2>
+  <p class="muted">Aplicá transformaciones simples a la copia estego y verificá si el mensaje todavía puede extraerse.</p>
+  <div class="actions">
+    <button id="noise" class="warn">Agregar ruido muy leve</button>
+    <button id="quantize" class="warn">Reducir precisión</button>
+    <button id="gain" class="warn">Cambiar ganancia</button>
+    <button id="restore" class="secondary">Restaurar estego</button>
+  </div>
+  <div id="robustStatus" class="status">El canal LSB sobre PCM es especialmente sensible a transformaciones de la señal.</div>
+</article>
+
+<article class="card third">
+  <h2>Qué demuestra</h2>
+  <ol class="steps">
+    <li>Las muestras PCM pueden transportar bits en sus posiciones menos significativas.</li>
+    <li>La alteración puede ser prácticamente inaudible.</li>
+    <li>El canal puede ser destruido por procesamiento posterior.</li>
+    <li>Fase y eco ofrecen dominios alternativos de ocultamiento.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Comparación</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Técnica</th><th>Capacidad</th><th>Robustez</th></tr>
+      <tr><td>LSB PCM</td><td>Alta</td><td>Baja</td></tr>
+      <tr><td>Phase coding</td><td>Menor</td><td>Dependiente del diseño</td></tr>
+      <tr><td>Echo hiding</td><td>Menor</td><td>Puede tolerar algunas operaciones</td></tr>
+    </table>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Siguiente material</h2>
+  <p class="muted">
+    El próximo laboratorio abordará <strong>ocultamiento en sistemas de archivos y formatos</strong>:
+    metadatos, EOF, slack space y ADS de NTFS mediante modelos forenses seguros.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo. Phase coding y echo hiding se presentan de forma conceptual y no como herramientas operativas.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const te=new TextEncoder(),td=new TextDecoder();
+let sr=16000, original=null, stego=null, lastStego=null;
+const HEADER_BYTES=8; // 4 longitud + 4 checksum simple
+
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function checksum(bytes){let x=0;for(const b of bytes)x=(x*131+b)>>>0;return x}
+function bytesToBits(bytes){const out=[];for(const b of bytes)for(let i=7;i>=0;i--)out.push((b>>i)&1);return out}
+function bitsToBytes(bits){
+  const n=Math.floor(bits.length/8),out=new Uint8Array(n);
+  for(let i=0;i<n;i++){let v=0;for(let j=0;j<8;j++)v=(v<<1)|(bits[i*8+j]||0);out[i]=v}
+  return out
+}
+function header(payload){
+  const h=new Uint8Array(HEADER_BYTES),dv=new DataView(h.buffer);
+  dv.setUint32(0,payload.length,false);dv.setUint32(4,checksum(payload),false);return h;
+}
+function parseHeader(h){const dv=new DataView(h.buffer,h.byteOffset,h.byteLength);return {len:dv.getUint32(0,false),sum:dv.getUint32(4,false)}}
+function updateLabels(){
+  $('#freqLabel').textContent=$('#freq').value;
+  $('#phaseALabel').textContent=$('#phaseA').value;$('#phaseBLabel').textContent=$('#phaseB').value;
+  $('#echo0Label').textContent=$('#echo0').value;$('#echo1Label').textContent=$('#echo1').value;$('#echoGainLabel').textContent=$('#echoGain').value;
+}
+for(const id of ['#freq','#phaseA','#phaseB','#echo0','#echo1','#echoGain'])$(id).addEventListener('input',()=>{updateLabels();drawPhase();drawEcho()});
+
+function generate(){
+  sr=Number($('#sr').value);const dur=Number($('#duration').value),f=Number($('#freq').value),n=sr*dur;
+  original=new Int16Array(n);
+  for(let i=0;i<n;i++){
+    const t=i/sr;
+    const s=.58*Math.sin(2*Math.PI*f*t)+.20*Math.sin(2*Math.PI*(f*1.5)*t)+.10*Math.sin(2*Math.PI*(f*.5)*t);
+    original[i]=Math.max(-32767,Math.min(32767,Math.round(s*24000)));
+  }
+  stego=new Int16Array(original);lastStego=null;
+  $('#samples').textContent=n.toLocaleString('es-AR');$('#capacity').textContent=Math.max(0,Math.floor((n-HEADER_BYTES*8)*Number($('#depth').value)/8)).toLocaleString('es-AR');
+  $('#sampleRate').textContent=sr.toLocaleString('es-AR');$('#durationOut').textContent=dur+' s';
+  let peak=0,sum=0;for(const v of original){peak=Math.max(peak,Math.abs(v));sum+=v*v}
+  $('#peak').textContent=peak;$('#rms').textContent=Math.sqrt(sum/n).toFixed(0);
+  $('#usedBytes').textContent='0';$('#recovered').value='';
+  drawWave($('#waveO'),original);drawWave($('#waveS'),stego);updateMetrics();
+  st($('#signalStatus'),'Señal PCM generada localmente. Ya podés reproducirla o usarla como portadora.','good');
+}
+$('#generate').onclick=generate;
+$('#depth').onchange=()=>{
+  if(original)$('#capacity').textContent=Math.max(0,Math.floor((original.length-HEADER_BYTES*8)*Number($('#depth').value)/8)).toLocaleString('es-AR');
+};
+
+function drawWave(canvas,data){
+  if(!data)return;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  ctx.strokeStyle='#4be3ff';ctx.beginPath();
+  const step=Math.max(1,Math.floor(data.length/W));
+  for(let x=0;x<W;x++){
+    const idx=Math.min(data.length-1,x*step),y=H/2-(data[idx]/32768)*(H*.42);
+    if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+}
+function writeBits(target,bits,depth,offsetSamples){
+  let c=0,mask=~((1<<depth)-1);
+  for(let i=offsetSamples;i<target.length&&c<bits.length;i++){
+    let v=0;for(let k=0;k<depth;k++)v=(v<<1)|(bits[c++]??0);
+    target[i]=(target[i]&mask)|v;
+  }
+  if(c<bits.length)throw new Error('Capacidad insuficiente.');
+}
+function readBits(target,count,depth,offsetSamples){
+  const out=[],mask=(1<<depth)-1;
+  for(let i=offsetSamples;i<target.length&&out.length<count;i++){
+    const v=target[i]&mask;for(let k=depth-1;k>=0;k--)out.push((v>>k)&1);
+  }
+  if(out.length<count)throw new Error('Audio insuficiente para el payload declarado.');
+  return out.slice(0,count);
+}
+function embed(){
+  try{
+    if(!original)throw new Error('Generá primero la señal.');
+    const payload=te.encode($('#message').value),depth=Number($('#depth').value);
+    const capacity=Math.floor((original.length-HEADER_BYTES*8)*depth/8);
+    if(payload.length>capacity)throw new Error(`Mensaje demasiado grande. Capacidad: ${capacity} bytes.`);
+    stego=new Int16Array(original);
+    writeBits(stego,bytesToBits(header(payload)),1,0);
+    writeBits(stego,bytesToBits(payload),depth,HEADER_BYTES*8);
+    lastStego=new Int16Array(stego);
+    $('#usedBytes').textContent=payload.length;drawWave($('#waveS'),stego);updateMetrics();
+    st($('#lsbStatus'),`Mensaje insertado: ${payload.length} bytes usando ${depth} LSB por muestra.`,'good');
+  }catch(e){st($('#lsbStatus'),e.message,'bad')}
+}
+$('#embed').onclick=embed;
+
+function extract(){
+  try{
+    if(!stego)throw new Error('No hay señal estego.');
+    const h=bitsToBytes(readBits(stego,HEADER_BYTES*8,1,0)),meta=parseHeader(h),depth=Number($('#depth').value);
+    const payload=bitsToBytes(readBits(stego,meta.len*8,depth,HEADER_BYTES*8));
+    const ok=checksum(payload)===meta.sum;
+    $('#recovered').value=td.decode(payload);
+    st($('#lsbStatus'),ok?'Mensaje recuperado y checksum correcto.':'Mensaje recuperado, pero el checksum indica corrupción.',ok?'good':'warn');
+  }catch(e){$('#recovered').value='';st($('#lsbStatus'),e.message,'bad')}
+}
+$('#extract').onclick=extract;
+
+function updateMetrics(){
+  if(!original||!stego)return;
+  let changed=0,se=0,signal=0,maxd=0;
+  for(let i=0;i<original.length;i++){
+    const d=original[i]-stego[i];if(d!==0)changed++;se+=d*d;signal+=original[i]*original[i];maxd=Math.max(maxd,Math.abs(d));
+  }
+  const mse=se/original.length,snr=mse===0?Infinity:10*Math.log10((signal/original.length)/mse);
+  $('#changedSamples').textContent=changed.toLocaleString('es-AR');$('#changedPct').textContent=(100*changed/original.length).toFixed(3)+'%';
+  $('#mse').textContent=mse.toFixed(4);$('#snr').textContent=isFinite(snr)?snr.toFixed(2):'∞';$('#maxDelta').textContent=maxd;
+}
+function pcmToWav(samples,sampleRate){
+  const buffer=new ArrayBuffer(44+samples.length*2),view=new DataView(buffer);
+  const write=(off,s)=>{for(let i=0;i<s.length;i++)view.setUint8(off+i,s.charCodeAt(i))};
+  write(0,'RIFF');view.setUint32(4,36+samples.length*2,true);write(8,'WAVE');write(12,'fmt ');
+  view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,sampleRate,true);
+  view.setUint32(28,sampleRate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);write(36,'data');view.setUint32(40,samples.length*2,true);
+  let o=44;for(const s of samples){view.setInt16(o,s,true);o+=2}return new Blob([buffer],{type:'audio/wav'})
+}
+function play(samples){
+  if(!samples)return;
+  const url=URL.createObjectURL(pcmToWav(samples,sr)),a=new Audio(url);a.onended=()=>URL.revokeObjectURL(url);a.play();
+}
+function download(samples,name){
+  if(!samples)return;
+  const a=document.createElement('a');a.href=URL.createObjectURL(pcmToWav(samples,sr));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+$('#playOriginal').onclick=()=>play(original);$('#playStego').onclick=()=>play(stego);
+$('#downloadOriginal').onclick=()=>download(original,'audio-original.wav');$('#downloadStego').onclick=()=>download(stego,'audio-estego.wav');
+
+$('#inspect').onclick=()=>{
+  if(!original||!stego)return;
+  const lines=[];let count=0;
+  for(let i=0;i<original.length&&count<16;i++){
+    if(original[i]!==stego[i]){
+      const a=(original[i]&0xFFFF).toString(2).padStart(16,'0'),b=(stego[i]&0xFFFF).toString(2).padStart(16,'0');
+      lines.push(`#${i}  ${original[i]} -> ${stego[i]}
+ original: ${a}
+ estego:   ${b}
+ Δ = ${stego[i]-original[i]}`);
+      count++;
+    }
+  }
+  $('#sampleInspect').textContent=lines.length?lines.join('\n\n'):'No hay muestras modificadas.';
+};
+
+function drawPhase(){
+  const c=$('#phaseCanvas'),ctx=c.getContext('2d'),W=c.width,H=c.height;
+  const pA=Number($('#phaseA').value)*Math.PI/180,pB=Number($('#phaseB').value)*Math.PI/180;
+  ctx.clearRect(0,0,W,H);ctx.strokeStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  const draw=(phase,color)=>{
+    ctx.strokeStyle=color;ctx.beginPath();
+    for(let x=0;x<W;x++){const t=x/W*4*Math.PI,y=H/2-Math.sin(t+phase)*H*.34;if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke();
+  };
+  draw(pA,'#4be3ff');draw(pB,'#ffd166');
+}
+function corrAtDelay(data,delay){
+  if(!data||delay<=0||delay>=data.length)return 0;
+  let ab=0,aa=0,bb=0;
+  for(let i=delay;i<data.length;i+=Math.max(1,Math.floor(data.length/4000))){
+    const a=data[i],b=data[i-delay];ab+=a*b;aa+=a*a;bb+=b*b;
+  }
+  return ab/Math.sqrt((aa||1)*(bb||1));
+}
+function drawEcho(){
+  if(!original)return;
+  const d0=Math.max(1,Math.round(sr*Number($('#echo0').value)/1000)),d1=Math.max(1,Math.round(sr*Number($('#echo1').value)/1000));
+  $('#delaySamples0').textContent=d0;$('#delaySamples1').textContent=d1;
+  $('#corr0').textContent=corrAtDelay(original,d0).toFixed(3);$('#corr1').textContent=corrAtDelay(original,d1).toFixed(3);
+  const render=(canvas,delay)=>{
+    const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+    const maxLag=Math.round(sr*.035),step=Math.max(1,Math.floor(maxLag/W));
+    ctx.strokeStyle='#4be3ff';ctx.beginPath();
+    for(let x=0;x<W;x++){const lag=Math.min(maxLag-1,x*step+1),c=corrAtDelay(original,lag),y=H-10-c*(H-25);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+    ctx.stroke();
+    const px=Math.min(W-1,delay/Math.max(1,maxLag)*W);ctx.strokeStyle='#ffd166';ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,H);ctx.stroke();
+  };
+  render($('#echoCanvas0'),d0);render($('#echoCanvas1'),d1);
+}
+
+$('#noise').onclick=()=>{
+  if(!stego)return;
+  for(let i=0;i<stego.length;i++)stego[i]=Math.max(-32768,Math.min(32767,stego[i]+(Math.random()<.5?-1:1)));
+  drawWave($('#waveS'),stego);updateMetrics();st($('#robustStatus'),'Se agregó ruido de ±1 muestra. Intentá extraer nuevamente.','warn');
+};
+$('#quantize').onclick=()=>{
+  if(!stego)return;
+  for(let i=0;i<stego.length;i++)stego[i]=Math.round(stego[i]/8)*8;
+  drawWave($('#waveS'),stego);updateMetrics();st($('#robustStatus'),'Se redujo la precisión de las muestras. Los LSB se destruyen en gran medida.','warn');
+};
+$('#gain').onclick=()=>{
+  if(!stego)return;
+  for(let i=0;i<stego.length;i++)stego[i]=Math.max(-32768,Math.min(32767,Math.round(stego[i]*.97)));
+  drawWave($('#waveS'),stego);updateMetrics();st($('#robustStatus'),'Se aplicó una ganancia de 0,97. Esto altera los bits menos significativos.','warn');
+};
+$('#restore').onclick=()=>{
+  if(lastStego){stego=new Int16Array(lastStego);drawWave($('#waveS'),stego);updateMetrics();st($('#robustStatus'),'Se restauró la última señal estego válida.','good')}
+};
+
+updateLabels();
+generate();
+drawPhase();
+drawEcho();
+</script>
+</body>
+</html>

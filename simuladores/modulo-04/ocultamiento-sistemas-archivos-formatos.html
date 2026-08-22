@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Ocultamiento en sistemas de archivos y formatos</title>
+<meta name="description" content="Laboratorio forense seguro sobre metadatos, bytes posteriores a EOF, slack space y flujos alternativos simulados.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.2rem,6vw,4.7rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+textarea,select,input,button{font:inherit}
+textarea,select,input[type=text],input[type=number],input[type=file]{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:10px 11px}
+textarea{min-height:110px;resize:vertical}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;background:#06121f;border:1px solid var(--line);border-radius:16px;padding:14px;min-height:92px;color:#d9efff;max-height:320px;overflow:auto}
+.byte{display:inline-block;padding:2px 4px;margin:1px;border-radius:5px}
+.byte.header{background:rgba(75,227,255,.13)}
+.byte.data{background:rgba(124,240,176,.10)}
+.byte.hidden{background:rgba(255,209,102,.15);outline:1px solid rgba(255,209,102,.35)}
+.byte.slack{background:rgba(255,126,150,.12)}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.3rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Sistemas de archivos y formatos</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#metadatos">Metadatos</a>
+    <a href="#eof">EOF</a>
+    <a href="#slack">Slack space</a>
+    <a href="#ads">ADS simulado</a>
+    <a href="#forense">Forensia</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio forense seguro · Modelos de almacenamiento</div>
+  <h1>Ocultamiento en sistemas de archivos y formatos</h1>
+  <p>
+    No toda información oculta vive dentro de píxeles o muestras de audio. Los formatos de archivo,
+    los metadatos y la forma en que un sistema asigna espacio también pueden crear lugares donde
+    aparezcan datos que una lectura superficial no muestra.
+  </p>
+  <div class="pills">
+    <span class="pill">Metadatos</span>
+    <span class="pill">Bytes posteriores a EOF</span>
+    <span class="pill">Slack space</span>
+    <span class="pill">ADS conceptual</span>
+    <span class="pill">Vista hexadecimal</span>
+    <span class="pill">Análisis forense</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Principio</div>
+  <h2>El archivo lógico y el almacenamiento físico no siempre coinciden</h2>
+  <div class="two-col">
+    <div class="note">
+      Un formato define qué partes interpreta una aplicación. Pueden existir bytes o campos que no se muestran en la vista normal del contenido.
+    </div>
+    <div class="note">
+      Este laboratorio utiliza estructuras virtuales en memoria. No crea flujos ocultos reales del sistema operativo ni modifica áreas físicas del disco.
+    </div>
+  </div>
+</article>
+
+<article class="card full" id="metadatos">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Metadatos: información que acompaña al contenido</h2>
+  <div class="controls">
+    <div class="control"><label>Nombre del archivo</label><input id="metaName" type="text" value="informe.txt"></div>
+    <div class="control"><label>Autor</label><input id="metaAuthor" type="text" value="Sergio"></div>
+    <div class="control"><label>Comentario</label><input id="metaComment" type="text" value="Documento de práctica"></div>
+  </div>
+  <div class="actions">
+    <button id="buildMetadata">Construir objeto</button>
+    <button id="stripMetadata" class="warn">Eliminar metadatos</button>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Contenido visible</label><textarea id="metaContent">Este es el contenido visible del archivo.</textarea></div>
+    <div><label>Representación estructurada</label><div id="metaJson" class="codebox"></div></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="metaFields">0</strong><span>campos de metadatos</span></div>
+    <div class="metric"><strong id="metaBytes">0</strong><span>bytes aproximados</span></div>
+    <div class="metric"><strong id="contentBytes">0</strong><span>bytes de contenido</span></div>
+    <div class="metric"><strong id="metadataRatio">0%</strong><span>metadatos/contenido</span></div>
+  </div>
+  <div id="metaStatus" class="status">Los metadatos pueden ser legítimos, útiles y visibles para herramientas forenses aunque una aplicación no los muestre.</div>
+</article>
+
+<article class="card full" id="eof">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Modelo de bytes posteriores al fin lógico</h2>
+  <p class="muted">
+    Algunos formatos o aplicaciones dejan de interpretar el archivo al alcanzar un marcador lógico.
+    En este modelo virtual se distinguen cabecera, contenido, marcador EOF y bytes adicionales.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Contenido lógico</label><input id="eofContent" type="text" value="DATOS_VISIBLES"></div>
+    <div class="control"><label>Texto adicional simulado</label><input id="eofHidden" type="text" value="NOTA_POSTERIOR"></div>
+    <div class="control"><label>Acción</label><button id="buildEof">Construir archivo virtual</button></div>
+  </div>
+  <div id="hexView" class="codebox"></div>
+  <div class="metrics" style="grid-template-columns:repeat(5,1fr)">
+    <div class="metric"><strong id="logicalSize">0</strong><span>tamaño lógico</span></div>
+    <div class="metric"><strong id="physicalSize">0</strong><span>tamaño total virtual</span></div>
+    <div class="metric"><strong id="postEofBytes">0</strong><span>bytes post-EOF</span></div>
+    <div class="metric"><strong id="eofOffset">—</strong><span>offset EOF</span></div>
+    <div class="metric"><strong id="eofAlert">—</strong><span>alerta</span></div>
+  </div>
+  <div id="eofStatus" class="status">La vista hexadecimal permite observar bytes que una lectura lógica podría ignorar.</div>
+</article>
+
+<article class="card full" id="slack">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Slack space: diferencia entre tamaño lógico y espacio asignado</h2>
+  <p class="muted">
+    Un sistema de archivos suele asignar espacio en unidades discretas. Si un archivo no ocupa completamente
+    su última unidad, queda una zona no utilizada por el contenido lógico.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Tamaño lógico del archivo</label><input id="fileSize" type="number" min="1" value="6500"></div>
+    <div class="control"><label>Tamaño de bloque</label>
+      <select id="clusterSize">
+        <option value="1024">1 KiB</option>
+        <option value="2048">2 KiB</option>
+        <option value="4096" selected>4 KiB</option>
+        <option value="8192">8 KiB</option>
+      </select>
+    </div>
+    <div class="control"><label>Acción</label><button id="calcSlack">Calcular</button></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(5,1fr)">
+    <div class="metric"><strong id="clusters">—</strong><span>bloques asignados</span></div>
+    <div class="metric"><strong id="allocated">—</strong><span>bytes asignados</span></div>
+    <div class="metric"><strong id="slackBytes">—</strong><span>slack bytes</span></div>
+    <div class="metric"><strong id="slackPct">—</strong><span>% del último bloque</span></div>
+    <div class="metric"><strong id="slackVisual">—</strong><span>representación</span></div>
+  </div>
+  <div class="codebox" id="clusterMap"></div>
+  <div class="note" style="margin-top:12px">
+    En esta simulación el slack se representa como espacio no utilizado. No se accede al almacenamiento físico real.
+  </div>
+</article>
+
+<article class="card full" id="ads">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Flujos alternativos: modelo conceptual de un archivo con más de un flujo</h2>
+  <p class="muted">
+    Algunos sistemas de archivos permiten asociar varios flujos de datos a una misma entrada.
+    Aquí se representa la idea con un contenedor virtual, sin crear ADS reales.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Flujo principal</label><textarea id="mainStream">Contenido principal visible.</textarea></div>
+    <div class="control"><label>Flujo alternativo simulado</label><textarea id="altStream">Datos asociados al flujo alternativo.</textarea></div>
+  </div>
+  <div class="actions">
+    <button id="buildAds">Construir contenedor virtual</button>
+    <button id="scanAds" class="secondary">Analizar flujos</button>
+  </div>
+  <div id="adsJson" class="codebox"></div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="streamCount">—</strong><span>flujos</span></div>
+    <div class="metric"><strong id="mainBytes">—</strong><span>bytes principal</span></div>
+    <div class="metric"><strong id="altBytes">—</strong><span>bytes alternativo</span></div>
+    <div class="metric"><strong id="adsVerdict">—</strong><span>resultado de análisis</span></div>
+  </div>
+  <div id="adsStatus" class="status">Un análisis forense debe enumerar estructuras y no asumir que “lo visible” agota todo el contenido asociado.</div>
+</article>
+
+<article class="card full" id="forense">
+  <div class="eyebrow">Estación 5</div>
+  <h2>Checklist forense de formatos y almacenamiento</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pregunta</th><th>Indicador</th><th>Lectura del laboratorio</th></tr></thead>
+      <tbody>
+        <tr><td>¿Hay metadatos?</td><td>Campos adicionales a contenido</td><td id="fMeta">—</td></tr>
+        <tr><td>¿Hay bytes post-EOF?</td><td>Tamaño físico > tamaño lógico</td><td id="fEof">—</td></tr>
+        <tr><td>¿Existe slack?</td><td>Asignado > lógico</td><td id="fSlack">—</td></tr>
+        <tr><td>¿Hay múltiples flujos?</td><td>Más de una secuencia asociada</td><td id="fAds">—</td></tr>
+        <tr><td>¿Hay anomalías suficientes?</td><td>Combinación de señales</td><td id="fVerdict">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="actions"><button id="runForensic">Ejecutar revisión</button></div>
+  <div id="forensicStatus" class="status">La presencia de una estructura poco común no implica automáticamente intención maliciosa.</div>
+</article>
+
+<article class="card third">
+  <h2>Qué demuestra</h2>
+  <ol class="steps">
+    <li>El contenido visible es solo una parte de la estructura de un archivo.</li>
+    <li>Metadatos y estructuras auxiliares pueden contener información adicional.</li>
+    <li>El tamaño asignado puede exceder al tamaño lógico.</li>
+    <li>La inspección forense debe mirar estructura, offsets y flujos.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Uso responsable</h2>
+  <p class="muted">
+    El laboratorio modela técnicas desde una perspectiva de análisis defensivo.
+    No implementa escritura directa en slack space ni creación de ADS reales.
+  </p>
+</article>
+
+<article class="card third">
+  <h2>Siguiente material</h2>
+  <p class="muted">
+    El próximo laboratorio será <strong>canales encubiertos en protocolos de comunicación</strong>:
+    tiempos, tamaños, campos y orden de paquetes mediante una simulación totalmente local.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo y defensivo. Todos los modelos de almacenamiento operan únicamente en memoria del navegador.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), te=new TextEncoder();
+let state={meta:null,eof:null,slack:null,ads:null};
+
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function hex(n){return n.toString(16).toUpperCase().padStart(2,'0')}
+
+function buildMetadata(){
+  const meta={
+    name:$('#metaName').value,
+    author:$('#metaAuthor').value,
+    comment:$('#metaComment').value,
+    created:"2026-08-17",
+    content:$('#metaContent').value
+  };
+  state.meta=meta;
+  $('#metaJson').textContent=JSON.stringify(meta,null,2);
+  const metaOnly={...meta};delete metaOnly.content;
+  const mb=te.encode(JSON.stringify(metaOnly)).length, cb=te.encode(meta.content).length;
+  $('#metaFields').textContent=Object.keys(metaOnly).length;
+  $('#metaBytes').textContent=mb;$('#contentBytes').textContent=cb;
+  $('#metadataRatio').textContent=cb?((mb/cb)*100).toFixed(1)+'%':'—';
+  st($('#metaStatus'),'Objeto construido. Observá que los metadatos existen además del contenido visible.','good');
+}
+$('#buildMetadata').onclick=buildMetadata;
+$('#stripMetadata').onclick=()=>{
+  if(!state.meta)buildMetadata();
+  const clean={content:state.meta.content};
+  state.meta=clean;$('#metaJson').textContent=JSON.stringify(clean,null,2);
+  $('#metaFields').textContent='0';$('#metaBytes').textContent='0';
+  st($('#metaStatus'),'Metadatos eliminados del modelo; se conserva el contenido lógico.','warn');
+};
+
+function buildEof(){
+  const header=te.encode("VFILE1");
+  const data=te.encode($('#eofContent').value);
+  const eof=new Uint8Array([0x1A,0x04,0x00,0xFF]); // marcador didáctico
+  const hidden=te.encode($('#eofHidden').value);
+  const all=new Uint8Array(header.length+data.length+eof.length+hidden.length);
+  let o=0;all.set(header,o);o+=header.length;all.set(data,o);o+=data.length;const eofOffset=o;all.set(eof,o);o+=eof.length;all.set(hidden,o);
+  state.eof={header,data,eof,hidden,all,eofOffset,logical:header.length+data.length+eof.length};
+  const spans=[];
+  for(let i=0;i<all.length;i++){
+    let cls='data';
+    if(i<header.length)cls='header';
+    else if(i>=state.eof.logical)cls='hidden';
+    spans.push(`<span class="byte ${cls}">${hex(all[i])}</span>`);
+  }
+  $('#hexView').innerHTML=spans.join(' ');
+  $('#logicalSize').textContent=state.eof.logical;
+  $('#physicalSize').textContent=all.length;
+  $('#postEofBytes').textContent=hidden.length;
+  $('#eofOffset').textContent=eofOffset;
+  $('#eofAlert').textContent=hidden.length?'REVISAR':'OK';
+  st($('#eofStatus'),hidden.length?`Se detectan ${hidden.length} bytes después del fin lógico del modelo.`:'No hay bytes posteriores al EOF.','warn');
+}
+$('#buildEof').onclick=buildEof;
+
+function calcSlack(){
+  const size=Math.max(1,Number($('#fileSize').value)||1),block=Number($('#clusterSize').value);
+  const clusters=Math.ceil(size/block),allocated=clusters*block,slack=allocated-size,lastUsed=size-(clusters-1)*block;
+  state.slack={size,block,clusters,allocated,slack};
+  $('#clusters').textContent=clusters;$('#allocated').textContent=allocated.toLocaleString('es-AR');
+  $('#slackBytes').textContent=slack.toLocaleString('es-AR');$('#slackPct').textContent=(100*slack/block).toFixed(1)+'%';
+  $('#slackVisual').textContent=`${lastUsed}/${block} usados`;
+  const lines=[];
+  for(let i=0;i<clusters;i++){
+    const used=i<clusters-1?block:lastUsed;
+    const cells=40,filled=Math.round(cells*used/block);
+    lines.push(`Bloque ${String(i+1).padStart(2,'0')}  [${'█'.repeat(filled)}${'·'.repeat(cells-filled)}]  ${used}/${block} bytes`);
+  }
+  $('#clusterMap').textContent=lines.join('\n');
+}
+$('#calcSlack').onclick=calcSlack;
+
+function buildAds(){
+  const obj={
+    entry:"documento_virtual.txt",
+    streams:{
+      "$DATA":$('#mainStream').value,
+      "notas":$('#altStream').value
+    }
+  };
+  state.ads=obj;$('#adsJson').textContent=JSON.stringify(obj,null,2);
+  $('#streamCount').textContent=Object.keys(obj.streams).length;
+  $('#mainBytes').textContent=te.encode(obj.streams["$DATA"]).length;
+  $('#altBytes').textContent=te.encode(obj.streams["notas"]).length;
+  $('#adsVerdict').textContent='pendiente';
+  st($('#adsStatus'),'Contenedor virtual construido. No se ha creado ningún flujo real en el sistema operativo.','good');
+}
+$('#buildAds').onclick=buildAds;
+$('#scanAds').onclick=()=>{
+  if(!state.ads)buildAds();
+  const count=Object.keys(state.ads.streams).length;
+  $('#adsVerdict').textContent=count>1?'MÚLTIPLES':'ÚNICO';
+  st($('#adsStatus'),count>1?`El analizador enumera ${count} flujos asociados a la entrada virtual.`:'Solo se detecta un flujo.','warn');
+};
+
+$('#runForensic').onclick=()=>{
+  const meta=state.meta && Object.keys(state.meta).some(k=>k!=='content');
+  const eof=state.eof && state.eof.hidden.length>0;
+  const slack=state.slack && state.slack.slack>0;
+  const ads=state.ads && Object.keys(state.ads.streams).length>1;
+  $('#fMeta').textContent=meta?'sí':'no';
+  $('#fEof').textContent=eof?'sí':'no';
+  $('#fSlack').textContent=slack?`${state.slack.slack} bytes`:'no';
+  $('#fAds').textContent=ads?'sí':'no';
+  const n=[meta,eof,slack,ads].filter(Boolean).length;
+  const verdict=n===0?'sin anomalías':n===1?'una señal':n===2?'varias señales':'estructura compleja';
+  $('#fVerdict').textContent=verdict;
+  st($('#forensicStatus'),
+    n<2?'Hay pocas señales estructurales. Recordá que esto no prueba ausencia de datos ocultos.':
+    'Se observan múltiples estructuras que justifican una inspección más profunda, sin que ello implique por sí solo intención maliciosa.',
+    n<2?'good':'warn');
+};
+
+buildMetadata();buildEof();calcSlack();buildAds();
+</script>
+</body>
+</html>

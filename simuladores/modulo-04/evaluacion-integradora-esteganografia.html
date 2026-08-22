@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Evaluación integradora corregida</title>
+<meta name="description" content="Evaluación integradora estática e interactiva de 40 preguntas sobre Esteganografía y Estegoanálisis.">
+<style>
+:root{--bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;--text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),linear-gradient(180deg,#06101c,#071421 46%,#06101c);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.shell{width:min(1180px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted)}
+.hero{padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));box-shadow:0 28px 70px rgba(0,0,0,.28)}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.2rem,6vw,4.6rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.panel{margin-top:18px;padding:20px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel))}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.22rem}.metric span{font-size:.74rem;color:var(--muted)}
+.progress{height:12px;background:#06121f;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:14px}
+.progress i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--good))}
+.questions{margin-top:18px;display:grid;gap:14px}
+.qcard{padding:20px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 12px 30px rgba(0,0,0,.16)}
+.qhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.qnum{font-size:.78rem;color:var(--accent);font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.block{font-size:.72rem;padding:5px 8px;border:1px solid var(--line);border-radius:999px;color:#cceafa;white-space:nowrap}
+.qcard h2{font-size:1.08rem;line-height:1.45;margin:.55em 0}
+.option{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:13px;margin:8px 0;background:#071827;cursor:pointer}
+.option:hover{border-color:#3a6488}
+.option input{margin-top:4px}
+.letter{display:inline-grid;place-items:center;width:24px;height:24px;border:1px solid var(--line);border-radius:50%;font-weight:900;color:var(--accent);flex:0 0 auto}
+.option.correct{border-color:rgba(124,240,176,.7);background:rgba(124,240,176,.07)}
+.option.wrong{border-color:rgba(255,126,150,.7);background:rgba(255,126,150,.07)}
+.solution{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.solution summary{cursor:pointer;color:var(--warn);font-weight:850}
+.solution .answer{margin-top:10px;padding:12px;border-left:4px solid var(--good);background:rgba(124,240,176,.06);border-radius:10px}
+.solution p{color:#d8f4ff;line-height:1.55}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+button{font:inherit;border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+.result{margin-top:14px;padding:16px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media print{body{background:#fff;color:#111}.topbar,.actions,.solution{display:none}.hero,.panel,.qcard{background:#fff;color:#111;box-shadow:none;border-color:#aaa}.option{background:#fff;border-color:#bbb}.footer{color:#444}}
+@media(max-width:850px){.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.metrics{grid-template-columns:1fr}.qhead{display:block}.block{display:inline-block;margin-top:6px}.hero h1{font-size:2.25rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Evaluación integradora</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a><a href="#preguntas">40 preguntas</a><a href="#clave">Clave</a></nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Archivo corregido · contenido visible sin depender de JavaScript</div>
+  <h1>Esteganografía y Estegoanálisis</h1>
+  <p>
+    Evaluación de 40 preguntas con opciones, respuesta correcta y explicación incorporadas directamente en el HTML.
+    Las preguntas permanecen visibles incluso si el navegador o la vista previa bloquean JavaScript.
+  </p>
+  <div class="pills"><span class="pill">40 preguntas</span><span class="pill">4 opciones por pregunta</span><span class="pill">40 respuestas explicadas</span><span class="pill">Clave final</span></div>
+</section>
+
+<section class="panel">
+  <div class="metrics">
+    <div class="metric"><strong>40</strong><span>preguntas</span></div>
+    <div class="metric"><strong id="answered">0</strong><span>respondidas</span></div>
+    <div class="metric"><strong id="correct">—</strong><span>correctas</span></div>
+    <div class="metric"><strong id="score">—</strong><span>puntaje / 100</span></div>
+  </div>
+  <div class="progress"><i id="progress"></i></div>
+  <div class="actions">
+    <button id="grade">Corregir evaluación</button>
+    <button id="reset" class="secondary">Reiniciar respuestas</button>
+    <button id="openAll" class="secondary">Abrir todas las explicaciones</button>
+  </div>
+  <div id="result" class="result">Seleccioná una opción en cada pregunta. También podés abrir individualmente “Ver respuesta correcta y explicación”.</div>
+</section>
+
+<section class="questions" id="preguntas">
+
+<article class="qcard" id="q1">
+  <div class="qhead">
+    <div class="qnum">Pregunta 1</div>
+    <div class="block">1 · Fundamentos</div>
+  </div>
+  <h2>¿Cuál es el objetivo principal de la esteganografía según el material del módulo?</h2>
+  <div class="options"><label class="option" data-q="0" data-o="0">
+<input type="radio" name="q0" value="0">
+<span class="letter">A</span><span>Ocultar la existencia de la información dentro de un soporte o canal</span>
+</label><label class="option" data-q="0" data-o="1">
+<input type="radio" name="q0" value="1">
+<span class="letter">B</span><span>Aumentar la longitud de una clave criptográfica</span>
+</label><label class="option" data-q="0" data-o="2">
+<input type="radio" name="q0" value="2">
+<span class="letter">C</span><span>Comprimir archivos sin pérdida</span>
+</label><label class="option" data-q="0" data-o="3">
+<input type="radio" name="q0" value="3">
+<span class="letter">D</span><span>Firmar digitalmente un documento</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Ocultar la existencia de la información dentro de un soporte o canal</div>
+    <p>La esteganografía busca ocultar información almacenándola en un soporte o transmitiéndola por un canal de manera que su existencia pase inadvertida.</p>
+  </details>
+</article>
+<article class="qcard" id="q2">
+  <div class="qhead">
+    <div class="qnum">Pregunta 2</div>
+    <div class="block">1 · Fundamentos</div>
+  </div>
+  <h2>¿Qué estudia el estegoanálisis?</h2>
+  <div class="options"><label class="option" data-q="1" data-o="0">
+<input type="radio" name="q1" value="0">
+<span class="letter">A</span><span>La generación de claves asimétricas</span>
+</label><label class="option" data-q="1" data-o="1">
+<input type="radio" name="q1" value="1">
+<span class="letter">B</span><span>La seguridad de los algoritmos esteganográficos y la detección o eliminación de información oculta</span>
+</label><label class="option" data-q="1" data-o="2">
+<input type="radio" name="q1" value="2">
+<span class="letter">C</span><span>La compresión de imágenes JPEG</span>
+</label><label class="option" data-q="1" data-o="3">
+<input type="radio" name="q1" value="3">
+<span class="letter">D</span><span>La autenticación con HMAC</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: B.</strong> La seguridad de los algoritmos esteganográficos y la detección o eliminación de información oculta</div>
+    <p>El estegoanálisis estudia procedimientos para detectar o eliminar posible información oculta, incluso cuando no se tiene certeza de que exista.</p>
+  </details>
+</article>
+<article class="qcard" id="q3">
+  <div class="qhead">
+    <div class="qnum">Pregunta 3</div>
+    <div class="block">1 · Fundamentos</div>
+  </div>
+  <h2>¿Cómo se denomina el medio utilizado para enmascarar la información oculta?</h2>
+  <div class="options"><label class="option" data-q="2" data-o="0">
+<input type="radio" name="q2" value="0">
+<span class="letter">A</span><span>Estegoobjeto</span>
+</label><label class="option" data-q="2" data-o="1">
+<input type="radio" name="q2" value="1">
+<span class="letter">B</span><span>Estegomedio</span>
+</label><label class="option" data-q="2" data-o="2">
+<input type="radio" name="q2" value="2">
+<span class="letter">C</span><span>Ciphertext</span>
+</label><label class="option" data-q="2" data-o="3">
+<input type="radio" name="q2" value="3">
+<span class="letter">D</span><span>Canal autenticado</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: B.</strong> Estegomedio</div>
+    <p>El estegomedio es el soporte utilizado para enmascarar la información.</p>
+  </details>
+</article>
+<article class="qcard" id="q4">
+  <div class="qhead">
+    <div class="qnum">Pregunta 4</div>
+    <div class="block">1 · Fundamentos</div>
+  </div>
+  <h2>El resultado de ocultar información dentro de un estegomedio se denomina:</h2>
+  <div class="options"><label class="option" data-q="3" data-o="0">
+<input type="radio" name="q3" value="0">
+<span class="letter">A</span><span>Payload</span>
+</label><label class="option" data-q="3" data-o="1">
+<input type="radio" name="q3" value="1">
+<span class="letter">B</span><span>Estegoobjeto</span>
+</label><label class="option" data-q="3" data-o="2">
+<input type="radio" name="q3" value="2">
+<span class="letter">C</span><span>Salt</span>
+</label><label class="option" data-q="3" data-o="3">
+<input type="radio" name="q3" value="3">
+<span class="letter">D</span><span>Cover key</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: B.</strong> Estegoobjeto</div>
+    <p>El estegoobjeto es el resultado de aplicar el proceso de ocultamiento sobre el estegomedio.</p>
+  </details>
+</article>
+<article class="qcard" id="q5">
+  <div class="qhead">
+    <div class="qnum">Pregunta 5</div>
+    <div class="block">1 · Fundamentos</div>
+  </div>
+  <h2>¿Cuál de estas tríadas coincide con las características centrales de un algoritmo esteganográfico del material fuente?</h2>
+  <div class="options"><label class="option" data-q="4" data-o="0">
+<input type="radio" name="q4" value="0">
+<span class="letter">A</span><span>Capacidad · Seguridad/Invisibilidad · Robustez</span>
+</label><label class="option" data-q="4" data-o="1">
+<input type="radio" name="q4" value="1">
+<span class="letter">B</span><span>Velocidad · Longitud de clave · Hash</span>
+</label><label class="option" data-q="4" data-o="2">
+<input type="radio" name="q4" value="2">
+<span class="letter">C</span><span>Entropía · Compresión · Firma</span>
+</label><label class="option" data-q="4" data-o="3">
+<input type="radio" name="q4" value="3">
+<span class="letter">D</span><span>Latencia · Redundancia · Escalabilidad</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Capacidad · Seguridad/Invisibilidad · Robustez</div>
+    <p>El material identifica capacidad, seguridad/invisibilidad y robustez como características centrales.</p>
+  </details>
+</article>
+<article class="qcard" id="q6">
+  <div class="qhead">
+    <div class="qnum">Pregunta 6</div>
+    <div class="block">2 · Modelo de amenaza</div>
+  </div>
+  <h2>¿Qué formaliza el Problema del Prisionero de G. J. Simmons?</h2>
+  <div class="options"><label class="option" data-q="5" data-o="0">
+<input type="radio" name="q5" value="0">
+<span class="letter">A</span><span>El intercambio secreto de claves RSA</span>
+</label><label class="option" data-q="5" data-o="1">
+<input type="radio" name="q5" value="1">
+<span class="letter">B</span><span>La necesidad de comunicar información oculta a través de un guardián que puede interrumpir la comunicación</span>
+</label><label class="option" data-q="5" data-o="2">
+<input type="radio" name="q5" value="2">
+<span class="letter">C</span><span>La compresión de archivos con pérdida</span>
+</label><label class="option" data-q="5" data-o="3">
+<input type="radio" name="q5" value="3">
+<span class="letter">D</span><span>La detección de colisiones hash</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: B.</strong> La necesidad de comunicar información oculta a través de un guardián que puede interrumpir la comunicación</div>
+    <p>Dos prisioneros deben coordinarse mediante un guardián que detendrá la comunicación si sospecha que ocultan un plan.</p>
+  </details>
+</article>
+<article class="qcard" id="q7">
+  <div class="qhead">
+    <div class="qnum">Pregunta 7</div>
+    <div class="block">2 · Modelo de amenaza</div>
+  </div>
+  <h2>Un guardián pasivo se caracteriza por:</h2>
+  <div class="options"><label class="option" data-q="6" data-o="0">
+<input type="radio" name="q6" value="0">
+<span class="letter">A</span><span>Modificar el medio antes de entregarlo</span>
+</label><label class="option" data-q="6" data-o="1">
+<input type="radio" name="q6" value="1">
+<span class="letter">B</span><span>Observar y decidir si la comunicación resulta sospechosa</span>
+</label><label class="option" data-q="6" data-o="2">
+<input type="radio" name="q6" value="2">
+<span class="letter">C</span><span>Destruir siempre todos los mensajes</span>
+</label><label class="option" data-q="6" data-o="3">
+<input type="radio" name="q6" value="3">
+<span class="letter">D</span><span>Poseer necesariamente la estegoclave</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: B.</strong> Observar y decidir si la comunicación resulta sospechosa</div>
+    <p>El guardián pasivo observa, pero no modifica el canal.</p>
+  </details>
+</article>
+<article class="qcard" id="q8">
+  <div class="qhead">
+    <div class="qnum">Pregunta 8</div>
+    <div class="block">2 · Modelo de amenaza</div>
+  </div>
+  <h2>Un guardián activo agrega qué capacidad respecto de uno pasivo?</h2>
+  <div class="options"><label class="option" data-q="7" data-o="0">
+<input type="radio" name="q7" value="0">
+<span class="letter">A</span><span>Puede modificar el estegomedio</span>
+</label><label class="option" data-q="7" data-o="1">
+<input type="radio" name="q7" value="1">
+<span class="letter">B</span><span>Puede romper cualquier cifrado</span>
+</label><label class="option" data-q="7" data-o="2">
+<input type="radio" name="q7" value="2">
+<span class="letter">C</span><span>Conoce siempre el payload</span>
+</label><label class="option" data-q="7" data-o="3">
+<input type="radio" name="q7" value="3">
+<span class="letter">D</span><span>Usa exclusivamente aprendizaje automático</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Puede modificar el estegomedio</div>
+    <p>El guardián activo puede alterar el medio para intentar destruir o neutralizar el canal oculto.</p>
+  </details>
+</article>
+<article class="qcard" id="q9">
+  <div class="qhead">
+    <div class="qnum">Pregunta 9</div>
+    <div class="block">2 · Modelo de amenaza</div>
+  </div>
+  <h2>En un estegosistema simétrico, emisor y receptor:</h2>
+  <div class="options"><label class="option" data-q="8" data-o="0">
+<input type="radio" name="q8" value="0">
+<span class="letter">A</span><span>Comparten una estegoclave secreta</span>
+</label><label class="option" data-q="8" data-o="1">
+<input type="radio" name="q8" value="1">
+<span class="letter">B</span><span>No utilizan clave alguna</span>
+</label><label class="option" data-q="8" data-o="2">
+<input type="radio" name="q8" value="2">
+<span class="letter">C</span><span>Utilizan exclusivamente una clave pública</span>
+</label><label class="option" data-q="8" data-o="3">
+<input type="radio" name="q8" value="3">
+<span class="letter">D</span><span>Comparten el archivo original pero nunca una clave</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Comparten una estegoclave secreta</div>
+    <p>En el esquema simétrico ambas partes comparten una estegoclave.</p>
+  </details>
+</article>
+<article class="qcard" id="q10">
+  <div class="qhead">
+    <div class="qnum">Pregunta 10</div>
+    <div class="block">2 · Modelo de amenaza</div>
+  </div>
+  <h2>¿Qué principio de diseño es coherente con mantener público el algoritmo y secreto únicamente lo que deba permanecer secreto?</h2>
+  <div class="options"><label class="option" data-q="9" data-o="0">
+<input type="radio" name="q9" value="0">
+<span class="letter">A</span><span>Principio de Kerckhoffs</span>
+</label><label class="option" data-q="9" data-o="1">
+<input type="radio" name="q9" value="1">
+<span class="letter">B</span><span>Paradoja del cumpleaños</span>
+</label><label class="option" data-q="9" data-o="2">
+<input type="radio" name="q9" value="2">
+<span class="letter">C</span><span>Ley de Moore</span>
+</label><label class="option" data-q="9" data-o="3">
+<input type="radio" name="q9" value="3">
+<span class="letter">D</span><span>Principio de compresión</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Principio de Kerckhoffs</div>
+    <p>La seguridad no debería depender de ocultar el algoritmo.</p>
+  </details>
+</article>
+<article class="qcard" id="q11">
+  <div class="qhead">
+    <div class="qnum">Pregunta 11</div>
+    <div class="block">3 · Imágenes: LSB y DCT</div>
+  </div>
+  <h2>¿Qué modifica la técnica LSB en una imagen RGB?</h2>
+  <div class="options"><label class="option" data-q="10" data-o="0">
+<input type="radio" name="q10" value="0">
+<span class="letter">A</span><span>Los bits de menor peso de los canales de píxel</span>
+</label><label class="option" data-q="10" data-o="1">
+<input type="radio" name="q10" value="1">
+<span class="letter">B</span><span>Solo el encabezado EXIF</span>
+</label><label class="option" data-q="10" data-o="2">
+<input type="radio" name="q10" value="2">
+<span class="letter">C</span><span>Únicamente el canal alfa</span>
+</label><label class="option" data-q="10" data-o="3">
+<input type="radio" name="q10" value="3">
+<span class="letter">D</span><span>Los coeficientes DCT antes de cuantizar</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Los bits de menor peso de los canales de píxel</div>
+    <p>LSB reemplaza uno o más bits menos significativos de los valores de los canales.</p>
+  </details>
+</article>
+<article class="qcard" id="q12">
+  <div class="qhead">
+    <div class="qnum">Pregunta 12</div>
+    <div class="block">3 · Imágenes: LSB y DCT</div>
+  </div>
+  <h2>¿Por qué una modificación de ±1 en un canal de color suele ser difícil de percibir visualmente?</h2>
+  <div class="options"><label class="option" data-q="11" data-o="0">
+<input type="radio" name="q11" value="0">
+<span class="letter">A</span><span>Porque el ojo humano es relativamente tolerante a cambios pequeños de intensidad</span>
+</label><label class="option" data-q="11" data-o="1">
+<input type="radio" name="q11" value="1">
+<span class="letter">B</span><span>Porque PNG elimina automáticamente el cambio</span>
+</label><label class="option" data-q="11" data-o="2">
+<input type="radio" name="q11" value="2">
+<span class="letter">C</span><span>Porque el bit se cifra</span>
+</label><label class="option" data-q="11" data-o="3">
+<input type="radio" name="q11" value="3">
+<span class="letter">D</span><span>Porque el monitor nunca representa valores impares</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Porque el ojo humano es relativamente tolerante a cambios pequeños de intensidad</div>
+    <p>El sistema visual humano puede no percibir cambios mínimos de intensidad.</p>
+  </details>
+</article>
+<article class="qcard" id="q13">
+  <div class="qhead">
+    <div class="qnum">Pregunta 13</div>
+    <div class="block">3 · Imágenes: LSB y DCT</div>
+  </div>
+  <h2>¿Qué suele ocurrir al aumentar de 1 a 2 o 3 LSB por canal?</h2>
+  <div class="options"><label class="option" data-q="12" data-o="0">
+<input type="radio" name="q12" value="0">
+<span class="letter">A</span><span>Aumenta la capacidad, pero también la distorsión potencial</span>
+</label><label class="option" data-q="12" data-o="1">
+<input type="radio" name="q12" value="1">
+<span class="letter">B</span><span>Disminuye la capacidad y aumenta la robustez</span>
+</label><label class="option" data-q="12" data-o="2">
+<input type="radio" name="q12" value="2">
+<span class="letter">C</span><span>No cambia ninguna métrica</span>
+</label><label class="option" data-q="12" data-o="3">
+<input type="radio" name="q12" value="3">
+<span class="letter">D</span><span>Convierte automáticamente la imagen en JPEG</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Aumenta la capacidad, pero también la distorsión potencial</div>
+    <p>Más bits por canal permiten más payload, pero alteran más el medio.</p>
+  </details>
+</article>
+<article class="qcard" id="q14">
+  <div class="qhead">
+    <div class="qnum">Pregunta 14</div>
+    <div class="block">3 · Imágenes: LSB y DCT</div>
+  </div>
+  <h2>En DCT/JPEG, el coeficiente (0,0) se denomina:</h2>
+  <div class="options"><label class="option" data-q="13" data-o="0">
+<input type="radio" name="q13" value="0">
+<span class="letter">A</span><span>AC</span>
+</label><label class="option" data-q="13" data-o="1">
+<input type="radio" name="q13" value="1">
+<span class="letter">B</span><span>DC</span>
+</label><label class="option" data-q="13" data-o="2">
+<input type="radio" name="q13" value="2">
+<span class="letter">C</span><span>LSB</span>
+</label><label class="option" data-q="13" data-o="3">
+<input type="radio" name="q13" value="3">
+<span class="letter">D</span><span>CRC</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: B.</strong> DC</div>
+    <p>El coeficiente DC representa el nivel medio del bloque; los demás son AC.</p>
+  </details>
+</article>
+<article class="qcard" id="q15">
+  <div class="qhead">
+    <div class="qnum">Pregunta 15</div>
+    <div class="block">3 · Imágenes: LSB y DCT</div>
+  </div>
+  <h2>¿Qué diferencia conceptual existe entre LSB espacial y ocultamiento en DCT?</h2>
+  <div class="options"><label class="option" data-q="14" data-o="0">
+<input type="radio" name="q14" value="0">
+<span class="letter">A</span><span>LSB modifica valores de píxel; DCT modifica coeficientes en un dominio transformado</span>
+</label><label class="option" data-q="14" data-o="1">
+<input type="radio" name="q14" value="1">
+<span class="letter">B</span><span>Ambos modifican únicamente metadatos</span>
+</label><label class="option" data-q="14" data-o="2">
+<input type="radio" name="q14" value="2">
+<span class="letter">C</span><span>DCT solo funciona en audio</span>
+</label><label class="option" data-q="14" data-o="3">
+<input type="radio" name="q14" value="3">
+<span class="letter">D</span><span>LSB requiere una clave pública</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> LSB modifica valores de píxel; DCT modifica coeficientes en un dominio transformado</div>
+    <p>LSB opera directamente sobre muestras/píxeles; DCT opera sobre coeficientes de frecuencia.</p>
+  </details>
+</article>
+<article class="qcard" id="q16">
+  <div class="qhead">
+    <div class="qnum">Pregunta 16</div>
+    <div class="block">4 · Estegoanálisis</div>
+  </div>
+  <h2>¿Qué puede revelar un plano LSB aun cuando dos imágenes se vean prácticamente iguales?</h2>
+  <div class="options"><label class="option" data-q="15" data-o="0">
+<input type="radio" name="q15" value="0">
+<span class="letter">A</span><span>Patrones o cambios estadísticos en los bits menos significativos</span>
+</label><label class="option" data-q="15" data-o="1">
+<input type="radio" name="q15" value="1">
+<span class="letter">B</span><span>La contraseña usada para AES-GCM</span>
+</label><label class="option" data-q="15" data-o="2">
+<input type="radio" name="q15" value="2">
+<span class="letter">C</span><span>La clave privada de una firma digital</span>
+</label><label class="option" data-q="15" data-o="3">
+<input type="radio" name="q15" value="3">
+<span class="letter">D</span><span>El nombre del autor de un PDF</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Patrones o cambios estadísticos en los bits menos significativos</div>
+    <p>Los planos de bits pueden hacer visibles regularidades o alteraciones que no son perceptibles en la imagen completa.</p>
+  </details>
+</article>
+<article class="qcard" id="q17">
+  <div class="qhead">
+    <div class="qnum">Pregunta 17</div>
+    <div class="block">4 · Estegoanálisis</div>
+  </div>
+  <h2>¿Qué estudia un histograma en el contexto del estegoanálisis de imágenes?</h2>
+  <div class="options"><label class="option" data-q="16" data-o="0">
+<input type="radio" name="q16" value="0">
+<span class="letter">A</span><span>La frecuencia de aparición de valores de píxel o muestras</span>
+</label><label class="option" data-q="16" data-o="1">
+<input type="radio" name="q16" value="1">
+<span class="letter">B</span><span>El tamaño de la clave RSA</span>
+</label><label class="option" data-q="16" data-o="2">
+<input type="radio" name="q16" value="2">
+<span class="letter">C</span><span>La longitud del texto oculto únicamente</span>
+</label><label class="option" data-q="16" data-o="3">
+<input type="radio" name="q16" value="3">
+<span class="letter">D</span><span>La fecha de creación del archivo</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> La frecuencia de aparición de valores de píxel o muestras</div>
+    <p>El histograma muestra distribuciones de valores; algunas inserciones alteran pares o frecuencias.</p>
+  </details>
+</article>
+<article class="qcard" id="q18">
+  <div class="qhead">
+    <div class="qnum">Pregunta 18</div>
+    <div class="block">4 · Estegoanálisis</div>
+  </div>
+  <h2>¿Para qué se usa una prueba χ² simplificada en los laboratorios?</h2>
+  <div class="options"><label class="option" data-q="17" data-o="0">
+<input type="radio" name="q17" value="0">
+<span class="letter">A</span><span>Para comparar frecuencias observadas y esperadas en pares de valores</span>
+</label><label class="option" data-q="17" data-o="1">
+<input type="radio" name="q17" value="1">
+<span class="letter">B</span><span>Para cifrar el payload</span>
+</label><label class="option" data-q="17" data-o="2">
+<input type="radio" name="q17" value="2">
+<span class="letter">C</span><span>Para generar una imagen sintética</span>
+</label><label class="option" data-q="17" data-o="3">
+<input type="radio" name="q17" value="3">
+<span class="letter">D</span><span>Para convertir Dvorak a QWERTY</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Para comparar frecuencias observadas y esperadas en pares de valores</div>
+    <p>El χ² didáctico sirve como indicador estadístico sobre la distribución de pares.</p>
+  </details>
+</article>
+<article class="qcard" id="q19">
+  <div class="qhead">
+    <div class="qnum">Pregunta 19</div>
+    <div class="block">4 · Estegoanálisis</div>
+  </div>
+  <h2>¿Qué describe un ataque de calibración sobre JPEG?</h2>
+  <div class="options"><label class="option" data-q="18" data-o="0">
+<input type="radio" name="q18" value="0">
+<span class="letter">A</span><span>Comparar la imagen sospechosa con una versión recompuesta/recomprimida para obtener una referencia estadística</span>
+</label><label class="option" data-q="18" data-o="1">
+<input type="radio" name="q18" value="1">
+<span class="letter">B</span><span>Cambiar la contraseña de la imagen</span>
+</label><label class="option" data-q="18" data-o="2">
+<input type="radio" name="q18" value="2">
+<span class="letter">C</span><span>Agregar ruido aleatorio hasta destruirla</span>
+</label><label class="option" data-q="18" data-o="3">
+<input type="radio" name="q18" value="3">
+<span class="letter">D</span><span>Invertir todos los bits del archivo</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Comparar la imagen sospechosa con una versión recompuesta/recomprimida para obtener una referencia estadística</div>
+    <p>La calibración usa una transformación como la recompresión para aproximar propiedades de una cubierta.</p>
+  </details>
+</article>
+<article class="qcard" id="q20">
+  <div class="qhead">
+    <div class="qnum">Pregunta 20</div>
+    <div class="block">4 · Estegoanálisis</div>
+  </div>
+  <h2>Un detector que marca como sospechosa una imagen limpia produce:</h2>
+  <div class="options"><label class="option" data-q="19" data-o="0">
+<input type="radio" name="q19" value="0">
+<span class="letter">A</span><span>Un falso positivo</span>
+</label><label class="option" data-q="19" data-o="1">
+<input type="radio" name="q19" value="1">
+<span class="letter">B</span><span>Un falso negativo</span>
+</label><label class="option" data-q="19" data-o="2">
+<input type="radio" name="q19" value="2">
+<span class="letter">C</span><span>Una colisión criptográfica</span>
+</label><label class="option" data-q="19" data-o="3">
+<input type="radio" name="q19" value="3">
+<span class="letter">D</span><span>Una firma inválida</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Un falso positivo</div>
+    <p>Falso positivo = detectar una condición que en realidad no está presente.</p>
+  </details>
+</article>
+<article class="qcard" id="q21">
+  <div class="qhead">
+    <div class="qnum">Pregunta 21</div>
+    <div class="block">5 · Texto, audio, archivos y protocolos</div>
+  </div>
+  <h2>¿Cuál de estos mecanismos aparece en el material como esteganografía HTML/XML?</h2>
+  <div class="options"><label class="option" data-q="20" data-o="0">
+<input type="radio" name="q20" value="0">
+<span class="letter">A</span><span>Caracteres invisibles y orden de atributos</span>
+</label><label class="option" data-q="20" data-o="1">
+<input type="radio" name="q20" value="1">
+<span class="letter">B</span><span>Únicamente AES-GCM</span>
+</label><label class="option" data-q="20" data-o="2">
+<input type="radio" name="q20" value="2">
+<span class="letter">C</span><span>Firmas RSA</span>
+</label><label class="option" data-q="20" data-o="3">
+<input type="radio" name="q20" value="3">
+<span class="letter">D</span><span>Compresión Huffman</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Caracteres invisibles y orden de atributos</div>
+    <p>El material menciona caracteres invisibles, codificación de caracteres y orden de atributos.</p>
+  </details>
+</article>
+<article class="qcard" id="q22">
+  <div class="qhead">
+    <div class="qnum">Pregunta 22</div>
+    <div class="block">5 · Texto, audio, archivos y protocolos</div>
+  </div>
+  <h2>¿Qué son U+200B y U+200C en los laboratorios de texto?</h2>
+  <div class="options"><label class="option" data-q="21" data-o="0">
+<input type="radio" name="q21" value="0">
+<span class="letter">A</span><span>Caracteres Unicode de ancho cero usados como símbolos binarios</span>
+</label><label class="option" data-q="21" data-o="1">
+<input type="radio" name="q21" value="1">
+<span class="letter">B</span><span>Algoritmos hash</span>
+</label><label class="option" data-q="21" data-o="2">
+<input type="radio" name="q21" value="2">
+<span class="letter">C</span><span>Dos coeficientes DCT</span>
+</label><label class="option" data-q="21" data-o="3">
+<input type="radio" name="q21" value="3">
+<span class="letter">D</span><span>Protocolos de red</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Caracteres Unicode de ancho cero usados como símbolos binarios</div>
+    <p>Zero Width Space y Zero Width Non-Joiner pueden transportar bits sin producir un glifo visible.</p>
+  </details>
+</article>
+<article class="qcard" id="q23">
+  <div class="qhead">
+    <div class="qnum">Pregunta 23</div>
+    <div class="block">5 · Texto, audio, archivos y protocolos</div>
+  </div>
+  <h2>¿Cuál de estas técnicas aparece asociada a esteganografía en audio?</h2>
+  <div class="options"><label class="option" data-q="22" data-o="0">
+<input type="radio" name="q22" value="0">
+<span class="letter">A</span><span>Phase coding y echo hiding</span>
+</label><label class="option" data-q="22" data-o="1">
+<input type="radio" name="q22" value="1">
+<span class="letter">B</span><span>Solo Base64</span>
+</label><label class="option" data-q="22" data-o="2">
+<input type="radio" name="q22" value="2">
+<span class="letter">C</span><span>Únicamente RSA-OAEP</span>
+</label><label class="option" data-q="22" data-o="3">
+<input type="radio" name="q22" value="3">
+<span class="letter">D</span><span>Merkle trees</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Phase coding y echo hiding</div>
+    <p>El material fuente menciona LSB, phase coding y echo hiding, entre otras.</p>
+  </details>
+</article>
+<article class="qcard" id="q24">
+  <div class="qhead">
+    <div class="qnum">Pregunta 24</div>
+    <div class="block">5 · Texto, audio, archivos y protocolos</div>
+  </div>
+  <h2>¿Qué es slack space?</h2>
+  <div class="options"><label class="option" data-q="23" data-o="0">
+<input type="radio" name="q23" value="0">
+<span class="letter">A</span><span>Espacio no utilizado dentro de la última unidad de asignación ocupada por un archivo</span>
+</label><label class="option" data-q="23" data-o="1">
+<input type="radio" name="q23" value="1">
+<span class="letter">B</span><span>Un protocolo de mensajería</span>
+</label><label class="option" data-q="23" data-o="2">
+<input type="radio" name="q23" value="2">
+<span class="letter">C</span><span>Una técnica de cifrado</span>
+</label><label class="option" data-q="23" data-o="3">
+<input type="radio" name="q23" value="3">
+<span class="letter">D</span><span>Un campo obligatorio de JPEG</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Espacio no utilizado dentro de la última unidad de asignación ocupada por un archivo</div>
+    <p>Es la diferencia entre el espacio asignado y el tamaño lógico utilizado en la última unidad.</p>
+  </details>
+</article>
+<article class="qcard" id="q25">
+  <div class="qhead">
+    <div class="qnum">Pregunta 25</div>
+    <div class="block">5 · Texto, audio, archivos y protocolos</div>
+  </div>
+  <h2>¿Qué caracteriza a un timing channel?</h2>
+  <div class="options"><label class="option" data-q="24" data-o="0">
+<input type="radio" name="q24" value="0">
+<span class="letter">A</span><span>Representar información mediante intervalos temporales entre eventos</span>
+</label><label class="option" data-q="24" data-o="1">
+<input type="radio" name="q24" value="1">
+<span class="letter">B</span><span>Cambiar únicamente el contenido visible de un texto</span>
+</label><label class="option" data-q="24" data-o="2">
+<input type="radio" name="q24" value="2">
+<span class="letter">C</span><span>Usar siempre una marca de agua visible</span>
+</label><label class="option" data-q="24" data-o="3">
+<input type="radio" name="q24" value="3">
+<span class="letter">D</span><span>Codificar datos en el nombre del archivo</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Representar información mediante intervalos temporales entre eventos</div>
+    <p>El canal temporal modula la información en los tiempos o retardos.</p>
+  </details>
+</article>
+<article class="qcard" id="q26">
+  <div class="qhead">
+    <div class="qnum">Pregunta 26</div>
+    <div class="block">6 · Watermarking</div>
+  </div>
+  <h2>¿Cuál es una diferencia típica entre esteganografía y watermarking?</h2>
+  <div class="options"><label class="option" data-q="25" data-o="0">
+<input type="radio" name="q25" value="0">
+<span class="letter">A</span><span>Watermarking suele priorizar trazabilidad, autoría o integridad; esteganografía prioriza ocultar la existencia del mensaje</span>
+</label><label class="option" data-q="25" data-o="1">
+<input type="radio" name="q25" value="1">
+<span class="letter">B</span><span>Watermarking siempre cifra y esteganografía nunca usa bits</span>
+</label><label class="option" data-q="25" data-o="2">
+<input type="radio" name="q25" value="2">
+<span class="letter">C</span><span>Son exactamente lo mismo en todos los contextos</span>
+</label><label class="option" data-q="25" data-o="3">
+<input type="radio" name="q25" value="3">
+<span class="letter">D</span><span>Watermarking solo existe en audio</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Watermarking suele priorizar trazabilidad, autoría o integridad; esteganografía prioriza ocultar la existencia del mensaje</div>
+    <p>Las áreas se superponen, pero sus objetivos habituales son distintos.</p>
+  </details>
+</article>
+<article class="qcard" id="q27">
+  <div class="qhead">
+    <div class="qnum">Pregunta 27</div>
+    <div class="block">6 · Watermarking</div>
+  </div>
+  <h2>¿Qué busca una marca robusta?</h2>
+  <div class="options"><label class="option" data-q="26" data-o="0">
+<input type="radio" name="q26" value="0">
+<span class="letter">A</span><span>Seguir siendo detectable después de determinadas transformaciones</span>
+</label><label class="option" data-q="26" data-o="1">
+<input type="radio" name="q26" value="1">
+<span class="letter">B</span><span>Desaparecer ante el mínimo cambio</span>
+</label><label class="option" data-q="26" data-o="2">
+<input type="radio" name="q26" value="2">
+<span class="letter">C</span><span>Ser siempre visible</span>
+</label><label class="option" data-q="26" data-o="3">
+<input type="radio" name="q26" value="3">
+<span class="letter">D</span><span>Reemplazar una firma digital</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Seguir siendo detectable después de determinadas transformaciones</div>
+    <p>La robustez implica persistencia frente a ciertas operaciones previstas.</p>
+  </details>
+</article>
+<article class="qcard" id="q28">
+  <div class="qhead">
+    <div class="qnum">Pregunta 28</div>
+    <div class="block">6 · Watermarking</div>
+  </div>
+  <h2>¿Qué busca una marca frágil?</h2>
+  <div class="options"><label class="option" data-q="27" data-o="0">
+<input type="radio" name="q27" value="0">
+<span class="letter">A</span><span>Detectar modificaciones al dejar de verificarse</span>
+</label><label class="option" data-q="27" data-o="1">
+<input type="radio" name="q27" value="1">
+<span class="letter">B</span><span>Resistir cualquier transformación</span>
+</label><label class="option" data-q="27" data-o="2">
+<input type="radio" name="q27" value="2">
+<span class="letter">C</span><span>Aumentar la resolución de la imagen</span>
+</label><label class="option" data-q="27" data-o="3">
+<input type="radio" name="q27" value="3">
+<span class="letter">D</span><span>Comprimir el contenido</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Detectar modificaciones al dejar de verificarse</div>
+    <p>Una marca frágil está diseñada para señalar alteraciones.</p>
+  </details>
+</article>
+<article class="qcard" id="q29">
+  <div class="qhead">
+    <div class="qnum">Pregunta 29</div>
+    <div class="block">6 · Watermarking</div>
+  </div>
+  <h2>¿Qué puede utilizarse para detectar una marca pseudoaleatoria conocida?</h2>
+  <div class="options"><label class="option" data-q="28" data-o="0">
+<input type="radio" name="q28" value="0">
+<span class="letter">A</span><span>Correlación con el patrón esperado</span>
+</label><label class="option" data-q="28" data-o="1">
+<input type="radio" name="q28" value="1">
+<span class="letter">B</span><span>Longitud de clave RSA</span>
+</label><label class="option" data-q="28" data-o="2">
+<input type="radio" name="q28" value="2">
+<span class="letter">C</span><span>Número de páginas</span>
+</label><label class="option" data-q="28" data-o="3">
+<input type="radio" name="q28" value="3">
+<span class="letter">D</span><span>CRC del sistema operativo</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Correlación con el patrón esperado</div>
+    <p>La correlación mide cuánto se parece la señal observada al patrón de marca esperado.</p>
+  </details>
+</article>
+<article class="qcard" id="q30">
+  <div class="qhead">
+    <div class="qnum">Pregunta 30</div>
+    <div class="block">6 · Watermarking</div>
+  </div>
+  <h2>Una marca visible:</h2>
+  <div class="options"><label class="option" data-q="29" data-o="0">
+<input type="radio" name="q29" value="0">
+<span class="letter">A</span><span>Sacrifica invisibilidad para facilitar identificación directa</span>
+</label><label class="option" data-q="29" data-o="1">
+<input type="radio" name="q29" value="1">
+<span class="letter">B</span><span>Debe ser indetectable por definición</span>
+</label><label class="option" data-q="29" data-o="2">
+<input type="radio" name="q29" value="2">
+<span class="letter">C</span><span>No puede contener texto</span>
+</label><label class="option" data-q="29" data-o="3">
+<input type="radio" name="q29" value="3">
+<span class="letter">D</span><span>Es siempre reversible</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Sacrifica invisibilidad para facilitar identificación directa</div>
+    <p>La marca visible es deliberadamente perceptible.</p>
+  </details>
+</article>
+<article class="qcard" id="q31">
+  <div class="qhead">
+    <div class="qnum">Pregunta 31</div>
+    <div class="block">7 · Criptografía + Esteganografía</div>
+  </div>
+  <h2>¿Por qué se recomienda cifrar antes de ocultar?</h2>
+  <div class="options"><label class="option" data-q="30" data-o="0">
+<input type="radio" name="q30" value="0">
+<span class="letter">A</span><span>Porque si el payload es descubierto, su contenido sigue protegido criptográficamente</span>
+</label><label class="option" data-q="30" data-o="1">
+<input type="radio" name="q30" value="1">
+<span class="letter">B</span><span>Porque LSB deja de modificar píxeles</span>
+</label><label class="option" data-q="30" data-o="2">
+<input type="radio" name="q30" value="2">
+<span class="letter">C</span><span>Porque AES-GCM vuelve invisible la imagen</span>
+</label><label class="option" data-q="30" data-o="3">
+<input type="radio" name="q30" value="3">
+<span class="letter">D</span><span>Porque elimina toda posibilidad de estegoanálisis</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Porque si el payload es descubierto, su contenido sigue protegido criptográficamente</div>
+    <p>La composición separa ocultamiento de existencia y protección del contenido.</p>
+  </details>
+</article>
+<article class="qcard" id="q32">
+  <div class="qhead">
+    <div class="qnum">Pregunta 32</div>
+    <div class="block">7 · Criptografía + Esteganografía</div>
+  </div>
+  <h2>¿Qué aporta AES-GCM en el laboratorio integrador?</h2>
+  <div class="options"><label class="option" data-q="31" data-o="0">
+<input type="radio" name="q31" value="0">
+<span class="letter">A</span><span>Confidencialidad e integridad autenticada</span>
+</label><label class="option" data-q="31" data-o="1">
+<input type="radio" name="q31" value="1">
+<span class="letter">B</span><span>Solo compresión</span>
+</label><label class="option" data-q="31" data-o="2">
+<input type="radio" name="q31" value="2">
+<span class="letter">C</span><span>Solo ocultamiento visual</span>
+</label><label class="option" data-q="31" data-o="3">
+<input type="radio" name="q31" value="3">
+<span class="letter">D</span><span>Conversión de texto a Unicode</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Confidencialidad e integridad autenticada</div>
+    <p>AES-GCM cifra y autentica el mensaje.</p>
+  </details>
+</article>
+<article class="qcard" id="q33">
+  <div class="qhead">
+    <div class="qnum">Pregunta 33</div>
+    <div class="block">7 · Criptografía + Esteganografía</div>
+  </div>
+  <h2>¿Cuál es el papel de PBKDF2 en el laboratorio?</h2>
+  <div class="options"><label class="option" data-q="32" data-o="0">
+<input type="radio" name="q32" value="0">
+<span class="letter">A</span><span>Derivar una clave criptográfica a partir de una contraseña usando salt e iteraciones</span>
+</label><label class="option" data-q="32" data-o="1">
+<input type="radio" name="q32" value="1">
+<span class="letter">B</span><span>Insertar bits en los píxeles</span>
+</label><label class="option" data-q="32" data-o="2">
+<input type="radio" name="q32" value="2">
+<span class="letter">C</span><span>Calcular PSNR</span>
+</label><label class="option" data-q="32" data-o="3">
+<input type="radio" name="q32" value="3">
+<span class="letter">D</span><span>Invertir un QR</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Derivar una clave criptográfica a partir de una contraseña usando salt e iteraciones</div>
+    <p>PBKDF2 transforma una contraseña en material de clave con salt e iteraciones.</p>
+  </details>
+</article>
+<article class="qcard" id="q34">
+  <div class="qhead">
+    <div class="qnum">Pregunta 34</div>
+    <div class="block">7 · Criptografía + Esteganografía</div>
+  </div>
+  <h2>¿Qué ocurre normalmente si se intenta descifrar AES-GCM con una contraseña incorrecta?</h2>
+  <div class="options"><label class="option" data-q="33" data-o="0">
+<input type="radio" name="q33" value="0">
+<span class="letter">A</span><span>Falla la autenticación/descifrado</span>
+</label><label class="option" data-q="33" data-o="1">
+<input type="radio" name="q33" value="1">
+<span class="letter">B</span><span>Se obtiene el texto parcialmente</span>
+</label><label class="option" data-q="33" data-o="2">
+<input type="radio" name="q33" value="2">
+<span class="letter">C</span><span>Se recupera siempre el mensaje</span>
+</label><label class="option" data-q="33" data-o="3">
+<input type="radio" name="q33" value="3">
+<span class="letter">D</span><span>La imagen cambia de formato</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Falla la autenticación/descifrado</div>
+    <p>Una clave incorrecta no valida el tag de autenticación.</p>
+  </details>
+</article>
+<article class="qcard" id="q35">
+  <div class="qhead">
+    <div class="qnum">Pregunta 35</div>
+    <div class="block">7 · Criptografía + Esteganografía</div>
+  </div>
+  <h2>¿Por qué un checksum no equivale a autenticación criptográfica?</h2>
+  <div class="options"><label class="option" data-q="34" data-o="0">
+<input type="radio" name="q34" value="0">
+<span class="letter">A</span><span>Porque un adversario puede modificar datos y recalcular un checksum no autenticado</span>
+</label><label class="option" data-q="34" data-o="1">
+<input type="radio" name="q34" value="1">
+<span class="letter">B</span><span>Porque un checksum es siempre más largo que una clave</span>
+</label><label class="option" data-q="34" data-o="2">
+<input type="radio" name="q34" value="2">
+<span class="letter">C</span><span>Porque solo funciona sobre imágenes</span>
+</label><label class="option" data-q="34" data-o="3">
+<input type="radio" name="q34" value="3">
+<span class="letter">D</span><span>Porque requiere una clave privada</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Porque un adversario puede modificar datos y recalcular un checksum no autenticado</div>
+    <p>Un checksum detecta errores, pero no prueba que la modificación no provenga de un adversario.</p>
+  </details>
+</article>
+<article class="qcard" id="q36">
+  <div class="qhead">
+    <div class="qnum">Pregunta 36</div>
+    <div class="block">8 · Integración y CTF</div>
+  </div>
+  <h2>En el reto textual guiado por π, ¿qué se utiliza como mecanismo de selección?</h2>
+  <div class="options"><label class="option" data-q="35" data-o="0">
+<input type="radio" name="q35" value="0">
+<span class="letter">A</span><span>Saltos acumulativos entre palabras siguiendo dígitos de π</span>
+</label><label class="option" data-q="35" data-o="1">
+<input type="radio" name="q35" value="1">
+<span class="letter">B</span><span>Coeficientes DCT</span>
+</label><label class="option" data-q="35" data-o="2">
+<input type="radio" name="q35" value="2">
+<span class="letter">C</span><span>Retardos temporales</span>
+</label><label class="option" data-q="35" data-o="3">
+<input type="radio" name="q35" value="3">
+<span class="letter">D</span><span>Valores EXIF</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Saltos acumulativos entre palabras siguiendo dígitos de π</div>
+    <p>La secuencia de π indica los saltos que determinan qué iniciales extraer.</p>
+  </details>
+</article>
+<article class="qcard" id="q37">
+  <div class="qhead">
+    <div class="qnum">Pregunta 37</div>
+    <div class="block">8 · Integración y CTF</div>
+  </div>
+  <h2>La pista Barbara Blackburn conduce a:</h2>
+  <div class="options"><label class="option" data-q="36" data-o="0">
+<input type="radio" name="q36" value="0">
+<span class="letter">A</span><span>La disposición de teclado Dvorak</span>
+</label><label class="option" data-q="36" data-o="1">
+<input type="radio" name="q36" value="1">
+<span class="letter">B</span><span>AES-GCM</span>
+</label><label class="option" data-q="36" data-o="2">
+<input type="radio" name="q36" value="2">
+<span class="letter">C</span><span>Un algoritmo hash</span>
+</label><label class="option" data-q="36" data-o="3">
+<input type="radio" name="q36" value="3">
+<span class="letter">D</span><span>El protocolo ICMP</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> La disposición de teclado Dvorak</div>
+    <p>En el ejercicio la pista permite interpretar la cadena intermedia mediante Dvorak.</p>
+  </details>
+</article>
+<article class="qcard" id="q38">
+  <div class="qhead">
+    <div class="qnum">Pregunta 38</div>
+    <div class="block">8 · Integración y CTF</div>
+  </div>
+  <h2>Una secuencia formada casi únicamente por + - &lt; &gt; [ ] . , sugiere:</h2>
+  <div class="options"><label class="option" data-q="37" data-o="0">
+<input type="radio" name="q37" value="0">
+<span class="letter">A</span><span>Brainfuck</span>
+</label><label class="option" data-q="37" data-o="1">
+<input type="radio" name="q37" value="1">
+<span class="letter">B</span><span>Base64</span>
+</label><label class="option" data-q="37" data-o="2">
+<input type="radio" name="q37" value="2">
+<span class="letter">C</span><span>ASCII hexadecimal</span>
+</label><label class="option" data-q="37" data-o="3">
+<input type="radio" name="q37" value="3">
+<span class="letter">D</span><span>DCT</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Brainfuck</div>
+    <p>Ese pequeño alfabeto es característico del lenguaje esotérico Brainfuck.</p>
+  </details>
+</article>
+<article class="qcard" id="q39">
+  <div class="qhead">
+    <div class="qnum">Pregunta 39</div>
+    <div class="block">8 · Integración y CTF</div>
+  </div>
+  <h2>¿Qué metodología resume mejor el trabajo esperado en el Stego CTF?</h2>
+  <div class="options"><label class="option" data-q="38" data-o="0">
+<input type="radio" name="q38" value="0">
+<span class="letter">A</span><span>Observar → formular hipótesis → inspeccionar → extraer → validar → explicar</span>
+</label><label class="option" data-q="38" data-o="1">
+<input type="radio" name="q38" value="1">
+<span class="letter">B</span><span>Adivinar → copiar → pegar</span>
+</label><label class="option" data-q="38" data-o="2">
+<input type="radio" name="q38" value="2">
+<span class="letter">C</span><span>Cifrar → borrar → comprimir</span>
+</label><label class="option" data-q="38" data-o="3">
+<input type="radio" name="q38" value="3">
+<span class="letter">D</span><span>Descargar → ejecutar → confiar</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Observar → formular hipótesis → inspeccionar → extraer → validar → explicar</div>
+    <p>El CTF está diseñado como ejercicio de razonamiento y análisis, no de prueba aleatoria de herramientas.</p>
+  </details>
+</article>
+<article class="qcard" id="q40">
+  <div class="qhead">
+    <div class="qnum">Pregunta 40</div>
+    <div class="block">8 · Integración y CTF</div>
+  </div>
+  <h2>¿Cuál es la afirmación más correcta sobre una anomalía estadística aislada?</h2>
+  <div class="options"><label class="option" data-q="39" data-o="0">
+<input type="radio" name="q39" value="0">
+<span class="letter">A</span><span>Es una señal que justifica análisis adicional, pero no demuestra por sí sola esteganografía</span>
+</label><label class="option" data-q="39" data-o="1">
+<input type="radio" name="q39" value="1">
+<span class="letter">B</span><span>Demuestra con certeza la existencia de un mensaje oculto</span>
+</label><label class="option" data-q="39" data-o="2">
+<input type="radio" name="q39" value="2">
+<span class="letter">C</span><span>Permite recuperar automáticamente la clave</span>
+</label><label class="option" data-q="39" data-o="3">
+<input type="radio" name="q39" value="3">
+<span class="letter">D</span><span>Implica necesariamente malware</span>
+</label></div>
+  <details class="solution">
+    <summary>Ver respuesta correcta y explicación</summary>
+    <div class="answer"><strong>Respuesta correcta: A.</strong> Es una señal que justifica análisis adicional, pero no demuestra por sí sola esteganografía</div>
+    <p>El estegoanálisis serio combina múltiples evidencias y valida falsos positivos/falsos negativos.</p>
+  </details>
+</article>
+</section>
+
+<section class="panel" id="clave">
+  <div class="eyebrow">Clave docente / autocorrección</div>
+  <h2>Respuestas correctas de las 40 preguntas</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Opción</th><th>Respuesta correcta</th></tr></thead>
+      <tbody><tr><td>1</td><td>A</td><td>Ocultar la existencia de la información dentro de un soporte o canal</td></tr><tr><td>2</td><td>B</td><td>La seguridad de los algoritmos esteganográficos y la detección o eliminación de información oculta</td></tr><tr><td>3</td><td>B</td><td>Estegomedio</td></tr><tr><td>4</td><td>B</td><td>Estegoobjeto</td></tr><tr><td>5</td><td>A</td><td>Capacidad · Seguridad/Invisibilidad · Robustez</td></tr><tr><td>6</td><td>B</td><td>La necesidad de comunicar información oculta a través de un guardián que puede interrumpir la comunicación</td></tr><tr><td>7</td><td>B</td><td>Observar y decidir si la comunicación resulta sospechosa</td></tr><tr><td>8</td><td>A</td><td>Puede modificar el estegomedio</td></tr><tr><td>9</td><td>A</td><td>Comparten una estegoclave secreta</td></tr><tr><td>10</td><td>A</td><td>Principio de Kerckhoffs</td></tr><tr><td>11</td><td>A</td><td>Los bits de menor peso de los canales de píxel</td></tr><tr><td>12</td><td>A</td><td>Porque el ojo humano es relativamente tolerante a cambios pequeños de intensidad</td></tr><tr><td>13</td><td>A</td><td>Aumenta la capacidad, pero también la distorsión potencial</td></tr><tr><td>14</td><td>B</td><td>DC</td></tr><tr><td>15</td><td>A</td><td>LSB modifica valores de píxel; DCT modifica coeficientes en un dominio transformado</td></tr><tr><td>16</td><td>A</td><td>Patrones o cambios estadísticos en los bits menos significativos</td></tr><tr><td>17</td><td>A</td><td>La frecuencia de aparición de valores de píxel o muestras</td></tr><tr><td>18</td><td>A</td><td>Para comparar frecuencias observadas y esperadas en pares de valores</td></tr><tr><td>19</td><td>A</td><td>Comparar la imagen sospechosa con una versión recompuesta/recomprimida para obtener una referencia estadística</td></tr><tr><td>20</td><td>A</td><td>Un falso positivo</td></tr><tr><td>21</td><td>A</td><td>Caracteres invisibles y orden de atributos</td></tr><tr><td>22</td><td>A</td><td>Caracteres Unicode de ancho cero usados como símbolos binarios</td></tr><tr><td>23</td><td>A</td><td>Phase coding y echo hiding</td></tr><tr><td>24</td><td>A</td><td>Espacio no utilizado dentro de la última unidad de asignación ocupada por un archivo</td></tr><tr><td>25</td><td>A</td><td>Representar información mediante intervalos temporales entre eventos</td></tr><tr><td>26</td><td>A</td><td>Watermarking suele priorizar trazabilidad, autoría o integridad; esteganografía prioriza ocultar la existencia del mensaje</td></tr><tr><td>27</td><td>A</td><td>Seguir siendo detectable después de determinadas transformaciones</td></tr><tr><td>28</td><td>A</td><td>Detectar modificaciones al dejar de verificarse</td></tr><tr><td>29</td><td>A</td><td>Correlación con el patrón esperado</td></tr><tr><td>30</td><td>A</td><td>Sacrifica invisibilidad para facilitar identificación directa</td></tr><tr><td>31</td><td>A</td><td>Porque si el payload es descubierto, su contenido sigue protegido criptográficamente</td></tr><tr><td>32</td><td>A</td><td>Confidencialidad e integridad autenticada</td></tr><tr><td>33</td><td>A</td><td>Derivar una clave criptográfica a partir de una contraseña usando salt e iteraciones</td></tr><tr><td>34</td><td>A</td><td>Falla la autenticación/descifrado</td></tr><tr><td>35</td><td>A</td><td>Porque un adversario puede modificar datos y recalcular un checksum no autenticado</td></tr><tr><td>36</td><td>A</td><td>Saltos acumulativos entre palabras siguiendo dígitos de π</td></tr><tr><td>37</td><td>A</td><td>La disposición de teclado Dvorak</td></tr><tr><td>38</td><td>A</td><td>Brainfuck</td></tr><tr><td>39</td><td>A</td><td>Observar → formular hipótesis → inspeccionar → extraer → validar → explicar</td></tr><tr><td>40</td><td>A</td><td>Es una señal que justifica análisis adicional, pero no demuestra por sí sola esteganografía</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Módulo 4 · Esteganografía y Estegoanálisis.</p>
+</footer>
+</main>
+
+<script>
+const ANSWERS=[0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const $=s=>document.querySelector(s);
+
+function updateProgress(){
+  let n=0;
+  ANSWERS.forEach((_,i)=>{if(document.querySelector(`input[name="q${i}"]:checked`)) n++;});
+  $('#answered').textContent=n;
+  $('#progress').style.width=(100*n/ANSWERS.length)+'%';
+}
+document.querySelectorAll('input[type="radio"]').forEach(r=>r.addEventListener('change',updateProgress));
+
+$('#grade').onclick=()=>{
+  let correct=0, answered=0;
+  ANSWERS.forEach((ans,i)=>{
+    const selected=document.querySelector(`input[name="q${i}"]:checked`);
+    const labels=document.querySelectorAll(`[data-q="${i}"]`);
+    labels.forEach(l=>l.classList.remove('correct','wrong'));
+    labels[ans].classList.add('correct');
+    if(selected){
+      answered++;
+      const val=Number(selected.value);
+      if(val===ans) correct++;
+      else labels[val].classList.add('wrong');
+    }
+  });
+  const score=100*correct/ANSWERS.length;
+  $('#answered').textContent=answered;
+  $('#correct').textContent=correct;
+  $('#score').textContent=score.toFixed(1);
+  $('#result').innerHTML=`Resultado: <strong>${correct}/40 correctas</strong> · <strong>${score.toFixed(1)}/100</strong>. Las opciones correctas aparecen destacadas.`;
+};
+
+$('#reset').onclick=()=>{
+  document.querySelectorAll('input[type="radio"]').forEach(r=>r.checked=false);
+  document.querySelectorAll('.option').forEach(l=>l.classList.remove('correct','wrong'));
+  document.querySelectorAll('details').forEach(d=>d.open=false);
+  $('#answered').textContent='0';$('#correct').textContent='—';$('#score').textContent='—';$('#progress').style.width='0%';
+  $('#result').textContent='Evaluación reiniciada.';
+};
+
+$('#openAll').onclick=()=>document.querySelectorAll('details').forEach(d=>d.open=true);
+</script>
+</body>
+</html>

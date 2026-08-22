@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Esteganografía en texto y Unicode</title>
+<meta name="description" content="Laboratorio interactivo de esteganografía en texto: caracteres invisibles Unicode, espacios, normalización, extracción, capacidad y fragilidad del canal.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.25rem,6vw,4.8rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+textarea,select,input,button{font:inherit}
+textarea,select,input[type=text]{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:10px 11px}
+textarea{min-height:130px;resize:vertical}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;background:#06121f;border:1px solid var(--line);border-radius:16px;padding:14px;min-height:92px;color:#d9efff}
+.token{display:inline-block;padding:2px 5px;margin:1px;border-radius:6px;background:rgba(75,227,255,.10);border:1px solid rgba(75,227,255,.18)}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.35rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Esteganografía en texto</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#unicode">Unicode</a>
+    <a href="#espacios">Espacios</a>
+    <a href="#normalizacion">Normalización</a>
+    <a href="#analisis">Análisis</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio interactivo · Canales textuales</div>
+  <h1>Esteganografía en texto y Unicode</h1>
+  <p>
+    El texto también puede transportar información invisible. En este laboratorio se exploran
+    caracteres Unicode de ancho cero, codificación mediante espacios y tabulaciones, inspección
+    de puntos de código y la fragilidad del canal frente a normalización, copia y pegado o limpieza del formato.
+  </p>
+  <div class="pills">
+    <span class="pill">Zero Width Space</span>
+    <span class="pill">Zero Width Non-Joiner</span>
+    <span class="pill">Espacios y tabs</span>
+    <span class="pill">Puntos de código</span>
+    <span class="pill">Normalización</span>
+    <span class="pill">Detección forense básica</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Idea central</div>
+  <h2>Un texto puede parecer idéntico y contener más información de la que muestra</h2>
+  <div class="note">
+    La esteganografía textual suele tener baja capacidad y elevada fragilidad. Un editor, una plataforma web,
+    una normalización Unicode o una limpieza de espacios puede destruir el canal sin que el lector note nada.
+  </div>
+</article>
+
+<article class="card full" id="unicode">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Ocultar bits con caracteres Unicode invisibles</h2>
+  <div class="controls">
+    <div class="control">
+      <label>Texto portador visible</label>
+      <textarea id="cover">La criptografía protege el contenido; la esteganografía intenta ocultar que existe un mensaje.</textarea>
+    </div>
+    <div class="control">
+      <label>Mensaje secreto</label>
+      <textarea id="secret">mensaje oculto</textarea>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="control">
+      <label>Esquema</label>
+      <select id="scheme">
+        <option value="zw">ZWSP = 0 · ZWNJ = 1</option>
+        <option value="wordjoin">WORD JOINER = 0 · ZWSP = 1</option>
+      </select>
+    </div>
+    <div class="control">
+      <label>Acción</label>
+      <button id="embedUnicode">Ocultar mensaje</button>
+    </div>
+  </div>
+  <div class="control" style="margin-top:12px">
+    <label>Texto estego</label>
+    <textarea id="stegoText" readonly></textarea>
+  </div>
+  <div class="actions">
+    <button id="extractUnicode" class="secondary">Extraer mensaje</button>
+    <button id="copyStego" class="secondary">Copiar texto estego</button>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="coverChars">0</strong><span>caracteres visibles</span></div>
+    <div class="metric"><strong id="secretBytes">0</strong><span>bytes secretos</span></div>
+    <div class="metric"><strong id="hiddenChars">0</strong><span>caracteres invisibles</span></div>
+    <div class="metric"><strong id="totalChars">0</strong><span>caracteres totales</span></div>
+    <div class="metric"><strong id="overhead">0%</strong><span>sobrecarga</span></div>
+    <div class="metric"><strong id="unicodeRecovered">—</strong><span>extracción</span></div>
+  </div>
+  <div id="unicodeStatus" class="status">El mensaje se codifica en UTF‑8 y luego bit a bit usando caracteres invisibles.</div>
+</article>
+
+<article class="card full">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Microscopio de puntos de código</h2>
+  <p class="muted">El lector humano no ve estos caracteres, pero una inspección Unicode sí puede revelarlos.</p>
+  <div class="actions"><button id="inspectUnicode" class="secondary">Inspeccionar texto estego</button></div>
+  <div id="codePoints" class="codebox"></div>
+  <div id="inspectStatus" class="status">Los caracteres invisibles se mostrarán por nombre y punto de código.</div>
+</article>
+
+<article class="card full" id="espacios">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Canal por espacios y tabulaciones</h2>
+  <p class="muted">Un canal clásico puede representar 0 con espacio y 1 con tabulación al final de líneas. Es fácil de detectar y muy frágil.</p>
+  <div class="control">
+    <label>Texto multilinea portador</label>
+    <textarea id="spaceCover">Primera línea del texto
+Segunda línea del texto
+Tercera línea del texto
+Cuarta línea del texto
+Quinta línea del texto
+Sexta línea del texto
+Séptima línea del texto
+Octava línea del texto
+Novena línea del texto
+Décima línea del texto</textarea>
+  </div>
+  <div class="controls">
+    <div class="control"><label>Bits a ocultar</label><input id="spaceBits" type="text" value="10110010"></div>
+    <div class="control"><label>Acción</label><button id="embedSpaces">Codificar</button></div>
+  </div>
+  <div class="control" style="margin-top:12px">
+    <label>Texto con canal de espacios</label>
+    <textarea id="spaceStego" readonly></textarea>
+  </div>
+  <div class="actions">
+    <button id="extractSpaces" class="secondary">Leer bits</button>
+    <button id="visualizeSpaces" class="secondary">Visualizar marcas</button>
+  </div>
+  <div id="spaceVisual" class="codebox"></div>
+  <div id="spaceStatus" class="status">Espacio final = 0 · tabulación final = 1.</div>
+</article>
+
+<article class="card full" id="normalizacion">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Prueba de fragilidad: limpiar y normalizar</h2>
+  <p class="muted">Aplicá transformaciones comunes y observá si el mensaje sobrevive.</p>
+  <div class="actions">
+    <button id="trimLines" class="warn">Eliminar espacios finales</button>
+    <button id="stripInvisible" class="warn">Eliminar caracteres invisibles</button>
+    <button id="normalizeNFC" class="secondary">Normalizar NFC</button>
+    <button id="collapseSpaces" class="secondary">Colapsar espacios</button>
+  </div>
+  <div class="control" style="margin-top:12px">
+    <label>Resultado transformado</label>
+    <textarea id="transformed" readonly></textarea>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="beforeLen">—</strong><span>longitud antes</span></div>
+    <div class="metric"><strong id="afterLen">—</strong><span>longitud después</span></div>
+    <div class="metric"><strong id="invisibleBefore">—</strong><span>invisibles antes</span></div>
+    <div class="metric"><strong id="invisibleAfter">—</strong><span>invisibles después</span></div>
+  </div>
+  <div id="transformStatus" class="status">Usá como entrada el texto estego Unicode generado en la Estación 1.</div>
+</article>
+
+<article class="card full" id="analisis">
+  <div class="eyebrow">Estación 5</div>
+  <h2>Estegoanálisis textual básico</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Indicador</th><th>Qué busca</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr><td>Caracteres de ancho cero</td><td>ZWSP, ZWNJ, WORD JOINER</td><td id="anaInvisible">—</td></tr>
+        <tr><td>Espacios finales</td><td>Líneas terminadas en espacios</td><td id="anaTrailing">—</td></tr>
+        <tr><td>Tabulaciones finales</td><td>Líneas terminadas en tab</td><td id="anaTabs">—</td></tr>
+        <tr><td>Densidad invisible</td><td>Proporción respecto del texto visible</td><td id="anaDensity">—</td></tr>
+        <tr><td>Alerta didáctica</td><td>Combinación de señales</td><td id="anaVerdict">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="actions"><button id="analyzeText">Analizar texto estego</button></div>
+  <div id="analysisStatus" class="status">Una anomalía no demuestra por sí sola que exista un mensaje oculto.</div>
+</article>
+
+<article class="card third">
+  <h2>Qué demuestra</h2>
+  <ol class="steps">
+    <li>Texto visualmente idéntico puede diferir a nivel Unicode.</li>
+    <li>La capacidad es baja frente a imágenes.</li>
+    <li>La normalización puede destruir el canal.</li>
+    <li>Los caracteres invisibles son detectables mediante inspección.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Comparación conceptual</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Canal</th><th>Capacidad</th><th>Robustez</th></tr>
+      <tr><td>Unicode invisible</td><td>Baja-media</td><td>Baja</td></tr>
+      <tr><td>Espacios/tabs</td><td>Muy baja</td><td>Muy baja</td></tr>
+      <tr><td>LSB imagen</td><td>Alta</td><td>Baja-media</td></tr>
+      <tr><td>DCT</td><td>Media</td><td>Puede ser mayor</td></tr>
+    </table>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Siguiente material</h2>
+  <p class="muted">
+    El próximo laboratorio abordará <strong>esteganografía en audio</strong>:
+    LSB sobre muestras, codificación de fase y echo hiding de forma didáctica.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo. Los canales textuales aquí mostrados son deliberadamente simples para facilitar su análisis.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const te=new TextEncoder(),td=new TextDecoder();
+
+const ZWSP='\u200B', ZWNJ='\u200C', WJ='\u2060';
+function bytesToBits(bytes){const out=[];for(const b of bytes)for(let i=7;i>=0;i--)out.push((b>>i)&1);return out}
+function bitsToBytes(bits){
+  const n=Math.floor(bits.length/8),out=new Uint8Array(n);
+  for(let i=0;i<n;i++){let v=0;for(let j=0;j<8;j++)v=(v<<1)|(bits[i*8+j]||0);out[i]=v}
+  return out
+}
+function schemeChars(){
+  return $('#scheme').value==='zw'?[ZWSP,ZWNJ]:[WJ,ZWSP];
+}
+function invisCount(s){return [...s].filter(c=>c===ZWSP||c===ZWNJ||c===WJ).length}
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+
+function embedUnicode(){
+  const cover=$('#cover').value,secret=$('#secret').value,bytes=te.encode(secret);
+  const bits=bytesToBits(bytes),[c0,c1]=schemeChars();
+  // prefix 32-bit length in bytes
+  const len=new Uint8Array(4);new DataView(len.buffer).setUint32(0,bytes.length,false);
+  const payload=[...bytesToBits(len),...bits].map(b=>b?c1:c0).join('');
+  // Insert after first visible character to preserve a normal-looking cover.
+  const chars=[...cover];
+  const out=(chars.shift()||'')+payload+chars.join('');
+  $('#stegoText').value=out;
+  const hidden=invisCount(out),visible=[...out].length-hidden;
+  $('#coverChars').textContent=visible;
+  $('#secretBytes').textContent=bytes.length;
+  $('#hiddenChars').textContent=hidden;
+  $('#totalChars').textContent=[...out].length;
+  $('#overhead').textContent=visible?((hidden/visible)*100).toFixed(1)+'%':'—';
+  $('#unicodeRecovered').textContent='pendiente';
+  st($('#unicodeStatus'),`Mensaje ocultado en ${hidden} caracteres invisibles. El texto visible no cambia de forma aparente.`,'good');
+}
+function extractUnicodeFrom(text){
+  const [c0,c1]=schemeChars();
+  const bits=[...text].filter(c=>c===c0||c===c1).map(c=>c===c1?1:0);
+  if(bits.length<32)throw new Error('No hay una cabecera suficiente.');
+  const lenBytes=bitsToBytes(bits.slice(0,32));
+  const len=new DataView(lenBytes.buffer).getUint32(0,false);
+  const need=32+len*8;
+  if(bits.length<need)throw new Error(`Payload incompleto: se esperaban ${need} bits y hay ${bits.length}.`);
+  return td.decode(bitsToBytes(bits.slice(32,need)));
+}
+$('#embedUnicode').onclick=embedUnicode;
+$('#extractUnicode').onclick=()=>{
+  try{
+    const msg=extractUnicodeFrom($('#stegoText').value);
+    $('#unicodeRecovered').textContent='OK';
+    st($('#unicodeStatus'),`Mensaje recuperado: "${msg}"`,'good');
+  }catch(e){
+    $('#unicodeRecovered').textContent='FALLA';
+    st($('#unicodeStatus'),e.message,'bad');
+  }
+};
+$('#copyStego').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('#stegoText').value);st($('#unicodeStatus'),'Texto estego copiado al portapapeles.','good')}
+  catch{st($('#unicodeStatus'),'No se pudo usar el portapapeles desde este contexto. Seleccioná y copiá manualmente.','warn')}
+};
+
+const names={
+  0x200B:'ZERO WIDTH SPACE',
+  0x200C:'ZERO WIDTH NON-JOINER',
+  0x2060:'WORD JOINER',
+  0x20:'SPACE',
+  0x09:'TAB'
+};
+$('#inspectUnicode').onclick=()=>{
+  const text=$('#stegoText').value;
+  if(!text){st($('#inspectStatus'),'Primero generá un texto estego.','warn');return}
+  const tokens=[];
+  let invis=0;
+  [...text].forEach((c,i)=>{
+    const cp=c.codePointAt(0);
+    if(cp===0x200B||cp===0x200C||cp===0x2060){
+      invis++;
+      tokens.push(`[${i}] U+${cp.toString(16).toUpperCase().padStart(4,'0')} ${names[cp]}`);
+    }
+  });
+  $('#codePoints').textContent=tokens.length?tokens.join('\n'):'No se encontraron caracteres invisibles del conjunto analizado.';
+  st($('#inspectStatus'),`Se detectaron ${invis} caracteres invisibles.` , invis?'warn':'good');
+};
+
+$('#embedSpaces').onclick=()=>{
+  const lines=$('#spaceCover').value.replace(/[ \t]+$/gm,'').split('\n');
+  const bits=$('#spaceBits').value.replace(/[^01]/g,'');
+  if(bits.length>lines.length){st($('#spaceStatus'),`Hay ${lines.length} líneas y ${bits.length} bits. Reducí el payload.`,'bad');return}
+  const out=lines.map((line,i)=>i<bits.length?line+(bits[i]==='1'?'\t':' '):line).join('\n');
+  $('#spaceStego').value=out;
+  $('#spaceVisual').textContent='';
+  st($('#spaceStatus'),`${bits.length} bits codificados en finales de línea.`,'good');
+};
+$('#extractSpaces').onclick=()=>{
+  const lines=$('#spaceStego').value.split('\n'),bits=[];
+  for(const line of lines){
+    if(line.endsWith('\t'))bits.push('1');
+    else if(line.endsWith(' '))bits.push('0');
+  }
+  $('#spaceVisual').textContent='Bits recuperados: '+(bits.join('')||'—');
+  st($('#spaceStatus'),bits.length?`Se recuperaron ${bits.length} bits.`:'No se detectaron marcas finales.','good');
+};
+$('#visualizeSpaces').onclick=()=>{
+  const lines=$('#spaceStego').value.split('\n');
+  $('#spaceVisual').textContent=lines.map((line,i)=>{
+    let mark='∅';
+    if(line.endsWith('\t'))mark='[TAB → 1]';
+    else if(line.endsWith(' '))mark='[SPACE → 0]';
+    return `${String(i+1).padStart(2,'0')}: ${line.replace(/\t$/,'↹').replace(/ $/,'·')}  ${mark}`;
+  }).join('\n');
+};
+
+function applyTransform(kind){
+  const src=$('#stegoText').value;
+  if(!src){st($('#transformStatus'),'Primero generá el texto estego Unicode.','warn');return}
+  let out=src;
+  if(kind==='trim')out=src.replace(/[ \t]+$/gm,'');
+  if(kind==='strip')out=[...src].filter(c=>c!==ZWSP&&c!==ZWNJ&&c!==WJ).join('');
+  if(kind==='nfc')out=src.normalize('NFC');
+  if(kind==='collapse')out=src.replace(/[ \t]{2,}/g,' ');
+  $('#transformed').value=out;
+  $('#beforeLen').textContent=[...src].length;
+  $('#afterLen').textContent=[...out].length;
+  $('#invisibleBefore').textContent=invisCount(src);
+  $('#invisibleAfter').textContent=invisCount(out);
+  try{
+    const msg=extractUnicodeFrom(out);
+    st($('#transformStatus'),`El canal sobrevivió. Mensaje recuperado: "${msg}"`,'good');
+  }catch(e){
+    st($('#transformStatus'),`El canal no pudo recuperarse después de la transformación: ${e.message}`,'warn');
+  }
+}
+$('#trimLines').onclick=()=>applyTransform('trim');
+$('#stripInvisible').onclick=()=>applyTransform('strip');
+$('#normalizeNFC').onclick=()=>applyTransform('nfc');
+$('#collapseSpaces').onclick=()=>applyTransform('collapse');
+
+$('#analyzeText').onclick=()=>{
+  const text=$('#stegoText').value || $('#spaceStego').value;
+  const invis=invisCount(text);
+  const lines=text.split('\n');
+  const trailing=lines.filter(l=>l.endsWith(' ')).length;
+  const tabs=lines.filter(l=>l.endsWith('\t')).length;
+  const visible=Math.max(1,[...text].length-invis);
+  const density=invis/visible;
+  $('#anaInvisible').textContent=invis;
+  $('#anaTrailing').textContent=trailing;
+  $('#anaTabs').textContent=tabs;
+  $('#anaDensity').textContent=(density*100).toFixed(2)+'%';
+  let score=0;
+  if(invis>0)score+=55;
+  if(density>.05)score+=20;
+  if(trailing>2)score+=10;
+  if(tabs>1)score+=15;
+  const verdict=score<20?'Baja':score<50?'Moderada':score<75?'Alta':'Muy alta';
+  $('#anaVerdict').textContent=verdict;
+  st($('#analysisStatus'),
+    score<20?'No se observan señales fuertes en este conjunto de indicadores.':
+    score<50?'Hay anomalías textuales que justifican inspección adicional.':
+    score<75?'Se observan varias señales compatibles con un canal esteganográfico simple.':
+    'La densidad de caracteres o marcas invisibles es muy alta para un texto normal.',
+    score<20?'good':score<75?'warn':'bad');
+};
+
+embedUnicode();
+</script>
+</body>
+</html>

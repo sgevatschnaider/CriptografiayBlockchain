@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Stego CTF · Solucionario docente</title>
+<meta name="description" content="Solucionario docente completo del Stego CTF del Módulo 4 de Esteganografía y Estegoanálisis.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1220px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.2rem,6vw,4.7rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.warn{border-left-color:var(--warn);background:rgba(255,209,102,.07)}
+.good{border-left-color:var(--good);background:rgba(124,240,176,.06)}
+.danger{border-left-color:var(--danger);background:rgba(255,126,150,.06)}
+.answer{
+  padding:16px;border:1px solid rgba(124,240,176,.36);border-radius:16px;
+  background:rgba(124,240,176,.055);margin:12px 0
+}
+.answer strong{color:var(--good)}
+.codebox{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  white-space:pre-wrap;word-break:break-word;background:#06121f;
+  border:1px solid var(--line);border-radius:16px;padding:14px;color:#d9efff
+}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.rubric{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rubric>div{padding:13px;border:1px solid var(--line);border-radius:15px;background:#071827}
+.rubric strong{display:block;color:var(--accent);font-size:1.05rem}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media print{
+  body{background:#fff;color:#111}
+  .topbar,.nav{display:none}
+  .hero,.card{box-shadow:none;background:#fff;color:#111;border-color:#bbb}
+  .muted,.footer{color:#444}.note,.answer,.codebox{background:#f7f7f7;color:#111}
+  .eyebrow{color:#14617a}.answer strong{color:#126b3a}
+}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.rubric{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.rubric{grid-template-columns:1fr}.hero h1{font-size:2.3rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Material docente</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#criterios">Criterios</a>
+    <a href="#reto1">Reto 1</a>
+    <a href="#reto2">Reto 2</a>
+    <a href="#reto3">Reto 3</a>
+    <a href="#reto4">Reto 4</a>
+    <a href="#reto5">Reto 5</a>
+    <a href="#rubrica">Rúbrica</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Uso docente · Solucionario reservado</div>
+  <h1>Stego CTF · Solucionario docente completo</h1>
+  <p>
+    Guía de corrección, razonamiento esperado, respuestas, errores frecuentes, criterios de evaluación
+    y preguntas de profundización para los cinco retos del CTF integrador de Esteganografía y Estegoanálisis.
+  </p>
+  <div class="pills">
+    <span class="pill">5 retos resueltos</span>
+    <span class="pill">Metodología de análisis</span>
+    <span class="pill">Errores frecuentes</span>
+    <span class="pill">Rúbrica</span>
+    <span class="pill">Preguntas orales</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Importante</div>
+  <h2>Documento para el profesor</h2>
+  <div class="note warn">
+    Este archivo contiene las respuestas del CTF. Conviene mantenerlo separado del material que se entrega
+    a los estudiantes y no enlazarlo directamente desde la navegación pública del desafío.
+  </div>
+</article>
+
+<article class="card full" id="criterios">
+  <div class="eyebrow">Criterio general</div>
+  <h2>Qué se evalúa realmente</h2>
+  <p class="muted">
+    El objetivo no es premiar únicamente la respuesta final. La evaluación debe considerar si el estudiante
+    reconoce el canal, formula una hipótesis razonable, selecciona la técnica adecuada, valida el resultado
+    y puede explicar por qué el procedimiento funciona.
+  </p>
+  <div class="rubric">
+    <div><strong>25%</strong>Identificación del canal</div>
+    <div><strong>25%</strong>Procedimiento de extracción</div>
+    <div><strong>25%</strong>Validación del resultado</div>
+    <div><strong>25%</strong>Explicación técnica</div>
+  </div>
+</article>
+
+<article class="card full" id="reto1">
+  <div class="eyebrow">Reto 1 · Texto + π</div>
+  <h2>Los saltos de π</h2>
+
+  <div class="answer"><strong>Respuesta esperada:</strong> ATTACK TOMORROW</div>
+
+  <h3>Procedimiento esperado</h3>
+  <ol class="steps">
+    <li>Reconocer que el portador es texto y que la pista remite a las iniciales de palabras.</li>
+    <li>Tomar la secuencia de dígitos de π indicada: 3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7.</li>
+    <li>Interpretar los dígitos como saltos acumulativos entre palabras.</li>
+    <li>Extraer la inicial de cada palabra seleccionada.</li>
+    <li>Concatenar las 14 letras obtenidas.</li>
+    <li>Separar el resultado como dos palabras: ATTACK / TOMORROW.</li>
+  </ol>
+
+  <h3>Qué debe explicar el alumno</h3>
+  <p class="muted">
+    El mensaje no está cifrado en sentido criptográfico: está oculto mediante una regla de selección.
+    La seguridad depende de que el observador no conozca el patrón de saltos, por lo que se trata de un
+    canal esteganográfico textual extremadamente frágil.
+  </p>
+
+  <h3>Errores frecuentes</h3>
+  <div class="note danger">
+    Contar caracteres en lugar de palabras; reiniciar el conteo en cada dígito; tomar la palabra completa
+    en vez de su inicial; o utilizar 3,14159 como número decimal en lugar de una secuencia de saltos.
+  </div>
+
+  <h3>Pregunta oral sugerida</h3>
+  <div class="note">¿Qué ocurriría si un corrector automático insertara o eliminara una palabra del texto portador?</div>
+</article>
+
+<article class="card full" id="reto2">
+  <div class="eyebrow">Reto 2 · Imagen invertida + Dvorak</div>
+  <h2>La imagen está “al revés”</h2>
+
+  <div class="answer"><strong>Respuesta esperada:</strong> Enhorabuena. Has pasado el reto</div>
+
+  <h3>Cadena de razonamiento</h3>
+  <ol class="steps">
+    <li>Observar que la primera anomalía está en la polaridad de la imagen.</li>
+    <li>Invertir blanco y negro para recuperar una representación interpretable.</li>
+    <li>Obtener el texto intermedio:</li>
+  </ol>
+
+  <div class="codebox">Dljsoanfdlae Ja; ra;ahs dp odks</div>
+
+  <ol class="steps" start="4">
+    <li>Interpretar la pista “Barbara Blackburn”.</li>
+    <li>Relacionarla con el teclado Dvorak.</li>
+    <li>Convertir la secuencia producida bajo una disposición de teclado a la otra.</li>
+    <li>Recuperar la frase final: “Enhorabuena. Has pasado el reto”.</li>
+  </ol>
+
+  <h3>Conceptos evaluados</h3>
+  <p class="muted">
+    El reto obliga a encadenar dos transformaciones distintas: primero una operación sobre la representación
+    visual y después una sustitución relacionada con la disposición del teclado. La pista no contiene la respuesta:
+    orienta hacia el sistema de codificación.
+  </p>
+
+  <h3>Errores frecuentes</h3>
+  <div class="note danger">
+    Intentar descifrar directamente la cadena intermedia con César, Base64 o sustitución monoalfabética;
+    ignorar la pista de Barbara Blackburn; o asumir que la inversión visual ya constituye la solución completa.
+  </div>
+
+  <h3>Pregunta oral sugerida</h3>
+  <div class="note">¿Por qué este reto combina esteganografía, transformación visual y codificación, pero no necesariamente criptografía fuerte?</div>
+</article>
+
+<article class="card full" id="reto3">
+  <div class="eyebrow">Reto 3 · Archivo extraído + Brainfuck</div>
+  <h2>El contenido extraído parece ruido</h2>
+
+  <div class="answer"><strong>Respuesta esperada:</strong> Los lenguajes esotéricos son cool</div>
+
+  <h3>Procedimiento esperado</h3>
+  <ol class="steps">
+    <li>Realizar análisis del objeto sospechoso y detectar la presencia de un artefacto recuperable.</li>
+    <li>Extraer <code>texto_cifrado.txt</code>.</li>
+    <li>Observar que el archivo utiliza prácticamente solo los símbolos:</li>
+  </ol>
+
+  <div class="codebox">+  -  &lt;  &gt;  [  ]  .  ,</div>
+
+  <ol class="steps" start="4">
+    <li>Identificar el lenguaje esotérico Brainfuck.</li>
+    <li>Interpretar o ejecutar el programa en un entorno controlado.</li>
+    <li>Obtener la frase final.</li>
+  </ol>
+
+  <h3>Punto pedagógico</h3>
+  <p class="muted">
+    Encontrar datos ocultos no implica haber terminado el análisis. El contenido recuperado puede requerir
+    una segunda capa de interpretación. El estudiante debe distinguir extracción, identificación de formato
+    e interpretación semántica.
+  </p>
+
+  <h3>Errores frecuentes</h3>
+  <div class="note danger">
+    Tratar Brainfuck como si fuera un cifrado clásico; detenerse al recuperar el archivo; o confundir
+    ofuscación/codificación con cifrado criptográfico.
+  </div>
+
+  <h3>Pregunta oral sugerida</h3>
+  <div class="note">¿Qué diferencia hay entre ocultar un archivo, codificar un mensaje y cifrarlo?</div>
+</article>
+
+<article class="card full" id="reto4">
+  <div class="eyebrow">Reto 4 · Unicode invisible</div>
+  <h2>Más caracteres de los que el ojo puede ver</h2>
+
+  <div class="answer"><strong>Respuesta esperada:</strong> ANALIZA EL CODIGO</div>
+
+  <h3>Procedimiento esperado</h3>
+  <ol class="steps">
+    <li>Comparar longitud visible con longitud real del texto.</li>
+    <li>Inspeccionar los puntos de código Unicode.</li>
+    <li>Detectar U+200B ZERO WIDTH SPACE y U+200C ZERO WIDTH NON-JOINER.</li>
+    <li>Interpretar U+200B como 0 y U+200C como 1.</li>
+    <li>Agrupar cada ocho bits.</li>
+    <li>Interpretar los bytes como UTF-8.</li>
+  </ol>
+
+  <div class="codebox">U+200B → 0
+U+200C → 1
+bits → bytes → UTF‑8 → ANALIZA EL CODIGO</div>
+
+  <h3>Concepto evaluado</h3>
+  <p class="muted">
+    La representación visual del texto no es equivalente a su secuencia de puntos de código.
+    Un analista debe poder inspeccionar caracteres no imprimibles o de ancho cero.
+  </p>
+
+  <h3>Errores frecuentes</h3>
+  <div class="note danger">
+    Copiar el texto a una aplicación que elimine caracteres de ancho cero; asumir que un párrafo visualmente
+    normal no puede contener información adicional; o intentar interpretar cada carácter invisible como un byte completo.
+  </div>
+
+  <h3>Pregunta oral sugerida</h3>
+  <div class="note">¿Qué transformaciones de una plataforma de mensajería podrían destruir este canal?</div>
+</article>
+
+<article class="card full" id="reto5">
+  <div class="eyebrow">Reto 5 · Imagen + LSB</div>
+  <h2>Una imagen visualmente idéntica</h2>
+
+  <div class="answer"><strong>Respuesta esperada:</strong> CTF COMPLETO</div>
+
+  <h3>Procedimiento esperado</h3>
+  <ol class="steps">
+    <li>Comparar la imagen portadora y la sospechosa sin confiar únicamente en la percepción visual.</li>
+    <li>Examinar el plano de bits menos significativo del canal azul.</li>
+    <li>Leer los LSB de izquierda a derecha y de arriba hacia abajo.</li>
+    <li>Interpretar los primeros 16 bits como longitud del payload.</li>
+    <li>Leer esa cantidad de bytes.</li>
+    <li>Decodificar los bytes como texto y recuperar “CTF COMPLETO”.</li>
+  </ol>
+
+  <h3>Concepto evaluado</h3>
+  <p class="muted">
+    Una alteración de ±1 en el canal azul puede ser casi imperceptible, pero el plano LSB y una extracción
+    estructurada revelan el canal. El reto conecta imperceptibilidad visual con detectabilidad técnica.
+  </p>
+
+  <h3>Errores frecuentes</h3>
+  <div class="note danger">
+    Leer los tres canales simultáneamente; empezar por el MSB; ignorar la cabecera de longitud;
+    o asumir que “se ve igual” significa que los archivos son equivalentes.
+  </div>
+
+  <h3>Pregunta oral sugerida</h3>
+  <div class="note">¿Qué ocurriría con este mensaje si la imagen fuera recomprimida en JPEG o reescalada?</div>
+</article>
+
+<article class="card full" id="rubrica">
+  <div class="eyebrow">Evaluación</div>
+  <h2>Rúbrica propuesta para el CTF</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Nivel</th><th>Identificación</th><th>Procedimiento</th><th>Validación</th><th>Explicación</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Excelente</td>
+          <td>Reconoce el canal y justifica la hipótesis.</td>
+          <td>Aplica una secuencia correcta y reproducible.</td>
+          <td>Contrasta el resultado y descarta alternativas.</td>
+          <td>Distingue esteganografía, codificación y criptografía.</td>
+        </tr>
+        <tr>
+          <td>Bueno</td>
+          <td>Reconoce correctamente el canal.</td>
+          <td>Resuelve con ayuda mínima.</td>
+          <td>Comprueba parcialmente.</td>
+          <td>Explica el mecanismo con pequeñas omisiones.</td>
+        </tr>
+        <tr>
+          <td>Básico</td>
+          <td>Necesita una pista directa.</td>
+          <td>Llega a la respuesta pero no reproduce bien el método.</td>
+          <td>Acepta el resultado sin validarlo.</td>
+          <td>Describe pasos sin explicar el principio.</td>
+        </tr>
+        <tr>
+          <td>Insuficiente</td>
+          <td>No identifica el canal.</td>
+          <td>Prueba técnicas al azar.</td>
+          <td>No verifica resultados.</td>
+          <td>Confunde los conceptos centrales.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Puntaje sugerido</h2>
+  <p class="muted">
+    100 puntos por reto. La solución completa suma 500 puntos. Las pistas pueden descontar entre
+    10 y 20 puntos y revelar la solución puede limitar el máximo de ese reto a 40 puntos.
+  </p>
+</article>
+
+<article class="card third">
+  <h2>Cierre oral</h2>
+  <p class="muted">
+    Pedir al estudiante que elija dos retos y compare capacidad, robustez, invisibilidad y detectabilidad
+    del canal utilizado.
+  </p>
+</article>
+
+<article class="card third">
+  <h2>Transferencia</h2>
+  <p class="muted">
+    La respuesta de mayor nivel no es solo “qué había oculto”, sino qué evidencia permitió inferirlo
+    y qué transformaciones habrían destruido o preservado el canal.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Solucionario docente del Módulo 4 · Esteganografía y Estegoanálisis.</p>
+</footer>
+</main>
+</body>
+</html>

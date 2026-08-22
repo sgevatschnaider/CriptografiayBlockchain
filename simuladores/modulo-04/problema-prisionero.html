@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="es" data-theme="nocturno">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Simulación docente del problema del prisionero de Simmons para introducir esteganografía, modelo de amenaza y diferencias con criptografía." />
+  <meta name="theme-color" content="#06101d" />
+  <title>Módulo 4 | Problema del prisionero</title>
+  <style>
+    :root{
+      --bg:#06101d;--surface:#0c1b2d;--surface-2:#102943;--text:#edf7ff;--muted:#9fc0d7;
+      --accent:#5de4ff;--accent-2:#7df7c5;--warning:#ffd166;--danger:#ff6b78;--ok:#70efb1;
+      --line:rgba(255,255,255,.13);--shadow:0 24px 65px rgba(0,0,0,.35);--radius:24px;
+    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:
+      radial-gradient(circle at 10% -10%,rgba(93,228,255,.16),transparent 34rem),
+      radial-gradient(circle at 95% 10%,rgba(125,247,197,.08),transparent 32rem),var(--bg);
+      color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+    a{color:inherit}.shell{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:18px 0 56px}
+    .topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;gap:16px;align-items:center;
+      padding:13px 16px;margin-bottom:20px;border:1px solid var(--line);border-radius:18px;background:rgba(6,16,29,.86);
+      backdrop-filter:blur(16px)}
+    .brand{font-weight:900;letter-spacing:.01em}.brand small{display:block;color:var(--muted);font-weight:600}
+    .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--muted);font-size:.82rem}
+    .hero{padding:clamp(28px,6vw,68px);border:1px solid var(--line);border-radius:32px;background:linear-gradient(140deg,rgba(16,41,67,.97),rgba(7,22,37,.96));box-shadow:var(--shadow)}
+    .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:900;color:var(--accent)}
+    h1{font-size:clamp(2.5rem,7vw,5.7rem);line-height:.96;margin:.18em 0 .3em;max-width:950px}
+    .hero p{max-width:900px;color:var(--muted);font-size:1.09rem}.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:25px}
+    .hero-metric{border:1px solid var(--line);border-radius:18px;padding:15px;background:rgba(255,255,255,.035)}
+    .hero-metric strong{display:block;font-size:1.45rem}.hero-metric span{color:var(--muted);font-size:.88rem}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:20px}.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(12,27,45,.94);box-shadow:0 16px 45px rgba(0,0,0,.2)}
+    .card.full{grid-column:1/-1}.card h2{margin:.1em 0 .35em;font-size:1.55rem}.card p{color:var(--muted)}
+    .controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.control{display:flex;flex-direction:column;gap:7px}.control label{font-size:.83rem;font-weight:850;color:#d7eaff}
+    select,textarea,input{width:100%;border:1px solid var(--line);border-radius:14px;background:#071727;color:var(--text);padding:11px 12px;font:inherit;outline:none}
+    select:focus,textarea:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(93,228,255,.12)}textarea{min-height:110px;resize:vertical}
+    .actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}button{border:0;border-radius:999px;padding:10px 15px;font:inherit;font-weight:900;cursor:pointer;background:var(--accent);color:#04111b}
+    button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}button.warn{background:var(--warning)}button.danger{background:var(--danger);color:#220409}
+    button:disabled{opacity:.45;cursor:not-allowed}.scenario{display:grid;grid-template-columns:1fr 105px 1fr;gap:18px;align-items:stretch;margin-top:15px}
+    .person{position:relative;min-height:260px;border:1px solid var(--line);border-radius:22px;padding:18px;background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,.015));overflow:hidden}
+    .avatar{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;font-size:2.1rem;background:rgba(93,228,255,.12);border:1px solid rgba(93,228,255,.4);margin-bottom:10px}
+    .person.guardian .avatar{background:rgba(255,209,102,.12);border-color:rgba(255,209,102,.45)}.person h3{margin:0;font-size:1.25rem}.role{color:var(--muted);font-size:.88rem}
+    .speech{margin-top:13px;padding:13px;border-radius:14px;background:#071727;border:1px solid var(--line);min-height:92px;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9rem}
+    .channel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}.channel .arrow{font-size:2.6rem;color:var(--accent)}.channel .packet{font-size:.74rem;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;padding:9px}
+    .verdict{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;margin-top:14px;border-radius:18px;padding:16px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+    .verdict-icon{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:1.4rem;background:rgba(255,255,255,.06)}.verdict.good{border-color:rgba(112,239,177,.45)}.verdict.bad{border-color:rgba(255,107,120,.5)}.verdict.warn{border-color:rgba(255,209,102,.55)}
+    .verdict strong{display:block}.muted{color:var(--muted)}.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.badge{border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:.76rem;color:var(--muted)}
+    .matrix{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;overflow:hidden;border:1px solid var(--line);border-radius:16px}.matrix th,.matrix td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.matrix th{font-size:.79rem;color:#cfe4f2;background:rgba(255,255,255,.04)}.matrix tr:last-child td{border-bottom:0}.matrix td{font-size:.88rem}.yes{color:var(--ok);font-weight:900}.no{color:var(--danger);font-weight:900}.maybe{color:var(--warning);font-weight:900}
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.step{border:1px solid var(--line);border-radius:16px;padding:13px;background:rgba(255,255,255,.025)}.step b{display:block;color:var(--accent);font-size:.8rem}.step span{font-size:.9rem;color:var(--muted)}
+    .challenge{display:grid;grid-template-columns:1fr 1fr;gap:14px}.challenge-box{padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}.challenge-box h3{margin:.1em 0 .3em}.score{font-size:2.5rem;font-weight:950}.score small{font-size:1rem;color:var(--muted);font-weight:700}
+    .footer{margin-top:24px;padding:20px;border-top:1px solid var(--line);color:var(--muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.footer strong{color:var(--text)}
+    @media(max-width:900px){.card{grid-column:1/-1}.controls,.hero-grid,.steps{grid-template-columns:1fr}.scenario{grid-template-columns:1fr}.channel{min-height:90px}.channel .arrow{transform:rotate(90deg)}.challenge{grid-template-columns:1fr}}
+    @media(max-width:600px){.shell{width:min(100% - 18px,1180px)}.hero{padding:28px 20px}.topbar{position:static}.pill{display:none}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><a href="index.html">← Módulo 4 · Esteganografía y Estegoanálisis</a><small>Simulación 1 · Modelo de amenaza</small></div>
+      <span class="pill">100% local · sin tráfico real · uso docente</span>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Fundamentos · G. J. Simmons (1983)</div>
+      <h1>El problema del prisionero</h1>
+      <p>Dos personas necesitan coordinarse a través de un guardián. Si el guardián sospecha que existe una comunicación secreta, la interrumpe. Esta simulación permite comparar <strong>mensaje visible</strong>, <strong>cifrado</strong>, <strong>oculto</strong> y <strong>cifrado + oculto</strong>, separando contenido, existencia, detectabilidad y robustez.</p>
+      <div class="hero-grid" aria-label="Objetivos">
+        <div class="hero-metric"><strong>1</strong><span>Distinguir criptografía de esteganografía</span></div>
+        <div class="hero-metric"><strong>3</strong><span>Perfiles de guardián: pasivo, activo y malicioso</span></div>
+        <div class="hero-metric"><strong>4</strong><span>Estrategias de comunicación para comparar</span></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card full">
+        <div class="eyebrow">Estación 1</div>
+        <h2>Configurar el escenario</h2>
+        <p>Elegí qué quieren comunicar Alicia y Bob, cómo lo transmiten y cuánto sabe el guardián. La simulación usa reglas transparentes y pedagógicas; no implementa canales ocultos de red ni técnicas operativas de evasión.</p>
+        <div class="controls">
+          <div class="control">
+            <label for="strategy">Estrategia de Alicia</label>
+            <select id="strategy">
+              <option value="plain">Mensaje visible</option>
+              <option value="cipher">Mensaje cifrado</option>
+              <option value="stego" selected>Mensaje oculto</option>
+              <option value="hybrid">Cifrado + oculto</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="guardian">Perfil del guardián</label>
+            <select id="guardian">
+              <option value="passive">Pasivo · observa</option>
+              <option value="active" selected>Activo · transforma el soporte</option>
+              <option value="malicious">Malicioso · intenta inducir corrupción</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="knowledge">Conocimiento del guardián</label>
+            <select id="knowledge">
+              <option value="low">Bajo · mira solo apariencia</option>
+              <option value="medium" selected>Medio · detecta patrones simples</option>
+              <option value="high">Alto · conoce el método y busca anomalías</option>
+            </select>
+          </div>
+        </div>
+        <div class="control" style="margin-top:12px">
+          <label for="secret">Mensaje secreto</label>
+          <textarea id="secret">Reunión a las 22:00</textarea>
+        </div>
+        <div class="actions">
+          <button id="send">Transmitir</button>
+          <button class="secondary" id="randomize">Probar otro escenario</button>
+          <button class="secondary" id="reset">Reiniciar</button>
+        </div>
+      </article>
+
+      <article class="card full">
+        <div class="eyebrow">Estación 2</div>
+        <h2>Observar la comunicación</h2>
+        <div class="scenario" aria-live="polite">
+          <div class="person">
+            <div class="avatar" aria-hidden="true">👩🏻‍💻</div>
+            <h3>Alicia</h3><div class="role">Emisora</div>
+            <div class="speech" id="aliceOutput">Preparada para transmitir.</div>
+          </div>
+          <div class="channel">
+            <div class="packet">canal vigilado</div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="packet" id="channelLabel">sin transmisión</div>
+          </div>
+          <div class="person guardian">
+            <div class="avatar" aria-hidden="true">🕵️</div>
+            <h3>Guardián</h3><div class="role" id="guardianRole">Activo · transforma el soporte</div>
+            <div class="speech" id="guardianOutput">Esperando una comunicación.</div>
+          </div>
+        </div>
+        <div class="scenario" style="grid-template-columns:1fr 105px 1fr;margin-top:18px">
+          <div class="person" style="grid-column:3">
+            <div class="avatar" aria-hidden="true">👨🏽‍💻</div>
+            <h3>Bob</h3><div class="role">Receptor</div>
+            <div class="speech" id="bobOutput">Todavía no recibió nada.</div>
+          </div>
+        </div>
+        <div id="verdict" class="verdict">
+          <div class="verdict-icon">•</div>
+          <div><strong>Sin resultado</strong><span class="muted">Configurá el escenario y transmití.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="eyebrow">Estación 3</div>
+        <h2>¿Qué propiedad protege cada estrategia?</h2>
+        <table class="matrix" aria-label="Comparación de propiedades">
+          <thead><tr><th>Estrategia</th><th>Contenido</th><th>Existencia</th><th>Si se descubre</th></tr></thead>
+          <tbody>
+            <tr><td>Visible</td><td class="no">No</td><td class="no">No</td><td class="no">Mensaje expuesto</td></tr>
+            <tr><td>Cifrado</td><td class="yes">Sí*</td><td class="no">No</td><td class="yes">Contenido protegido*</td></tr>
+            <tr><td>Oculto</td><td class="no">No necesariamente</td><td class="yes">Objetivo primario</td><td class="no">Puede quedar expuesto</td></tr>
+            <tr><td>Cifrado + oculto</td><td class="yes">Sí*</td><td class="yes">Objetivo primario</td><td class="yes">Defensa en profundidad*</td></tr>
+          </tbody>
+        </table>
+        <p class="muted" style="font-size:.84rem">* En un sistema real, la garantía depende de algoritmos, claves, nonces, autenticación, implementación y modelo de amenaza. Aquí se representa conceptualmente.</p>
+      </article>
+
+      <article class="card">
+        <div class="eyebrow">Estación 4</div>
+        <h2>Pasivo, activo y malicioso</h2>
+        <div class="steps">
+          <div class="step"><b>Pasivo</b><span>Observa y decide si algo parece sospechoso.</span></div>
+          <div class="step"><b>Activo</b><span>Reformatea o altera el soporte y puede destruir un payload frágil.</span></div>
+          <div class="step"><b>Malicioso</b><span>Busca producir corrupción deliberada y una interpretación errónea.</span></div>
+          <div class="step"><b>Lección</b><span>Invisibilidad, robustez e integridad son propiedades distintas.</span></div>
+        </div>
+        <div class="badge-row"><span class="badge">capacidad</span><span class="badge">invisibilidad</span><span class="badge">robustez</span><span class="badge">integridad</span><span class="badge">confidencialidad</span></div>
+      </article>
+
+      <article class="card full">
+        <div class="eyebrow">Estación 5 · Desafío</div>
+        <h2>Razonar como diseñador y como analista</h2>
+        <div class="challenge">
+          <div class="challenge-box">
+            <h3>Puntaje conceptual</h3>
+            <div class="score"><span id="score">0</span><small>/4</small></div>
+            <p class="muted" id="scoreText">Transmití distintos escenarios y observá qué propiedades fallan.</p>
+          </div>
+          <div class="challenge-box">
+            <h3>Preguntas para discusión</h3>
+            <ol class="muted">
+              <li>¿Por qué un ciphertext puede llamar más la atención que un mensaje ordinario?</li>
+              <li>¿Qué puede destruir un guardián activo sin comprender el contenido?</li>
+              <li>¿Por qué un checksum no reemplaza a un MAC o a un tag AEAD?</li>
+              <li>¿Qué cambia cuando el guardián conoce el algoritmo esteganográfico?</li>
+            </ol>
+          </div>
+        </div>
+      </article>
+
+      <article class="card full">
+        <div class="eyebrow">Síntesis</div>
+        <h2>La pregunta correcta no es solo “¿pueden leerlo?”</h2>
+        <p>La criptografía y la esteganografía resuelven problemas diferentes. El diseño moderno debe preguntar: <strong>¿pueden detectar que existe una comunicación?</strong>, <strong>¿pueden recuperar el contenido?</strong>, <strong>¿pueden modificarlo?</strong> y <strong>¿sobrevive a transformaciones del soporte?</strong>. Este modelo prepara el terreno para los laboratorios de LSB, planos de bits, DCT, estegoanálisis y composición con AES-GCM.</p>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong><br>Criptografía y Blockchain · Módulo 4</div>
+      <div>Simulación pedagógica. No utilizar como mecanismo de protección real.</div>
+    </footer>
+  </main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const seen = new Set();
+  const sampleCovers = [
+    'Te envío las fotos del cielo de anoche. La tercera quedó especialmente bien.',
+    'El informe del observatorio ya está listo. Te paso la versión revisada mañana.',
+    'La caminata del domingo sigue en pie. Llevo agua y el mapa impreso.',
+    'Terminé de ordenar las notas de astronomía. Hay una sección que te va a interesar.'
+  ];
+
+  const guardianNames = {
+    passive:'Pasivo · observa',
+    active:'Activo · transforma el soporte',
+    malicious:'Malicioso · intenta inducir corrupción'
+  };
+
+  function caesarLike(text){
+    const bytes = new TextEncoder().encode(text);
+    return Array.from(bytes).map(b => ((b * 13 + 71) & 255).toString(16).padStart(2,'0')).join(' ');
+  }
+
+  function coverText(secret){
+    const idx = [...secret].reduce((a,c)=>a+c.codePointAt(0),0) % sampleCovers.length;
+    return sampleCovers[idx];
+  }
+
+  function detectionProbability(strategy, knowledge){
+    const base = {plain:.98,cipher:.86,stego:.16,hybrid:.20}[strategy];
+    const mult = {low:.65,medium:1,high:1.65}[knowledge];
+    return Math.max(0,Math.min(.99,base*mult));
+  }
+
+  function send(){
+    const strategy = $('#strategy').value;
+    const guardian = $('#guardian').value;
+    const knowledge = $('#knowledge').value;
+    const secret = $('#secret').value.trim() || 'Reunión a las 22:00';
+    $('#guardianRole').textContent = guardianNames[guardian];
+
+    let transmitted = secret, alice = '', bob = '', channel = '';
+    if(strategy==='plain'){
+      alice = `Envío directo:\n${secret}`;
+      transmitted = secret;
+      channel='texto visible';
+    } else if(strategy==='cipher'){
+      transmitted = caesarLike(secret);
+      alice = `Contenido transformado:\n${transmitted}`;
+      channel='objeto cifrado visible';
+    } else if(strategy==='stego'){
+      transmitted = coverText(secret);
+      alice = `Cubierta inocente:\n${transmitted}\n\n[Payload conceptual: ${secret.length} caracteres]`;
+      channel='cubierta con payload';
+    } else {
+      const cipher = caesarLike(secret);
+      transmitted = coverText(cipher);
+      alice = `Cubierta inocente:\n${transmitted}\n\n[Payload conceptual cifrado: ${Math.ceil(cipher.length/3)} bytes]`;
+      channel='cubierta + payload cifrado';
+    }
+
+    const p = detectionProbability(strategy,knowledge);
+    // Deterministic threshold keeps teaching scenarios reproducible.
+    const threshold = guardian==='passive' ? .62 : guardian==='active' ? .48 : .40;
+    const detected = p >= threshold;
+    let corrupted = false;
+
+    if(guardian==='active' && (strategy==='stego' || strategy==='hybrid')){
+      corrupted = true;
+    }
+    if(guardian==='malicious'){
+      corrupted = strategy !== 'plain';
+    }
+
+    let guardianText = `Estimación de sospecha: ${Math.round(p*100)}%.\n`;
+    if(detected) guardianText += 'La comunicación parece anómala. El guardián decide intervenir.';
+    else guardianText += 'No observa una señal suficientemente fuerte para bloquearla.';
+    if(guardian==='active') guardianText += '\nAplica una transformación genérica del soporte.';
+    if(guardian==='malicious') guardianText += '\nAdemás intenta inducir corrupción deliberada.';
+
+    let delivered = !detected || guardian !== 'passive';
+    let confidentiality = strategy==='cipher' || strategy==='hybrid';
+    let hidden = strategy==='stego' || strategy==='hybrid';
+
+    if(!delivered){
+      bob = 'Comunicación bloqueada antes de llegar.';
+    } else if(corrupted && hidden){
+      bob = strategy==='hybrid'
+        ? 'Se recupera un paquete alterado. La verificación criptográfica conceptual falla: no se acepta el mensaje.'
+        : 'El payload oculto queda dañado. Sin autenticación, el receptor no debería confiar en una recuperación parcial.';
+    } else if(corrupted && strategy==='cipher'){
+      bob = 'El objeto cifrado fue modificado. Sin autenticación, no debe asumirse integridad.';
+    } else {
+      bob = `Mensaje recuperado:\n${secret}`;
+    }
+
+    $('#aliceOutput').textContent = alice;
+    $('#channelLabel').textContent = channel;
+    $('#guardianOutput').textContent = guardianText;
+    $('#bobOutput').textContent = bob;
+
+    let cls='good', icon='✓', title='Comunicación aceptable en este escenario', detail='';
+    if(detected && guardian==='passive'){
+      cls='bad';icon='✕';title='La comunicación fue detectada y bloqueada';detail='La estrategia no cumplió el objetivo de pasar inadvertida frente a este guardián.';
+    } else if(corrupted){
+      cls='warn';icon='!';title='El soporte fue alterado';detail = strategy==='hybrid'
+        ? 'La ocultación resultó frágil, pero la capa criptográfica evita aceptar silenciosamente contenido modificado.'
+        : 'La robustez o la integridad fallan aunque el contenido haya podido permanecer parcialmente oculto.';
+    } else if(hidden && !detected){
+      detail='La existencia de la comunicación no resultó evidente bajo las reglas del escenario.';
+    } else if(confidentiality && detected){
+      cls='warn';icon='!';title='Se detectó comunicación, aunque el contenido permanece protegido conceptualmente';detail='El cifrado protege el contenido, no oculta por sí mismo que existe un mensaje.';
+    } else {
+      detail='La comunicación llega, pero no necesariamente protege contenido ni existencia.';
+    }
+
+    const v=$('#verdict');
+    v.className=`verdict ${cls}`;
+    v.innerHTML=`<div class="verdict-icon">${icon}</div><div><strong>${title}</strong><span class="muted">${detail}</span></div>`;
+
+    seen.add(strategy);
+    $('#score').textContent=seen.size;
+    $('#scoreText').textContent = seen.size===4
+      ? 'Completaste las cuatro estrategias. Compará ahora cómo cambian detección, robustez e integridad.'
+      : `Probaste ${seen.size} de 4 estrategias. Cambiá la estrategia y volvé a transmitir.`;
+  }
+
+  function randomize(){
+    const strategies=['plain','cipher','stego','hybrid'];
+    const guardians=['passive','active','malicious'];
+    const know=['low','medium','high'];
+    $('#strategy').value=strategies[Math.floor(Math.random()*strategies.length)];
+    $('#guardian').value=guardians[Math.floor(Math.random()*guardians.length)];
+    $('#knowledge').value=know[Math.floor(Math.random()*know.length)];
+    send();
+  }
+
+  function reset(){
+    $('#strategy').value='stego';$('#guardian').value='active';$('#knowledge').value='medium';$('#secret').value='Reunión a las 22:00';
+    $('#aliceOutput').textContent='Preparada para transmitir.';$('#guardianOutput').textContent='Esperando una comunicación.';$('#bobOutput').textContent='Todavía no recibió nada.';$('#channelLabel').textContent='sin transmisión';
+    $('#verdict').className='verdict';$('#verdict').innerHTML='<div class="verdict-icon">•</div><div><strong>Sin resultado</strong><span class="muted">Configurá el escenario y transmití.</span></div>';
+    seen.clear();$('#score').textContent='0';$('#scoreText').textContent='Transmití distintos escenarios y observá qué propiedades fallan.';
+  }
+
+  $('#send').addEventListener('click',send);
+  $('#randomize').addEventListener('click',randomize);
+  $('#reset').addEventListener('click',reset);
+})();
+</script>
+</body>
+</html>

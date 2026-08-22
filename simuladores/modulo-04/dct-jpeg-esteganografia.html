@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Módulo 4 · DCT/JPEG y esteganografía en dominio transformado</title>
+<meta name="description" content="Laboratorio interactivo de esteganografía en dominio transformado: bloques 8x8, DCT, cuantización, inserción conceptual, reconstrucción y comparación con LSB.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#edf8ff;--muted:#a9bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 12% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 88% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;flex-wrap:wrap;gap:8px}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted)}
+.hero{
+  padding:clamp(28px,5vw,58px);
+  border:1px solid var(--line);
+  border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.3rem,6vw,4.9rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:970px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{
+  grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;
+  background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)
+}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+input,select,button{font:inherit}
+input[type=range],select{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:9px}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#000}
+.matrix-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#06121f;padding:10px}
+.matrix{border-collapse:collapse;margin:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.78rem}
+.matrix td{width:42px;height:34px;text-align:center;border:1px solid rgba(255,255,255,.08);color:#d9edfa}
+.matrix td.dc{outline:2px solid var(--accent);outline-offset:-2px;font-weight:900}
+.matrix td.mid{background:rgba(255,209,102,.10)}
+.matrix td.pick{background:rgba(75,227,255,.13);outline:2px solid var(--accent);outline-offset:-2px}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.flow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:center}
+.flow div{padding:12px;border:1px solid var(--line);border-radius:14px;text-align:center;background:#08192a}
+.flow b{text-align:center;color:var(--accent)}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:980px){.flow{grid-template-columns:1fr}.flow b{transform:rotate(90deg)}}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.35rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Esteganografía en imágenes</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#flujo">Flujo</a>
+    <a href="#bloque">Bloque 8×8</a>
+    <a href="#dct">DCT</a>
+    <a href="#insercion">Inserción</a>
+    <a href="#comparacion">Comparación</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio conceptual · Dominio transformado</div>
+  <h1>DCT/JPEG: ocultar información más allá de LSB</h1>
+  <p>
+    En lugar de modificar directamente píxeles, la esteganografía en dominio transformado trabaja sobre coeficientes.
+    Este laboratorio muestra cómo un bloque 8×8 pasa al dominio DCT, cómo actúa la cuantización y cómo una modificación
+    controlada de coeficientes puede transportar información.
+  </p>
+  <div class="pills">
+    <span class="pill">Bloques 8×8</span>
+    <span class="pill">DCT 2D</span>
+    <span class="pill">Cuantización JPEG didáctica</span>
+    <span class="pill">Coeficientes AC</span>
+    <span class="pill">Reconstrucción IDCT</span>
+    <span class="pill">LSB vs DCT</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Idea central</div>
+  <h2>Del dominio espacial al dominio frecuencial</h2>
+  <div class="two-col">
+    <div class="note">
+      <strong>LSB espacial:</strong> cambia directamente valores RGB. Es simple y con alta capacidad, pero suele ser frágil ante compresión y reescalado.
+    </div>
+    <div class="note">
+      <strong>DCT:</strong> representa un bloque como una suma de frecuencias. La esteganografía puede modificar ciertos coeficientes, generalmente evitando extremos demasiado visibles o demasiado frágiles.
+    </div>
+  </div>
+</article>
+
+<article class="card full" id="flujo">
+  <div class="eyebrow">Mapa del proceso</div>
+  <h2>Ruta conceptual JPEG</h2>
+  <div class="flow">
+    <div>Píxeles</div><b>→</b>
+    <div>Bloque 8×8</div><b>→</b>
+    <div>DCT</div><b>→</b>
+    <div>Cuantización</div>
+  </div>
+  <div class="flow" style="margin-top:8px">
+    <div>Mensaje</div><b>→</b>
+    <div>Modificar coeficiente</div><b>→</b>
+    <div>IDCT</div><b>→</b>
+    <div>Imagen reconstruida</div>
+  </div>
+</article>
+
+<article class="card full" id="bloque">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Generar un bloque 8×8 de luminancia</h2>
+  <div class="controls">
+    <div class="control"><label>Patrón</label>
+      <select id="pattern">
+        <option value="gradient">Gradiente suave</option>
+        <option value="checker">Textura ajedrezada</option>
+        <option value="edge">Borde vertical</option>
+        <option value="noise">Ruido moderado</option>
+      </select>
+    </div>
+    <div class="control"><label>Contraste</label>
+      <input id="contrast" type="range" min="20" max="120" value="70">
+    </div>
+    <div class="control"><label>Acción</label><button id="generate">Generar bloque</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div>
+      <label>Bloque espacial 8×8</label>
+      <div class="matrix-wrap"><table id="spatialMatrix" class="matrix"></table></div>
+    </div>
+    <div>
+      <label>Vista ampliada</label>
+      <div class="canvas-wrap"><canvas id="blockCanvas" width="320" height="320"></canvas></div>
+    </div>
+  </div>
+</article>
+
+<article class="card full" id="dct">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Aplicar DCT y observar los coeficientes</h2>
+  <p class="muted">El coeficiente (0,0) es DC y representa el nivel medio. Los demás son coeficientes AC y representan variaciones espaciales con distintas frecuencias.</p>
+  <div class="actions"><button id="runDct">Calcular DCT</button></div>
+  <div class="two-col" style="margin-top:14px">
+    <div>
+      <label>Coeficientes DCT</label>
+      <div class="matrix-wrap"><table id="dctMatrix" class="matrix"></table></div>
+    </div>
+    <div>
+      <label>Mapa de magnitud</label>
+      <div class="canvas-wrap"><canvas id="dctCanvas" width="320" height="320"></canvas></div>
+    </div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="dcVal">—</strong><span>coeficiente DC</span></div>
+    <div class="metric"><strong id="energyLow">—</strong><span>energía baja frecuencia</span></div>
+    <div class="metric"><strong id="energyHigh">—</strong><span>energía alta frecuencia</span></div>
+    <div class="metric"><strong id="nonzeroDct">—</strong><span>coeficientes |c|≥1</span></div>
+  </div>
+</article>
+
+<article class="card full">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Cuantización didáctica</h2>
+  <p class="muted">La cuantización divide cada coeficiente por un valor asociado a su posición y luego redondea. En JPEG real, este paso contribuye fuertemente a la compresión con pérdida.</p>
+  <div class="controls">
+    <div class="control"><label>Calidad simulada</label>
+      <select id="quality">
+        <option value="90">Alta · 90</option>
+        <option value="70" selected>Media-alta · 70</option>
+        <option value="50">Media · 50</option>
+        <option value="30">Baja · 30</option>
+      </select>
+    </div>
+    <div class="control"><label>Acción</label><button id="quantize" class="secondary">Cuantizar</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Matriz de cuantización</label><div class="matrix-wrap"><table id="qMatrix" class="matrix"></table></div></div>
+    <div><label>Coeficientes cuantizados</label><div class="matrix-wrap"><table id="quantMatrix" class="matrix"></table></div></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+    <div class="metric"><strong id="zeros">—</strong><span>coeficientes en cero</span></div>
+    <div class="metric"><strong id="compressionHint">—</strong><span>dispersión de coeficientes</span></div>
+    <div class="metric"><strong id="selectedCoeff">—</strong><span>coeficiente seleccionado</span></div>
+  </div>
+</article>
+
+<article class="card full" id="insercion">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Insertar un bit en un coeficiente AC</h2>
+  <p class="muted">
+    Esta simulación usa una regla simple: fuerza la paridad del valor absoluto de un coeficiente cuantizado para representar 0 o 1.
+    Es una simplificación didáctica, no un algoritmo esteganográfico profesional.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Coeficiente u</label>
+      <select id="uSel"></select>
+    </div>
+    <div class="control"><label>Coeficiente v</label>
+      <select id="vSel"></select>
+    </div>
+    <div class="control"><label>Bit secreto</label>
+      <select id="secretBit"><option value="0">0</option><option value="1" selected>1</option></select>
+    </div>
+    <div class="control"><label>Acción</label><button id="embedBit">Insertar bit</button></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="beforeCoeff">—</strong><span>antes</span></div>
+    <div class="metric"><strong id="afterCoeff">—</strong><span>después</span></div>
+    <div class="metric"><strong id="deltaCoeff">—</strong><span>Δ coeficiente</span></div>
+    <div class="metric"><strong id="decodedBit">—</strong><span>bit recuperado</span></div>
+  </div>
+  <div id="embedStatus" class="status">Elegí un coeficiente AC de frecuencia media y un bit.</div>
+</article>
+
+<article class="card full">
+  <div class="eyebrow">Estación 5</div>
+  <h2>Reconstrucción mediante IDCT</h2>
+  <div class="actions"><button id="reconstruct">Reconstruir bloque</button></div>
+  <div class="three-col" style="margin-top:14px">
+    <div><label>Original</label><div class="canvas-wrap"><canvas id="origView" width="320" height="320"></canvas></div></div>
+    <div><label>Reconstruido sin mensaje</label><div class="canvas-wrap"><canvas id="baseView" width="320" height="320"></canvas></div></div>
+    <div><label>Reconstruido con bit</label><div class="canvas-wrap"><canvas id="stegoView" width="320" height="320"></canvas></div></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="mseBase">—</strong><span>MSE cuantización</span></div>
+    <div class="metric"><strong id="psnrBase">—</strong><span>PSNR sin mensaje</span></div>
+    <div class="metric"><strong id="mseStego">—</strong><span>MSE con mensaje</span></div>
+    <div class="metric"><strong id="psnrStego">—</strong><span>PSNR con mensaje</span></div>
+    <div class="metric"><strong id="pixelMaxDelta">—</strong><span>Δ píxel máximo</span></div>
+    <div class="metric"><strong id="bitCheck">—</strong><span>bit verificado</span></div>
+  </div>
+  <div id="reconStatus" class="status">La diferencia visual debería ser pequeña para modificaciones moderadas de coeficientes.</div>
+</article>
+
+<article class="card full" id="comparacion">
+  <div class="eyebrow">Síntesis</div>
+  <h2>LSB espacial vs. DCT transformada</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dimensión</th><th>LSB espacial</th><th>DCT / dominio transformado</th></tr></thead>
+      <tbody>
+        <tr><td>Unidad modificada</td><td>Bits de canales de píxel</td><td>Coeficientes de frecuencia</td></tr>
+        <tr><td>Capacidad</td><td>Generalmente alta</td><td>Generalmente menor</td></tr>
+        <tr><td>Complejidad</td><td>Baja</td><td>Mayor</td></tr>
+        <tr><td>Compatibilidad con JPEG</td><td>Frágil si la imagen se recomprime</td><td>Más natural para medios comprimidos</td></tr>
+        <tr><td>Robustez</td><td>Baja frente a transformaciones</td><td>Puede diseñarse para resistir mejor ciertas operaciones</td></tr>
+        <tr><td>Riesgo de detección</td><td>Patrones en LSB y estadísticas</td><td>Anomalías en coeficientes y compresión</td></tr>
+      </tbody>
+    </table>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Desafío 1</h2>
+  <ol class="steps">
+    <li>Usá gradiente suave con calidad 90.</li>
+    <li>Insertá un bit en (2,3).</li>
+    <li>Registrá PSNR.</li>
+    <li>Repetí con calidad 30.</li>
+    <li>Explicá por qué cambian los resultados.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Desafío 2</h2>
+  <ol class="steps">
+    <li>Compará gradiente y textura.</li>
+    <li>Observá dónde se concentra la energía DCT.</li>
+    <li>Seleccioná una frecuencia media.</li>
+    <li>Evaluá la alteración del bloque.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Puente al estegoanálisis JPEG</h2>
+  <p class="muted">
+    El siguiente paso es analizar cómo una modificación deja huellas en las distribuciones de coeficientes
+    y cómo la recompresión puede utilizarse como técnica de calibración conceptual.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Modelo educativo simplificado. No implementa un codificador JPEG completo ni un sistema esteganográfico de producción.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const N=8;
+let spatial=make2d(0), dct=make2d(0), qmat=make2d(1), quant=make2d(0), stegoQ=make2d(0), reconstructedBase=make2d(0), reconstructedStego=make2d(0);
+let embedded=false;
+
+const blockCanvas=$('#blockCanvas'),bctx=blockCanvas.getContext('2d');
+const dctCanvas=$('#dctCanvas'),dctx=dctCanvas.getContext('2d');
+const origView=$('#origView'),ovctx=origView.getContext('2d');
+const baseView=$('#baseView'),bvctx=baseView.getContext('2d');
+const stegoView=$('#stegoView'),svctx=stegoView.getContext('2d');
+
+function make2d(v){return Array.from({length:N},()=>Array(N).fill(v))}
+function clone2d(a){return a.map(r=>r.slice())}
+function clamp(v){return Math.max(0,Math.min(255,v))}
+function C(k){return k===0?1/Math.sqrt(2):1}
+function fmt(v){return Math.abs(v)>=100?Math.round(v):v.toFixed(1)}
+
+function renderMatrix(id,m,opt={}){
+  const t=$(id); t.innerHTML='';
+  for(let y=0;y<N;y++){
+    const tr=document.createElement('tr');
+    for(let x=0;x<N;x++){
+      const td=document.createElement('td');td.textContent=opt.integer?Math.round(m[y][x]):fmt(m[y][x]);
+      if(opt.dc && x===0&&y===0)td.classList.add('dc');
+      if(opt.mid && x+y>=3&&x+y<=7)td.classList.add('mid');
+      if(opt.pick && x===opt.pick.v&&y===opt.pick.u)td.classList.add('pick');
+      tr.appendChild(td);
+    }
+    t.appendChild(tr);
+  }
+}
+function drawBlock(canvas,ctx,m){
+  const cell=canvas.width/N;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    const v=Math.round(clamp(m[y][x]));ctx.fillStyle=`rgb(${v},${v},${v})`;ctx.fillRect(x*cell,y*cell,cell,cell);
+  }
+  ctx.strokeStyle='rgba(255,255,255,.25)';
+  for(let i=0;i<=N;i++){ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,canvas.height);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*cell);ctx.lineTo(canvas.width,i*cell);ctx.stroke()}
+}
+function generateSpatial(){
+  const pat=$('#pattern').value, c=Number($('#contrast').value);
+  spatial=make2d(0);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    let v=128;
+    if(pat==='gradient')v=128 + ((x+y)-7)*c/14;
+    if(pat==='checker')v=128 + (((x+y)%2===0)?c/2:-c/2);
+    if(pat==='edge')v=128 + (x<4?-c/2:c/2);
+    if(pat==='noise')v=128 + (Math.sin(x*2.3+y*1.7)+Math.cos(x*.9-y*2.1))*c/4;
+    spatial[y][x]=clamp(v);
+  }
+  embedded=false;renderMatrix('#spatialMatrix',spatial,{integer:true});drawBlock(blockCanvas,bctx,spatial);drawBlock(origView,ovctx,spatial);
+}
+function DCT2(a){
+  const out=make2d(0);
+  for(let u=0;u<N;u++)for(let v=0;v<N;v++){
+    let sum=0;
+    for(let x=0;x<N;x++)for(let y=0;y<N;y++){
+      sum+=(a[y][x]-128)*Math.cos(((2*x+1)*v*Math.PI)/(2*N))*Math.cos(((2*y+1)*u*Math.PI)/(2*N));
+    }
+    out[u][v]=.25*C(u)*C(v)*sum;
+  }
+  return out;
+}
+function IDCT2(a){
+  const out=make2d(0);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    let sum=0;
+    for(let u=0;u<N;u++)for(let v=0;v<N;v++){
+      sum+=C(u)*C(v)*a[u][v]*Math.cos(((2*x+1)*v*Math.PI)/(2*N))*Math.cos(((2*y+1)*u*Math.PI)/(2*N));
+    }
+    out[y][x]=clamp(.25*sum+128);
+  }
+  return out;
+}
+function renderDctMap(){
+  let max=0;
+  for(const r of dct)for(const v of r)max=Math.max(max,Math.log1p(Math.abs(v)));
+  const cell=dctCanvas.width/N;
+  for(let u=0;u<N;u++)for(let v=0;v<N;v++){
+    const mag=max?Math.log1p(Math.abs(dct[u][v]))/max:0;
+    const val=Math.round(mag*255);
+    dctx.fillStyle=`rgb(${val},${val},${val})`;dctx.fillRect(v*cell,u*cell,cell,cell);
+  }
+}
+function runDct(){
+  dct=DCT2(spatial);renderMatrix('#dctMatrix',dct,{dc:true,mid:true});renderDctMap();
+  let low=0,high=0,nz=0;
+  for(let u=0;u<N;u++)for(let v=0;v<N;v++){
+    const e=dct[u][v]*dct[u][v]; if(u+v<=4)low+=e; else high+=e; if(Math.abs(dct[u][v])>=1)nz++;
+  }
+  const total=low+high||1;
+  $('#dcVal').textContent=fmt(dct[0][0]);$('#energyLow').textContent=(100*low/total).toFixed(1)+'%';
+  $('#energyHigh').textContent=(100*high/total).toFixed(1)+'%';$('#nonzeroDct').textContent=nz;
+}
+const baseQ=[
+[16,11,10,16,24,40,51,61],[12,12,14,19,26,58,60,55],[14,13,16,24,40,57,69,56],[14,17,22,29,51,87,80,62],
+[18,22,37,56,68,109,103,77],[24,35,55,64,81,104,113,92],[49,64,78,87,103,121,120,101],[72,92,95,98,112,100,103,99]
+];
+function qualityMatrix(q){
+  let scale=q<50?5000/q:200-2*q;
+  const out=make2d(1);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++)out[y][x]=Math.max(1,Math.min(255,Math.floor((baseQ[y][x]*scale+50)/100)));
+  return out;
+}
+function quantize(){
+  if(!dct[0][0] && dct.flat().every(v=>v===0))runDct();
+  const q=Number($('#quality').value);qmat=qualityMatrix(q);quant=make2d(0);
+  let zeros=0,nz=0;
+  for(let u=0;u<N;u++)for(let v=0;v<N;v++){quant[u][v]=Math.round(dct[u][v]/qmat[u][v]); if(quant[u][v]===0)zeros++;else nz++;}
+  stegoQ=clone2d(quant);embedded=false;
+  renderMatrix('#qMatrix',qmat,{integer:true});renderMatrix('#quantMatrix',quant,{integer:true,mid:true});
+  $('#zeros').textContent=zeros+'/64';$('#compressionHint').textContent=nz+' no nulos';
+  updateSelected();
+}
+function updateSelected(){
+  const u=Number($('#uSel').value),v=Number($('#vSel').value);
+  $('#selectedCoeff').textContent=`(${u},${v}) = ${quant[u][v]}`;
+  renderMatrix('#quantMatrix',embedded?stegoQ:quant,{integer:true,mid:true,pick:{u,v}});
+}
+function populateSelectors(){
+  for(const id of ['#uSel','#vSel']){
+    const s=$(id);s.innerHTML='';
+    for(let i=0;i<N;i++){const o=document.createElement('option');o.value=i;o.textContent=i;s.appendChild(o);}
+  }
+  $('#uSel').value='2';$('#vSel').value='3';
+}
+$('#uSel').onchange=updateSelected;$('#vSel').onchange=updateSelected;
+
+function embedBit(){
+  const u=Number($('#uSel').value),v=Number($('#vSel').value),bit=Number($('#secretBit').value);
+  if(u===0&&v===0){st($('#embedStatus'),'No usamos el coeficiente DC en esta simulación. Elegí un coeficiente AC.','bad');return}
+  stegoQ=clone2d(quant);
+  let old=stegoQ[u][v];
+  if(old===0) old=2;
+  let sign=old<0?-1:1,mag=Math.abs(old);
+  if((mag&1)!==bit)mag+=1;
+  stegoQ[u][v]=sign*mag;
+  embedded=true;
+  $('#beforeCoeff').textContent=quant[u][v];$('#afterCoeff').textContent=stegoQ[u][v];
+  $('#deltaCoeff').textContent=stegoQ[u][v]-quant[u][v];$('#decodedBit').textContent=Math.abs(stegoQ[u][v])&1;
+  renderMatrix('#quantMatrix',stegoQ,{integer:true,mid:true,pick:{u,v}});
+  st($('#embedStatus'),`Bit ${bit} insertado mediante la paridad del coeficiente cuantizado (${u},${v}).`,'good');
+}
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function dequant(q){const out=make2d(0);for(let u=0;u<N;u++)for(let v=0;v<N;v++)out[u][v]=q[u][v]*qmat[u][v];return out}
+function mse(a,b){let s=0,maxd=0;for(let y=0;y<N;y++)for(let x=0;x<N;x++){const d=a[y][x]-b[y][x];s+=d*d;maxd=Math.max(maxd,Math.abs(d));}return {mse:s/(N*N),maxd}}
+function psnr(m){return m===0?Infinity:10*Math.log10(255*255/m)}
+function reconstruct(){
+  reconstructedBase=IDCT2(dequant(quant));reconstructedStego=IDCT2(dequant(embedded?stegoQ:quant));
+  drawBlock(origView,ovctx,spatial);drawBlock(baseView,bvctx,reconstructedBase);drawBlock(stegoView,svctx,reconstructedStego);
+  const a=mse(spatial,reconstructedBase),b=mse(spatial,reconstructedStego);
+  $('#mseBase').textContent=a.mse.toFixed(3);$('#psnrBase').textContent=isFinite(psnr(a.mse))?psnr(a.mse).toFixed(2):'∞';
+  $('#mseStego').textContent=b.mse.toFixed(3);$('#psnrStego').textContent=isFinite(psnr(b.mse))?psnr(b.mse).toFixed(2):'∞';
+  $('#pixelMaxDelta').textContent=b.maxd.toFixed(2);
+  if(embedded){
+    const u=Number($('#uSel').value),v=Number($('#vSel').value),bit=Math.abs(stegoQ[u][v])&1;
+    $('#bitCheck').textContent=bit;st($('#reconStatus'),`Reconstrucción completada. El bit ${bit} permanece codificado en el coeficiente seleccionado.`,'good');
+  }else{
+    $('#bitCheck').textContent='—';st($('#reconStatus'),'Reconstrucción completada sin bit adicional.','good');
+  }
+}
+$('#generate').onclick=()=>{generateSpatial();runDct();quantize();reconstruct()};
+$('#pattern').onchange=()=>{generateSpatial();runDct();quantize();reconstruct()};
+$('#contrast').oninput=()=>{generateSpatial();runDct();quantize();reconstruct()};
+$('#runDct').onclick=runDct;
+$('#quality').onchange=()=>{quantize();reconstruct()};
+$('#quantize').onclick=quantize;
+$('#embedBit').onclick=embedBit;
+$('#reconstruct').onclick=reconstruct;
+
+populateSelectors();
+generateSpatial();runDct();quantize();reconstruct();
+</script>
+</body>
+</html>

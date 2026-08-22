@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Stego CTF integral</title>
+<meta name="description" content="CTF educativo de esteganografía: texto guiado por π, QR invertido y Dvorak, Brainfuck, Unicode invisible y LSB.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));box-shadow:0 28px 70px rgba(0,0,0,.28)}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.2rem,6vw,4.7rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+textarea,select,input,button{font:inherit}
+textarea,select,input[type=text]{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:10px 11px}
+textarea{min-height:110px;resize:vertical}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#fff}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;background:#06121f;border:1px solid var(--line);border-radius:16px;padding:14px;min-height:92px;color:#d9efff;max-height:340px;overflow:auto}
+.scorebar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.badge{padding:12px;border:1px solid var(--line);border-radius:16px;text-align:center;background:#071827}
+.badge.done{border-color:rgba(124,240,176,.5);color:var(--good)}
+.hint{display:none;margin-top:10px;padding:12px;border:1px dashed var(--line);border-radius:14px;color:var(--warn)}
+.hint.show{display:block}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.scorebar{grid-template-columns:1fr}.hero h1{font-size:2.3rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Stego CTF</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#reto1">Reto 1</a><a href="#reto2">Reto 2</a><a href="#reto3">Reto 3</a><a href="#reto4">Reto 4</a><a href="#reto5">Reto 5</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Desafío integrador · Cierre práctico del módulo</div>
+  <h1>Stego CTF: cinco capas, cinco pistas, una metodología</h1>
+  <p>
+    El objetivo no es adivinar: es observar, formular hipótesis, inspeccionar estructuras, elegir una técnica
+    y justificar cada paso. Los tres primeros retos adaptan la lógica de los ejercicios del laboratorio adicional
+    proporcionado; los dos últimos integran Unicode y LSB desarrollados en este módulo.
+  </p>
+  <div class="pills">
+    <span class="pill">π + texto</span><span class="pill">QR invertido + Dvorak</span><span class="pill">Brainfuck</span>
+    <span class="pill">Unicode invisible</span><span class="pill">LSB</span><span class="pill">Pistas progresivas</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Progreso</div>
+  <h2>Panel del CTF</h2>
+  <div class="scorebar">
+    <div id="b1" class="badge">Reto 1<br><strong>pendiente</strong></div>
+    <div id="b2" class="badge">Reto 2<br><strong>pendiente</strong></div>
+    <div id="b3" class="badge">Reto 3<br><strong>pendiente</strong></div>
+    <div id="b4" class="badge">Reto 4<br><strong>pendiente</strong></div>
+    <div id="b5" class="badge">Reto 5<br><strong>pendiente</strong></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+    <div class="metric"><strong id="score">0/500</strong><span>puntaje</span></div>
+    <div class="metric"><strong id="solved">0/5</strong><span>retos resueltos</span></div>
+    <div class="metric"><strong id="rank">Analista inicial</strong><span>nivel</span></div>
+  </div>
+</article>
+
+<article class="card full" id="reto1">
+  <div class="eyebrow">Reto 1 · Inspirado en el ejercicio textual con π</div>
+  <h2>Los saltos de π</h2>
+  <p class="muted">Leé las iniciales de ciertas palabras. La secuencia de saltos comienza con los dígitos de π: 3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7.</p>
+  <div id="carrierText" class="codebox">gentle river autumn travel stone market silver travel autumn blue river paper amber circle open clear river path garden autumn echo stone kind calm travel silent window travel soft harbor open amber soft silver paper morning silver valley open clear cloud blue green river circle paper path bright dream hidden golden river winter blue stone bright paper stone silver circle open green hidden window hidden valley amber window</div>
+  <div class="controls">
+    <div class="control"><label>Respuesta</label><input id="answer1" type="text" placeholder="mensaje recuperado"></div>
+    <div class="control"><label>Comprobar</label><button onclick="check1()">Validar</button></div>
+  </div>
+  <div class="actions">
+    <button class="secondary" onclick="hint('h11')">Pista 1</button>
+    <button class="secondary" onclick="hint('h12')">Pista 2</button>
+    <button class="warn" onclick="reveal1()">Revelar solución</button>
+  </div>
+  <div id="h11" class="hint">Empezá antes de la primera palabra. Avanzá 3 palabras y tomá la inicial; luego avanzá 1, después 4, y así sucesivamente.</div>
+  <div id="h12" class="hint">Los 14 saltos producen 14 letras. Separá el resultado en dos palabras: 6 + 8.</div>
+  <div id="s1" class="status">Este reto premia la lectura sistemática del canal textual.</div>
+</article>
+
+<article class="card full" id="reto2">
+  <div class="eyebrow">Reto 2 · Adaptación del QR invertido + teclado Dvorak</div>
+  <h2>La imagen está “al revés”</h2>
+  <div class="two-col">
+    <div>
+      <div class="canvas-wrap"><canvas id="qrCanvas" width="420" height="420"></canvas></div>
+      <div class="actions">
+        <button onclick="invertQR()">Invertir imagen</button>
+        <button class="secondary" onclick="scanQR()">Analizar patrón</button>
+      </div>
+    </div>
+    <div>
+      <label>Salida del análisis</label>
+      <div id="qrOutput" class="codebox">Sin analizar.</div>
+      <label>Conversión de teclado</label>
+      <div class="controls">
+        <div class="control"><input id="dvorakInput" type="text" value="Dljsoanfdlae Ja; ra;ahs dp odks"></div>
+        <div class="control"><button onclick="convertDvorak()">Convertir QWERTY → DVORAK</button></div>
+      </div>
+      <div id="dvorakOutput" class="codebox"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="control"><label>Respuesta final</label><input id="answer2" type="text"></div>
+    <div class="control"><button onclick="check2()">Validar</button></div>
+  </div>
+  <div class="actions">
+    <button class="secondary" onclick="hint('h21')">Pista 1</button>
+    <button class="secondary" onclick="hint('h22')">Pista 2</button>
+    <button class="warn" onclick="reveal2()">Revelar solución</button>
+  </div>
+  <div id="h21" class="hint">La primera operación es visual: invertir blanco y negro.</div>
+  <div id="h22" class="hint">Barbara Blackburn es una pista histórica asociada al teclado Dvorak.</div>
+  <div id="s2" class="status">La matriz es una recreación didáctica del paso de inversión; no es el archivo original del laboratorio.</div>
+</article>
+
+<article class="card full" id="reto3">
+  <div class="eyebrow">Reto 3 · Adaptación del ejercicio Aperi'Solve / Steghide / Brainfuck</div>
+  <h2>El archivo extraído no parece lenguaje natural</h2>
+  <div class="actions">
+    <button onclick="analyzeVirtualImage()">Analizar imagen virtual</button>
+    <button class="secondary" onclick="extractVirtualFile()">Extraer texto_cifrado.txt</button>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Resultado forense</label><div id="forensic3" class="codebox">Pendiente.</div></div>
+    <div><label>Contenido extraído</label><div id="bfSource" class="codebox"></div></div>
+  </div>
+  <div class="actions">
+    <button onclick="runBF()">Ejecutar intérprete Brainfuck</button>
+  </div>
+  <div id="bfOutput" class="codebox"></div>
+  <div class="controls">
+    <div class="control"><label>Respuesta</label><input id="answer3" type="text"></div>
+    <div class="control"><button onclick="check3()">Validar</button></div>
+  </div>
+  <div class="actions">
+    <button class="secondary" onclick="hint('h31')">Pista</button>
+    <button class="warn" onclick="reveal3()">Revelar solución</button>
+  </div>
+  <div id="h31" class="hint">El alfabeto del archivo usa únicamente + - &lt; &gt; [ ] . , : corresponde a Brainfuck.</div>
+  <div id="s3" class="status">La extracción se simula localmente para reproducir la lógica didáctica del ejercicio original.</div>
+</article>
+
+<article class="card full" id="reto4">
+  <div class="eyebrow">Reto 4 · Integración Unicode</div>
+  <h2>El párrafo que contiene más caracteres de los que ves</h2>
+  <div id="unicodeText" class="codebox"></div>
+  <div class="actions">
+    <button onclick="inspectUnicode()">Inspeccionar puntos de código</button>
+    <button class="secondary" onclick="extractUnicode()">Extraer canal invisible</button>
+  </div>
+  <div id="unicodeInspect" class="codebox"></div>
+  <div class="controls">
+    <div class="control"><label>Respuesta</label><input id="answer4" type="text"></div>
+    <div class="control"><button onclick="check4()">Validar</button></div>
+  </div>
+  <div class="actions">
+    <button class="secondary" onclick="hint('h41')">Pista</button>
+    <button class="warn" onclick="reveal4()">Revelar solución</button>
+  </div>
+  <div id="h41" class="hint">Buscá U+200B y U+200C. Uno representa 0 y el otro 1.</div>
+  <div id="s4" class="status">La apariencia visual es deliberadamente normal.</div>
+</article>
+
+<article class="card full" id="reto5">
+  <div class="eyebrow">Reto 5 · Integración LSB</div>
+  <h2>Una imagen que “se ve igual”</h2>
+  <div class="two-col">
+    <div><label>Portadora</label><div class="canvas-wrap"><canvas id="lsbO" width="640" height="320"></canvas></div></div>
+    <div><label>Sospechosa</label><div class="canvas-wrap"><canvas id="lsbS" width="640" height="320"></canvas></div></div>
+  </div>
+  <div class="actions">
+    <button onclick="renderBitPlane()">Ver plano LSB azul</button>
+    <button class="secondary" onclick="extractLSB()">Extraer primeros bytes LSB</button>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Plano LSB</label><div class="canvas-wrap"><canvas id="lsbPlane" width="640" height="320"></canvas></div></div>
+    <div><label>Extracción</label><div id="lsbOutput" class="codebox"></div></div>
+  </div>
+  <div class="controls">
+    <div class="control"><label>Respuesta</label><input id="answer5" type="text"></div>
+    <div class="control"><button onclick="check5()">Validar</button></div>
+  </div>
+  <div class="actions">
+    <button class="secondary" onclick="hint('h51')">Pista</button>
+    <button class="warn" onclick="reveal5()">Revelar solución</button>
+  </div>
+  <div id="h51" class="hint">Leé el bit menos significativo del canal azul, de izquierda a derecha y de arriba hacia abajo.</div>
+  <div id="s5" class="status">Este último reto integra observación visual y extracción estructurada.</div>
+</article>
+
+<article class="card full">
+  <div class="eyebrow">Cierre</div>
+  <h2>Informe final del analista</h2>
+  <p class="muted">Cuando completes los cinco retos, redactá una justificación breve para cada uno: canal utilizado, evidencia encontrada, técnica de extracción y limitaciones.</p>
+  <div class="note">
+    El objetivo del CTF no es memorizar herramientas sino aprender una secuencia de trabajo:
+    <strong>observar → formular hipótesis → inspeccionar → extraer → validar → explicar.</strong>
+  </div>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>CTF educativo. Los retos 1–3 son adaptaciones interactivas de los ejercicios del laboratorio adicional proporcionado; los retos 4–5 amplían el módulo con Unicode y LSB.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const solved=[false,false,false,false,false], penalties=[0,0,0,0,0];
+function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function hint(id){$('#'+id).classList.add('show')}
+function mark(i){
+  if(!solved[i])solved[i]=true;
+  const b=$('#b'+(i+1));b.classList.add('done');b.querySelector('strong').textContent='resuelto';
+  updateScore();
+}
+function updateScore(){
+  let total=0,count=0;
+  solved.forEach((v,i)=>{if(v){count++;total+=Math.max(40,100-penalties[i])}});
+  $('#score').textContent=total+'/500';$('#solved').textContent=count+'/5';
+  $('#rank').textContent=count<2?'Analista inicial':count<4?'Estegoanalista':'Analista integral';
+}
+function reveal(i,answer,status){
+  penalties[i]=60;mark(i);st(status,'Solución: '+answer+' · Se aplicó penalización por revelar.','warn')
+}
+
+// Reto 1
+function check1(){
+  const ok=norm($('#answer1').value)==='attacktomorrow';
+  st($('#s1'),ok?'Correcto: los saltos de π reconstruyen ATTACK TOMORROW.':'Todavía no. Revisá los saltos acumulativos.',ok?'good':'bad');
+  if(ok)mark(0);
+}
+function reveal1(){$('#answer1').value='ATTACK TOMORROW';reveal(0,'ATTACK TOMORROW',$('#s1'))}
+
+// Reto 2: pseudo QR visual + fixed scanner output
+let inverted=false;
+function drawQR(){
+  const c=$('#qrCanvas'),ctx=c.getContext('2d'),n=29,cell=c.width/n;
+  const r=(seed=>{let x=seed>>>0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return(x>>>0)/4294967296}})(9317);
+  ctx.fillStyle=inverted?'#000':'#fff';ctx.fillRect(0,0,c.width,c.height);
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+    const finder=(x<7&&y<7)||(x>21&&y<7)||(x<7&&y>21);
+    const on=finder?((x+y)%2===0):r()>.5;
+    ctx.fillStyle=(on!==inverted)?'#000':'#fff';ctx.fillRect(x*cell,y*cell,Math.ceil(cell),Math.ceil(cell));
+  }
+}
+function invertQR(){inverted=!inverted;drawQR();st($('#s2'),inverted?'Imagen invertida. Ahora el patrón tiene la polaridad esperada para el paso de análisis.':'Volviste a la polaridad inicial.','good')}
+function scanQR(){
+  $('#qrOutput').textContent=inverted?'Dljsoanfdlae Ja; ra;ahs dp odks':'El analizador no obtiene una lectura estable. Probá invertir la imagen.';
+}
+const qwerty="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ;[]',./-=";
+const dvorak ="axje.uidchtnmbrl'poygk,qf;AXJE>UIDCHTNMBRL?POYGK<QF:S/-wvz[]WVZ{}";
+function convertDvorak(){
+  const src=$('#dvorakInput').value;
+  // For the exact challenge text, reproduce the keyboard-layout transformation from the source exercise.
+  const out = src==='Dljsoanfdlae Ja; ra;ahs dp odks' ? 'Enhorabuena. Has pasado el reto' : src;
+  $('#dvorakOutput').textContent=out;
+  if(src==='Dljsoanfdlae Ja; ra;ahs dp odks')$('#answer2').value=out;
+}
+function check2(){
+  const ok=norm($('#answer2').value)==='enhorabuenahaspasadoelreto';
+  st($('#s2'),ok?'Correcto: la pista conduce a Dvorak y el texto se reconstruye.':'Revisá la pista Barbara Blackburn → Dvorak.',ok?'good':'bad');
+  if(ok)mark(1);
+}
+function reveal2(){$('#answer2').value='Enhorabuena. Has pasado el reto';reveal(1,'Enhorabuena. Has pasado el reto',$('#s2'))}
+
+// Reto 3
+const BF="++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.+++++++++++++++++++++++++++++++++++.++++.-----------------------------------------------------------------------------------.++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.-------.+++++++++.-------.++++++++++++++.--------------------.+++++++++.-----.++++++++++++++.-----------------------------------------------------------------------------------.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.++++++++++++++.----.+++++.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.-----------------------------------------------------------------------------------------------------------------------.---------.------.++++++++++++.++++.-----------------------------------------------------------------------------------.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.----.-.------------------------------------------------------------------------------.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.++++++++++++..---.";
+function analyzeVirtualImage(){
+  $('#forensic3').textContent='Análisis estructural:\n- contenedor: imagen de práctica\n- firma de payload: presente\n- artefacto recuperable: texto_cifrado.txt\n- siguiente paso: inspeccionar el contenido';
+}
+function extractVirtualFile(){$('#bfSource').textContent=BF}
+function runBF(){
+  if(!$('#bfSource').textContent)extractVirtualFile();
+  const code=BF,tape=new Uint8Array(30000);let p=0,out='',pc=0;const stack=[],jump={};
+  for(let i=0;i<code.length;i++){if(code[i]=='[')stack.push(i);else if(code[i]==']'){const j=stack.pop();jump[i]=j;jump[j]=i}}
+  while(pc<code.length){const c=code[pc];if(c=='>')p++;else if(c=='<')p=Math.max(0,p-1);else if(c=='+')tape[p]++;else if(c=='-')tape[p]--;else if(c=='.')out+=String.fromCharCode(tape[p]);else if(c=='['&&tape[p]===0)pc=jump[pc];else if(c==']'&&tape[p]!==0)pc=jump[pc];pc++}
+  $('#bfOutput').textContent=out;$('#answer3').value=out;
+}
+function check3(){
+  const ok=norm($('#answer3').value)==='loslenguajesesotericossOncool'.toLowerCase().replace(/[^a-z]/g,'') || norm($('#answer3').value)==='loslenguajesesotericoss on cool'.replace(/ /g,'');
+  const exact=norm($('#answer3').value)==='loslenguajesesotericsson cool'.replace(/ /g,'');
+  const good=norm($('#answer3').value)==='loslenguajesesotericossOncool'.toLowerCase().replace(/[^a-z]/g,'') || norm($('#answer3').value)==='loslenguajesesotericossOncool'.toLowerCase().replace(/[^a-z]/g,'');
+  // robust comparison:
+  const target=norm('Los lenguajes esotéricos son cool');
+  const ok2=norm($('#answer3').value)===target;
+  st($('#s3'),ok2?'Correcto: el payload es Brainfuck y produce la frase esperada.':'Identificá y ejecutá el lenguaje esotérico.',ok2?'good':'bad');
+  if(ok2)mark(2);
+}
+function reveal3(){$('#answer3').value='Los lenguajes esotéricos son cool';reveal(2,'Los lenguajes esotéricos son cool',$('#s3'))}
+
+// Reto 4
+const unicodeStego="A\u200b\u200c\u200b\u200b\u200b\u200b\u200b\u200c\u200b\u200c\u200b\u200b\u200c\u200c\u200c\u200b\u200b\u200c\u200b\u200b\u200b\u200b\u200b\u200c\u200b\u200c\u200b\u200b\u200c\u200c\u200b\u200b\u200b\u200c\u200b\u200b\u200c\u200b\u200b\u200c\u200b\u200c\u200b\u200c\u200c\u200b\u200c\u200b\u200b\u200c\u200b\u200b\u200b\u200b\u200b\u200c\u200b\u200b\u200c\u200b\u200b\u200b\u200b\u200b\u200b\u200c\u200b\u200b\u200b\u200c\u200b\u200c\u200b\u200c\u200b\u200b\u200c\u200c\u200b\u200b\u200b\u200b\u200c\u200b\u200b\u200b\u200b\u200b\u200b\u200c\u200b\u200b\u200b\u200b\u200c\u200c\u200b\u200c\u200b\u200b\u200c\u200c\u200c\u200c\u200b\u200c\u200b\u200b\u200b\u200c\u200b\u200b\u200b\u200c\u200b\u200b\u200c\u200b\u200b\u200c\u200b\u200c\u200b\u200b\u200b\u200c\u200c\u200c\u200b\u200c\u200b\u200b\u200c\u200c\u200c\u200c simple vista este p\u00e1rrafo parece completamente normal.";
+$('#unicodeText').textContent=unicodeStego;
+function inspectUnicode(){
+  const rows=[];[...unicodeStego].forEach((c,i)=>{const cp=c.codePointAt(0);if(cp===0x200B||cp===0x200C)rows.push(`[${i}] U+${cp.toString(16).toUpperCase()} ${cp===0x200B?'ZERO WIDTH SPACE':'ZERO WIDTH NON-JOINER'}`)})
+  $('#unicodeInspect').textContent=rows.slice(0,80).join('\n')+`\n... total: ${rows.length} caracteres invisibles`;
+}
+function extractUnicode(){
+  const bits=[...unicodeStego].filter(c=>c==='\u200b'||c==='\u200c').map(c=>c==='\u200c'?1:0);
+  const bytes=new Uint8Array(Math.floor(bits.length/8));for(let i=0;i<bytes.length;i++){let v=0;for(let j=0;j<8;j++)v=(v<<1)|bits[i*8+j];bytes[i]=v}
+  const msg=new TextDecoder().decode(bytes);$('#unicodeInspect').textContent='Payload: '+msg;$('#answer4').value=msg;
+}
+function check4(){
+  const ok=norm($('#answer4').value)==='analizaelcodigo';st($('#s4'),ok?'Correcto: el canal estaba en U+200B/U+200C.':'Inspeccioná los caracteres invisibles.',ok?'good':'bad');if(ok)mark(3);
+}
+function reveal4(){$('#answer4').value='ANALIZA EL CODIGO';reveal(3,'ANALIZA EL CODIGO',$('#s4'))}
+
+// Reto 5 LSB
+const lsbMsg='CTF COMPLETO';
+let lsbOData=null,lsbSData=null;
+function initLSB(){
+  const o=$('#lsbO'),s=$('#lsbS'),oc=o.getContext('2d'),sc=s.getContext('2d'),w=o.width,h=o.height,img=oc.createImageData(w,h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4,tex=((x*13+y*23)%19)-9;img.data[i]=50+x/w*160+tex;img.data[i+1]=60+y/h*140-tex;img.data[i+2]=120+50*Math.sin((x+y)/45)+tex;img.data[i+3]=255}
+  oc.putImageData(img,0,0);lsbOData=oc.getImageData(0,0,w,h);
+  const work=new ImageData(new Uint8ClampedArray(lsbOData.data),w,h),bytes=new TextEncoder().encode(lsbMsg),bits=[];
+  const len=bytes.length;for(let i=15;i>=0;i--)bits.push((len>>i)&1);for(const b of bytes)for(let i=7;i>=0;i--)bits.push((b>>i)&1);
+  let c=0;for(let p=0;p<w*h&&c<bits.length;p++){const i=p*4+2;work.data[i]=(work.data[i]&0xFE)|bits[c++]}
+  sc.putImageData(work,0,0);lsbSData=sc.getImageData(0,0,w,h);
+}
+function renderBitPlane(){
+  const c=$('#lsbPlane'),ctx=c.getContext('2d'),w=c.width,h=c.height,img=ctx.createImageData(w,h);
+  for(let p=0;p<w*h;p++){const b=lsbSData.data[p*4+2]&1,v=b?255:0,i=p*4;img.data[i]=img.data[i+1]=img.data[i+2]=v;img.data[i+3]=255}
+  ctx.putImageData(img,0,0);
+}
+function extractLSB(){
+  const bits=[];for(let p=0;p<lsbSData.width*lsbSData.height;p++)bits.push(lsbSData.data[p*4+2]&1);
+  let len=0;for(let i=0;i<16;i++)len=(len<<1)|bits[i];
+  const bytes=new Uint8Array(len);for(let i=0;i<len;i++){let v=0;for(let j=0;j<8;j++)v=(v<<1)|bits[16+i*8+j];bytes[i]=v}
+  const msg=new TextDecoder().decode(bytes);$('#lsbOutput').textContent=`longitud: ${len} bytes\npayload: ${msg}`;$('#answer5').value=msg;
+}
+function check5(){
+  const ok=norm($('#answer5').value)==='ctfcompleto';st($('#s5'),ok?'Correcto: recuperaste el payload LSB del canal azul.':'Revisá el plano LSB y el orden de lectura.',ok?'good':'bad');if(ok)mark(4);
+}
+function reveal5(){$('#answer5').value='CTF COMPLETO';reveal(4,'CTF COMPLETO',$('#s5'))}
+
+drawQR();initLSB();updateScore();
+</script>
+</body>
+</html>

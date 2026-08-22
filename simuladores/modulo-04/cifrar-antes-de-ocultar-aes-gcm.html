@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Cifrar antes de ocultar</title>
+<meta name="description" content="Laboratorio integral de composición AES-GCM + esteganografía LSB, completamente local en el navegador.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.2rem,6vw,4.7rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+textarea,select,input,button{font:inherit}
+textarea,select,input[type=text],input[type=password],input[type=number]{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:10px 11px}
+textarea{min-height:110px;resize:vertical}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#02080d}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;background:#06121f;border:1px solid var(--line);border-radius:16px;padding:14px;min-height:92px;color:#d9efff;max-height:320px;overflow:auto}
+.flow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:center}
+.flow div{padding:12px;border:1px solid var(--line);border-radius:14px;text-align:center;background:#08192a}
+.flow b{text-align:center;color:var(--accent)}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:980px){.flow{grid-template-columns:1fr}.flow b{transform:rotate(90deg)}}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.3rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Criptografía + Esteganografía</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#flujo">Flujo</a>
+    <a href="#cifrado">AES-GCM</a>
+    <a href="#ocultar">Ocultar</a>
+    <a href="#recuperar">Recuperar</a>
+    <a href="#ataques">Ataques</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio integrador · Módulo 3 → Módulo 4</div>
+  <h1>Cifrar antes de ocultar</h1>
+  <p>
+    La esteganografía intenta ocultar la existencia de un mensaje; la criptografía protege su contenido.
+    En este laboratorio ambas capas se componen: primero se cifra y autentica con AES-GCM y luego
+    el ciphertext se inserta mediante LSB en una imagen portadora.
+  </p>
+  <div class="pills">
+    <span class="pill">AES-GCM 256</span>
+    <span class="pill">PBKDF2-SHA-256</span>
+    <span class="pill">Salt + IV aleatorios</span>
+    <span class="pill">LSB RGB</span>
+    <span class="pill">Autenticidad</span>
+    <span class="pill">Procesamiento local</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Idea central</div>
+  <h2>Dos problemas distintos, dos mecanismos distintos</h2>
+  <div class="two-col">
+    <div class="note">
+      <strong>AES-GCM</strong> aporta confidencialidad e integridad autenticada del mensaje. Si alguien extrae el ciphertext, no debería poder leerlo sin la clave.
+    </div>
+    <div class="note">
+      <strong>LSB</strong> intenta reducir la visibilidad del ciphertext dentro de la imagen, pero no reemplaza al cifrado ni autentica el contenido.
+    </div>
+  </div>
+</article>
+
+<article class="card full" id="flujo">
+  <div class="eyebrow">Arquitectura</div>
+  <h2>Pipeline recomendado</h2>
+  <div class="flow">
+    <div>Mensaje</div><b>→</b>
+    <div>PBKDF2</div><b>→</b>
+    <div>AES-GCM</div><b>→</b>
+    <div>Ciphertext</div>
+  </div>
+  <div class="flow" style="margin-top:8px">
+    <div>Ciphertext</div><b>→</b>
+    <div>Contenedor</div><b>→</b>
+    <div>LSB</div><b>→</b>
+    <div>Imagen estego</div>
+  </div>
+</article>
+
+<article class="card full" id="cifrado">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Cifrar y autenticar con AES-GCM</h2>
+  <div class="controls">
+    <div class="control"><label>Mensaje en claro</label><textarea id="plaintext">Mensaje confidencial dentro de una imagen.</textarea></div>
+    <div class="control"><label>Contraseña</label><input id="password" type="password" value="clave-demo-segura"></div>
+  </div>
+  <div class="controls">
+    <div class="control"><label>Iteraciones PBKDF2</label>
+      <select id="iterations">
+        <option value="100000">100.000</option>
+        <option value="200000" selected>200.000</option>
+        <option value="300000">300.000</option>
+      </select>
+    </div>
+    <div class="control"><label>Acción</label><button id="encrypt">Cifrar con AES-GCM</button></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="plainBytes">0</strong><span>bytes en claro</span></div>
+    <div class="metric"><strong id="cipherBytes">0</strong><span>ciphertext + tag</span></div>
+    <div class="metric"><strong id="saltBytes">16</strong><span>salt</span></div>
+    <div class="metric"><strong id="ivBytes">12</strong><span>IV</span></div>
+    <div class="metric"><strong id="kdfOut">256</strong><span>bits de clave</span></div>
+    <div class="metric"><strong id="encState">—</strong><span>estado</span></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Salt (hex)</label><div id="saltHex" class="codebox"></div></div>
+    <div><label>IV (hex)</label><div id="ivHex" class="codebox"></div></div>
+  </div>
+  <div><label>Ciphertext (Base64)</label><div id="cipherB64" class="codebox"></div></div>
+  <div id="encStatus" class="status">Web Crypto genera salt e IV aleatorios en cada cifrado.</div>
+</article>
+
+<article class="card full" id="ocultar">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Insertar el contenedor cifrado en una imagen</h2>
+  <div class="controls">
+    <div class="control"><label>Profundidad LSB</label>
+      <select id="depth"><option value="1" selected>1 bit por canal</option><option value="2">2 bits por canal</option></select>
+    </div>
+    <div class="control"><label>Portadora</label><button id="generateCarrier" class="secondary">Generar imagen</button></div>
+    <div class="control"><label>Acción</label><button id="embed">Ocultar ciphertext</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Imagen original</label><div class="canvas-wrap"><canvas id="cover" width="640" height="360"></canvas></div></div>
+    <div><label>Imagen estego</label><div class="canvas-wrap"><canvas id="stego" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="capacity">0</strong><span>bytes disponibles</span></div>
+    <div class="metric"><strong id="containerBytes">0</strong><span>bytes del contenedor</span></div>
+    <div class="metric"><strong id="changedChannels">0</strong><span>canales alterados</span></div>
+    <div class="metric"><strong id="changedPct">0%</strong><span>% canales</span></div>
+    <div class="metric"><strong id="mse">0</strong><span>MSE</span></div>
+    <div class="metric"><strong id="psnr">∞</strong><span>PSNR</span></div>
+  </div>
+  <div class="actions">
+    <button id="download" class="secondary">Descargar PNG estego</button>
+  </div>
+  <div id="embedStatus" class="status">El contenedor incluye versión, profundidad, iteraciones, salt, IV y ciphertext.</div>
+</article>
+
+<article class="card full" id="recuperar">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Extraer → autenticar → descifrar</h2>
+  <div class="controls">
+    <div class="control"><label>Contraseña para recuperar</label><input id="recoverPassword" type="password" value="clave-demo-segura"></div>
+    <div class="control"><label>Acción</label><button id="recover">Recuperar mensaje</button></div>
+  </div>
+  <div class="control" style="margin-top:12px"><label>Mensaje recuperado</label><textarea id="recovered" readonly></textarea></div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="headerState">—</strong><span>cabecera</span></div>
+    <div class="metric"><strong id="extractState">—</strong><span>extracción</span></div>
+    <div class="metric"><strong id="authState">—</strong><span>AES-GCM</span></div>
+    <div class="metric"><strong id="recoverDepth">—</strong><span>profundidad</span></div>
+  </div>
+  <div id="recoverStatus" class="status">Una contraseña incorrecta o un ciphertext alterado hace fallar la autenticación AES-GCM.</div>
+</article>
+
+<article class="card full" id="ataques">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Qué pasa si el adversario encuentra el payload</h2>
+  <div class="actions">
+    <button id="extractRaw" class="secondary">Extraer contenedor sin descifrar</button>
+    <button id="wrongPassword" class="warn">Probar contraseña incorrecta</button>
+    <button id="tamper" class="danger">Alterar 1 bit del estego</button>
+    <button id="restore" class="secondary">Restaurar estego</button>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Contenedor extraído</label><div id="rawContainer" class="codebox"></div></div>
+    <div>
+      <div class="note">
+        <strong>Lección:</strong> descubrir que existe un payload no equivale a recuperar el mensaje en claro.
+        La capa criptográfica sigue protegiendo el contenido.
+      </div>
+      <div class="note" style="margin-top:10px">
+        <strong>Integridad:</strong> si cambia un bit relevante del ciphertext, AES-GCM detecta la alteración y el descifrado falla.
+      </div>
+    </div>
+  </div>
+  <div id="attackStatus" class="status">Las pruebas se realizan exclusivamente sobre la copia local del laboratorio.</div>
+</article>
+
+<article class="card full">
+  <div class="eyebrow">Síntesis</div>
+  <h2>Qué propiedad aporta cada capa</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Propiedad</th><th>AES-GCM</th><th>Esteganografía LSB</th></tr></thead>
+      <tbody>
+        <tr><td>Confidencialidad</td><td>Sí</td><td>No por sí sola</td></tr>
+        <tr><td>Integridad autenticada</td><td>Sí</td><td>No</td></tr>
+        <tr><td>Ocultar existencia</td><td>No</td><td>Intenta hacerlo</td></tr>
+        <tr><td>Robustez frente a transformaciones</td><td>Depende del transporte</td><td>Baja en LSB simple</td></tr>
+        <tr><td>Detección de manipulación</td><td>Sí, mediante tag GCM</td><td>No por sí sola</td></tr>
+      </tbody>
+    </table>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Desafío 1</h2>
+  <ol class="steps">
+    <li>Cifrá el mismo mensaje dos veces.</li>
+    <li>Compará salt, IV y ciphertext.</li>
+    <li>Explicá por qué no deberían ser iguales.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Desafío 2</h2>
+  <ol class="steps">
+    <li>Ocultá el ciphertext.</li>
+    <li>Extraé solo el contenedor.</li>
+    <li>Intentá recuperar con contraseña incorrecta.</li>
+    <li>Alterá un bit y repetí.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Siguiente material</h2>
+  <p class="muted">
+    El próximo laboratorio será <strong>watermarking y marcas de agua digitales</strong>,
+    para distinguir ocultamiento de mensajes, trazabilidad y protección de contenido.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo. Todo el cifrado y procesamiento se realiza localmente mediante Web Crypto y Canvas.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const te=new TextEncoder(),td=new TextDecoder();
+const MAGIC=te.encode('SGE4'); // 4
+const VERSION=1;
+const HEADER_FIXED=4+1+1+4+4; // magic,version,depth,iterations,cipherLen
+const SALT_LEN=16,IV_LEN=12;
+let cryptoState=null,coverData=null,stegoData=null,lastStego=null;
+
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function hex(bytes){return [...bytes].map(b=>b.toString(16).padStart(2,'0')).join('')}
+function b64(bytes){let s='';for(const b of bytes)s+=String.fromCharCode(b);return btoa(s)}
+function bytesToBits(bytes){const bits=[];for(const b of bytes)for(let i=7;i>=0;i--)bits.push((b>>i)&1);return bits}
+function bitsToBytes(bits){const out=new Uint8Array(Math.floor(bits.length/8));for(let i=0;i<out.length;i++){let v=0;for(let j=0;j<8;j++)v=(v<<1)|(bits[i*8+j]||0);out[i]=v}return out}
+function rgbIndices(data){const a=[];for(let i=0;i<data.length;i++)if(i%4!==3)a.push(i);return a}
+function u32write(arr,off,v){new DataView(arr.buffer,arr.byteOffset,arr.byteLength).setUint32(off,v>>>0,false)}
+function u32read(arr,off){return new DataView(arr.buffer,arr.byteOffset,arr.byteLength).getUint32(off,false)}
+
+async function deriveKey(password,salt,iterations){
+  const material=await crypto.subtle.importKey('raw',te.encode(password),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2',salt,iterations,hash:'SHA-256'},
+    material,{name:'AES-GCM',length:256},false,['encrypt','decrypt']
+  );
+}
+async function encrypt(){
+  try{
+    const plain=te.encode($('#plaintext').value),password=$('#password').value,iterations=Number($('#iterations').value);
+    const salt=crypto.getRandomValues(new Uint8Array(SALT_LEN)),iv=crypto.getRandomValues(new Uint8Array(IV_LEN));
+    const key=await deriveKey(password,salt,iterations);
+    const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv,tagLength:128},key,plain));
+    cryptoState={salt,iv,cipher,iterations};
+    $('#plainBytes').textContent=plain.length;$('#cipherBytes').textContent=cipher.length;$('#saltHex').textContent=hex(salt);$('#ivHex').textContent=hex(iv);
+    $('#cipherB64').textContent=b64(cipher);$('#encState').textContent='OK';
+    $('#containerBytes').textContent=makeContainer(Number($('#depth').value)).length;
+    updateCapacity();
+    st($('#encStatus'),'Cifrado completado. Salt e IV fueron generados aleatoriamente para esta operación.','good');
+  }catch(e){$('#encState').textContent='FALLA';st($('#encStatus'),e.message,'bad')}
+}
+$('#encrypt').onclick=encrypt;
+
+function makeContainer(depth){
+  if(!cryptoState)return new Uint8Array();
+  const total=HEADER_FIXED+SALT_LEN+IV_LEN+cryptoState.cipher.length;
+  const out=new Uint8Array(total);let o=0;
+  out.set(MAGIC,o);o+=4;out[o++]=VERSION;out[o++]=depth;u32write(out,o,cryptoState.iterations);o+=4;u32write(out,o,cryptoState.cipher.length);o+=4;
+  out.set(cryptoState.salt,o);o+=SALT_LEN;out.set(cryptoState.iv,o);o+=IV_LEN;out.set(cryptoState.cipher,o);
+  return out;
+}
+function parseContainer(bytes){
+  let o=0;for(let i=0;i<4;i++)if(bytes[o+i]!==MAGIC[i])throw new Error('Magic inválido.');
+  o+=4;const version=bytes[o++],depth=bytes[o++];if(version!==VERSION)throw new Error('Versión no soportada.');
+  const iterations=u32read(bytes,o);o+=4;const cipherLen=u32read(bytes,o);o+=4;
+  const salt=bytes.slice(o,o+SALT_LEN);o+=SALT_LEN;const iv=bytes.slice(o,o+IV_LEN);o+=IV_LEN;
+  if(bytes.length<o+cipherLen)throw new Error('Contenedor incompleto.');
+  const cipher=bytes.slice(o,o+cipherLen);
+  return {version,depth,iterations,cipherLen,salt,iv,cipher,total:o+cipherLen};
+}
+
+function generateCarrier(){
+  const c=$('#cover'),s=$('#stego'),w=640,h=360;c.width=s.width=w;c.height=s.height=h;
+  const ctx=c.getContext('2d'),sctx=s.getContext('2d'),img=ctx.createImageData(w,h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const i=(y*w+x)*4,tex=((x*19+y*23)%21)-10,wave=Math.sin(x*.055)*19+Math.cos(y*.079)*13;
+    img.data[i]=Math.max(0,Math.min(255,35+x/w*185+wave+tex));
+    img.data[i+1]=Math.max(0,Math.min(255,50+y/h*155-wave*.45+tex));
+    img.data[i+2]=Math.max(0,Math.min(255,135+58*Math.sin((x+y)/52)-tex));
+    img.data[i+3]=255;
+  }
+  ctx.putImageData(img,0,0);sctx.putImageData(img,0,0);
+  coverData=ctx.getImageData(0,0,w,h);stegoData=sctx.getImageData(0,0,w,h);lastStego=null;
+  updateCapacity();updateMetrics();
+}
+$('#generateCarrier').onclick=generateCarrier;
+$('#depth').onchange=()=>{updateCapacity();if(cryptoState)$('#containerBytes').textContent=makeContainer(Number($('#depth').value)).length};
+
+function capacityBytes(depth){
+  if(!coverData)return 0;
+  const idx=rgbIndices(coverData.data),headerBits=14*8; // fixed pre-header: magic/version/depth/iterations/cipherlen
+  return Math.floor(idx.length*depth/8);
+}
+function updateCapacity(){$('#capacity').textContent=capacityBytes(Number($('#depth').value)).toLocaleString('es-AR')}
+
+function embedBytes(imageData,bytes,depth){
+  const idx=rgbIndices(imageData.data),bits=bytesToBits(bytes),mask=0xFF^((1<<depth)-1);let c=0;
+  for(const di of idx){
+    if(c>=bits.length)break;
+    let v=0;for(let k=0;k<depth;k++)v=(v<<1)|(bits[c++]??0);
+    imageData.data[di]=(imageData.data[di]&mask)|v;
+  }
+  if(c<bits.length)throw new Error('Capacidad insuficiente para el contenedor cifrado.');
+}
+function readNBytes(imageData,count,depth){
+  const idx=rgbIndices(imageData.data),bits=[],mask=(1<<depth)-1;
+  for(const di of idx){
+    const v=imageData.data[di]&mask;
+    for(let k=depth-1;k>=0;k--)bits.push((v>>k)&1);
+    if(bits.length>=count*8)break;
+  }
+  return bitsToBytes(bits.slice(0,count*8));
+}
+function extractContainer(imageData){
+  // Try depth 1 then 2; header contains declared depth.
+  for(const depth of [1,2]){
+    try{
+      const prefix=readNBytes(imageData,HEADER_FIXED,depth);
+      let magic=true;for(let i=0;i<4;i++)if(prefix[i]!==MAGIC[i])magic=false;
+      if(!magic)continue;
+      const declared=prefix[5],cipherLen=u32read(prefix,10);
+      if(declared!==depth)continue;
+      const total=HEADER_FIXED+SALT_LEN+IV_LEN+cipherLen;
+      const all=readNBytes(imageData,total,depth);
+      return parseContainer(all);
+    }catch{}
+  }
+  throw new Error('No se encontró un contenedor SGE4 válido.');
+}
+$('#embed').onclick=()=>{
+  try{
+    if(!cryptoState)throw new Error('Primero cifrá el mensaje.');
+    if(!coverData)generateCarrier();
+    const depth=Number($('#depth').value),container=makeContainer(depth);
+    if(container.length>capacityBytes(depth))throw new Error('La imagen no tiene capacidad suficiente.');
+    const work=new ImageData(new Uint8ClampedArray(coverData.data),coverData.width,coverData.height);
+    embedBytes(work,container,depth);
+    const sctx=$('#stego').getContext('2d');sctx.putImageData(work,0,0);stegoData=sctx.getImageData(0,0,$('#stego').width,$('#stego').height);lastStego=new ImageData(new Uint8ClampedArray(stegoData.data),stegoData.width,stegoData.height);
+    $('#containerBytes').textContent=container.length;updateMetrics();
+    st($('#embedStatus'),`Contenedor cifrado ocultado con ${depth} LSB por canal.`,'good');
+  }catch(e){st($('#embedStatus'),e.message,'bad')}
+};
+
+async function recoverWith(password){
+  if(!stegoData)throw new Error('No hay imagen estego.');
+  const meta=extractContainer(stegoData);
+  $('#headerState').textContent='OK';$('#extractState').textContent='OK';$('#recoverDepth').textContent=meta.depth+' LSB';
+  const key=await deriveKey(password,meta.salt,meta.iterations);
+  const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:meta.iv,tagLength:128},key,meta.cipher);
+  $('#authState').textContent='OK';return {text:td.decode(plain),meta};
+}
+$('#recover').onclick=async()=>{
+  try{
+    const r=await recoverWith($('#recoverPassword').value);$('#recovered').value=r.text;
+    st($('#recoverStatus'),'Extracción correcta y autenticación AES-GCM válida.','good');
+  }catch(e){
+    $('#authState').textContent='FALLA';$('#recovered').value='';
+    st($('#recoverStatus'),'No fue posible autenticar/descifrar. La contraseña puede ser incorrecta o el ciphertext fue alterado.','bad');
+  }
+};
+$('#extractRaw').onclick=()=>{
+  try{
+    const meta=extractContainer(stegoData);
+    $('#rawContainer').textContent=
+`version: ${meta.version}
+depth: ${meta.depth}
+iterations: ${meta.iterations}
+salt: ${hex(meta.salt)}
+iv: ${hex(meta.iv)}
+ciphertext: ${b64(meta.cipher)}
+ciphertext_bytes: ${meta.cipher.length}`;
+    st($('#attackStatus'),'El contenedor fue extraído, pero el contenido sigue cifrado.','warn');
+  }catch(e){st($('#attackStatus'),e.message,'bad')}
+};
+$('#wrongPassword').onclick=async()=>{
+  try{
+    await recoverWith('contraseña-incorrecta');st($('#attackStatus'),'Inesperadamente se descifró, revisá el laboratorio.','bad');
+  }catch{
+    st($('#attackStatus'),'AES-GCM rechazó el descifrado con contraseña incorrecta.','good');
+  }
+};
+$('#tamper').onclick=()=>{
+  if(!stegoData)return;
+  const sctx=$('#stego').getContext('2d'),work=sctx.getImageData(0,0,$('#stego').width,$('#stego').height),idx=rgbIndices(work.data);
+  const pos=Math.min(idx.length-1, 900);work.data[idx[pos]]^=1;sctx.putImageData(work,0,0);stegoData=sctx.getImageData(0,0,$('#stego').width,$('#stego').height);updateMetrics();
+  st($('#attackStatus'),'Se alteró 1 bit de la imagen estego. Intentá recuperar el mensaje nuevamente.','warn');
+};
+$('#restore').onclick=()=>{
+  if(!lastStego)return;const sctx=$('#stego').getContext('2d');sctx.putImageData(lastStego,0,0);stegoData=sctx.getImageData(0,0,$('#stego').width,$('#stego').height);updateMetrics();st($('#attackStatus'),'Imagen estego restaurada.','good');
+};
+$('#download').onclick=()=>{
+  if(!stegoData)return;const a=document.createElement('a');a.download='aes-gcm-estego.png';a.href=$('#stego').toDataURL('image/png');a.click();
+};
+
+function updateMetrics(){
+  if(!coverData||!stegoData)return;
+  let n=0,changed=0,se=0;
+  for(let i=0;i<coverData.data.length;i++){
+    if(i%4===3)continue;n++;const d=coverData.data[i]-stegoData.data[i];if(d!==0)changed++;se+=d*d;
+  }
+  const mse=se/n,psnr=mse===0?Infinity:10*Math.log10(255*255/mse);
+  $('#changedChannels').textContent=changed.toLocaleString('es-AR');$('#changedPct').textContent=(100*changed/n).toFixed(3)+'%';
+  $('#mse').textContent=mse.toFixed(4);$('#psnr').textContent=isFinite(psnr)?psnr.toFixed(2):'∞';
+}
+
+generateCarrier();
+encrypt();
+</script>
+</body>
+</html>

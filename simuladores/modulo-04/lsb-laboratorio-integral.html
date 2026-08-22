@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Módulo 4 · Laboratorio integral LSB</title>
+<meta name="description" content="Laboratorio interactivo de esteganografía LSB: inserción, extracción, capacidad, MSE, PSNR, planos de bits, microscopio de píxeles y robustez.">
+<style>
+:root{
+  --bg:#071321; --panel:#0d2033; --panel2:#10283f; --line:#23425f;
+  --text:#edf7ff; --muted:#a8c1d6; --accent:#48e5ff; --accent2:#6ea8ff;
+  --good:#7cf7b3; --warn:#ffd166; --danger:#ff7a90; --ink:#021018;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+ radial-gradient(circle at 15% 0,rgba(72,229,255,.12),transparent 26rem),
+ linear-gradient(180deg,#06101d,#071321 40%,#06101d);
+ color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:inherit}
+.shell{width:min(1220px,calc(100% - 28px));margin:0 auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 18px}
+.brand{font-weight:900;letter-spacing:.01em}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted)}
+.hero{padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;background:
+ radial-gradient(circle at 85% 12%,rgba(110,168,255,.18),transparent 24rem),
+ linear-gradient(135deg,rgba(16,40,63,.98),rgba(7,22,37,.98));
+ box-shadow:0 28px 70px rgba(0,0,0,.28)}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.3rem,6vw,5rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:920px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:#cbe6f8;font-size:.82rem;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.55}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+input,select,textarea,button{font:inherit}
+input[type="file"],select,input[type="number"],textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:10px 11px}
+textarea{min-height:112px;resize:vertical}
+button,.button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+button.secondary,.button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2c2100}button.danger{background:var(--danger);color:#2a0610}
+button:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#000}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.25rem}.metric span{font-size:.75rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,247,179,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,122,144,.45);color:var(--danger)}
+.binary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bin{padding:12px;border:1px solid var(--line);border-radius:14px;background:#061827}
+.bin .bits{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.09em;font-size:1.05rem}
+.bit0{color:var(--muted)}.bit1{color:var(--accent);font-weight:900}.changed{outline:2px solid var(--warn);outline-offset:2px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d7f1ff}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(72,229,255,.06);border-radius:10px;color:#d8f4ff}
+.kpi{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.footer{margin-top:24px;padding:24px 0;color:var(--muted);text-align:center}
+.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.binary-grid{grid-template-columns:1fr}.hero h1{font-size:2.4rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Esteganografía</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#portadora">Portadora</a>
+    <a href="#microscopio">Microscopio</a>
+    <a href="#analisis">Análisis</a>
+    <a href="#robustez">Robustez</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio integral · Esteganografía en imágenes</div>
+  <h1>LSB: del píxel al estegoanálisis</h1>
+  <p>
+    Ocultá y recuperá un mensaje UTF‑8 modificando los bits menos significativos de los canales RGB.
+    Medí capacidad, distorsión y detectabilidad; inspeccioná píxeles y planos de bits; y comprobá
+    qué ocurre cuando la imagen es alterada.
+  </p>
+  <div class="pills">
+    <span class="pill">1, 2 o 3 bits por canal</span>
+    <span class="pill">MSE + PSNR</span>
+    <span class="pill">Plano de bits RGB</span>
+    <span class="pill">Microscopio binario</span>
+    <span class="pill">CRC32 didáctico</span>
+    <span class="pill">Procesamiento local</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Idea central</div>
+  <h2>Capacidad, imperceptibilidad y robustez forman un compromiso</h2>
+  <div class="two-col">
+    <div class="note">
+      <strong>LSB no cifra.</strong> Ocultar la existencia de un mensaje no garantiza la confidencialidad del contenido.
+      Si un adversario descubre el método y extrae los bits, podrá leer el texto en claro.
+    </div>
+    <div class="note">
+      <strong>El CRC32 de este laboratorio no autentica.</strong> Solo ayuda a detectar corrupción.
+      Una arquitectura real debería cifrar y autenticar antes de ocultar.
+    </div>
+  </div>
+</article>
+
+<article class="card full" id="portadora">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Imagen portadora</h2>
+  <div class="controls">
+    <div class="control"><label>Cargar imagen</label><input id="file" type="file" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="control"><label>Imagen sintética</label><button id="generate" class="secondary">Generar portadora</button></div>
+    <div class="control"><label>Profundidad LSB</label>
+      <select id="depth">
+        <option value="1">1 bit por canal RGB</option>
+        <option value="2">2 bits por canal RGB</option>
+        <option value="3">3 bits por canal RGB</option>
+      </select>
+    </div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Original</label><div class="canvas-wrap"><canvas id="original" width="640" height="360"></canvas></div></div>
+    <div><label>Estego</label><div class="canvas-wrap"><canvas id="stego" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="capacity">0</strong><span>bytes disponibles</span></div>
+    <div class="metric"><strong id="used">0</strong><span>bytes utilizados</span></div>
+    <div class="metric"><strong id="changed">0</strong><span>canales alterados</span></div>
+    <div class="metric"><strong id="changedPct">0%</strong><span>canales alterados</span></div>
+    <div class="metric"><strong id="mse">0</strong><span>MSE</span></div>
+    <div class="metric"><strong id="psnr">∞</strong><span>PSNR (dB)</span></div>
+  </div>
+  <div id="carrierStatus" class="status">Generá o cargá una imagen para comenzar.</div>
+</article>
+
+<article class="card">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Ocultar mensaje</h2>
+  <div class="control">
+    <label>Mensaje UTF‑8</label>
+    <textarea id="message">La existencia de este mensaje está oculta, pero su contenido no está cifrado.</textarea>
+  </div>
+  <div class="actions">
+    <button id="embed">Insertar mensaje</button>
+    <button id="download" class="secondary">Descargar PNG</button>
+  </div>
+  <div id="embedStatus" class="status">La cabecera almacena magic, versión, profundidad, longitud y CRC32.</div>
+</article>
+
+<article class="card">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Extraer y verificar</h2>
+  <div class="actions">
+    <button id="extract">Extraer mensaje</button>
+  </div>
+  <div class="control" style="margin-top:12px">
+    <label>Mensaje recuperado</label>
+    <textarea id="recovered" readonly></textarea>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+    <div class="metric"><strong id="headerState">—</strong><span>cabecera</span></div>
+    <div class="metric"><strong id="crcState">—</strong><span>CRC32</span></div>
+    <div class="metric"><strong id="declaredDepth">—</strong><span>profundidad</span></div>
+  </div>
+  <div id="extractStatus" class="status">La extracción lee primero la cabecera y luego la carga útil.</div>
+</article>
+
+<article class="card full" id="microscopio">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Microscopio de píxeles</h2>
+  <p class="muted">Elegí una coordenada. Se muestran los valores RGB antes y después, tanto en decimal como en binario. Los bits menos significativos son los que LSB utiliza para transportar información.</p>
+  <div class="controls">
+    <div class="control"><label>X</label><input id="px" type="number" value="10" min="0"></div>
+    <div class="control"><label>Y</label><input id="py" type="number" value="10" min="0"></div>
+    <div class="control"><label>Acción</label><button id="inspect" class="secondary">Inspeccionar píxel</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div>
+      <h3>Original</h3>
+      <div id="origPixel" class="binary-grid"></div>
+    </div>
+    <div>
+      <h3>Estego</h3>
+      <div id="stegoPixel" class="binary-grid"></div>
+    </div>
+  </div>
+  <div id="pixelStatus" class="status">El resaltado amarillo indica que ese canal cambió.</div>
+</article>
+
+<article class="card full" id="analisis">
+  <div class="eyebrow">Estación 5</div>
+  <h2>Planos de bits y huella estadística</h2>
+  <div class="controls">
+    <div class="control"><label>Canal</label>
+      <select id="planeChannel"><option value="0">Rojo</option><option value="1">Verde</option><option value="2" selected>Azul</option></select>
+    </div>
+    <div class="control"><label>Plano de bit</label>
+      <select id="planeBit">
+        <option value="0" selected>Bit 0 (LSB)</option><option value="1">Bit 1</option><option value="2">Bit 2</option>
+        <option value="3">Bit 3</option><option value="4">Bit 4</option><option value="5">Bit 5</option>
+        <option value="6">Bit 6</option><option value="7">Bit 7 (MSB)</option>
+      </select>
+    </div>
+    <div class="control"><label>Actualizar</label><button id="renderPlane" class="secondary">Renderizar plano</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Plano original</label><div class="canvas-wrap"><canvas id="origPlane" width="640" height="360"></canvas></div></div>
+    <div><label>Plano estego</label><div class="canvas-wrap"><canvas id="stegoPlane" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="evenOrig">—</strong><span>canales pares original</span></div>
+    <div class="metric"><strong id="evenStego">—</strong><span>canales pares estego</span></div>
+    <div class="metric"><strong id="onesOrig">—</strong><span>1s en plano original</span></div>
+    <div class="metric"><strong id="onesStego">—</strong><span>1s en plano estego</span></div>
+  </div>
+  <div class="status">Una imagen visualmente casi idéntica puede producir cambios medibles en los planos de bits y en la distribución de paridades.</div>
+</article>
+
+<article class="card full" id="robustez">
+  <div class="eyebrow">Estación 6</div>
+  <h2>Robustez: atacar el canal</h2>
+  <p class="muted">Las operaciones siguientes se aplican solo sobre la copia estego. El objetivo es observar cuándo deja de ser recuperable el mensaje.</p>
+  <div class="actions">
+    <button id="flip" class="danger">Alterar 0,05% de canales</button>
+    <button id="quantize" class="warn">Cuantizar colores</button>
+    <button id="resize" class="warn">Reducir y reescalar</button>
+    <button id="reset" class="secondary">Restaurar estego</button>
+  </div>
+  <div id="damageStatus" class="status">Después de cada alteración, intentá extraer nuevamente el mensaje.</div>
+</article>
+
+<article class="card third">
+  <h2>Qué demuestra</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Propiedad</th><th>LSB simple</th></tr>
+    <tr><td>Ocultamiento</td><td>Puede ser visualmente imperceptible.</td></tr>
+    <tr><td>Confidencialidad</td><td>No está garantizada.</td></tr>
+    <tr><td>Capacidad</td><td>Alta en imágenes grandes.</td></tr>
+    <tr><td>Robustez</td><td>Baja frente a transformaciones.</td></tr>
+    <tr><td>Detectabilidad</td><td>Puede aumentar con la carga y el patrón de inserción.</td></tr>
+  </table>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Desafío experimental</h2>
+  <ol class="steps">
+    <li>Insertá el mismo mensaje con 1, 2 y 3 bits por canal.</li>
+    <li>Compará capacidad, MSE, PSNR y porcentaje de canales alterados.</li>
+    <li>Observá los planos 0, 1 y 2.</li>
+    <li>Aplicá cuantización o reescalado.</li>
+    <li>Explicá por qué “se ve igual” no significa “es estadísticamente igual”.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Puente al siguiente tema</h2>
+  <p class="muted">Este laboratorio trabaja en el <strong>dominio espacial</strong>. En JPEG y otros esquemas comprimidos, la información puede ocultarse en coeficientes de transformadas como DCT. Ese será el próximo laboratorio.</p>
+  <div class="note"><strong>Pregunta:</strong> ¿qué debería cambiar si queremos que el mensaje sobreviva mejor a la compresión?</div>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo. No debe utilizarse como mecanismo de protección real de información sensible.</p>
+</footer>
+</main>
+
+<script>
+const $ = (s)=>document.querySelector(s);
+const te = new TextEncoder(), td = new TextDecoder();
+const original = $('#original'), stego = $('#stego');
+const octx = original.getContext('2d',{willReadFrequently:true});
+const sctx = stego.getContext('2d',{willReadFrequently:true});
+const opctx = $('#origPlane').getContext('2d');
+const spctx = $('#stegoPlane').getContext('2d');
+let originalData = null, stegoData = null, lastEmbedded = null;
+
+const MAGIC = te.encode('LSB4');
+const VERSION = 1;
+const HEADER = 14; // 4 magic + 1 version + 1 depth + 4 length + 4 crc
+
+function status(el,msg,type=''){ el.textContent=msg; el.className='status'+(type?' '+type:''); }
+function rgbIdx(len){ const a=[]; for(let i=0;i<len;i++) if(i%4!==3)a.push(i); return a; }
+function u32write(arr,off,v){ new DataView(arr.buffer,arr.byteOffset,arr.byteLength).setUint32(off,v>>>0,false); }
+function u32read(arr,off){ return new DataView(arr.buffer,arr.byteOffset,arr.byteLength).getUint32(off,false); }
+
+function crc32(bytes){
+  let crc = 0xFFFFFFFF;
+  for(const b of bytes){
+    crc ^= b;
+    for(let k=0;k<8;k++) crc = (crc>>>1) ^ (0xEDB88320 & -(crc & 1));
+  }
+  return (crc ^ 0xFFFFFFFF)>>>0;
+}
+function bytesToBits(bytes){
+  const bits=[]; for(const b of bytes) for(let i=7;i>=0;i--) bits.push((b>>i)&1); return bits;
+}
+function bitsToBytes(bits){
+  const out=new Uint8Array(Math.floor(bits.length/8));
+  for(let i=0;i<out.length;i++){ let v=0; for(let j=0;j<8;j++) v=(v<<1)|bits[i*8+j]; out[i]=v; }
+  return out;
+}
+function header(depth,len,crc){
+  const h=new Uint8Array(HEADER); h.set(MAGIC,0); h[4]=VERSION; h[5]=depth; u32write(h,6,len); u32write(h,10,crc); return h;
+}
+function parseHeader(h){
+  for(let i=0;i<4;i++) if(h[i]!==MAGIC[i]) throw new Error('No se encontró la cabecera LSB4.');
+  if(h[4]!==VERSION) throw new Error('Versión no soportada.');
+  if(![1,2,3].includes(h[5])) throw new Error('Profundidad inválida.');
+  return {depth:h[5],len:u32read(h,6),crc:u32read(h,10)};
+}
+function capacity(){
+  if(!originalData)return 0;
+  const d=Number($('#depth').value), channels=rgbIdx(originalData.data.length).length;
+  const headerChannels=HEADER*8;
+  return Math.max(0,Math.floor((channels-headerChannels)*d/8));
+}
+function updateCapacity(){ $('#capacity').textContent=capacity().toLocaleString('es-AR'); }
+
+function makeCarrier(){
+  const w=original.width,h=original.height,img=octx.createImageData(w,h);
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    const i=(y*w+x)*4;
+    const wave=Math.sin(x*.07)*15+Math.cos(y*.09)*12;
+    const texture=((x*31+y*17)%23)-11;
+    img.data[i]=Math.max(0,Math.min(255,35+x/w*180+wave+texture));
+    img.data[i+1]=Math.max(0,Math.min(255,55+y/h*150-wave/2+texture));
+    img.data[i+2]=Math.max(0,Math.min(255,145+55*Math.sin((x+y)/42)-texture));
+    img.data[i+3]=255;
+  }
+  octx.putImageData(img,0,0); sctx.putImageData(img,0,0);
+  originalData=octx.getImageData(0,0,w,h); stegoData=sctx.getImageData(0,0,w,h); lastEmbedded=null;
+  $('#used').textContent='0'; $('#recovered').value=''; updateCapacity(); updateMetrics(); renderPlane(); inspectPixel();
+  status($('#carrierStatus'),'Imagen sintética generada. Ya puede utilizarse como portadora.','good');
+}
+function fitImage(img){
+  const maxW=640,maxH=360,scale=Math.min(maxW/img.width,maxH/img.height,1);
+  const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
+  original.width=stego.width=$('#origPlane').width=$('#stegoPlane').width=w;
+  original.height=stego.height=$('#origPlane').height=$('#stegoPlane').height=h;
+  octx.drawImage(img,0,0,w,h); sctx.drawImage(img,0,0,w,h);
+  originalData=octx.getImageData(0,0,w,h); stegoData=sctx.getImageData(0,0,w,h); lastEmbedded=null;
+  $('#px').max=w-1; $('#py').max=h-1;
+  updateCapacity(); updateMetrics(); renderPlane(); inspectPixel();
+}
+$('#file').addEventListener('change',e=>{
+  const f=e.target.files?.[0]; if(!f)return;
+  const url=URL.createObjectURL(f),img=new Image();
+  img.onload=()=>{ fitImage(img); URL.revokeObjectURL(url); status($('#carrierStatus'),`Imagen cargada: ${original.width}×${original.height}px.`,'good'); };
+  img.src=url;
+});
+$('#generate').onclick=makeCarrier;
+$('#depth').onchange=()=>{ updateCapacity(); renderPlane(); };
+
+function writeHeader(data,bits){
+  const idx=rgbIdx(data.length);
+  for(let i=0;i<bits.length;i++) data[idx[i]]=(data[idx[i]]&0xFE)|bits[i];
+}
+function readHeader(data){
+  const idx=rgbIdx(data.length),bits=[];
+  for(let i=0;i<HEADER*8;i++) bits.push(data[idx[i]]&1);
+  return bitsToBytes(bits);
+}
+function writePayload(data,bits,depth){
+  const idx=rgbIdx(data.length).slice(HEADER*8), mask=0xFF ^ ((1<<depth)-1);
+  let c=0;
+  for(const di of idx){
+    if(c>=bits.length) break;
+    let v=0; for(let k=0;k<depth;k++) v=(v<<1)|(bits[c++]??0);
+    data[di]=(data[di]&mask)|v;
+  }
+  if(c<bits.length) throw new Error('Capacidad insuficiente.');
+}
+function readPayload(data,count,depth){
+  const idx=rgbIdx(data.length).slice(HEADER*8),bits=[],mask=(1<<depth)-1;
+  for(const di of idx){
+    const v=data[di]&mask;
+    for(let k=depth-1;k>=0;k--) bits.push((v>>k)&1);
+    if(bits.length>=count) return bits.slice(0,count);
+  }
+  throw new Error('La imagen terminó antes de completar el payload.');
+}
+$('#embed').onclick=()=>{
+  try{
+    if(!originalData) throw new Error('Primero cargá o generá una imagen.');
+    const payload=te.encode($('#message').value),depth=Number($('#depth').value);
+    if(payload.length>capacity()) throw new Error(`Mensaje demasiado grande. Capacidad: ${capacity()} bytes.`);
+    const work=new ImageData(new Uint8ClampedArray(originalData.data),originalData.width,originalData.height);
+    writeHeader(work.data,bytesToBits(header(depth,payload.length,crc32(payload))));
+    writePayload(work.data,bytesToBits(payload),depth);
+    sctx.putImageData(work,0,0); stegoData=sctx.getImageData(0,0,stego.width,stego.height);
+    lastEmbedded=new ImageData(new Uint8ClampedArray(stegoData.data),stegoData.width,stegoData.height);
+    $('#used').textContent=payload.length.toLocaleString('es-AR');
+    updateMetrics(); renderPlane(); inspectPixel();
+    status($('#embedStatus'),`Mensaje insertado: ${payload.length} bytes · profundidad ${depth} LSB · CRC32 ${crc32(payload).toString(16).padStart(8,'0')}.`,'good');
+  }catch(err){ status($('#embedStatus'),err.message,'bad'); }
+};
+$('#extract').onclick=()=>{
+  try{
+    if(!stegoData) throw new Error('No hay imagen estego.');
+    const meta=parseHeader(readHeader(stegoData.data));
+    const payload=bitsToBytes(readPayload(stegoData.data,meta.len*8,meta.depth));
+    const ok=crc32(payload)===meta.crc;
+    $('#headerState').textContent='OK'; $('#crcState').textContent=ok?'OK':'FALLA'; $('#declaredDepth').textContent=meta.depth+' LSB';
+    $('#recovered').value=td.decode(payload);
+    status($('#extractStatus'),ok?'Cabecera válida y CRC32 correcto. Mensaje recuperado.':'El mensaje pudo leerse, pero el CRC32 no coincide: hubo corrupción.',ok?'good':'warn');
+  }catch(err){
+    $('#headerState').textContent='FALLA'; $('#crcState').textContent='—'; $('#declaredDepth').textContent='—'; $('#recovered').value='';
+    status($('#extractStatus'),err.message,'bad');
+  }
+};
+$('#download').onclick=()=>{
+  if(!stegoData){status($('#embedStatus'),'No hay imagen estego para descargar.','warn');return;}
+  const a=document.createElement('a'); a.download='imagen-estego-lsb.png'; a.href=stego.toDataURL('image/png'); a.click();
+};
+
+function updateMetrics(){
+  if(!originalData||!stegoData)return;
+  let se=0,chg=0,channels=0,evenO=0,evenS=0;
+  for(let i=0;i<originalData.data.length;i++){
+    if(i%4===3)continue; channels++;
+    const a=originalData.data[i],b=stegoData.data[i],d=a-b;
+    se+=d*d; if(a!==b)chg++; if((a&1)===0)evenO++; if((b&1)===0)evenS++;
+  }
+  const mse=channels?se/channels:0, psnr=mse===0?Infinity:10*Math.log10(255*255/mse);
+  $('#changed').textContent=chg.toLocaleString('es-AR'); $('#changedPct').textContent=(100*chg/channels).toFixed(3)+'%';
+  $('#mse').textContent=mse.toFixed(4); $('#psnr').textContent=isFinite(psnr)?psnr.toFixed(2):'∞';
+  $('#evenOrig').textContent=(100*evenO/channels).toFixed(2)+'%'; $('#evenStego').textContent=(100*evenS/channels).toFixed(2)+'%';
+}
+
+function renderPlane(){
+  if(!originalData||!stegoData)return;
+  const ch=Number($('#planeChannel').value),bit=Number($('#planeBit').value),w=originalData.width,h=originalData.height;
+  const oi=opctx.createImageData(w,h),si=spctx.createImageData(w,h); let oo=0,so=0;
+  for(let p=0;p<w*h;p++){
+    const src=p*4+ch, tgt=p*4;
+    const ob=(originalData.data[src]>>bit)&1, sb=(stegoData.data[src]>>bit)&1; oo+=ob; so+=sb;
+    const ov=ob?255:0,sv=sb?255:0;
+    oi.data[tgt]=oi.data[tgt+1]=oi.data[tgt+2]=ov; oi.data[tgt+3]=255;
+    si.data[tgt]=si.data[tgt+1]=si.data[tgt+2]=sv; si.data[tgt+3]=255;
+  }
+  opctx.putImageData(oi,0,0); spctx.putImageData(si,0,0);
+  $('#onesOrig').textContent=(100*oo/(w*h)).toFixed(2)+'%'; $('#onesStego').textContent=(100*so/(w*h)).toFixed(2)+'%';
+  updateMetrics();
+}
+$('#renderPlane').onclick=renderPlane;
+$('#planeChannel').onchange=renderPlane; $('#planeBit').onchange=renderPlane;
+
+function bitsHTML(v){
+  const s=v.toString(2).padStart(8,'0');
+  return s.split('').map((b,i)=>`<span class="${b==='1'?'bit1':'bit0'}">${b}</span>`).join('');
+}
+function inspectPixel(){
+  if(!originalData||!stegoData)return;
+  const x=Math.max(0,Math.min(originalData.width-1,Number($('#px').value)||0));
+  const y=Math.max(0,Math.min(originalData.height-1,Number($('#py').value)||0));
+  const base=(y*originalData.width+x)*4, names=['R','G','B'];
+  const render=(data,other)=>{
+    return names.map((n,k)=>{
+      const v=data[base+k],ov=other[base+k],cls=v!==ov?'bin changed':'bin';
+      return `<div class="${cls}"><strong>${n} = ${v}</strong><div class="bits">${bitsHTML(v)}</div><div class="muted">LSB: ${v&1}</div></div>`;
+    }).join('');
+  };
+  $('#origPixel').innerHTML=render(originalData.data,stegoData.data);
+  $('#stegoPixel').innerHTML=render(stegoData.data,originalData.data);
+  status($('#pixelStatus'),`Píxel (${x}, ${y}). Amarillo = canal modificado por la versión estego.`);
+}
+$('#inspect').onclick=inspectPixel; $('#px').onchange=inspectPixel; $('#py').onchange=inspectPixel;
+
+function refreshFromStego(){
+  stegoData=sctx.getImageData(0,0,stego.width,stego.height); updateMetrics(); renderPlane(); inspectPixel();
+}
+$('#flip').onclick=()=>{
+  if(!stegoData)return;
+  const data=sctx.getImageData(0,0,stego.width,stego.height),idx=rgbIdx(data.data.length);
+  const n=Math.max(1,Math.round(idx.length*0.0005));
+  for(let i=0;i<n;i++){const di=idx[Math.floor(Math.random()*idx.length)]; data.data[di]^=1;}
+  sctx.putImageData(data,0,0); refreshFromStego(); status($('#damageStatus'),`Se alteraron aproximadamente ${n} canales. Intentá extraer el mensaje.`,'warn');
+};
+$('#quantize').onclick=()=>{
+  if(!stegoData)return;
+  const data=sctx.getImageData(0,0,stego.width,stego.height);
+  for(let i=0;i<data.data.length;i++) if(i%4!==3) data.data[i]=Math.round(data.data[i]/8)*8;
+  sctx.putImageData(data,0,0); refreshFromStego(); status($('#damageStatus'),'Se cuantizaron los colores a pasos de 8. Los LSB originales se destruyen casi por completo.','warn');
+};
+$('#resize').onclick=()=>{
+  if(!stegoData)return;
+  const tmp=document.createElement('canvas'),t=tmp.getContext('2d');
+  tmp.width=Math.max(1,Math.round(stego.width*.55)); tmp.height=Math.max(1,Math.round(stego.height*.55));
+  t.drawImage(stego,0,0,tmp.width,tmp.height);
+  sctx.clearRect(0,0,stego.width,stego.height); sctx.imageSmoothingEnabled=true; sctx.drawImage(tmp,0,0,stego.width,stego.height);
+  refreshFromStego(); status($('#damageStatus'),'La imagen se redujo y reescaló. La interpolación altera numerosos LSB.','warn');
+};
+$('#reset').onclick=()=>{
+  if(lastEmbedded){ sctx.putImageData(lastEmbedded,0,0); refreshFromStego(); status($('#damageStatus'),'Se restauró la última imagen estego válida.','good'); }
+  else if(originalData){ sctx.putImageData(originalData,0,0); refreshFromStego(); status($('#damageStatus'),'Se restauró la imagen original.','good'); }
+};
+
+makeCarrier();
+</script>
+</body>
+</html>

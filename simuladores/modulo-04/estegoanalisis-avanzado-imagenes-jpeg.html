@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Módulo 4 · Estegoanálisis avanzado de imágenes y JPEG</title>
+<meta name="description" content="Laboratorio educativo de estegoanálisis avanzado: histogramas, pares de valores, DCT simplificada, calibración por recompresión y clasificación conceptual.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 12% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 88% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1260px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);
+  border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.25rem,6vw,4.9rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{
+  grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;
+  background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)
+}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+input,select,button{font:inherit}
+input[type=file],input[type=range],select{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:9px}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#000}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.gauge{height:16px;background:#06121f;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:8px}
+.gauge i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--good),var(--warn),var(--danger))}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.35rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Estegoanálisis avanzado</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#entrada">Entrada</a>
+    <a href="#histogramas">Histogramas</a>
+    <a href="#pares">Pares</a>
+    <a href="#recompresion">Calibración</a>
+    <a href="#clasificador">Clasificador</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio defensivo · De la anomalía a la hipótesis</div>
+  <h1>Estegoanálisis avanzado de imágenes y JPEG</h1>
+  <p>
+    El objetivo ya no es ocultar un mensaje sino buscar señales compatibles con su presencia.
+    Este laboratorio combina histogramas, pares de valores, una aproximación DCT por bloques,
+    calibración mediante recompresión simulada y un clasificador didáctico que integra varias evidencias.
+  </p>
+  <div class="pills">
+    <span class="pill">Histogramas RGB</span>
+    <span class="pill">Pares LSB</span>
+    <span class="pill">DCT 8×8</span>
+    <span class="pill">Calibración por recompresión</span>
+    <span class="pill">Análisis multiseñal</span>
+    <span class="pill">Enfoque defensivo</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Principio de trabajo</div>
+  <h2>Detectar no es “ver el mensaje”</h2>
+  <div class="two-col">
+    <div class="note">
+      Un estegoanalista puede no recuperar el payload y aun así encontrar que una imagen exhibe distribuciones anómalas respecto de lo esperable.
+    </div>
+    <div class="note">
+      Ninguna señal aislada es concluyente. La práctica profesional exige combinar características, construir un conjunto de referencia y validar tasas de falsos positivos y falsos negativos.
+    </div>
+  </div>
+</article>
+
+<article class="card full" id="entrada">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Preparar una imagen de referencia y una sospechosa</h2>
+  <div class="controls">
+    <div class="control"><label>Cargar imagen</label><input id="file" type="file" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="control"><label>Portadora sintética</label><button id="generate" class="secondary">Generar imagen</button></div>
+    <div class="control"><label>Inserción simulada LSB</label>
+      <input id="density" type="range" min="0" max="100" value="25">
+      <div class="muted"><span id="densityLabel">25</span>% de canales candidatos</div>
+    </div>
+    <div class="control"><label>Acción</label><button id="simulate">Crear sospechosa</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Referencia</label><div class="canvas-wrap"><canvas id="original" width="640" height="360"></canvas></div></div>
+    <div><label>Sospechosa</label><div class="canvas-wrap"><canvas id="suspect" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="modPct">0%</strong><span>canales realmente modificados</span></div>
+    <div class="metric"><strong id="mse">0</strong><span>MSE</span></div>
+    <div class="metric"><strong id="psnr">∞</strong><span>PSNR</span></div>
+    <div class="metric"><strong id="parityShift">0</strong><span>cambio de paridad</span></div>
+    <div class="metric"><strong id="meanDiff">0</strong><span>|Δ| medio</span></div>
+    <div class="metric"><strong id="maxDiff">0</strong><span>Δ máximo</span></div>
+  </div>
+  <div id="inputStatus" class="status">La sospechosa se obtiene alterando LSB de forma aleatoria para fines didácticos.</div>
+</article>
+
+<article class="card full" id="histogramas">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Histogramas y diferencia de frecuencias</h2>
+  <p class="muted">Los histogramas muestran cuántas veces aparece cada valor 0–255. La inserción LSB mueve conteos entre valores adyacentes y puede suavizar o equilibrar ciertos pares.</p>
+  <div class="controls">
+    <div class="control"><label>Canal</label>
+      <select id="histChannel">
+        <option value="0">Rojo</option><option value="1">Verde</option><option value="2" selected>Azul</option>
+      </select>
+    </div>
+    <div class="control"><label>Actualizar</label><button id="drawHist" class="secondary">Renderizar</button></div>
+  </div>
+  <div class="three-col" style="margin-top:14px">
+    <div><label>Histograma referencia</label><div class="canvas-wrap"><canvas id="histO" width="520" height="260"></canvas></div></div>
+    <div><label>Histograma sospechosa</label><div class="canvas-wrap"><canvas id="histS" width="520" height="260"></canvas></div></div>
+    <div><label>|Δ frecuencia|</label><div class="canvas-wrap"><canvas id="histD" width="520" height="260"></canvas></div></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="histL1">—</strong><span>distancia L1 normalizada</span></div>
+    <div class="metric"><strong id="peakMove">—</strong><span>cambio de pico máximo</span></div>
+    <div class="metric"><strong id="pairBalanceO">—</strong><span>balance pares original</span></div>
+    <div class="metric"><strong id="pairBalanceS">—</strong><span>balance pares sospechosa</span></div>
+  </div>
+</article>
+
+<article class="card" id="pares">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Pares de valores adyacentes</h2>
+  <p class="muted">Se agrupan (0,1), (2,3), …, (254,255). Forzar LSB mueve masa estadística dentro de esos pares.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Métrica</th><th>Referencia</th><th>Sospechosa</th></tr></thead>
+      <tbody>
+        <tr><td>χ² pares</td><td id="chiO">—</td><td id="chiS">—</td></tr>
+        <tr><td>Desbalance medio</td><td id="imbO">—</td><td id="imbS">—</td></tr>
+        <tr><td>Pares casi equilibrados</td><td id="balancedO">—</td><td id="balancedS">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="pairsStatus" class="status">Una caída fuerte del χ² puede ser compatible con una inserción LSB intensa, pero no es una prueba concluyente.</div>
+</article>
+
+<article class="card">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Bloques 8×8 y firma DCT</h2>
+  <p class="muted">Se toma luminancia aproximada, se calcula DCT en una muestra de bloques y se resumen magnitudes de coeficientes AC.</p>
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+    <div class="metric"><strong id="lowEnergyO">—</strong><span>energía baja frecuencia ref.</span></div>
+    <div class="metric"><strong id="lowEnergyS">—</strong><span>energía baja frecuencia sosp.</span></div>
+    <div class="metric"><strong id="dctDrift">—</strong><span>deriva espectral</span></div>
+  </div>
+  <div class="status">La simulación no implementa un parser JPEG: calcula DCT directamente sobre bloques de luminancia reconstruidos.</div>
+</article>
+
+<article class="card full" id="recompresion">
+  <div class="eyebrow">Estación 5</div>
+  <h2>Calibración por recompresión simulada</h2>
+  <p class="muted">
+    La idea de calibración consiste en comparar el objeto sospechoso con una versión transformada o recompuesta para obtener una referencia estadística aproximada.
+    Aquí se simula una recompresión mediante reducción de precisión y reescalado.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Intensidad</label>
+      <select id="calLevel"><option value="1">Suave</option><option value="2" selected>Media</option><option value="3">Fuerte</option></select>
+    </div>
+    <div class="control"><label>Acción</label><button id="calibrate" class="warn">Calibrar sospechosa</button></div>
+  </div>
+  <div class="three-col" style="margin-top:14px">
+    <div><label>Sospechosa</label><div class="canvas-wrap"><canvas id="susCal" width="640" height="360"></canvas></div></div>
+    <div><label>Calibrada</label><div class="canvas-wrap"><canvas id="calibrated" width="640" height="360"></canvas></div></div>
+    <div><label>Diferencia amplificada</label><div class="canvas-wrap"><canvas id="calDiff" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="calMse">—</strong><span>MSE sospechosa/calibrada</span></div>
+    <div class="metric"><strong id="calPsnr">—</strong><span>PSNR</span></div>
+    <div class="metric"><strong id="calLsbLoss">—</strong><span>LSB cambiados</span></div>
+    <div class="metric"><strong id="calPairShift">—</strong><span>cambio χ² pares</span></div>
+  </div>
+  <div id="calStatus" class="status">La calibración es conceptual: muestra cómo una transformación puede exponer diferencias estadísticas o destruir un canal frágil.</div>
+</article>
+
+<article class="card full" id="clasificador">
+  <div class="eyebrow">Estación 6</div>
+  <h2>Clasificador didáctico multiseñal</h2>
+  <p class="muted">Integra cinco señales simples. No es un modelo forense ni un detector de producción.</p>
+  <div class="two-col">
+    <div>
+      <div class="metrics" style="grid-template-columns:repeat(2,1fr)">
+        <div class="metric"><strong id="score">0/100</strong><span>índice de sospecha</span></div>
+        <div class="metric"><strong id="verdict">Bajo</strong><span>nivel</span></div>
+      </div>
+      <div class="gauge"><i id="gauge"></i></div>
+      <div id="classStatus" class="status">Generá una sospechosa y ejecutá el análisis.</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Señal</th><th>Lectura</th></tr></thead>
+        <tbody>
+          <tr><td>Histograma</td><td id="fHist">—</td></tr>
+          <tr><td>Pares LSB</td><td id="fPairs">—</td></tr>
+          <tr><td>Paridad</td><td id="fParity">—</td></tr>
+          <tr><td>DCT</td><td id="fDct">—</td></tr>
+          <tr><td>Calibración</td><td id="fCal">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Interpretación correcta</h2>
+  <ol class="steps">
+    <li>Una señal anómala no prueba esteganografía.</li>
+    <li>Una señal normal no prueba ausencia de payload.</li>
+    <li>Los detectores dependen del tipo de algoritmo y del dominio.</li>
+    <li>Es necesario calibrar con imágenes de referencia comparables.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Puente a machine learning</h2>
+  <p class="muted">
+    En sistemas reales pueden extraerse cientos o miles de características y entrenarse clasificadores sobre conjuntos cover/stego.
+    El problema deja de ser “leer el mensaje” y pasa a ser “estimar la probabilidad de pertenencia a una clase”.
+  </p>
+</article>
+
+<article class="card third">
+  <h2>Siguiente material</h2>
+  <p class="muted">
+    El próximo bloque del módulo sale de las imágenes: <strong>esteganografía en texto y Unicode</strong>,
+    con caracteres invisibles, espacios de ancho cero, normalización y fragilidad del canal.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo y defensivo. Los indicadores son simplificaciones y no deben interpretarse como evidencia forense concluyente.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const original=$('#original'),suspect=$('#suspect');
+const octx=original.getContext('2d',{willReadFrequently:true}),sctx=suspect.getContext('2d',{willReadFrequently:true});
+const hO=$('#histO').getContext('2d'),hS=$('#histS').getContext('2d'),hD=$('#histD').getContext('2d');
+const susCal=$('#susCal'),calibrated=$('#calibrated'),calDiff=$('#calDiff');
+const scctx=susCal.getContext('2d',{willReadFrequently:true}),cctx=calibrated.getContext('2d',{willReadFrequently:true}),cdctx=calDiff.getContext('2d');
+let O=null,S=null,CAL=null;
+let signals={hist:0,pairs:0,parity:0,dct:0,cal:0};
+
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function clamp(v){return Math.max(0,Math.min(255,v))}
+function rgbIdx(len){const a=[];for(let i=0;i<len;i++)if(i%4!==3)a.push(i);return a}
+
+function generate(){
+  const w=640,h=360;
+  original.width=suspect.width=susCal.width=calibrated.width=calDiff.width=w;
+  original.height=suspect.height=susCal.height=calibrated.height=calDiff.height=h;
+  const img=octx.createImageData(w,h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const i=(y*w+x)*4;
+    const tex=((x*17+y*31)%23)-11, wave=Math.sin(x*.052)*18+Math.cos(y*.083)*14;
+    img.data[i]=clamp(30+x/w*190+wave+tex);
+    img.data[i+1]=clamp(55+y/h*150-wave*.45+tex);
+    img.data[i+2]=clamp(130+60*Math.sin((x+y)/48)-tex);
+    img.data[i+3]=255;
+  }
+  octx.putImageData(img,0,0);sctx.putImageData(img,0,0);
+  O=octx.getImageData(0,0,w,h);S=sctx.getImageData(0,0,w,h);CAL=null;
+  analyzeAll();st($('#inputStatus'),'Portadora sintética generada. Ajustá la densidad para crear una sospechosa.','good');
+}
+$('#generate').onclick=generate;
+$('#density').oninput=()=>$('#densityLabel').textContent=$('#density').value;
+$('#file').addEventListener('change',e=>{
+  const f=e.target.files?.[0];if(!f)return;
+  const url=URL.createObjectURL(f),img=new Image();
+  img.onload=()=>{
+    const sc=Math.min(640/img.width,360/img.height,1),w=Math.max(1,Math.round(img.width*sc)),h=Math.max(1,Math.round(img.height*sc));
+    for(const c of [original,suspect,susCal,calibrated,calDiff]){c.width=w;c.height=h}
+    octx.drawImage(img,0,0,w,h);sctx.drawImage(img,0,0,w,h);
+    O=octx.getImageData(0,0,w,h);S=sctx.getImageData(0,0,w,h);CAL=null;URL.revokeObjectURL(url);
+    analyzeAll();st($('#inputStatus'),`Imagen cargada: ${w}×${h}px.`,'good');
+  };img.src=url;
+});
+
+function simulate(){
+  if(!O)return;
+  const p=Number($('#density').value)/100,work=new ImageData(new Uint8ClampedArray(O.data),O.width,O.height);
+  let changed=0,cand=0;
+  for(let i=0;i<work.data.length;i++){
+    if(i%4===3)continue;
+    if(Math.random()<p){cand++;const bit=Math.random()<.5?0:1,old=work.data[i],neu=(old&0xFE)|bit;if(neu!==old)changed++;work.data[i]=neu}
+  }
+  sctx.putImageData(work,0,0);S=sctx.getImageData(0,0,suspect.width,suspect.height);CAL=null;
+  analyzeAll();st($('#inputStatus'),`Sospechosa creada: ${cand.toLocaleString('es-AR')} candidatos, ${changed.toLocaleString('es-AR')} cambios reales.`,'good');
+}
+$('#simulate').onclick=simulate;
+
+function histogram(data,ch){
+  const h=Array(256).fill(0);
+  for(let i=ch;i<data.length;i+=4)h[data[i]]++;
+  return h;
+}
+function drawHistogram(ctx,h,maxRef=null){
+  const W=ctx.canvas.width,H=ctx.canvas.height;ctx.clearRect(0,0,W,H);
+  const max=maxRef||Math.max(...h,1);ctx.strokeStyle='#4be3ff';ctx.beginPath();
+  for(let x=0;x<256;x++){const xx=x/255*(W-1),yy=H-8-(h[x]/max)*(H-18);if(x===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy)}
+  ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.moveTo(0,H-8);ctx.lineTo(W,H-8);ctx.stroke();
+}
+function pairStats(hist){
+  let chi=0,imb=0,balanced=0,pairs=0,total=hist.reduce((a,b)=>a+b,0)||1;
+  for(let v=0;v<256;v+=2){
+    const a=hist[v],b=hist[v+1],e=(a+b)/2;pairs++;
+    if(e>0)chi+=((a-e)*(a-e))/e+((b-e)*(b-e))/e;
+    const d=Math.abs(a-b)/(a+b||1);imb+=d;if(d<.05)balanced++;
+  }
+  return {chi,imb:imb/pairs,balanced:balanced/pairs};
+}
+function renderHist(){
+  if(!O||!S)return;
+  const ch=Number($('#histChannel').value),ho=histogram(O.data,ch),hs=histogram(S.data,ch);
+  const mx=Math.max(...ho,...hs,1);drawHistogram(hO,ho,mx);drawHistogram(hS,hs,mx);
+  const diff=ho.map((v,i)=>Math.abs(v-hs[i]));drawHistogram(hD,diff,Math.max(...diff,1));
+  const total=ho.reduce((a,b)=>a+b,0)||1,l1=diff.reduce((a,b)=>a+b,0)/total;
+  const peak=Math.max(...diff)/total;
+  const po=pairStats(ho),ps=pairStats(hs);
+  $('#histL1').textContent=l1.toFixed(4);$('#peakMove').textContent=peak.toFixed(5);
+  $('#pairBalanceO').textContent=(100*po.balanced).toFixed(1)+'%';$('#pairBalanceS').textContent=(100*ps.balanced).toFixed(1)+'%';
+  $('#chiO').textContent=po.chi.toFixed(1);$('#chiS').textContent=ps.chi.toFixed(1);
+  $('#imbO').textContent=po.imb.toFixed(4);$('#imbS').textContent=ps.imb.toFixed(4);
+  $('#balancedO').textContent=(100*po.balanced).toFixed(1)+'%';$('#balancedS').textContent=(100*ps.balanced).toFixed(1)+'%';
+  const drop=po.chi>0?Math.max(0,(po.chi-ps.chi)/po.chi):0;
+  signals.hist=Math.min(1,l1*8);
+  signals.pairs=Math.min(1,drop*1.8 + Math.max(0,ps.balanced-po.balanced));
+  st($('#pairsStatus'),drop>.18?'La sospechosa presenta un χ² de pares notablemente menor: señal compatible con equilibrado LSB.':'No aparece una caída fuerte del χ² en esta muestra.','warn');
+}
+$('#drawHist').onclick=renderHist;$('#histChannel').onchange=renderHist;
+
+function basicStats(){
+  let n=0,se=0,abs=0,maxd=0,eo=0,es=0,mod=0;
+  for(let i=0;i<O.data.length;i++){
+    if(i%4===3)continue;n++;
+    const a=O.data[i],b=S.data[i],d=a-b;if(d!==0)mod++;se+=d*d;abs+=Math.abs(d);maxd=Math.max(maxd,Math.abs(d));
+    if((a&1)===0)eo++;if((b&1)===0)es++;
+  }
+  const mse=se/n,psnr=mse===0?Infinity:10*Math.log10(255*255/mse),par=Math.abs(eo/n-es/n);
+  $('#modPct').textContent=(100*mod/n).toFixed(3)+'%';$('#mse').textContent=mse.toFixed(4);$('#psnr').textContent=isFinite(psnr)?psnr.toFixed(2):'∞';
+  $('#parityShift').textContent=par.toFixed(5);$('#meanDiff').textContent=(abs/n).toFixed(4);$('#maxDiff').textContent=maxd;
+  signals.parity=Math.min(1,par*90 + mod/n*.9);
+}
+function C(k){return k===0?1/Math.sqrt(2):1}
+function dctBlock(vals){
+  const out=Array.from({length:8},()=>Array(8).fill(0));
+  for(let u=0;u<8;u++)for(let v=0;v<8;v++){
+    let sum=0;for(let y=0;y<8;y++)for(let x=0;x<8;x++)sum+=(vals[y][x]-128)*Math.cos(((2*x+1)*v*Math.PI)/16)*Math.cos(((2*y+1)*u*Math.PI)/16);
+    out[u][v]=.25*C(u)*C(v)*sum;
+  }return out;
+}
+function luminance(data,w,x,y){
+  const i=(y*w+x)*4;return .299*data[i]+.587*data[i+1]+.114*data[i+2];
+}
+function dctSignature(img){
+  const w=img.width,h=img.height;let low=0,high=0,count=0;
+  const maxBlocks=120;let seen=0;
+  for(let by=0;by+7<h && seen<maxBlocks;by+=8){
+    for(let bx=0;bx+7<w && seen<maxBlocks;bx+=8){
+      const b=Array.from({length:8},(_,y)=>Array.from({length:8},(_,x)=>luminance(img.data,w,bx+x,by+y)));
+      const d=dctBlock(b);seen++;
+      for(let u=0;u<8;u++)for(let v=0;v<8;v++){const e=d[u][v]*d[u][v];if(u+v<=4)low+=e;else high+=e}
+    }
+  }
+  const total=low+high||1;return {low:low/total,high:high/total};
+}
+function analyzeDct(){
+  const a=dctSignature(O),b=dctSignature(S),drift=Math.abs(a.low-b.low);
+  $('#lowEnergyO').textContent=(100*a.low).toFixed(2)+'%';$('#lowEnergyS').textContent=(100*b.low).toFixed(2)+'%';$('#dctDrift').textContent=drift.toFixed(5);
+  signals.dct=Math.min(1,drift*35);
+}
+function calibrate(){
+  if(!S)return;
+  const level=Number($('#calLevel').value),w=S.width,h=S.height;
+  scctx.putImageData(S,0,0);
+  const tmp=document.createElement('canvas'),t=tmp.getContext('2d');
+  const scale=level===1?.88:level===2?.72:.55;
+  tmp.width=Math.max(1,Math.round(w*scale));tmp.height=Math.max(1,Math.round(h*scale));
+  t.drawImage(susCal,0,0,tmp.width,tmp.height);
+  cctx.clearRect(0,0,w,h);cctx.imageSmoothingEnabled=true;cctx.drawImage(tmp,0,0,w,h);
+  CAL=cctx.getImageData(0,0,w,h);
+  const step=level===1?2:level===2?4:8;
+  for(let i=0;i<CAL.data.length;i++)if(i%4!==3)CAL.data[i]=Math.round(CAL.data[i]/step)*step;
+  cctx.putImageData(CAL,0,0);
+  let n=0,se=0,lsb=0;
+  const dimg=cdctx.createImageData(w,h);
+  for(let i=0;i<S.data.length;i+=4){
+    let pix=0;
+    for(let k=0;k<3;k++){
+      const a=S.data[i+k],b=CAL.data[i+k],d=a-b;n++;se+=d*d;if((a&1)!==(b&1))lsb++;pix=Math.max(pix,Math.abs(d));
+      dimg.data[i+k]=clamp(128+d*12);
+    }
+    dimg.data[i+3]=255;
+  }
+  cdctx.putImageData(dimg,0,0);
+  const mse=se/n,psnr=mse===0?Infinity:10*Math.log10(255*255/mse);
+  $('#calMse').textContent=mse.toFixed(3);$('#calPsnr').textContent=isFinite(psnr)?psnr.toFixed(2):'∞';$('#calLsbLoss').textContent=(100*lsb/n).toFixed(2)+'%';
+  const ch=Number($('#histChannel').value),ps=pairStats(histogram(S.data,ch)),pc=pairStats(histogram(CAL.data,ch));
+  const shift=Math.abs(pc.chi-ps.chi)/(ps.chi||1);$('#calPairShift').textContent=shift.toFixed(3);
+  signals.cal=Math.min(1,(lsb/n)*1.5 + Math.min(1,shift)*.5);
+  st($('#calStatus'),'Calibración completada. Una operación de este tipo puede destruir un canal LSB frágil y cambiar las estadísticas observadas.','good');
+  updateClassifier();
+}
+$('#calibrate').onclick=calibrate;
+
+function updateClassifier(){
+  const weights={hist:.22,pairs:.28,parity:.18,dct:.12,cal:.20};
+  let score=0;for(const k in weights)score+=signals[k]*weights[k];
+  score=Math.round(Math.min(1,score)*100);
+  const verdict=score<20?'Bajo':score<45?'Moderado':score<70?'Alto':'Muy alto';
+  $('#score').textContent=score+'/100';$('#verdict').textContent=verdict;$('#gauge').style.width=score+'%';
+  const tag=v=>v<.2?'débil':v<.5?'moderada':v<.75?'fuerte':'muy fuerte';
+  $('#fHist').textContent=tag(signals.hist);$('#fPairs').textContent=tag(signals.pairs);$('#fParity').textContent=tag(signals.parity);
+  $('#fDct').textContent=tag(signals.dct);$('#fCal').textContent=CAL?tag(signals.cal):'sin calibrar';
+  st($('#classStatus'),
+    score<20?'Las señales agregadas son débiles. Esto no demuestra ausencia de esteganografía.':
+    score<45?'Hay anomalías compatibles con modificación, pero aún son ambiguas.':
+    score<70?'Varias señales se alinean con una posible alteración estructurada. Se requerirían pruebas adicionales.':
+    'Las señales didácticas son fuertes en esta simulación. En análisis real harían falta validación y un conjunto de referencia.',
+    score<20?'good':score<70?'warn':'bad');
+}
+function analyzeAll(){if(!O||!S)return;basicStats();renderHist();analyzeDct();updateClassifier()}
+generate();
+</script>
+</body>
+</html>

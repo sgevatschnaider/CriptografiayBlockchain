@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Canales encubiertos en protocolos</title>
+<meta name="description" content="Laboratorio educativo y defensivo sobre canales encubiertos en protocolos: tiempo, tamaño, orden y campos simulados de paquetes.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.2rem,6vw,4.7rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+textarea,select,input,button{font:inherit}
+textarea,select,input[type=text],input[type=number],input[type=range]{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:10px 11px}
+textarea{min-height:110px;resize:vertical}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#02080d}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;background:#06121f;border:1px solid var(--line);border-radius:16px;padding:14px;min-height:92px;color:#d9efff;max-height:320px;overflow:auto}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.3rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Canales encubiertos</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#timing">Timing</a>
+    <a href="#tamano">Tamaño</a>
+    <a href="#orden">Orden</a>
+    <a href="#campos">Campos</a>
+    <a href="#deteccion">Detección</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio local y defensivo · Protocolos simulados</div>
+  <h1>Canales encubiertos en protocolos de comunicación</h1>
+  <p>
+    La información puede ocultarse no solo en el contenido de un mensaje, sino también en características
+    observables de una comunicación: intervalos temporales, tamaños, orden de paquetes o campos auxiliares.
+    Este laboratorio simula esos mecanismos sin enviar tráfico real.
+  </p>
+  <div class="pills">
+    <span class="pill">Timing channels</span>
+    <span class="pill">Packet size</span>
+    <span class="pill">Ordering</span>
+    <span class="pill">Header fields</span>
+    <span class="pill">Jitter</span>
+    <span class="pill">Detección estadística</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Modelo</div>
+  <h2>Canal legítimo + modulación encubierta</h2>
+  <div class="two-col">
+    <div class="note">
+      Un canal encubierto aprovecha propiedades de una comunicación legítima para transportar una señal adicional que no forma parte del propósito declarado del protocolo.
+    </div>
+    <div class="note">
+      Este recurso no genera tráfico de red. Todos los paquetes son objetos sintéticos creados en memoria para estudiar detección y robustez.
+    </div>
+  </div>
+</article>
+
+<article class="card full" id="timing">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Timing channel: bits representados por intervalos</h2>
+  <div class="controls">
+    <div class="control"><label>Bits de prueba</label><input id="timingBits" type="text" value="1011001010"></div>
+    <div class="control"><label>Retardo bit 0</label><input id="delay0" type="number" value="100"></div>
+    <div class="control"><label>Retardo bit 1</label><input id="delay1" type="number" value="220"></div>
+    <div class="control"><label>Jitter</label><input id="jitter" type="range" min="0" max="120" value="20"><div class="muted"><span id="jitterLabel">20</span> ms</div></div>
+    <div class="control"><label>Acción</label><button id="simulateTiming">Simular</button></div>
+  </div>
+  <div class="canvas-wrap" style="margin-top:14px"><canvas id="timingCanvas" width="980" height="280"></canvas></div>
+  <div class="metrics">
+    <div class="metric"><strong id="timingCount">0</strong><span>paquetes</span></div>
+    <div class="metric"><strong id="timingMean">—</strong><span>intervalo medio</span></div>
+    <div class="metric"><strong id="timingStd">—</strong><span>desvío estándar</span></div>
+    <div class="metric"><strong id="timingAcc">—</strong><span>bits recuperados</span></div>
+    <div class="metric"><strong id="timingErr">—</strong><span>errores</span></div>
+    <div class="metric"><strong id="timingThreshold">—</strong><span>umbral</span></div>
+  </div>
+  <div id="timingStatus" class="status">Aumentá el jitter y observá cómo el canal se vuelve menos confiable.</div>
+</article>
+
+<article class="card full" id="tamano">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Canal por tamaño de paquete</h2>
+  <p class="muted">En esta simulación, un tamaño corto representa 0 y uno largo representa 1.</p>
+  <div class="controls">
+    <div class="control"><label>Bits</label><input id="sizeBits" type="text" value="11001010"></div>
+    <div class="control"><label>Tamaño 0</label><input id="size0" type="number" value="480"></div>
+    <div class="control"><label>Tamaño 1</label><input id="size1" type="number" value="920"></div>
+    <div class="control"><label>Ruido de tamaño</label><input id="sizeNoise" type="range" min="0" max="200" value="30"><div class="muted"><span id="sizeNoiseLabel">30</span> bytes</div></div>
+    <div class="control"><label>Acción</label><button id="simulateSize">Simular</button></div>
+  </div>
+  <div class="canvas-wrap" style="margin-top:14px"><canvas id="sizeCanvas" width="980" height="280"></canvas></div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="sizeMean">—</strong><span>tamaño medio</span></div>
+    <div class="metric"><strong id="sizeStd">—</strong><span>desvío</span></div>
+    <div class="metric"><strong id="sizeAcc">—</strong><span>exactitud</span></div>
+    <div class="metric"><strong id="sizeThreshold">—</strong><span>umbral</span></div>
+  </div>
+</article>
+
+<article class="card full" id="orden">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Canal por orden de llegada</h2>
+  <p class="muted">
+    Se forman pares de paquetes. El orden A→B representa 0 y B→A representa 1. Se puede introducir reordenamiento accidental para probar robustez.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Bits</label><input id="orderBits" type="text" value="10101100"></div>
+    <div class="control"><label>Probabilidad de reordenamiento</label><input id="reorder" type="range" min="0" max="50" value="5"><div class="muted"><span id="reorderLabel">5</span>%</div></div>
+    <div class="control"><label>Acción</label><button id="simulateOrder">Simular</button></div>
+  </div>
+  <div id="orderView" class="codebox"></div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="orderPairs">—</strong><span>pares</span></div>
+    <div class="metric"><strong id="orderErrors">—</strong><span>errores</span></div>
+    <div class="metric"><strong id="orderAcc">—</strong><span>exactitud</span></div>
+    <div class="metric"><strong id="orderRecovered">—</strong><span>bits recuperados</span></div>
+  </div>
+</article>
+
+<article class="card full" id="campos">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Campos auxiliares de cabecera: modelo didáctico</h2>
+  <p class="muted">
+    Algunos protocolos poseen campos cuyo comportamiento normal puede presentar variabilidad.
+    Aquí se simula un campo de 8 bits y se observa qué ocurre cuando sus LSB dejan de seguir una distribución esperable.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Número de paquetes</label><input id="fieldPackets" type="number" min="20" max="400" value="120"></div>
+    <div class="control"><label>Densidad modulada</label><input id="fieldDensity" type="range" min="0" max="100" value="40"><div class="muted"><span id="fieldDensityLabel">40</span>%</div></div>
+    <div class="control"><label>Acción</label><button id="simulateField">Generar muestra</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Secuencia normal</label><div id="normalFields" class="codebox"></div></div>
+    <div><label>Secuencia modulada</label><div id="modFields" class="codebox"></div></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="normalOnes">—</strong><span>LSB=1 normal</span></div>
+    <div class="metric"><strong id="modOnes">—</strong><span>LSB=1 modulada</span></div>
+    <div class="metric"><strong id="fieldChi">—</strong><span>χ² simple</span></div>
+    <div class="metric"><strong id="fieldAlert">—</strong><span>alerta</span></div>
+  </div>
+</article>
+
+<article class="card full" id="deteccion">
+  <div class="eyebrow">Estación 5</div>
+  <h2>Panel de detección multiseñal</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Canal</th><th>Señal observable</th><th>Riesgo didáctico</th></tr></thead>
+      <tbody>
+        <tr><td>Timing</td><td id="detTiming">—</td><td id="riskTiming">—</td></tr>
+        <tr><td>Tamaño</td><td id="detSize">—</td><td id="riskSize">—</td></tr>
+        <tr><td>Orden</td><td id="detOrder">—</td><td id="riskOrder">—</td></tr>
+        <tr><td>Campos</td><td id="detField">—</td><td id="riskField">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="actions"><button id="runDetection">Evaluar señales</button></div>
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+    <div class="metric"><strong id="globalScore">0/100</strong><span>índice de sospecha</span></div>
+    <div class="metric"><strong id="globalVerdict">Bajo</strong><span>nivel</span></div>
+    <div class="metric"><strong id="globalAdvice">Observar</strong><span>acción defensiva</span></div>
+  </div>
+  <div id="detectStatus" class="status">El índice es didáctico y no sustituye análisis de tráfico real.</div>
+</article>
+
+<article class="card third">
+  <h2>Qué debe aprenderse</h2>
+  <ol class="steps">
+    <li>Un canal encubierto puede usar estructura o comportamiento, no solo contenido.</li>
+    <li>El ruido del canal puede destruir la codificación.</li>
+    <li>La detección requiere conocer el comportamiento normal.</li>
+    <li>Una anomalía no prueba intención maliciosa.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Enfoque defensivo</h2>
+  <p class="muted">
+    En análisis real se estudiarían distribuciones temporales, tamaños, secuencias, campos de protocolo y contexto operativo.
+    Este laboratorio evita tráfico real y se limita a datos sintéticos.
+  </p>
+</article>
+
+<article class="card third">
+  <h2>Siguiente material</h2>
+  <p class="muted">
+    El siguiente bloque del módulo integra lo aprendido con <strong>cifrar antes de ocultar</strong>:
+    composición conceptual AES-GCM → ciphertext → esteganografía.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo y defensivo. No genera, transmite ni captura tráfico de red real.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+let signals={timing:0,size:0,order:0,field:0};
+
+function mean(a){return a.reduce((x,y)=>x+y,0)/(a.length||1)}
+function std(a){const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)*(v-m),0)/(a.length||1))}
+function cleanBits(s){return (s||'').replace(/[^01]/g,'')}
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function jittered(v,j){return Math.max(1,v+(Math.random()*2-1)*j)}
+function drawSeries(canvas,vals,threshold,label=''){
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.moveTo(0,H-30);ctx.lineTo(W,H-30);ctx.stroke();
+  const max=Math.max(...vals,threshold,1),min=Math.min(...vals,threshold,0),span=max-min||1;
+  ctx.strokeStyle='#4be3ff';ctx.beginPath();
+  vals.forEach((v,i)=>{const x=30+i*(W-60)/Math.max(1,vals.length-1),y=H-30-(v-min)/span*(H-60);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});
+  ctx.stroke();
+  const ty=H-30-(threshold-min)/span*(H-60);ctx.strokeStyle='#ffd166';ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(20,ty);ctx.lineTo(W-20,ty);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#a8bfd2';ctx.fillText(label,22,18);
+}
+
+$('#jitter').oninput=()=>$('#jitterLabel').textContent=$('#jitter').value;
+$('#sizeNoise').oninput=()=>$('#sizeNoiseLabel').textContent=$('#sizeNoise').value;
+$('#reorder').oninput=()=>$('#reorderLabel').textContent=$('#reorder').value;
+$('#fieldDensity').oninput=()=>$('#fieldDensityLabel').textContent=$('#fieldDensity').value;
+
+$('#simulateTiming').onclick=()=>{
+  const bits=cleanBits($('#timingBits').value),d0=Number($('#delay0').value),d1=Number($('#delay1').value),j=Number($('#jitter').value);
+  const vals=[...bits].map(b=>jittered(b==='1'?d1:d0,j)),thr=(d0+d1)/2;
+  const rec=vals.map(v=>v>thr?'1':'0').join('');
+  let err=0;for(let i=0;i<bits.length;i++)if(bits[i]!==rec[i])err++;
+  $('#timingCount').textContent=bits.length;$('#timingMean').textContent=mean(vals).toFixed(1)+' ms';$('#timingStd').textContent=std(vals).toFixed(1);
+  $('#timingAcc').textContent=bits.length?((1-err/bits.length)*100).toFixed(1)+'%':'—';$('#timingErr').textContent=err;$('#timingThreshold').textContent=thr+' ms';
+  drawSeries($('#timingCanvas'),vals,thr,'Intervalos simulados');
+  const sep=Math.abs(d1-d0)/(std(vals)||1);signals.timing=Math.min(1,sep/4);
+  st($('#timingStatus'),err?`El jitter produjo ${err} errores de clasificación.`:'Los intervalos aún separan correctamente ambas clases.',err?'warn':'good');
+};
+
+$('#simulateSize').onclick=()=>{
+  const bits=cleanBits($('#sizeBits').value),s0=Number($('#size0').value),s1=Number($('#size1').value),n=Number($('#sizeNoise').value),thr=(s0+s1)/2;
+  const vals=[...bits].map(b=>jittered(b==='1'?s1:s0,n));
+  const rec=vals.map(v=>v>thr?'1':'0').join('');let err=0;for(let i=0;i<bits.length;i++)if(bits[i]!==rec[i])err++;
+  $('#sizeMean').textContent=mean(vals).toFixed(1)+' B';$('#sizeStd').textContent=std(vals).toFixed(1);
+  $('#sizeAcc').textContent=bits.length?((1-err/bits.length)*100).toFixed(1)+'%':'—';$('#sizeThreshold').textContent=thr+' B';
+  drawSeries($('#sizeCanvas'),vals,thr,'Tamaños simulados');
+  const sep=Math.abs(s1-s0)/(std(vals)||1);signals.size=Math.min(1,sep/5);
+};
+
+$('#simulateOrder').onclick=()=>{
+  const bits=cleanBits($('#orderBits').value),p=Number($('#reorder').value)/100;
+  const rows=[],rec=[];let err=0;
+  [...bits].forEach((b,i)=>{
+    let pair=b==='0'?['A','B']:['B','A'];
+    if(Math.random()<p)pair=pair.reverse();
+    const r=pair[0]==='A'?'0':'1';rec.push(r);if(r!==b)err++;
+    rows.push(`bit ${i}: enviado ${b} → llegada ${pair[0]}-${pair[1]} → leído ${r}${r!==b?'  [error]':''}`);
+  });
+  $('#orderView').textContent=rows.join('\n');$('#orderPairs').textContent=bits.length;$('#orderErrors').textContent=err;
+  $('#orderAcc').textContent=bits.length?((1-err/bits.length)*100).toFixed(1)+'%':'—';$('#orderRecovered').textContent=rec.join('');
+  signals.order=Math.min(1,(1-p)*.75 + (bits.length>6?.1:0));
+};
+
+$('#simulateField').onclick=()=>{
+  const n=Math.max(20,Math.min(400,Number($('#fieldPackets').value)||120)),density=Number($('#fieldDensity').value)/100;
+  const normal=[],mod=[];
+  for(let i=0;i<n;i++){
+    const v=Math.floor(Math.random()*256);normal.push(v);
+    let m=v;
+    if(Math.random()<density){const bit=(i%2);m=(v&0xFE)|bit}
+    mod.push(m);
+  }
+  $('#normalFields').textContent=normal.slice(0,80).map(v=>v.toString(16).padStart(2,'0')).join(' ');
+  $('#modFields').textContent=mod.slice(0,80).map(v=>v.toString(16).padStart(2,'0')).join(' ');
+  const oneN=normal.filter(v=>v&1).length,oneM=mod.filter(v=>v&1).length;
+  $('#normalOnes').textContent=(100*oneN/n).toFixed(1)+'%';$('#modOnes').textContent=(100*oneM/n).toFixed(1)+'%';
+  const exp=n/2,chi=((oneM-exp)**2/exp)+(((n-oneM)-exp)**2/exp);
+  $('#fieldChi').textContent=chi.toFixed(3);
+  const alt=mod.reduce((s,v,i)=>s+(i>0 && ((v&1)!==(mod[i-1]&1))?1:0),0)/Math.max(1,n-1);
+  signals.field=Math.min(1,Math.abs(alt-.5)*2 + density*.35);
+  $('#fieldAlert').textContent=signals.field>.45?'REVISAR':'BAJA';
+};
+
+$('#runDetection').onclick=()=>{
+  const vals=[
+    ['timing',signals.timing,'detTiming','riskTiming'],
+    ['size',signals.size,'detSize','riskSize'],
+    ['order',signals.order,'detOrder','riskOrder'],
+    ['field',signals.field,'detField','riskField']
+  ];
+  const tag=v=>v<.25?'débil':v<.5?'moderada':v<.75?'fuerte':'muy fuerte';
+  vals.forEach(([k,v,det,risk])=>{$('#'+det).textContent=tag(v);$('#'+risk).textContent=v<.25?'bajo':v<.6?'medio':'alto'});
+  const score=Math.round((signals.timing*.3+signals.size*.25+signals.order*.2+signals.field*.25)*100);
+  const verdict=score<20?'Bajo':score<45?'Moderado':score<70?'Alto':'Muy alto';
+  $('#globalScore').textContent=score+'/100';$('#globalVerdict').textContent=verdict;
+  $('#globalAdvice').textContent=score<20?'Observar':score<45?'Comparar baseline':score<70?'Investigar':'Escalar análisis';
+  st($('#detectStatus'),
+    score<20?'Las señales agregadas son débiles para este conjunto sintético.':
+    score<45?'Hay patrones que conviene comparar con un baseline de tráfico normal.':
+    score<70?'Varias señales muestran una estructura compatible con modulación artificial.':
+    'La simulación presenta una modulación muy marcada. En un entorno real se requeriría validación contextual.',
+    score<20?'good':score<70?'warn':'bad');
+};
+
+$('#simulateTiming').click();$('#simulateSize').click();$('#simulateOrder').click();$('#simulateField').click();$('#runDetection').click();
+</script>
+</body>
+</html>

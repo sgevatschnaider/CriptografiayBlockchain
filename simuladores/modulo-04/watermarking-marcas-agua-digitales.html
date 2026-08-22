@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Watermarking y marcas de agua digitales</title>
+<meta name="description" content="Laboratorio interactivo de watermarking: marcas visibles e invisibles, robustas y frágiles, ataques y detección.">
+<style>
+:root{
+  --bg:#06101c;--panel:#0b1e31;--panel2:#102942;--line:#274966;
+  --text:#eef8ff;--muted:#a8bfd2;--accent:#4be3ff;--accent2:#7aa6ff;
+  --good:#7cf0b0;--warn:#ffd166;--danger:#ff7e96;--ink:#031017;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0,rgba(75,227,255,.11),transparent 26rem),
+    radial-gradient(circle at 90% 8%,rgba(122,166,255,.13),transparent 28rem),
+    linear-gradient(180deg,#06101c,#071421 46%,#06101c);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none}
+.hero{
+  padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;
+  background:linear-gradient(135deg,rgba(17,43,69,.98),rgba(7,22,37,.98));
+  box-shadow:0 28px 70px rgba(0,0,0,.28)
+}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.2rem,6vw,4.7rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:980px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cceafa}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+textarea,select,input,button{font:inherit}
+textarea,select,input[type=text],input[type=number]{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:10px 11px}
+input[type=range]{width:100%}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+button.danger{background:var(--danger);color:#280712}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#02080d}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,240,176,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,126,150,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(75,227,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d8efff}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.3rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Watermarking</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#visible">Visible</a>
+    <a href="#invisible">Invisible</a>
+    <a href="#fragil">Frágil</a>
+    <a href="#ataques">Ataques</a>
+    <a href="#comparacion">Comparación</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio interactivo · Marcas de agua digitales</div>
+  <h1>Watermarking: identidad, trazabilidad e integridad</h1>
+  <p>
+    Una marca de agua digital no persigue necesariamente ocultar un mensaje secreto.
+    Puede identificar autoría, rastrear una copia, verificar integridad o resistir transformaciones.
+    Este laboratorio compara marcas visibles, invisibles, robustas y frágiles.
+  </p>
+  <div class="pills">
+    <span class="pill">Visible watermark</span>
+    <span class="pill">Invisible watermark</span>
+    <span class="pill">Robusta</span>
+    <span class="pill">Frágil</span>
+    <span class="pill">Detección por correlación</span>
+    <span class="pill">Ataques</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Diferencia conceptual</div>
+  <h2>Esteganografía y watermarking se superponen, pero no son idénticos</h2>
+  <div class="two-col">
+    <div class="note">
+      <strong>Esteganografía:</strong> busca ocultar la existencia del mensaje o payload.
+    </div>
+    <div class="note">
+      <strong>Watermarking:</strong> suele priorizar identidad, trazabilidad, autenticidad o persistencia de una marca asociada al contenido.
+    </div>
+  </div>
+</article>
+
+<article class="card full">
+  <div class="eyebrow">Preparación</div>
+  <h2>Imagen base</h2>
+  <div class="actions">
+    <button id="generate">Generar imagen base</button>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Original</label><div class="canvas-wrap"><canvas id="original" width="640" height="360"></canvas></div></div>
+    <div><label>Resultado</label><div class="canvas-wrap"><canvas id="result" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="mse">0</strong><span>MSE</span></div>
+    <div class="metric"><strong id="psnr">∞</strong><span>PSNR</span></div>
+    <div class="metric"><strong id="changed">0%</strong><span>píxeles modificados</span></div>
+    <div class="metric"><strong id="corr">—</strong><span>correlación de marca</span></div>
+    <div class="metric"><strong id="fragileState">—</strong><span>marca frágil</span></div>
+    <div class="metric"><strong id="mode">Original</strong><span>modo actual</span></div>
+  </div>
+</article>
+
+<article class="card full" id="visible">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Marca visible</h2>
+  <div class="controls">
+    <div class="control"><label>Texto</label><input id="visibleText" type="text" value="© Sergio Gevatschnaider"></div>
+    <div class="control"><label>Opacidad</label><input id="opacity" type="range" min="10" max="90" value="42"><div class="muted"><span id="opacityLabel">42</span>%</div></div>
+    <div class="control"><label>Tamaño</label><input id="fontSize" type="range" min="18" max="64" value="34"><div class="muted"><span id="fontLabel">34</span> px</div></div>
+    <div class="control"><label>Acción</label><button id="applyVisible">Aplicar marca visible</button></div>
+  </div>
+  <div id="visibleStatus" class="status">La marca visible sacrifica invisibilidad para ganar reconocimiento inmediato.</div>
+</article>
+
+<article class="card full" id="invisible">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Marca invisible robusta por patrón pseudoaleatorio</h2>
+  <p class="muted">
+    Esta simulación suma o resta una pequeña amplitud siguiendo un patrón determinista generado a partir de una semilla.
+    La detección se realiza mediante correlación con el mismo patrón.
+  </p>
+  <div class="controls">
+    <div class="control"><label>Semilla</label><input id="seed" type="text" value="SG-2026"></div>
+    <div class="control"><label>Intensidad</label><input id="strength" type="range" min="1" max="12" value="4"><div class="muted">±<span id="strengthLabel">4</span> niveles</div></div>
+    <div class="control"><label>Acción</label><button id="embedInvisible">Insertar marca invisible</button></div>
+    <div class="control"><label>Detección</label><button id="detectInvisible" class="secondary">Detectar marca</button></div>
+  </div>
+  <div id="invisibleStatus" class="status">Una correlación positiva alta indica que el patrón esperado sigue presente.</div>
+</article>
+
+<article class="card full" id="fragil">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Marca frágil para detectar modificaciones</h2>
+  <p class="muted">
+    Se almacena una firma simple de bloques en los LSB. Cualquier alteración del contenido puede invalidarla.
+    El objetivo no es resistir cambios, sino evidenciarlos.
+  </p>
+  <div class="actions">
+    <button id="embedFragile">Insertar marca frágil</button>
+    <button id="verifyFragile" class="secondary">Verificar integridad</button>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="blocks">—</strong><span>bloques evaluados</span></div>
+    <div class="metric"><strong id="validBlocks">—</strong><span>bloques válidos</span></div>
+    <div class="metric"><strong id="invalidBlocks">—</strong><span>bloques alterados</span></div>
+    <div class="metric"><strong id="integrityPct">—</strong><span>integridad</span></div>
+  </div>
+  <div id="fragileStatus" class="status">La marca frágil está diseñada para fallar cuando cambia el contenido.</div>
+</article>
+
+<article class="card full" id="ataques">
+  <div class="eyebrow">Estación 4</div>
+  <h2>Ataques y transformaciones</h2>
+  <div class="actions">
+    <button id="crop" class="warn">Recortar 10%</button>
+    <button id="noise" class="warn">Agregar ruido leve</button>
+    <button id="resize" class="warn">Reducir y reescalar</button>
+    <button id="quantize" class="warn">Cuantizar colores</button>
+    <button id="tamper" class="danger">Modificar región local</button>
+    <button id="restore" class="secondary">Restaurar última marca</button>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div>
+      <h3>Marca robusta</h3>
+      <p class="muted">Debería intentar sobrevivir a algunas transformaciones, aunque la detección puede degradarse.</p>
+    </div>
+    <div>
+      <h3>Marca frágil</h3>
+      <p class="muted">Debería detectar que el contenido cambió, incluso si visualmente la alteración parece pequeña.</p>
+    </div>
+  </div>
+  <div id="attackStatus" class="status">Aplicá una transformación y repetí la detección/verificación.</div>
+</article>
+
+<article class="card full" id="comparacion">
+  <div class="eyebrow">Síntesis</div>
+  <h2>Cuatro familias de marcas</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tipo</th><th>Objetivo</th><th>Visibilidad</th><th>Robustez esperada</th></tr></thead>
+      <tbody>
+        <tr><td>Visible</td><td>Autoría / identificación</td><td>Alta</td><td>Variable</td></tr>
+        <tr><td>Invisible robusta</td><td>Trazabilidad / identificación persistente</td><td>Baja</td><td>Mayor</td></tr>
+        <tr><td>Invisible frágil</td><td>Integridad / detección de cambios</td><td>Baja</td><td>Deliberadamente baja</td></tr>
+        <tr><td>Reversible</td><td>Recuperar original exacto</td><td>Baja</td><td>Depende del esquema</td></tr>
+      </tbody>
+    </table>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Desafío 1</h2>
+  <ol class="steps">
+    <li>Insertá marca robusta con intensidad 2, 4 y 8.</li>
+    <li>Compará PSNR y correlación.</li>
+    <li>Aplicá cuantización.</li>
+    <li>Observá cuándo deja de detectarse.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Desafío 2</h2>
+  <ol class="steps">
+    <li>Insertá marca frágil.</li>
+    <li>Modificá una pequeña región.</li>
+    <li>Verificá integridad.</li>
+    <li>Explicá por qué el fallo es deseable.</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Siguiente material</h2>
+  <p class="muted">
+    Solo queda una simulación principal: <strong>Stego CTF integral</strong>, que combina texto,
+    Unicode, imágenes y análisis forense en desafíos progresivos.
+  </p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo. Los esquemas robusto y frágil son modelos simplificados para enseñar conceptos.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const original=$('#original'),result=$('#result');
+const octx=original.getContext('2d',{willReadFrequently:true}),rctx=result.getContext('2d',{willReadFrequently:true});
+let O=null,R=null,lastMarked=null,robustPattern=null,fragileSignatures=null;
+
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function clamp(v){return Math.max(0,Math.min(255,v))}
+function hashSeed(s){
+  let h=2166136261>>>0;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h>>>0
+}
+function rng(seed){
+  let x=seed>>>0;return ()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return ((x>>>0)/4294967296)}
+}
+function generate(){
+  const w=640,h=360;const img=octx.createImageData(w,h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const i=(y*w+x)*4,tex=((x*17+y*29)%23)-11,wave=Math.sin(x*.05)*18+Math.cos(y*.08)*13;
+    img.data[i]=clamp(35+x/w*185+wave+tex);
+    img.data[i+1]=clamp(55+y/h*150-wave*.45+tex);
+    img.data[i+2]=clamp(125+60*Math.sin((x+y)/50)-tex);
+    img.data[i+3]=255;
+  }
+  octx.putImageData(img,0,0);rctx.putImageData(img,0,0);O=octx.getImageData(0,0,w,h);R=rctx.getImageData(0,0,w,h);
+  lastMarked=null;robustPattern=null;fragileSignatures=null;updateMetrics();$('#mode').textContent='Original';
+  $('#fragileState').textContent='—';
+}
+$('#generate').onclick=generate;
+
+$('#opacity').oninput=()=>$('#opacityLabel').textContent=$('#opacity').value;
+$('#fontSize').oninput=()=>$('#fontLabel').textContent=$('#fontSize').value;
+$('#strength').oninput=()=>$('#strengthLabel').textContent=$('#strength').value;
+
+$('#applyVisible').onclick=()=>{
+  if(!O)return;
+  rctx.putImageData(O,0,0);
+  const text=$('#visibleText').value,op=Number($('#opacity').value)/100,fs=Number($('#fontSize').value);
+  rctx.save();rctx.globalAlpha=op;rctx.font=`900 ${fs}px sans-serif`;rctx.textAlign='center';rctx.textBaseline='middle';
+  rctx.fillStyle='#ffffff';rctx.strokeStyle='rgba(0,0,0,.6)';rctx.lineWidth=4;
+  rctx.translate(result.width/2,result.height/2);rctx.rotate(-Math.PI/9);
+  rctx.strokeText(text,0,0);rctx.fillText(text,0,0);rctx.restore();
+  R=rctx.getImageData(0,0,result.width,result.height);lastMarked=new ImageData(new Uint8ClampedArray(R.data),R.width,R.height);
+  robustPattern=null;fragileSignatures=null;$('#mode').textContent='Visible';updateMetrics();
+  st($('#visibleStatus'),'Marca visible aplicada. Es inmediatamente perceptible y sirve para identificación directa.','good');
+};
+
+function buildPattern(seed,w,h){
+  const rand=rng(hashSeed(seed)),p=new Int8Array(w*h);
+  for(let i=0;i<p.length;i++)p[i]=rand()<.5?-1:1;return p;
+}
+$('#embedInvisible').onclick=()=>{
+  if(!O)return;
+  const strength=Number($('#strength').value),seed=$('#seed').value;
+  robustPattern=buildPattern(seed,O.width,O.height);
+  const work=new ImageData(new Uint8ClampedArray(O.data),O.width,O.height);
+  for(let p=0;p<O.width*O.height;p++){
+    const i=p*4,delta=robustPattern[p]*strength;
+    // modify luminance-like equally across RGB
+    work.data[i]=clamp(work.data[i]+delta);
+    work.data[i+1]=clamp(work.data[i+1]+delta);
+    work.data[i+2]=clamp(work.data[i+2]+delta);
+  }
+  rctx.putImageData(work,0,0);R=rctx.getImageData(0,0,result.width,result.height);lastMarked=new ImageData(new Uint8ClampedArray(R.data),R.width,R.height);
+  fragileSignatures=null;$('#mode').textContent='Invisible robusta';updateMetrics();detectRobust();
+  st($('#invisibleStatus'),'Marca invisible insertada mediante modulación pseudoaleatoria de baja amplitud.','good');
+};
+function detectRobust(){
+  if(!O||!R||!robustPattern){$('#corr').textContent='—';return 0}
+  let num=0,den=0;
+  for(let p=0;p<O.width*O.height;p++){
+    const i=p*4;
+    const d=((R.data[i]-O.data[i])+(R.data[i+1]-O.data[i+1])+(R.data[i+2]-O.data[i+2]))/3;
+    num+=d*robustPattern[p];den+=Math.abs(d);
+  }
+  const c=den?num/den:0;$('#corr').textContent=c.toFixed(3);
+  st($('#invisibleStatus'),c>.35?'Correlación positiva: la marca esperada sigue siendo detectable.':'Correlación débil: la marca puede haberse degradado.','warn');
+  return c
+}
+$('#detectInvisible').onclick=detectRobust;
+
+function blockSignature(data,w,bx,by,bs=16){
+  let sum=0,count=0;
+  for(let y=by;y<Math.min(by+bs,O.height);y++)for(let x=bx;x<Math.min(bx+bs,O.width);x++){
+    const i=(y*w+x)*4;
+    // ignore LSB so embedded signature doesn't self-invalidate
+    sum=(sum + ((data[i]&0xFE)*3 + (data[i+1]&0xFE)*5 + (data[i+2]&0xFE)*7))>>>0;count++;
+  }
+  return (sum ^ count ^ bx ^ (by<<8)) & 1;
+}
+$('#embedFragile').onclick=()=>{
+  if(!O)return;
+  const work=new ImageData(new Uint8ClampedArray(O.data),O.width,O.height),bs=16,sigs=[];
+  let blocks=0;
+  for(let by=0;by<O.height;by+=bs)for(let bx=0;bx<O.width;bx+=bs){
+    const sig=blockSignature(work.data,O.width,bx,by,bs);sigs.push({bx,by,sig});blocks++;
+    const i=(by*O.width+bx)*4;work.data[i]=(work.data[i]&0xFE)|sig;
+  }
+  fragileSignatures=sigs;rctx.putImageData(work,0,0);R=rctx.getImageData(0,0,result.width,result.height);lastMarked=new ImageData(new Uint8ClampedArray(R.data),R.width,R.height);
+  robustPattern=null;$('#mode').textContent='Invisible frágil';$('#blocks').textContent=blocks;updateMetrics();verifyFragile();
+  st($('#fragileStatus'),'Marca frágil insertada en el primer píxel de cada bloque.','good');
+};
+function verifyFragile(){
+  if(!fragileSignatures||!R){st($('#fragileStatus'),'No hay una marca frágil activa.','warn');return}
+  let valid=0,invalid=0;
+  for(const b of fragileSignatures){
+    const i=(b.by*R.width+b.bx)*4,stored=R.data[i]&1,calc=blockSignature(R.data,R.width,b.bx,b.by,16);
+    if(stored===calc)valid++;else invalid++;
+  }
+  $('#validBlocks').textContent=valid;$('#invalidBlocks').textContent=invalid;$('#integrityPct').textContent=(100*valid/(valid+invalid)).toFixed(1)+'%';
+  $('#fragileState').textContent=invalid?'ALTERADA':'VÁLIDA';
+  st($('#fragileStatus'),invalid?`${invalid} bloques no superan la verificación.`:'Todos los bloques superan la verificación.','warn');
+}
+$('#verifyFragile').onclick=verifyFragile;
+
+function updateMetrics(){
+  if(!O||!R)return;
+  let se=0,changed=0,n=O.width*O.height;
+  for(let p=0;p<n;p++){
+    const i=p*4;let pc=false;
+    for(let k=0;k<3;k++){const d=O.data[i+k]-R.data[i+k];se+=d*d;if(d!==0)pc=true}
+    if(pc)changed++;
+  }
+  const mse=se/(n*3),psnr=mse===0?Infinity:10*Math.log10(255*255/mse);
+  $('#mse').textContent=mse.toFixed(3);$('#psnr').textContent=isFinite(psnr)?psnr.toFixed(2):'∞';$('#changed').textContent=(100*changed/n).toFixed(2)+'%';
+  if(robustPattern)detectRobust();
+}
+
+function refresh(){R=rctx.getImageData(0,0,result.width,result.height);updateMetrics()}
+$('#crop').onclick=()=>{
+  if(!R)return;
+  const tmp=document.createElement('canvas'),t=tmp.getContext('2d'),w=result.width,h=result.height;
+  tmp.width=Math.round(w*.9);tmp.height=Math.round(h*.9);t.drawImage(result,w*.05,h*.05,w*.9,h*.9,0,0,tmp.width,tmp.height);
+  rctx.clearRect(0,0,w,h);rctx.drawImage(tmp,0,0,w,h);refresh();
+  st($('#attackStatus'),'Se recortó el 10% central y se reescaló. Volvé a detectar/verificar.','warn');
+};
+$('#noise').onclick=()=>{
+  if(!R)return;
+  const img=rctx.getImageData(0,0,result.width,result.height);
+  for(let i=0;i<img.data.length;i++)if(i%4!==3)img.data[i]=clamp(img.data[i]+(Math.random()<.5?-1:1));
+  rctx.putImageData(img,0,0);refresh();st($('#attackStatus'),'Ruido leve añadido.','warn');
+};
+$('#resize').onclick=()=>{
+  const tmp=document.createElement('canvas'),t=tmp.getContext('2d'),w=result.width,h=result.height;
+  tmp.width=Math.round(w*.6);tmp.height=Math.round(h*.6);t.drawImage(result,0,0,tmp.width,tmp.height);
+  rctx.clearRect(0,0,w,h);rctx.imageSmoothingEnabled=true;rctx.drawImage(tmp,0,0,w,h);refresh();st($('#attackStatus'),'Imagen reducida y reescalada.','warn');
+};
+$('#quantize').onclick=()=>{
+  const img=rctx.getImageData(0,0,result.width,result.height);
+  for(let i=0;i<img.data.length;i++)if(i%4!==3)img.data[i]=Math.round(img.data[i]/8)*8;
+  rctx.putImageData(img,0,0);refresh();st($('#attackStatus'),'Colores cuantizados a pasos de 8.','warn');
+};
+$('#tamper').onclick=()=>{
+  const img=rctx.getImageData(0,0,result.width,result.height),x0=250,y0=130,w=120,h=80;
+  for(let y=y0;y<y0+h;y++)for(let x=x0;x<x0+w;x++){const i=(y*result.width+x)*4;img.data[i]=clamp(img.data[i]+18);img.data[i+1]=clamp(img.data[i+1]-12)}
+  rctx.putImageData(img,0,0);refresh();st($('#attackStatus'),'Región local modificada. La marca frágil debería señalar bloques alterados.','warn');
+};
+$('#restore').onclick=()=>{
+  if(!lastMarked)return;rctx.putImageData(lastMarked,0,0);refresh();st($('#attackStatus'),'Se restauró la última versión marcada.','good');
+};
+
+generate();
+</script>
+</body>
+</html>

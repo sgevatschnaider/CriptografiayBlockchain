@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Módulo 4 · Microscopio de planos de bits y estegoanálisis visual</title>
+<meta name="description" content="Laboratorio interactivo de estegoanálisis visual: planos de bits, mapa de diferencias, paridad, histogramas, entropía y detección conceptual de LSB.">
+<style>
+:root{
+  --bg:#06101d;--panel:#0b1d30;--panel2:#102740;--line:#24435f;
+  --text:#eef8ff;--muted:#a7bfd3;--accent:#48e5ff;--accent2:#7ea9ff;
+  --good:#7cf7b3;--warn:#ffd166;--danger:#ff7d94;--ink:#031019;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+ radial-gradient(circle at 80% 0,rgba(126,169,255,.14),transparent 28rem),
+ radial-gradient(circle at 10% 12%,rgba(72,229,255,.10),transparent 24rem),
+ linear-gradient(180deg,#06101d,#071321 45%,#06101d);
+ color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 48px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 0 18px}
+.brand{font-weight:900}.brand span{color:var(--accent)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:var(--muted);text-decoration:none}
+.hero{padding:clamp(28px,5vw,58px);border:1px solid var(--line);border-radius:30px;background:
+ linear-gradient(135deg,rgba(17,42,67,.98),rgba(7,22,37,.98));
+ box-shadow:0 28px 70px rgba(0,0,0,.28)}
+.eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(2.25rem,6vw,4.9rem);line-height:.98;margin:.18em 0}
+.hero p{max-width:960px;color:var(--muted);font-size:1.08rem;line-height:1.65}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:.8rem;color:#cce9f9}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+.card{grid-column:span 6;padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(160deg,var(--panel2),var(--panel));box-shadow:0 14px 38px rgba(0,0,0,.18)}
+.card.full{grid-column:1/-1}.card.third{grid-column:span 4}
+.card h2{margin:.1em 0 .6em;font-size:1.35rem}.card h3{margin:.8em 0 .35em}
+.muted{color:var(--muted);line-height:1.58}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.control{display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1}
+label{font-size:.82rem;font-weight:850;color:#cce6f8}
+input,select,button{font:inherit}
+input[type=file],input[type=range],select{width:100%;border:1px solid var(--line);border-radius:12px;background:#071827;color:var(--text);padding:9px}
+button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:var(--ink)}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.warn{background:var(--warn);color:#2d2000}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.canvas-wrap{background:#06121f;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:auto}
+canvas{width:100%;height:auto;display:block;border-radius:12px;background:#000}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.metric strong{display:block;font-size:1.2rem}.metric span{font-size:.74rem;color:var(--muted)}
+.status{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#071827;color:var(--muted)}
+.status.good{border-color:rgba(124,247,179,.45);color:var(--good)}
+.status.warn{border-color:rgba(255,209,102,.45);color:var(--warn)}
+.status.bad{border-color:rgba(255,125,148,.45);color:var(--danger)}
+.note{padding:14px;border-left:4px solid var(--accent);background:rgba(72,229,255,.06);border-radius:10px;color:#d8f4ff}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#d9f0ff}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.8rem}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#fff}
+.dot.a{background:var(--accent)}.dot.w{background:var(--warn)}.dot.d{background:var(--danger)}
+.barbox{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.bar{height:14px;background:#06121f;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+.steps{margin:0;padding-left:1.25rem}.steps li{margin:.55rem 0;color:#d9ebf8}
+.footer{text-align:center;color:var(--muted);padding:26px 0 0}
+.footer strong{color:var(--text)}
+@media(max-width:900px){.card,.card.third{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.three-col{grid-template-columns:1fr}}
+@media(max-width:650px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:2.35rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div class="brand"><span>Módulo 4</span> · Esteganografía y estegoanálisis</div>
+  <nav class="nav" aria-label="Navegación de la página">
+    <a href="index.html">← Ruta del módulo</a>
+    <a href="#bitplanes">Planos</a>
+    <a href="#diferencias">Diferencias</a>
+    <a href="#estadistica">Estadística</a>
+    <a href="#diagnostico">Diagnóstico</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Laboratorio de análisis · Del ojo a la estadística</div>
+  <h1>Microscopio de planos de bits y estegoanálisis visual</h1>
+  <p>
+    Una imagen puede parecer intacta y, sin embargo, haber cambiado en miles de bits.
+    Este laboratorio permite observar esos cambios, comparar planos binarios, amplificar diferencias
+    y medir señales simples que un analista puede utilizar para formular una hipótesis de ocultamiento.
+  </p>
+  <div class="pills">
+    <span class="pill">8 planos por canal</span>
+    <span class="pill">RGB</span>
+    <span class="pill">Mapa de diferencias</span>
+    <span class="pill">Paridad LSB</span>
+    <span class="pill">Entropía binaria</span>
+    <span class="pill">χ² conceptual</span>
+  </div>
+</section>
+
+<section class="grid">
+<article class="card full">
+  <div class="eyebrow">Principio</div>
+  <h2>“No lo veo” no equivale a “no deja huella”</h2>
+  <div class="two-col">
+    <div class="note">
+      El sistema visual humano es tolerante a pequeñas variaciones de intensidad. Por eso un cambio de ±1 en un canal RGB suele ser imperceptible.
+    </div>
+    <div class="note">
+      El estegoanálisis cambia la pregunta: no busca necesariamente ver el mensaje, sino determinar si el objeto se comporta como una imagen normal o como una imagen modificada.
+    </div>
+  </div>
+</article>
+
+<article class="card full">
+  <div class="eyebrow">Preparación</div>
+  <h2>Crear el par original / sospechoso</h2>
+  <div class="controls">
+    <div class="control"><label>Cargar imagen propia</label><input id="file" type="file" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="control"><label>Portadora sintética</label><button id="generate" class="secondary">Generar imagen</button></div>
+    <div class="control"><label>Densidad de modificación LSB</label>
+      <input id="density" type="range" min="0" max="100" value="35">
+      <div class="muted"><span id="densityLabel">35</span>% de canales candidatos</div>
+    </div>
+    <div class="control"><label>Acción</label><button id="simulate">Simular inserción LSB</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Original</label><div class="canvas-wrap"><canvas id="original" width="640" height="360"></canvas></div></div>
+    <div><label>Sospechosa</label><div class="canvas-wrap"><canvas id="suspect" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><strong id="modified">0</strong><span>canales modificados</span></div>
+    <div class="metric"><strong id="modifiedPct">0%</strong><span>modificación real</span></div>
+    <div class="metric"><strong id="mse">0</strong><span>MSE</span></div>
+    <div class="metric"><strong id="psnr">∞</strong><span>PSNR dB</span></div>
+    <div class="metric"><strong id="meanAbs">0</strong><span>|Δ| medio</span></div>
+    <div class="metric"><strong id="maxDelta">0</strong><span>Δ máximo</span></div>
+  </div>
+  <div id="prepStatus" class="status">Generá o cargá una imagen. La simulación modifica aleatoriamente LSB para imitar una carga binaria.</div>
+</article>
+
+<article class="card full" id="bitplanes">
+  <div class="eyebrow">Estación 1</div>
+  <h2>Explorador de planos de bits</h2>
+  <p class="muted">Cada canal RGB tiene 8 bits. El plano 0 contiene los LSB; el plano 7 contiene los MSB. Los planos bajos suelen parecer más ruidosos y son candidatos naturales para ocultamiento.</p>
+  <div class="controls">
+    <div class="control"><label>Canal</label>
+      <select id="channel"><option value="0">Rojo</option><option value="1">Verde</option><option value="2" selected>Azul</option></select>
+    </div>
+    <div class="control"><label>Plano</label>
+      <select id="bit">
+        <option value="0" selected>Bit 0 · LSB</option><option value="1">Bit 1</option><option value="2">Bit 2</option><option value="3">Bit 3</option>
+        <option value="4">Bit 4</option><option value="5">Bit 5</option><option value="6">Bit 6</option><option value="7">Bit 7 · MSB</option>
+      </select>
+    </div>
+    <div class="control"><label>Actualizar</label><button id="render" class="secondary">Renderizar</button></div>
+  </div>
+  <div class="two-col" style="margin-top:14px">
+    <div><label>Plano original</label><div class="canvas-wrap"><canvas id="origPlane" width="640" height="360"></canvas></div></div>
+    <div><label>Plano sospechoso</label><div class="canvas-wrap"><canvas id="susPlane" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+    <div class="metric"><strong id="onesO">—</strong><span>1s original</span></div>
+    <div class="metric"><strong id="onesS">—</strong><span>1s sospechosa</span></div>
+    <div class="metric"><strong id="entropyO">—</strong><span>entropía binaria original</span></div>
+    <div class="metric"><strong id="entropyS">—</strong><span>entropía binaria sospechosa</span></div>
+  </div>
+  <div id="planeStatus" class="status">Compará primero el bit 0 y luego subí hacia los bits más significativos.</div>
+</article>
+
+<article class="card full" id="diferencias">
+  <div class="eyebrow">Estación 2</div>
+  <h2>Mapa amplificado de diferencias</h2>
+  <p class="muted">La imagen de diferencias multiplica los cambios para volverlos visibles. Blanco significa “sin cambio”; los tonos intensos indican qué canal se alteró.</p>
+  <div class="three-col">
+    <div><label>Diferencia RGB amplificada</label><div class="canvas-wrap"><canvas id="diff" width="640" height="360"></canvas></div></div>
+    <div><label>Cambios solo en LSB</label><div class="canvas-wrap"><canvas id="lsbDiff" width="640" height="360"></canvas></div></div>
+    <div><label>Máscara binaria de cambio</label><div class="canvas-wrap"><canvas id="mask" width="640" height="360"></canvas></div></div>
+  </div>
+  <div class="legend">
+    <span><i class="dot a"></i>cambio detectable en diferencia</span>
+    <span><i class="dot w"></i>LSB alterado</span>
+    <span><i class="dot d"></i>píxel con uno o más canales alterados</span>
+  </div>
+</article>
+
+<article class="card" id="estadistica">
+  <div class="eyebrow">Estación 3</div>
+  <h2>Paridad de canales</h2>
+  <p class="muted">Un valor par tiene LSB=0 y uno impar LSB=1. La inserción LSB tiende a modificar esta distribución. No es una prueba concluyente, pero sí una señal.</p>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Muestra</th><th>Pares</th><th>Impares</th><th>Desbalance</th></tr>
+      <tr><td>Original</td><td id="evenO">—</td><td id="oddO">—</td><td id="imbO">—</td></tr>
+      <tr><td>Sospechosa</td><td id="evenS">—</td><td id="oddS">—</td><td id="imbS">—</td></tr>
+    </table>
+  </div>
+  <div class="barbox">
+    <div><label>Paridad original</label><div class="bar"><i id="barO"></i></div></div>
+    <div><label>Paridad sospechosa</label><div class="bar"><i id="barS"></i></div></div>
+  </div>
+</article>
+
+<article class="card">
+  <div class="eyebrow">Estación 4</div>
+  <h2>χ² simplificado de pares LSB</h2>
+  <p class="muted">Agrupamos valores (0,1), (2,3), … y comparamos cuán diferentes son las frecuencias dentro de cada par. Una inserción LSB intensa puede tender a igualarlas.</p>
+  <div class="metrics" style="grid-template-columns:repeat(2,1fr)">
+    <div class="metric"><strong id="chiO">—</strong><span>χ² original</span></div>
+    <div class="metric"><strong id="chiS">—</strong><span>χ² sospechosa</span></div>
+  </div>
+  <div id="chiStatus" class="status">Este indicador es didáctico: no sustituye un método formal de estegoanálisis.</div>
+</article>
+
+<article class="card full" id="diagnostico">
+  <div class="eyebrow">Estación 5</div>
+  <h2>Diagnóstico guiado</h2>
+  <div class="two-col">
+    <div>
+      <div class="metrics" style="grid-template-columns:repeat(2,1fr)">
+        <div class="metric"><strong id="score">0/100</strong><span>índice didáctico de sospecha</span></div>
+        <div class="metric"><strong id="verdict">Bajo</strong><span>nivel de alerta</span></div>
+      </div>
+      <div id="diagnosticStatus" class="status">El índice combina señales simples y no representa un clasificador forense real.</div>
+    </div>
+    <div class="note">
+      <strong>Regla profesional:</strong> una sola señal rara no basta. El estegoanálisis serio combina características, modelos de amenaza, comparación con distribuciones de referencia y validación estadística.
+    </div>
+  </div>
+</article>
+
+<article class="card third">
+  <h2>Preguntas para interpretar</h2>
+  <ol class="steps">
+    <li>¿En qué plano aparecen más cambios?</li>
+    <li>¿La imagen sospechosa sigue pareciendo igual?</li>
+    <li>¿Qué ocurre con la paridad al aumentar la densidad?</li>
+    <li>¿El χ² sube o baja?</li>
+    <li>¿Por qué ninguna métrica aislada demuestra esteganografía?</li>
+  </ol>
+</article>
+
+<article class="card third">
+  <h2>Conexión con el material</h2>
+  <p class="muted">El módulo introduce detección estructural de LSB, ataques estadísticos y estegoanálisis mediante machine learning. Este laboratorio se concentra en la intuición visual y estadística previa a esos métodos más avanzados.</p>
+</article>
+
+<article class="card third">
+  <h2>Siguiente laboratorio</h2>
+  <p class="muted">Después de comprender la huella del dominio espacial, el próximo paso es estudiar <strong>DCT/JPEG</strong>: ocultamiento en el dominio transformado y comparación entre capacidad, robustez e invisibilidad.</p>
+</article>
+</section>
+
+<footer class="footer">
+  <p><strong>Material elaborado por el profesor Sergio Gevatschnaider.</strong></p>
+  <p>Laboratorio educativo y defensivo. Las métricas presentadas son simplificaciones didácticas.</p>
+</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const original=$('#original'), suspect=$('#suspect');
+const octx=original.getContext('2d',{willReadFrequently:true});
+const sctx=suspect.getContext('2d',{willReadFrequently:true});
+const opctx=$('#origPlane').getContext('2d'), spctx=$('#susPlane').getContext('2d');
+const dctx=$('#diff').getContext('2d'), lctx=$('#lsbDiff').getContext('2d'), mctx=$('#mask').getContext('2d');
+let O=null,S=null;
+
+function st(el,msg,type=''){el.textContent=msg;el.className='status'+(type?' '+type:'')}
+function clamp(v){return Math.max(0,Math.min(255,v))}
+function fit(img){
+  const sc=Math.min(640/img.width,360/img.height,1),w=Math.max(1,Math.round(img.width*sc)),h=Math.max(1,Math.round(img.height*sc));
+  for(const c of [original,suspect,$('#origPlane'),$('#susPlane'),$('#diff'),$('#lsbDiff'),$('#mask')]){c.width=w;c.height=h}
+  octx.drawImage(img,0,0,w,h);sctx.drawImage(img,0,0,w,h);
+  O=octx.getImageData(0,0,w,h);S=sctx.getImageData(0,0,w,h);analyzeAll();
+}
+function generate(){
+  const w=640,h=360;
+  for(const c of [original,suspect,$('#origPlane'),$('#susPlane'),$('#diff'),$('#lsbDiff'),$('#mask')]){c.width=w;c.height=h}
+  const img=octx.createImageData(w,h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const i=(y*w+x)*4;
+    const tex=((x*13+y*29)%19)-9, wave=Math.sin(x*.045)*20+Math.cos(y*.071)*13;
+    img.data[i]=clamp(35+x/w*190+wave+tex);
+    img.data[i+1]=clamp(50+y/h*150-wave*.4+tex);
+    img.data[i+2]=clamp(120+65*Math.sin((x+y)/50)+tex);
+    img.data[i+3]=255;
+  }
+  octx.putImageData(img,0,0);sctx.putImageData(img,0,0);
+  O=octx.getImageData(0,0,w,h);S=sctx.getImageData(0,0,w,h);analyzeAll();
+  st($('#prepStatus'),'Portadora sintética generada. Ajustá la densidad y simulá inserción LSB.','good');
+}
+$('#generate').onclick=generate;
+$('#file').addEventListener('change',e=>{
+  const f=e.target.files?.[0];if(!f)return;
+  const url=URL.createObjectURL(f),img=new Image();
+  img.onload=()=>{fit(img);URL.revokeObjectURL(url);st($('#prepStatus'),`Imagen cargada: ${original.width}×${original.height}px.`,'good')};img.src=url;
+});
+$('#density').oninput=()=>$('#densityLabel').textContent=$('#density').value;
+
+function simulate(){
+  if(!O)return;
+  const density=Number($('#density').value)/100;
+  const work=new ImageData(new Uint8ClampedArray(O.data),O.width,O.height);
+  let candidates=0,changed=0;
+  for(let i=0;i<work.data.length;i++){
+    if(i%4===3)continue;
+    if(Math.random()<density){
+      candidates++;
+      const bit=Math.random()<.5?0:1,old=work.data[i],neu=(old&0xFE)|bit;
+      if(neu!==old)changed++;work.data[i]=neu;
+    }
+  }
+  sctx.putImageData(work,0,0);S=sctx.getImageData(0,0,suspect.width,suspect.height);
+  analyzeAll();
+  st($('#prepStatus'),`Simulación aplicada sobre ${candidates.toLocaleString('es-AR')} canales candidatos; ${changed.toLocaleString('es-AR')} cambiaron realmente.`,'good');
+}
+$('#simulate').onclick=simulate;
+
+function bitEntropy(p){
+  if(p<=0||p>=1)return 0;
+  return -(p*Math.log2(p)+(1-p)*Math.log2(1-p));
+}
+function renderPlanes(){
+  if(!O||!S)return;
+  const ch=Number($('#channel').value),bit=Number($('#bit').value),w=O.width,h=O.height;
+  const a=opctx.createImageData(w,h),b=spctx.createImageData(w,h);let oa=0,sb=0;
+  for(let p=0;p<w*h;p++){
+    const src=p*4+ch,t=p*4,ob=(O.data[src]>>bit)&1,bb=(S.data[src]>>bit)&1;oa+=ob;sb+=bb;
+    const ov=ob?255:0,sv=bb?255:0;
+    a.data[t]=a.data[t+1]=a.data[t+2]=ov;a.data[t+3]=255;
+    b.data[t]=b.data[t+1]=b.data[t+2]=sv;b.data[t+3]=255;
+  }
+  opctx.putImageData(a,0,0);spctx.putImageData(b,0,0);
+  const po=oa/(w*h),ps=sb/(w*h);
+  $('#onesO').textContent=(po*100).toFixed(2)+'%';$('#onesS').textContent=(ps*100).toFixed(2)+'%';
+  $('#entropyO').textContent=bitEntropy(po).toFixed(4);$('#entropyS').textContent=bitEntropy(ps).toFixed(4);
+  st($('#planeStatus'),bit===0?'Estás observando el LSB: es el plano más directamente afectado por la simulación.':'Subiste a un plano más significativo; una inserción LSB simple no debería alterarlo.',bit===0?'warn':'good');
+}
+$('#render').onclick=renderPlanes;$('#channel').onchange=renderPlanes;$('#bit').onchange=renderPlanes;
+
+function renderDiffs(){
+  const w=O.width,h=O.height,A=dctx.createImageData(w,h),B=lctx.createImageData(w,h),C=mctx.createImageData(w,h);
+  for(let p=0;p<w*h;p++){
+    const i=p*4;let any=0;
+    const dr=O.data[i]-S.data[i],dg=O.data[i+1]-S.data[i+1],db=O.data[i+2]-S.data[i+2];
+    A.data[i]=clamp(128+dr*90);A.data[i+1]=clamp(128+dg*90);A.data[i+2]=clamp(128+db*90);A.data[i+3]=255;
+    const lr=(O.data[i]&1)!==(S.data[i]&1),lg=(O.data[i+1]&1)!==(S.data[i+1]&1),lb=(O.data[i+2]&1)!==(S.data[i+2]&1);
+    B.data[i]=lr?255:0;B.data[i+1]=lg?255:0;B.data[i+2]=lb?255:0;B.data[i+3]=255;
+    any=(dr||dg||db)?255:0;C.data[i]=any;C.data[i+1]=any?65:0;C.data[i+2]=any?80:0;C.data[i+3]=255;
+  }
+  dctx.putImageData(A,0,0);lctx.putImageData(B,0,0);mctx.putImageData(C,0,0);
+}
+function stats(){
+  let ch=0,mod=0,se=0,abs=0,maxd=0,eo=0,es=0;
+  const histO=Array(256).fill(0),histS=Array(256).fill(0);
+  for(let i=0;i<O.data.length;i++){
+    if(i%4===3)continue;ch++;
+    const a=O.data[i],b=S.data[i],d=a-b;
+    if(d!==0)mod++;se+=d*d;abs+=Math.abs(d);maxd=Math.max(maxd,Math.abs(d));
+    if((a&1)===0)eo++;if((b&1)===0)es++;
+    histO[a]++;histS[b]++;
+  }
+  const mse=se/ch,psnr=mse===0?Infinity:10*Math.log10(255*255/mse);
+  $('#modified').textContent=mod.toLocaleString('es-AR');$('#modifiedPct').textContent=(100*mod/ch).toFixed(3)+'%';
+  $('#mse').textContent=mse.toFixed(4);$('#psnr').textContent=isFinite(psnr)?psnr.toFixed(2):'∞';
+  $('#meanAbs').textContent=(abs/ch).toFixed(4);$('#maxDelta').textContent=maxd;
+  const oo=ch-eo,os=ch-es;
+  $('#evenO').textContent=(100*eo/ch).toFixed(2)+'%';$('#oddO').textContent=(100*oo/ch).toFixed(2)+'%';
+  $('#evenS').textContent=(100*es/ch).toFixed(2)+'%';$('#oddS').textContent=(100*os/ch).toFixed(2)+'%';
+  $('#imbO').textContent=(100*Math.abs(eo-oo)/ch).toFixed(2)+'%';$('#imbS').textContent=(100*Math.abs(es-os)/ch).toFixed(2)+'%';
+  $('#barO').style.width=(100*eo/ch)+'%';$('#barS').style.width=(100*es/ch)+'%';
+
+  function chi(hist){
+    let x=0;
+    for(let v=0;v<256;v+=2){
+      const a=hist[v],b=hist[v+1],e=(a+b)/2;
+      if(e>0)x+=((a-e)*(a-e))/e+((b-e)*(b-e))/e;
+    }
+    return x;
+  }
+  const co=chi(histO),cs=chi(histS);
+  $('#chiO').textContent=co.toFixed(1);$('#chiS').textContent=cs.toFixed(1);
+  const drop=co>0?Math.max(0,(co-cs)/co):0;
+  st($('#chiStatus'),drop>.2?'El χ² disminuyó de forma visible: la sospechosa presenta pares de valores más equilibrados.':'No se observa una reducción fuerte del χ² con esta muestra.','warn');
+
+  const modRate=mod/ch;
+  const parityChange=Math.abs((es/ch)-(eo/ch));
+  let score=Math.round(Math.min(100,modRate*180 + drop*45 + parityChange*700));
+  const verdict=score<20?'Bajo':score<45?'Moderado':score<70?'Alto':'Muy alto';
+  $('#score').textContent=score+'/100';$('#verdict').textContent=verdict;
+  st($('#diagnosticStatus'),
+    score<20?'Las señales simples son débiles. Esto no demuestra ausencia de esteganografía.':
+    score<45?'Hay algunas anomalías compatibles con modificaciones LSB, pero no son concluyentes.':
+    score<70?'Varias señales simples se alinean con una posible inserción LSB. Harían falta pruebas adicionales.':
+    'La simulación produjo una huella fuerte para estos indicadores didácticos. En análisis real se requeriría validación adicional.',
+    score<20?'good':score<70?'warn':'bad');
+}
+function analyzeAll(){if(!O||!S)return;stats();renderPlanes();renderDiffs()}
+generate();
+</script>
+</body>
+</html>
