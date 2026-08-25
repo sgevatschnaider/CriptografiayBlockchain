@@ -1,5 +1,5 @@
 {
-  "version": 17,
+  "version": 18,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -377,7 +377,84 @@
     {
       "id": "modulo-05",
       "titulo": "Criptografía y blockchain",
-      "laboratorio_integral": "05-blockchain.html"
+      "pagina": "modulo-05/index.html",
+      "presentacion": "modulo-05/presentacion.html",
+      "presentacion_pdf": "modulo-05/Blockchain_fundamentos_arquitectura_aplicaciones.pdf",
+      "presentacion_pptx": "modulo-05/Blockchain_fundamentos_arquitectura_aplicaciones.pptx",
+      "google_slides": "https://docs.google.com/presentation/d/1kDPAhGZZOm1zhoCM79_29pMeGPZoDgp-Kj0wGBK6I0k/edit?usp=sharing",
+      "laboratorio_integral": "05-blockchain.html",
+      "glosario": "modulo-05/11-glosario-blockchain.html",
+      "cuestionario": "modulo-05/12-cuestionario-blockchain.html",
+      "simulaciones": [
+        {
+          "titulo": "Cadena, firmas y árboles de Merkle",
+          "archivo": "05-blockchain.html",
+          "estado": "disponible",
+          "tipo": "laboratorio-integral"
+        },
+        {
+          "titulo": "Red blockchain viva: propagación, forks y finalidad",
+          "archivo": "modulo-05/01-red-blockchain-viva.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Arena de consenso: PoW, Ethereum PoS y BFT",
+          "archivo": "modulo-05/02-arena-consenso.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Doble gasto: modelo analítico y Monte Carlo",
+          "archivo": "modulo-05/03-doble-gasto-monte-carlo.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Mempool y MEV: quién decide el orden",
+          "archivo": "modulo-05/04-mempool-mev.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Smart contract bajo ataque: estado, gas y reentrancy",
+          "archivo": "modulo-05/05-smart-contract-bajo-ataque.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Laboratorio de oráculos: integridad no es verdad",
+          "archivo": "modulo-05/06-laboratorio-oraculos.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Rollup Studio: validez, fraude y disponibilidad de datos",
+          "archivo": "modulo-05/07-rollup-studio.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Privacidad y vinculabilidad: del seudónimo al cluster",
+          "archivo": "modulo-05/08-privacidad-vinculabilidad.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Gobernanza y forks: quién puede cambiar las reglas",
+          "archivo": "modulo-05/09-gobernanza-forks.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "¿Blockchain, DLT o base de datos?",
+          "archivo": "modulo-05/10-decision-blockchain.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Glosario desarrollado de Blockchain",
+          "archivo": "modulo-05/11-glosario-blockchain.html",
+          "estado": "disponible",
+          "tipo": "glosario"
+        },
+        {
+          "titulo": "Cuestionario y respuestas de Blockchain",
+          "archivo": "modulo-05/12-cuestionario-blockchain.html",
+          "estado": "disponible",
+          "tipo": "evaluacion"
+        }
+      ]
     },
     {
       "id": "modulo-06",
