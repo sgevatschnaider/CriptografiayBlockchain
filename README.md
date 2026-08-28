@@ -59,6 +59,7 @@ Cada módulo posee una **página propia** que organiza su laboratorio integral, 
 [![Representación y XOR](https://img.shields.io/badge/LAB-REPRESENTACIÓN%20Y%20XOR-047857?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/fundamentos-matematicos/representacion-digital-xor.html)
 [![Salto clásico–moderno](https://img.shields.io/badge/LAB-SALTO%20CLÁSICO–MODERNO-0f766e?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/introduccion-interactiva.html)
 [![Shannon y entropía](https://img.shields.io/badge/LAB-SHANNON%20Y%20ENTROPÍA-1d4ed8?style=for-the-badge&logo=python&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/entropia-shannon.html)
+[![S-Boxes y DDT](https://img.shields.io/badge/LAB-S--BOXES%20Y%20DDT-2563eb?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/sbox-criptoanalisis-diferencial.html)
 [![XOR y AES-CTR](https://img.shields.io/badge/LAB-XOR%20Y%20AES--CTR-0891b2?style=for-the-badge&logo=javascript&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/laboratorio-xor-flujo.html)
 [![Ruta Módulo 3](https://img.shields.io/badge/RUTA-MÓDULO%203%20COMPLETO-5b21b6?style=for-the-badge&logo=googlescholar&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-modulo.html)
 [![Clase 3](https://img.shields.io/badge/RUTA-CLASE%203%20KDF%20Y%20AES-4338ca?style=for-the-badge&logo=googlescholar&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html)
@@ -102,7 +103,7 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 | Etapa | Núcleo conceptual | Contenidos principales | Resultado esperado |
 |---|---|---|---|
 | **1** | Criptografía clásica | Sustitución, transposición, César, Vigenère y criptoanálisis | Entender la relación entre diseño y ataque |
-| **2** | Fundamentos de la criptografía moderna | Shannon, secreto perfecto, juegos de seguridad, complejidad, grupos, cuerpos, curvas y retículos | Razonar con definiciones, adversarios, costos y supuestos explícitos |
+| **2** | Fundamentos de la criptografía moderna | Shannon, secreto perfecto, confusión, difusión, avalancha, S-Boxes, DDT, criptoanálisis diferencial, juegos de seguridad, complejidad, grupos, cuerpos, curvas y retículos | Razonar con definiciones, adversarios, métricas, costos y supuestos explícitos |
 | **Base transversal** | Fundamentos matemáticos | Representación binaria, álgebra booleana, aritmética modular, grupos, cuerpos finitos, probabilidad y teoría de números | Dominar el lenguaje matemático y digital de la criptografía |
 | **3** | Criptografía moderna aplicada | AES, ChaCha20, hashes, MAC, RSA, DH, ECC, firmas y PKI | Diferenciar primitivas y combinarlas correctamente |
 | **4** | Esteganografía | LSB, imágenes, audio, canales encubiertos y estegoanálisis | Separar ocultamiento de existencia y cifrado de contenido |
