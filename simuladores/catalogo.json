@@ -1,5 +1,5 @@
 {
-  "version": 18,
+  "version": 19,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -95,6 +95,12 @@
           "titulo": "Confusión, difusión y avalancha",
           "archivo": "modulo-02/confusion-difusion.html",
           "estado": "disponible"
+        },
+        {
+          "titulo": "S-Boxes, avalancha y criptoanálisis diferencial",
+          "archivo": "modulo-02/sbox-criptoanalisis-diferencial.html",
+          "estado": "disponible",
+          "tipo": "profundizacion"
         },
         {
           "titulo": "Juego de indistinguibilidad",
