@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>S-Boxes, avalancha y criptoanálisis diferencial | Módulo 2</title>
+<style>
+:root{
+  --bg:#050816; --panel:#0b1022; --panel2:#101831; --text:#e8edf7; --muted:#9aa7bd;
+  --cyan:#4ee7f2; --green:#58f58b; --amber:#ffca58; --pink:#ff5ea8; --red:#ff6b6b;
+  --violet:#8c7bff; --line:#263354; --white:#fff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(78,231,242,.08),transparent 28%),
+    radial-gradient(circle at 80% 20%,rgba(140,123,255,.09),transparent 30%),
+    linear-gradient(180deg,#040713 0%,#070b18 100%);
+  color:var(--text); min-height:100vh;
+}
+button,input,select{font:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.app{max-width:1500px;margin:0 auto;padding:18px}
+.header{
+  display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;
+  margin-bottom:10px
+}
+.course-links{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.course-links a{text-decoration:none;display:inline-flex;align-items:center}
+.brand h1{margin:0;font-size:clamp(1.35rem,2.6vw,2.2rem);letter-spacing:-.02em}
+.brand p{margin:.4rem 0 0;color:var(--muted);max-width:950px;line-height:1.5}
+.author{
+  border:1px solid rgba(78,231,242,.45);background:rgba(78,231,242,.06);color:#c9fbff;
+  border-radius:12px;padding:10px 13px;font-size:.9rem;white-space:nowrap
+}
+.grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,.75fr);gap:14px;align-items:start}
+.card{
+  background:linear-gradient(180deg,rgba(15,22,45,.96),rgba(8,13,29,.96));
+  border:1px solid var(--line);border-radius:16px;overflow:hidden
+}
+.card-head{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.card-head h2,.card-head h3{margin:0;font-size:1rem}
+.card-body{padding:14px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.control{display:flex;flex-direction:column;gap:5px;min-width:130px}
+.control label{font-size:.78rem;color:var(--muted)}
+select,input[type=range]{width:100%}
+select{
+  background:#091225;color:var(--text);border:1px solid #314063;border-radius:10px;padding:8px 10px
+}
+.btn{
+  border:1px solid #314063;background:#101a34;color:var(--text);border-radius:10px;padding:9px 12px;cursor:pointer;
+  transition:.15s transform,.15s border-color,.15s background
+}
+.btn:hover{transform:translateY(-1px);border-color:#55709f;background:#152141}
+.btn.primary{background:linear-gradient(90deg,#16495a,#27345f);border-color:#3d8ea0}
+.btn.warn{border-color:#835a1b;background:#251d0d}
+.visual-wrap{position:relative;background:radial-gradient(circle at 50% 45%,#0d1531 0,#050817 68%);min-height:600px}
+#scene{width:100%;height:600px;display:block;touch-action:none}
+.overlay{position:absolute;left:12px;top:12px;display:flex;gap:8px;flex-wrap:wrap;max-width:calc(100% - 24px)}
+.badge{font-size:.76rem;padding:6px 8px;border-radius:999px;background:rgba(5,8,22,.82);border:1px solid #2d4167;color:#d6e4ff;backdrop-filter:blur(6px)}
+.legend{position:absolute;right:12px;bottom:12px;background:rgba(5,8,22,.82);border:1px solid #2d4167;border-radius:12px;padding:8px 10px;font-size:.76rem;color:var(--muted);backdrop-filter:blur(6px)}
+.legend span{display:inline-flex;align-items:center;margin:3px 8px 3px 0}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.metric{background:#091126;border:1px solid #223150;border-radius:12px;padding:11px}
+.metric .k{font-size:.75rem;color:var(--muted)}
+.metric .v{font-size:1.35rem;font-weight:750;margin-top:4px}
+.metric .s{font-size:.72rem;color:#8595af;margin-top:2px;line-height:1.35}
+.section-title{margin:16px 0 8px;font-size:.9rem;color:#dfe8f9}
+.vertex-list{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.vbtn{padding:8px 4px;border-radius:9px;border:1px solid #2d3c5f;background:#0a1227;color:#b9c7df;cursor:pointer;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.vbtn.active{background:#103421;border-color:#45c879;color:#89ffb2}
+.vbtn.selected{box-shadow:0 0 0 2px rgba(255,202,88,.55) inset;color:#ffe29a}
+.callout{border-left:3px solid var(--cyan);background:rgba(78,231,242,.05);padding:10px 12px;border-radius:0 10px 10px 0;color:#cfd9eb;font-size:.84rem;line-height:1.5}
+.tabs{display:flex;gap:7px;flex-wrap:wrap}
+.tab{border:1px solid #2d3c5f;background:#091126;color:#9fb0c9;border-radius:999px;padding:7px 10px;cursor:pointer;font-size:.8rem}
+.tab.active{background:#16304b;color:#d8fbff;border-color:#3e90aa}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.avalanche-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.av-card{background:#091126;border:1px solid #253552;border-radius:11px;padding:10px}
+.av-card .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem}
+.bar{height:8px;border-radius:999px;background:#202d49;margin-top:8px;overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));width:0%}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.sbox-table,.ddt-table{border-collapse:separate;border-spacing:2px;width:100%;font-size:.72rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.sbox-table th,.sbox-table td{padding:6px;text-align:center;border-radius:5px;background:#0b1430;border:1px solid #233456}
+.sbox-table td.out{color:#9efac0}
+.scroll{overflow:auto;max-width:100%}
+.ddt-table th,.ddt-table td{min-width:30px;height:29px;text-align:center;border-radius:4px}
+.ddt-table th{color:#8da0bb;background:#0a1020;position:sticky;top:0;z-index:2}
+.ddt-table th:first-child{left:0;z-index:3}
+.ddt-table td{cursor:pointer;border:1px solid transparent;color:#e9eefb}
+.ddt-table td:hover,.ddt-table td.sel{border-color:#fff}
+.attack-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.attack,.defense{padding:12px;border-radius:12px;border:1px solid #3b304e;background:#130e20}
+.defense{border-color:#214d3b;background:#0d1d17}
+.attack h4,.defense h4{margin:0 0 6px;font-size:.88rem}.attack p,.defense p{margin:0;color:#b7c3d8;font-size:.78rem;line-height:1.45}
+.footer-note{margin:14px 0 0;color:#73839d;font-size:.75rem;line-height:1.45}
+.formula{font-family:Cambria,Georgia,serif;background:#080e20;border:1px solid #263654;border-radius:12px;padding:12px;text-align:center;color:#eaf1ff}
+.small{font-size:.76rem;color:var(--muted)}
+.status{font-size:.78rem;color:#a9bad3}
+@media(max-width:1050px){.grid{grid-template-columns:1fr}.visual-wrap,#scene{min-height:520px;height:520px}.metrics{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.app{padding:10px}.metrics{grid-template-columns:repeat(2,1fr)}.avalanche-grid{grid-template-columns:repeat(2,1fr)}.attack-box{grid-template-columns:1fr}.visual-wrap,#scene{min-height:430px;height:430px}.author{white-space:normal}.vertex-list{grid-template-columns:repeat(4,1fr)}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.btn{transition:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="header">
+    <div class="brand">
+      <h1>S-Boxes, avalancha y criptoanálisis diferencial</h1>
+      <p>Profundización interactiva del Módulo 2 para conectar geometría binaria, distancia de Hamming, sustitución no lineal, efecto avalancha y análisis diferencial de una S-Box de 4 bits.</p>
+    </div>
+  </header>
+  <nav class="course-links" aria-label="Navegación académica">
+    <a class="btn" href="index.html">← Volver al Módulo 2</a>
+    <a class="btn" href="confusion-difusion.html">Repasar confusión, difusión y avalancha</a>
+    <a class="btn primary" href="../modulo-03/ruta-clase-aes.html">Continuar hacia AES →</a>
+  </nav>
+
+  <div class="grid">
+    <main class="card">
+      <div class="card-head">
+        <h2>Espacio binario y función de esquina</h2>
+        <div class="controls">
+          <div class="control"><label for="dim">Dimensión</label><select id="dim"><option value="2">2D</option><option value="3">3D</option><option value="4" selected>4D</option></select></div>
+          <div class="control" style="min-width:160px"><label for="cparam">Parámetro C: <span id="cval">0.70</span></label><input id="cparam" type="range" min="0.25" max="2.5" step="0.05" value="0.70"></div>
+          <div class="control" style="min-width:150px"><label for="speed">Rotación: <span id="speedval">0.45</span></label><input id="speed" type="range" min="0" max="1.5" step="0.05" value="0.45"></div>
+          <button class="btn primary" id="pauseBtn" type="button">Pausar</button>
+          <button class="btn" id="resetBtn" type="button">Reiniciar</button>
+        </div>
+      </div>
+      <div class="visual-wrap">
+        <canvas id="scene" aria-label="Visualización interactiva de un hipercubo binario"></canvas>
+        <div class="overlay">
+          <span class="badge">Arista = distancia de Hamming 1</span>
+          <span class="badge" id="activeBadge">Esquina activa: 0001</span>
+          <span class="badge" id="selectedBadge">Seleccionado: 0000</span>
+        </div>
+        <div class="legend">
+          <span><i class="dot" style="background:#58f58b"></i>activa</span>
+          <span><i class="dot" style="background:#ffca58"></i>seleccionada</span>
+          <span><i class="dot" style="background:#ff5ea8"></i>activación positiva</span>
+          <span><i class="dot" style="background:#4ee7f2"></i>arista</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="formula" id="formula">f<sub>b</sub>(x) = max(0, 1 − d<sub>H</sub>(x,b)/C) &nbsp; <span class="small">(exacta sobre vértices binarios)</span></div>
+        <p class="footer-note">En 4D se proyecta el tesseracto a la pantalla. La visualización es geométrica y didáctica; no representa por sí sola la arquitectura interna de un cifrado real.</p>
+      </div>
+    </main>
+
+    <aside class="card">
+      <div class="card-head"><h3>Panel de análisis</h3><span class="status" id="status">Listo</span></div>
+      <div class="card-body">
+        <div class="metrics">
+          <div class="metric"><div class="k">Vértices activos</div><div class="v" id="mActive">1</div><div class="s">f(x) &gt; 0.01</div></div>
+          <div class="metric"><div class="k">Máx. activación</div><div class="v" id="mMax">1.00</div><div class="s">máximo de la función</div></div>
+          <div class="metric"><div class="k">Uniformidad diferencial</div><div class="v" id="mDU">8</div><div class="s">máx. DDT, Δx ≠ 0</div></div>
+          <div class="metric"><div class="k">Prob. diferencial máx.</div><div class="v" id="mDP">50%</div><div class="s">valor alto = peor</div></div>
+        </div>
+
+        <div class="section-title">Esquina activa</div>
+        <div class="vertex-list" id="cornerList"></div>
+
+        <div class="section-title">Vértice seleccionado</div>
+        <div class="callout" id="selectedInfo">Seleccioná un vértice en el hipercubo o en la lista.</div>
+
+        <div class="section-title">Lectura criptográfica</div>
+        <div class="callout">La función de esquina modela localidad en el espacio binario. La S-Box se analiza por separado: allí interesan no linealidad, efecto avalancha y distribución de diferencias. El simulador evita llamar “seguridad” a un índice arbitrario y muestra métricas criptográficas interpretables.</div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:14px">
+    <div class="card-head">
+      <div class="tabs" role="tablist" aria-label="Módulos de análisis">
+        <button class="tab active" data-tab="aval" type="button">Avalancha</button>
+        <button class="tab" data-tab="ddt" type="button">DDT</button>
+        <button class="tab" data-tab="sbox" type="button">S-Box</button>
+        <button class="tab" data-tab="concept" type="button">Ataque y defensa</button>
+      </div>
+      <button class="btn" id="csvBtn" type="button">Exportar análisis CSV</button>
+    </div>
+    <div class="card-body">
+      <div class="tab-panel active" id="tab-aval">
+        <h3 style="margin-top:0">Efecto avalancha para la entrada seleccionada</h3>
+        <p class="small">Se invierte un bit de entrada por vez. Para cada vecino se compara la salida S(x) con S(x ⊕ 2ᶦ). Un cifrado robusto busca que pequeños cambios de entrada alteren muchos bits de salida de manera difícil de predecir.</p>
+        <div class="callout" id="avalSummary"></div>
+        <div class="avalanche-grid" id="avalGrid" style="margin-top:10px"></div>
+      </div>
+
+      <div class="tab-panel" id="tab-ddt">
+        <h3 style="margin-top:0">Difference Distribution Table (DDT)</h3>
+        <p class="small">Cada celda cuenta cuántos valores de x satisfacen S(x) ⊕ S(x ⊕ Δx) = Δy. En una S-Box de 4 bits hay 16 entradas; una probabilidad diferencial grande ofrece una regularidad explotable por criptoanálisis diferencial.</p>
+        <div class="scroll"><table class="ddt-table" id="ddtTable" aria-label="Tabla de distribución de diferencias"></table></div>
+        <div class="callout" id="ddtInfo" style="margin-top:10px"></div>
+      </div>
+
+      <div class="tab-panel" id="tab-sbox">
+        <h3 style="margin-top:0">Propiedades de la S-Box</h3>
+        <div class="metrics" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">
+          <div class="metric"><div class="k">Biyectiva</div><div class="v" id="pBij">Sí</div><div class="s">salidas sin repetición</div></div>
+          <div class="metric"><div class="k">No linealidad mínima</div><div class="v" id="pNL">2</div><div class="s">componentes booleanas</div></div>
+          <div class="metric"><div class="k">Grado algebraico máx.</div><div class="v" id="pDeg">3</div><div class="s">ANF de bits de salida</div></div>
+          <div class="metric"><div class="k">Avalancha global</div><div class="v" id="pSac">—</div><div class="s">bits de salida alterados</div></div>
+        </div>
+        <div class="scroll"><table class="sbox-table" id="sboxTable"></table></div>
+        <p class="footer-note">Esta S-Box es didáctica. Sus métricas no deben interpretarse como las de una S-Box aprobada para uso criptográfico real.</p>
+      </div>
+
+      <div class="tab-panel" id="tab-concept">
+        <h3 style="margin-top:0">Cómo leer “ataque” y “defensa” en la demo</h3>
+        <div class="attack-box">
+          <div class="attack"><h4>⚔ Ataque diferencial</h4><p id="attackText">El atacante busca una diferencia de entrada Δx que produzca alguna Δy con frecuencia anormalmente alta. La mejor característica diferencial de esta tabla se calcula automáticamente a partir de la DDT.</p></div>
+          <div class="defense"><h4>🛡 Defensa por diseño</h4><p>Una S-Box más resistente intenta reducir la uniformidad diferencial, elevar la no linealidad y evitar correlaciones simples. El objetivo no es “hacer ruido visual”, sino eliminar sesgos matemáticos útiles para el atacante.</p></div>
+        </div>
+        <div class="formula" style="margin-top:12px">Δx = x ⊕ x′ &nbsp;&nbsp; → &nbsp;&nbsp; Δy = S(x) ⊕ S(x′)</div>
+        <p class="footer-note">El hipercubo ayuda a ver vecindad binaria; la DDT cuantifica regularidades diferenciales; la avalancha muestra sensibilidad local. Son perspectivas complementarias, no equivalentes.</p>
+      </div>
+    </div>
+  </section>
+  <footer class="author" style="margin-top:14px;text-align:center;white-space:normal;">Material elaborado por el profesor <strong>Sergio Gevatschnaider</strong></footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+const root=document.getElementById('app');
+if(root.dataset.init==='1') return; root.dataset.init='1';
+
+const S=[0xD,0xA,0x9,0x0,0x6,0xC,0xB,0x7,0xE,0x5,0x2,0xF,0x8,0x3,0x4,0x1];
+const $=id=>document.getElementById(id);
+const state={dim:4,c:.70,speed:.45,paused:false,active:1,selected:0,angle:0,dragX:0,dragY:0,dragging:false,lastX:0,lastY:0,ddtSel:null};
+const canvas=$('scene'),ctx=canvas.getContext('2d');
+let hitPoints=[]; let raf=0; let lastT=performance.now();
+
+function popcount(n){let c=0;while(n){c+=n&1;n>>=1}return c}
+function bin(n,w=4){return n.toString(2).padStart(w,'0')}
+function bits(n,d){const a=[];for(let i=d-1;i>=0;i--)a.push((n>>i)&1);return a}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function hamming(a,b){return popcount(a^b)}
+function activation(v){return Math.max(0,1-hamming(v,state.active)/state.c)}
+
+function buildDDT(){
+  const t=Array.from({length:16},()=>Array(16).fill(0));
+  for(let dx=0;dx<16;dx++)for(let x=0;x<16;x++)t[dx][S[x]^S[x^dx]]++;
+  return t;
+}
+const DDT=buildDDT();
+let best={dx:1,dy:0,count:0};
+for(let dx=1;dx<16;dx++)for(let dy=0;dy<16;dy++)if(DDT[dx][dy]>best.count)best={dx,dy,count:DDT[dx][dy]};
+
+function booleanNonlinearity(bit){
+  let maxW=0;
+  for(let a=0;a<16;a++){
+    let w=0;
+    for(let x=0;x<16;x++){
+      const fx=(S[x]>>bit)&1, dot=popcount(a&x)&1;
+      w += (fx^dot)?-1:1;
+    }
+    maxW=Math.max(maxW,Math.abs(w));
+  }
+  return 8-maxW/2;
+}
+function algebraicDegree(bit){
+  const c=[];for(let x=0;x<16;x++)c[x]=(S[x]>>bit)&1;
+  for(let i=0;i<4;i++)for(let m=0;m<16;m++)if(m&(1<<i))c[m]^=c[m^(1<<i)];
+  let d=0;for(let m=0;m<16;m++)if(c[m])d=Math.max(d,popcount(m));return d;
+}
+function globalAvalanche(){
+  let changed=0,total=16*4*4;
+  for(let x=0;x<16;x++)for(let i=0;i<4;i++)changed+=popcount(S[x]^S[x^(1<<i)]);
+  return changed/total;
+}
+const NL=[0,1,2,3].map(booleanNonlinearity), DEG=[0,1,2,3].map(algebraicDegree), GAV=globalAvalanche();
+
+function resize(){
+  const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
+  canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));
+  ctx.setTransform(dpr,0,0,dpr,0,0); draw();
+}
+function rotate2(a,i,j,ang){const c=Math.cos(ang),s=Math.sin(ang),x=a[i],y=a[j];a[i]=x*c-y*s;a[j]=x*s+y*c}
+function projectVertex(n){
+  const d=state.dim,b=bits(n,d),v=b.map(x=>x-.5);
+  const t=state.angle;
+  if(d>=2) rotate2(v,0,1,t*.65+state.dragX);
+  if(d>=3){rotate2(v,0,2,t*.43+state.dragY);rotate2(v,1,2,t*.31)}
+  if(d===4){rotate2(v,0,3,t*.37);rotate2(v,1,3,t*.23);rotate2(v,2,3,t*.29)}
+  let x=v[0]||0,y=v[1]||0,z=v[2]||0;
+  if(d===4){const w=v[3],k4=1.8/(2.15-w);x*=k4;y*=k4;z*=k4}
+  const k3=2.0/(2.55-z);x*=k3;y*=k3;
+  const W=canvas.clientWidth,H=canvas.clientHeight,scale=Math.min(W,H)*(d===2?.46:d===3?.40:.34);
+  return {x:W/2+x*scale,y:H/2-y*scale,z,raw:b};
+}
+function edgesForDim(d){const e=[],N=1<<d;for(let a=0;a<N;a++)for(let bit=0;bit<d;bit++){const b=a^(1<<bit);if(a<b)e.push([a,b])}return e}
+
+function draw(){
+  const W=canvas.clientWidth,H=canvas.clientHeight;ctx.clearRect(0,0,W,H);
+  const grd=ctx.createRadialGradient(W*.5,H*.45,10,W*.5,H*.45,Math.max(W,H)*.6);grd.addColorStop(0,'rgba(22,38,78,.5)');grd.addColorStop(1,'rgba(3,6,18,.15)');ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+  const N=1<<state.dim,pts=Array.from({length:N},(_,i)=>projectVertex(i));
+  for(const [a,b] of edgesForDim(state.dim)){
+    const p=pts[a],q=pts[b];ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle='rgba(78,231,242,.54)';ctx.lineWidth=1.35;ctx.stroke();
+  }
+  const order=[...Array(N).keys()].sort((a,b)=>pts[a].z-pts[b].z); hitPoints=[];
+  for(const i of order){
+    const p=pts[i],act=activation(i),isA=i===state.active,isS=i===state.selected;
+    if(act>0.001){ctx.beginPath();ctx.arc(p.x,p.y,18+28*act,0,Math.PI*2);const g=ctx.createRadialGradient(p.x,p.y,2,p.x,p.y,18+28*act);g.addColorStop(0,`rgba(255,94,168,${.24*act})`);g.addColorStop(1,'rgba(255,94,168,0)');ctx.fillStyle=g;ctx.fill()}
+    let r=7+Math.max(0,p.z)*2;if(isA)r=11;if(isS)r=Math.max(r,10);
+    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fillStyle=isS?'#ffca58':isA?'#58f58b':act>0.01?'#ff5ea8':'#706cff';ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=1;ctx.stroke();
+    ctx.font='12px ui-monospace, SFMono-Regular, Menlo, monospace';ctx.textAlign='center';ctx.fillStyle=isS?'#ffe49c':'#b8c8e6';ctx.fillText(bin(i,state.dim),p.x,p.y-15);
+    if(act>0.001){ctx.font='10px ui-monospace, monospace';ctx.fillStyle='#ff9ac8';ctx.fillText('f='+act.toFixed(2),p.x,p.y+22)}
+    hitPoints.push({i,x:p.x,y:p.y,r:18});
+  }
+}
+function loop(t){const dt=Math.min(.05,(t-lastT)/1000);lastT=t;if(!state.paused){state.angle+=dt*state.speed;draw()}raf=requestAnimationFrame(loop)}
+
+function refreshCornerList(){
+  const list=$('cornerList');list.innerHTML='';const N=1<<state.dim;
+  for(let i=0;i<N;i++){const b=document.createElement('button');b.type='button';b.className='vbtn'+(i===state.active?' active':'')+(i===state.selected?' selected':'');b.textContent=bin(i,state.dim);b.addEventListener('click',()=>{state.active=i;refreshAll();});list.appendChild(b)}
+}
+function updateMetrics(){
+  let active=0,max=0;for(let i=0;i<(1<<state.dim);i++){const a=activation(i);if(a>.01)active++;max=Math.max(max,a)}
+  $('mActive').textContent=active;$('mMax').textContent=max.toFixed(2);$('mDU').textContent=best.count;$('mDP').textContent=Math.round(best.count/16*100)+'%';
+  $('activeBadge').textContent='Esquina activa: '+bin(state.active,state.dim);$('selectedBadge').textContent='Seleccionado: '+bin(state.selected,state.dim);
+}
+function updateSelected(){
+  const x=state.selected & 15,y=S[x];
+  $('selectedInfo').innerHTML=`<span class="mono">x = ${bin(x)} → S(x) = ${bin(y)}</span><br>Distancia a la esquina activa (en ${state.dim}D): <strong>${hamming(state.selected,state.active)}</strong>. Activación de esquina: <strong>${activation(state.selected).toFixed(2)}</strong>.`;
+}
+function updateAvalanche(){
+  const x=state.selected&15,y=S[x];let sum=0,html='';
+  for(let bit=0;bit<4;bit++){
+    const xp=x^(1<<bit),yp=S[xp],hd=popcount(y^yp);sum+=hd;
+    html+=`<div class="av-card"><div class="small">Invertir bit ${bit}</div><div class="mono">${bin(x)} → ${bin(xp)}</div><div class="mono">${bin(y)} → ${bin(yp)}</div><div style="margin-top:6px"><strong>${hd}/4 bits</strong> cambian</div><div class="bar"><i style="width:${hd*25}%"></i></div></div>`;
+  }
+  $('avalGrid').innerHTML=html;const avg=sum/4;
+  $('avalSummary').innerHTML=`Para <span class="mono">x=${bin(x)}</span>, la salida es <span class="mono">S(x)=${bin(y)}</span>. Al invertir un bit de entrada, cambian en promedio <strong>${avg.toFixed(2)} de 4 bits</strong> de salida (${(avg/4*100).toFixed(1)}%).`;
+}
+function ddtColor(v){
+  if(v===0)return 'rgba(24,32,54,.62)';const t=v/16;return `rgba(${Math.round(50+190*t)},${Math.round(70+20*t)},${Math.round(150-55*t)},${.42+.5*t})`;
+}
+function renderDDT(){
+  let h='<tr><th>Δx\\Δy</th>';for(let dy=0;dy<16;dy++)h+=`<th>${dy.toString(16).toUpperCase()}</th>`;h+='</tr>';
+  for(let dx=0;dx<16;dx++){h+=`<tr><th>${dx.toString(16).toUpperCase()}</th>`;for(let dy=0;dy<16;dy++){const v=DDT[dx][dy],sel=state.ddtSel&&state.ddtSel.dx===dx&&state.ddtSel.dy===dy;h+=`<td class="${sel?'sel':''}" data-dx="${dx}" data-dy="${dy}" style="background:${ddtColor(v)}" title="Δx=${bin(dx)}, Δy=${bin(dy)}: ${v}/16">${v}</td>`}h+='</tr>'}
+  $('ddtTable').innerHTML=h;
+  $('ddtTable').querySelectorAll('td').forEach(td=>td.addEventListener('click',()=>{state.ddtSel={dx:+td.dataset.dx,dy:+td.dataset.dy};renderDDT();updateDDTInfo()}));
+  updateDDTInfo();
+}
+function updateDDTInfo(){
+  const q=state.ddtSel||best,arr=[];for(let x=0;x<16;x++)if((S[x]^S[x^q.dx])===q.dy)arr.push(bin(x));
+  const special=(!state.ddtSel)?'Máxima característica no trivial detectada automáticamente. ':'';
+  $('ddtInfo').innerHTML=`${special}<span class="mono">Δx=${bin(q.dx)} → Δy=${bin(q.dy)}</span>: <strong>${DDT[q.dx][q.dy]}/16</strong> casos = <strong>${(DDT[q.dx][q.dy]/16*100).toFixed(1)}%</strong>. Entradas compatibles: <span class="mono">${arr.length?arr.join(', '):'ninguna'}</span>.`;
+}
+function renderSBox(){
+  let h='<tr><th>In</th><th>Out</th><th>Hex</th><th>Peso Hamming salida</th></tr>';
+  for(let x=0;x<16;x++)h+=`<tr><td>${bin(x)}</td><td class="out">${bin(S[x])}</td><td>0x${S[x].toString(16).toUpperCase()}</td><td>${popcount(S[x])}</td></tr>`;
+  $('sboxTable').innerHTML=h;
+  $('pBij').textContent=(new Set(S).size===16)?'Sí':'No';$('pNL').textContent=Math.min(...NL);$('pDeg').textContent=Math.max(...DEG);$('pSac').textContent=(GAV*100).toFixed(1)+'%';
+  $('attackText').innerHTML=`La DDT revela dos características con frecuencia máxima. Una de ellas es <span class="mono">Δx=${bin(best.dx)} → Δy=${bin(best.dy)}</span>, que ocurre en <strong>${best.count}/16 = ${(best.count/16*100).toFixed(0)}%</strong> de las entradas. Para una S-Box criptográfica real, un sesgo tan alto sería una señal de debilidad diferencial.`;
+}
+function refreshAll(){
+  state.active=state.active%(1<<state.dim);state.selected=state.selected%(1<<state.dim);
+  refreshCornerList();updateMetrics();updateSelected();updateAvalanche();draw();
+}
+
+$('dim').addEventListener('change',e=>{state.dim=+e.target.value;state.active=1;state.selected=0;refreshAll()});
+$('cparam').addEventListener('input',e=>{state.c=+e.target.value;$('cval').textContent=state.c.toFixed(2);refreshAll()});
+$('speed').addEventListener('input',e=>{state.speed=+e.target.value;$('speedval').textContent=state.speed.toFixed(2)});
+$('pauseBtn').addEventListener('click',()=>{state.paused=!state.paused;$('pauseBtn').textContent=state.paused?'Reanudar':'Pausar';$('status').textContent=state.paused?'Animación pausada':'Animación activa'});
+$('resetBtn').addEventListener('click',()=>{state.dim=4;state.c=.70;state.speed=.45;state.active=1;state.selected=0;state.angle=0;state.dragX=0;state.dragY=0;state.paused=false;$('dim').value='4';$('cparam').value='.70';$('cval').textContent='0.70';$('speed').value='.45';$('speedval').textContent='0.45';$('pauseBtn').textContent='Pausar';refreshAll()});
+
+canvas.addEventListener('pointerdown',e=>{state.dragging=true;state.lastX=e.clientX;state.lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(!state.dragging)return;const dx=e.clientX-state.lastX,dy=e.clientY-state.lastY;state.lastX=e.clientX;state.lastY=e.clientY;state.dragX+=dx*.006;state.dragY+=dy*.006;draw()});
+canvas.addEventListener('pointerup',e=>{const was=state.dragging;state.dragging=false;if(was&&Math.abs(e.clientX-state.lastX)<4&&Math.abs(e.clientY-state.lastY)<4){const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let bestHit=null,bestD=1e9;for(const p of hitPoints){const d=Math.hypot(x-p.x,y-p.y);if(d<p.r&&d<bestD){bestD=d;bestHit=p}}if(bestHit){state.selected=bestHit.i;refreshAll()}}});
+canvas.addEventListener('pointercancel',()=>state.dragging=false);
+canvas.addEventListener('click',e=>{if(state.dragging)return;const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let bestHit=null,bestD=1e9;for(const p of hitPoints){const d=Math.hypot(x-p.x,y-p.y);if(d<p.r&&d<bestD){bestD=d;bestHit=p}}if(bestHit){state.selected=bestHit.i;refreshAll()}});
+
+root.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{root.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));root.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+b.dataset.tab))}));
+
+$('csvBtn').addEventListener('click',()=>{
+  const rows=[['entrada','salida','salida_hex','aval_b0','aval_b1','aval_b2','aval_b3']];
+  for(let x=0;x<16;x++){const hd=[];for(let i=0;i<4;i++)hd.push(popcount(S[x]^S[x^(1<<i)]));rows.push([bin(x),bin(S[x]),S[x].toString(16).toUpperCase(),...hd])}
+  rows.push([]);rows.push(['DDT']);rows.push(['dx\\dy',...Array.from({length:16},(_,i)=>i.toString(16).toUpperCase())]);for(let dx=0;dx<16;dx++)rows.push([dx.toString(16).toUpperCase(),...DDT[dx]]);
+  const csv=rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='analisis_sbox_avalancha_ddt.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500);$('status').textContent='CSV exportado';
+});
+
+window.addEventListener('resize',resize);
+renderDDT();renderSBox();refreshAll();resize();raf=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
