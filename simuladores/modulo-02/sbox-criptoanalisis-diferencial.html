@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Laboratorio interactivo del Módulo 2 sobre S-Boxes, distancia de Hamming, efecto avalancha, DDT, uniformidad diferencial, no linealidad y criptoanálisis diferencial." />
 <title>S-Boxes, avalancha y criptoanálisis diferencial | Módulo 2</title>
+<link rel="stylesheet" href="../assets/lab.css" />
+<link rel="stylesheet" href="assets/module.css?v=7f2c9c7" />
 <style>
 :root{
   --bg:#050816; --panel:#0b1022; --panel2:#101831; --text:#e8edf7; --muted:#9aa7bd;
@@ -105,7 +108,8 @@ select{
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.btn{transition:none}}
 </style>
 </head>
-<body>
+<body class="module-02" data-module-page="sbox-diferencial">
+<a class="skip-link" href="#laboratorio">Saltar al laboratorio</a>
 <div class="app" id="app">
   <header class="header">
     <div class="brand">
@@ -120,7 +124,7 @@ select{
   </nav>
 
   <div class="grid">
-    <main class="card">
+    <main class="card" id="laboratorio">
       <div class="card-head">
         <h2>Espacio binario y función de esquina</h2>
         <div class="controls">
@@ -224,6 +228,7 @@ select{
   <footer class="author" style="margin-top:14px;text-align:center;white-space:normal;">Material elaborado por el profesor <strong>Sergio Gevatschnaider</strong></footer>
 </div>
 
+<script src="assets/module.js?v=890d1ab"></script>
 <script>
 (() => {
 'use strict';
