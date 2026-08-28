@@ -21,7 +21,7 @@ Esta carpeta reúne el campus ejecutable del repositorio. Cada módulo posee:
 | Módulo | Catálogo | Laboratorio integral |
 |---|---|---|
 | 1 | [Criptografía clásica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-01/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/01-criptografia-clasica.html) |
-| 2 | [Fundamentos de la criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/) | [Ruta guiada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) |
+| 2 | [Fundamentos de la criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/) | [Ruta guiada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/ruta-guiada.html) · [S-Boxes y DDT](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-02/sbox-criptoanalisis-diferencial.html) |
 | 3 | [Criptografía moderna](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/) | [Ruta completa](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-modulo.html) · [ChaCha20](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/chacha20.html) · [13 dossiers PDF](../docs/criptografia/pdf/modulo-03/README.md) · [Clase 3](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-03/ruta-guiada.html) |
 | 4 | [Esteganografía](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-04/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/04-esteganografia.html) |
 | 5 | [Blockchain](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-05/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/05-blockchain.html) |
@@ -57,6 +57,8 @@ simuladores/
 │   ├── ruta-guiada.html
 │   ├── introduccion-interactiva.html
 │   ├── teoria.html
+│   ├── confusion-difusion.html
+│   ├── sbox-criptoanalisis-diferencial.html
 │   ├── laboratorio-xor-flujo.html
 │   ├── mapas-mentales.html
 │   ├── glosario.html
