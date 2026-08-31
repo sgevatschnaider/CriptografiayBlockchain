@@ -28,6 +28,7 @@ Esta carpeta reúne el campus ejecutable del repositorio. Cada módulo posee:
 | 6 | [Protocolos y privacidad](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-06/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) |
 | 7 | [Poscuántica y cuántica](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-07/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html) |
 | 8 | [Seguridad aplicada](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-08/) | [Abrir](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/08-seguridad-aplicada.html) |
+| 9 | [Bitcoin](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-09/) | [Visor de 64 diapositivas](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-09/presentaciones.html) · [12 simulaciones](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-09/#recursos) |
 
 ## Arquitectura
 
@@ -85,6 +86,13 @@ simuladores/
 ├── ...
 ├── modulo-08/
 │   └── index.html
+├── modulo-09/
+│   ├── index.html
+│   ├── presentaciones.html
+│   ├── 12 simulaciones HTML
+│   ├── glosario-interactivo-bitcoin.html
+│   ├── cuestionario-interactivo-bitcoin-20-preguntas.html
+│   └── presentaciones/
 └── assets/
     ├── lab.css
     └── lab.js

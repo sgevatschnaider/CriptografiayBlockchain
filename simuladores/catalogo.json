@@ -1,5 +1,5 @@
 {
-  "version": 19,
+  "version": 20,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -476,6 +476,50 @@
       "id": "modulo-08",
       "titulo": "Seguridad aplicada",
       "laboratorio_integral": "08-seguridad-aplicada.html"
+    },
+    {
+      "id": "modulo-09",
+      "titulo": "Bitcoin",
+      "pagina": "modulo-09/index.html",
+      "visor_presentaciones": "modulo-09/presentaciones.html",
+      "presentaciones": [
+        {
+          "titulo": "Fundamentos e historia",
+          "archivo": "modulo-09/presentaciones/bitcoin-01-fundamentos-historia.pptx",
+          "google_slides": "https://docs.google.com/presentation/d/1Leu8lgUTgfJfQzh3vYScwk942JW3r45l79JhDXwiFwg/edit"
+        },
+        {
+          "titulo": "Claves, wallets y transacciones",
+          "archivo": "modulo-09/presentaciones/bitcoin-02-claves-wallets-transacciones.pptx",
+          "google_slides": "https://docs.google.com/presentation/d/1ljGY3GK09oSAMmFfgzQEkEf0u8TIWiHLrByeRc5qppM/edit"
+        },
+        {
+          "titulo": "Bloques, minería y consenso",
+          "archivo": "modulo-09/presentaciones/bitcoin-03-bloques-mineria-consenso.pptx",
+          "google_slides": "https://docs.google.com/presentation/d/1hOU-LJXJKPakaBg1TUQn3qapQ-r70zIbWkD6-eHfKtE/edit"
+        },
+        {
+          "titulo": "Economía, seguridad y escalabilidad",
+          "archivo": "modulo-09/presentaciones/bitcoin-04-economia-seguridad-escalabilidad.pptx",
+          "google_slides": "https://docs.google.com/presentation/d/16uEry1ec_DwMBelUKcoueaoiQMB72YfS7FPbDiwekH4/edit"
+        }
+      ],
+      "glosario": "modulo-09/glosario-interactivo-bitcoin.html",
+      "cuestionario": "modulo-09/cuestionario-interactivo-bitcoin-20-preguntas.html",
+      "simulaciones": [
+        { "titulo": "Viaje de una transacción", "archivo": "modulo-09/01-viaje-transaccion-bitcoin.html", "estado": "disponible" },
+        { "titulo": "Doble gasto y reorganización", "archivo": "modulo-09/02-doble-gasto-reorganizacion.html", "estado": "disponible" },
+        { "titulo": "Sybil y prueba de trabajo", "archivo": "modulo-09/03-sybil-prueba-trabajo.html", "estado": "disponible" },
+        { "titulo": "Claves, direcciones y wallet HD", "archivo": "modulo-09/04-claves-direcciones-wallet-hd.html", "estado": "disponible" },
+        { "titulo": "Constructor UTXO", "archivo": "modulo-09/05-constructor-utxo.html", "estado": "disponible" },
+        { "titulo": "Bitcoin Script", "archivo": "modulo-09/06-bitcoin-script.html", "estado": "disponible" },
+        { "titulo": "Privacidad y heurísticas", "archivo": "modulo-09/08-privacidad-heuristicas.html", "estado": "disponible" },
+        { "titulo": "Minería y prueba de trabajo", "archivo": "modulo-09/09-mineria-prueba-trabajo.html", "estado": "disponible" },
+        { "titulo": "Árbol de Merkle", "archivo": "modulo-09/10-arbol-merkle.html", "estado": "disponible" },
+        { "titulo": "Tiempo entre bloques", "archivo": "modulo-09/11-tiempo-entre-bloques.html", "estado": "disponible" },
+        { "titulo": "Ajuste de dificultad", "archivo": "modulo-09/12-ajuste-dificultad.html", "estado": "disponible" },
+        { "titulo": "Minería individual y pools", "archivo": "modulo-09/13-mineria-pools.html", "estado": "disponible" }
+      ]
     }
   ]
 }

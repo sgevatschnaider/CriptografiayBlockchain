@@ -39,6 +39,7 @@ Cada módulo posee una **página propia** que organiza su laboratorio integral, 
 [![Módulo 6](https://img.shields.io/badge/MÓDULO%206-PRIVACIDAD%20Y%20PROTOCOLOS-9d174d?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-06/)
 [![Módulo 7](https://img.shields.io/badge/MÓDULO%207-POSCUÁNTICA%20Y%20CUÁNTICA-0891b2?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-07/)
 [![Módulo 8](https://img.shields.io/badge/MÓDULO%208-SEGURIDAD%20APLICADA-b91c1c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-08/)
+[![Módulo 9](https://img.shields.io/badge/MÓDULO%209-BITCOIN-f7931a?style=for-the-badge&logo=bitcoin&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-09/)
 
 </div>
 
@@ -111,6 +112,7 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 | **6** | Protocolos y privacidad | PKI, commitments, secret sharing, ZKP, MPC y cifrado homomórfico | Analizar seguridad a nivel de protocolo |
 | **7** | Poscuántica y cuántica | Shor, Grover, ML-KEM, ML-DSA, SLH-DSA, migración y QKD | Diseñar una estrategia de transición criptográfica |
 | **8** | Seguridad aplicada | Gestión de claves, HSM, side channels, nonces, CSPRNG y threat modeling | Evitar fallas de implementación y operación |
+| **9** | Bitcoin | Historia, claves, wallets, UTXO, Script, minería, consenso, economía, privacidad y escalabilidad | Comprender Bitcoin como sistema técnico y económico verificable |
 
 <div align="center">
 
@@ -154,6 +156,7 @@ Para ejecutar las validaciones disponibles:
 
 ```bash
 node scripts/validate-module-03.mjs
+node scripts/validate-module-09.mjs
 node scripts/validate-chacha20-integration.mjs
 python -m unittest -v tests.test_afin
 ```
@@ -187,7 +190,7 @@ El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 │   ├── 02-fundamentos-matematicos.html
 │   ├── 03-criptografia-moderna.html
 │   ├── fundamentos-matematicos/
-│   ├── modulo-01/ ... modulo-08/
+│   ├── modulo-01/ ... modulo-09/
 │   └── assets/
 ├── docs/criptografia/
 ├── recursos/

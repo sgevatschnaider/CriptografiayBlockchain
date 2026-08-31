@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Visor completo de las cuatro presentaciones del Módulo 9 de Bitcoin." />
+    <meta name="theme-color" content="#02070d" />
+    <title>Presentaciones de Bitcoin | Módulo 9</title>
+    <link rel="stylesheet" href="modulo-09.css" />
+    <script src="presentaciones.js" defer></script>
+  </head>
+  <body class="bitcoin-viewer-page">
+    <main class="bitcoin-viewer" id="viewer-root">
+      <header class="bitcoin-viewer-bar">
+        <div><a href="index.html">← Módulo 9</a><strong id="deck-title">Bitcoin 01 · Fundamentos e historia</strong></div>
+        <nav aria-label="Opciones de la presentación"><a id="pptx-link" href="presentaciones/bitcoin-01-fundamentos-historia.pptx">Descargar PPTX</a><a id="slides-link" href="https://docs.google.com/presentation/d/1Leu8lgUTgfJfQzh3vYScwk942JW3r45l79JhDXwiFwg/edit" target="_blank" rel="noopener">Google Slides</a><button id="fullscreen" type="button">Pantalla completa</button></nav>
+      </header>
+
+      <div class="deck-tabs" role="tablist" aria-label="Elegir presentación">
+        <button type="button" role="tab" data-deck="1" aria-selected="true">01 · Fundamentos</button>
+        <button type="button" role="tab" data-deck="2" aria-selected="false">02 · Claves y UTXO</button>
+        <button type="button" role="tab" data-deck="3" aria-selected="false">03 · Minería</button>
+        <button type="button" role="tab" data-deck="4" aria-selected="false">04 · Economía</button>
+      </div>
+
+      <section class="slide-stage" aria-live="polite">
+        <button class="slide-arrow previous" id="previous" type="button" aria-label="Diapositiva anterior">‹</button>
+        <img id="slide-image" src="presentaciones/deck-01/slide-01.png" alt="Diapositiva 1 de la presentación Bitcoin 01" />
+        <button class="slide-arrow next" id="next" type="button" aria-label="Diapositiva siguiente">›</button>
+      </section>
+
+      <div class="slide-controls">
+        <div><button id="first" type="button">Primera</button><button id="play" type="button" aria-pressed="false">▶ Reproducir</button><button id="last" type="button">Última</button></div>
+        <strong id="counter">1 / 16</strong>
+        <label for="delay">Intervalo <select id="delay"><option value="3000">3 s</option><option value="5000" selected>5 s</option><option value="8000">8 s</option></select></label>
+      </div>
+
+      <ol class="thumbnail-strip" id="thumbnails" aria-label="Miniaturas de la presentación"></ol>
+      <p class="viewer-help">Teclado: ← y → para navegar, Inicio y Fin para saltar, espacio para reproducir o pausar.</p>
+      <p class="viewer-help">Material elaborado por el profesor Sergio Gevatschnaider.</p>
+    </main>
+  </body>
+</html>
