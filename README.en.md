@@ -10,6 +10,7 @@ Educational campus with theory, interactive simulations, guided routes, glossari
 - [Module 3 theory](docs/criptografia/03-criptografia-moderna.md)
 - [Module 3 PDF](docs/criptografia/pdf/modulo-03-criptografia-moderna.pdf)
 - [Module 3 topic PDF library](docs/criptografia/pdf/modulo-03/README.md)
+- [Module 10: Cryptography and Artificial Intelligence](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-10/)
 - [Spanish README](README.md)
 
 ## Coverage

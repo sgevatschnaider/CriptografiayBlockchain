@@ -42,6 +42,7 @@ Los enlaces siguientes apuntan a **GitHub Pages**. Al abrirlos, el navegador eje
 | 6 | [Shamir, commitments y Schnorr](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/06-protocolos-privacidad.html) | ¿Cómo distribuir confianza o demostrar conocimiento sin revelar? |
 | 7 | [Grover, BB84 y migración](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/07-poscuantica-cuantica.html) | ¿Qué debe migrarse y con qué prioridad? |
 | 8 | [Nonces, amenazas y claves](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/08-seguridad-aplicada.html) | ¿Por qué fallan sistemas con algoritmos correctos? |
+| 10 | [PCA, privacidad y Householder](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-10/) | ¿Qué información puede filtrarse cuando se delega un PCA sobre matrices transformadas? |
 
 ## Mapa de aprendizaje
 

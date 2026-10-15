@@ -40,6 +40,7 @@ Cada módulo posee una **página propia** que organiza su laboratorio integral, 
 [![Módulo 7](https://img.shields.io/badge/MÓDULO%207-POSCUÁNTICA%20Y%20CUÁNTICA-0891b2?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-07/)
 [![Módulo 8](https://img.shields.io/badge/MÓDULO%208-SEGURIDAD%20APLICADA-b91c1c?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-08/)
 [![Módulo 9](https://img.shields.io/badge/MÓDULO%209-BITCOIN-f7931a?style=for-the-badge&logo=bitcoin&logoColor=white)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-09/)
+[![Módulo 10](https://img.shields.io/badge/MÓDULO%2010-CRIPTOGRAFÍA%20E%20IA-0369a1?style=for-the-badge)](https://sgevatschnaider.github.io/CriptografiayBlockchain/simuladores/modulo-10/)
 
 </div>
 
@@ -113,6 +114,7 @@ La interfaz común incorpora diseño responsivo, navegación por teclado, region
 | **7** | Poscuántica y cuántica | Shor, Grover, ML-KEM, ML-DSA, SLH-DSA, migración y QKD | Diseñar una estrategia de transición criptográfica |
 | **8** | Seguridad aplicada | Gestión de claves, HSM, side channels, nonces, CSPRNG y threat modeling | Evitar fallas de implementación y operación |
 | **9** | Bitcoin | Historia, claves, wallets, UTXO, Script, minería, consenso, economía, privacidad y escalabilidad | Comprender Bitcoin como sistema técnico y económico verificable |
+| **10** | Criptografía e Inteligencia Artificial | PCA, Householder, computación delegada y seguridad de datos | Evaluar el ahorro local y las garantías de privacidad |
 
 <div align="center">
 
@@ -190,7 +192,7 @@ El workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml):
 │   ├── 02-fundamentos-matematicos.html
 │   ├── 03-criptografia-moderna.html
 │   ├── fundamentos-matematicos/
-│   ├── modulo-01/ ... modulo-09/
+│   ├── modulo-01/ ... modulo-10/
 │   └── assets/
 ├── docs/criptografia/
 ├── recursos/

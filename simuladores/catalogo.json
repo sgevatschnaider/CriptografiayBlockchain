@@ -1,5 +1,5 @@
 {
-  "version": 20,
+  "version": 21,
   "descripcion": "Catálogo público de laboratorios y simulaciones del repositorio Criptografía y Blockchain.",
   "areas_transversales": [
     {
@@ -507,18 +507,83 @@
       "glosario": "modulo-09/glosario-interactivo-bitcoin.html",
       "cuestionario": "modulo-09/cuestionario-interactivo-bitcoin-20-preguntas.html",
       "simulaciones": [
-        { "titulo": "Viaje de una transacción", "archivo": "modulo-09/01-viaje-transaccion-bitcoin.html", "estado": "disponible" },
-        { "titulo": "Doble gasto y reorganización", "archivo": "modulo-09/02-doble-gasto-reorganizacion.html", "estado": "disponible" },
-        { "titulo": "Sybil y prueba de trabajo", "archivo": "modulo-09/03-sybil-prueba-trabajo.html", "estado": "disponible" },
-        { "titulo": "Claves, direcciones y wallet HD", "archivo": "modulo-09/04-claves-direcciones-wallet-hd.html", "estado": "disponible" },
-        { "titulo": "Constructor UTXO", "archivo": "modulo-09/05-constructor-utxo.html", "estado": "disponible" },
-        { "titulo": "Bitcoin Script", "archivo": "modulo-09/06-bitcoin-script.html", "estado": "disponible" },
-        { "titulo": "Privacidad y heurísticas", "archivo": "modulo-09/08-privacidad-heuristicas.html", "estado": "disponible" },
-        { "titulo": "Minería y prueba de trabajo", "archivo": "modulo-09/09-mineria-prueba-trabajo.html", "estado": "disponible" },
-        { "titulo": "Árbol de Merkle", "archivo": "modulo-09/10-arbol-merkle.html", "estado": "disponible" },
-        { "titulo": "Tiempo entre bloques", "archivo": "modulo-09/11-tiempo-entre-bloques.html", "estado": "disponible" },
-        { "titulo": "Ajuste de dificultad", "archivo": "modulo-09/12-ajuste-dificultad.html", "estado": "disponible" },
-        { "titulo": "Minería individual y pools", "archivo": "modulo-09/13-mineria-pools.html", "estado": "disponible" }
+        {
+          "titulo": "Viaje de una transacción",
+          "archivo": "modulo-09/01-viaje-transaccion-bitcoin.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Doble gasto y reorganización",
+          "archivo": "modulo-09/02-doble-gasto-reorganizacion.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Sybil y prueba de trabajo",
+          "archivo": "modulo-09/03-sybil-prueba-trabajo.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Claves, direcciones y wallet HD",
+          "archivo": "modulo-09/04-claves-direcciones-wallet-hd.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Constructor UTXO",
+          "archivo": "modulo-09/05-constructor-utxo.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Bitcoin Script",
+          "archivo": "modulo-09/06-bitcoin-script.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Privacidad y heurísticas",
+          "archivo": "modulo-09/08-privacidad-heuristicas.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Minería y prueba de trabajo",
+          "archivo": "modulo-09/09-mineria-prueba-trabajo.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Árbol de Merkle",
+          "archivo": "modulo-09/10-arbol-merkle.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Tiempo entre bloques",
+          "archivo": "modulo-09/11-tiempo-entre-bloques.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Ajuste de dificultad",
+          "archivo": "modulo-09/12-ajuste-dificultad.html",
+          "estado": "disponible"
+        },
+        {
+          "titulo": "Minería individual y pools",
+          "archivo": "modulo-09/13-mineria-pools.html",
+          "estado": "disponible"
+        }
+      ]
+    },
+    {
+      "id": "modulo-10",
+      "titulo": "Criptografía e Inteligencia Artificial",
+      "pagina": "modulo-10/index.html",
+      "documentos_pdf": [
+        "modulo-10/materiales/01_Post_LinkedIn_PCA_con_privacidad.pdf",
+        "modulo-10/materiales/04_Guia_PCA_y_criptografia.pdf"
+      ],
+      "simulaciones": [
+        {
+          "titulo": "Reflexión de Householder en dos dimensiones",
+          "archivo": "modulo-10/index.html",
+          "estado": "disponible",
+          "tipo": "laboratorio-matematico"
+        }
       ]
     }
   ]

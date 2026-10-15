@@ -1,0 +1,92 @@
+%PDF-1.4
+%....
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 8 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 4320 >>
+stream
+0.1 0.24 0.42 rg 0 808 595 34 re f
+0 0 0 rg
+BT /F2 9 Tf 48 790 Td (CRIPTOGRAFÍA Y BLOCKCHAIN  |  MÓDULO 10) Tj ET
+BT /F2 18 Tf 54 747.0 Td (Inteligencia artificial y privacidad: cuando los datos) Tj ET
+BT /F2 18 Tf 54 718.6 Td (pueden procesarse sin revelar su contenido original) Tj ET
+BT /F1 10.3 Tf 54 671.1 Td (La expansión de la inteligencia artificial y de los servicios de computación en la nube está) Tj ET
+BT /F1 10.3 Tf 54 654.8 Td (transformando la manera en que las organizaciones procesan información, pero también plantea un) Tj ET
+BT /F1 10.3 Tf 54 638.6 Td (desafío cada vez más importante: aprovechar la capacidad computacional de infraestructuras) Tj ET
+BT /F1 10.3 Tf 54 622.3 Td (externas sin comprometer la confidencialidad de los datos que constituyen uno de sus activos) Tj ET
+BT /F1 10.3 Tf 54 606.0 Td (más valiosos.) Tj ET
+BT /F1 10.3 Tf 54 579.7 Td (Esta tensión resulta especialmente relevante en sectores como las finanzas, la salud y la) Tj ET
+BT /F1 10.3 Tf 54 563.5 Td (industria, donde el análisis de grandes volúmenes de información exige recursos computacionales) Tj ET
+BT /F1 10.3 Tf 54 547.2 Td (considerables y, al mismo tiempo, requiere mecanismos de protección que permitan conservar el) Tj ET
+BT /F1 10.3 Tf 54 530.9 Td (control sobre los datos sensibles.) Tj ET
+BT /F1 10.3 Tf 54 504.7 Td (Una investigación publicada en 2026 en la revista Cybersecurity, desarrollada por Yan Ding y Ye) Tj ET
+BT /F1 10.3 Tf 54 488.4 Td (Du, aborda este problema mediante una combinación de álgebra lineal, criptografía y computación) Tj ET
+BT /F1 10.3 Tf 54 472.1 Td (distribuida, proponiendo un procedimiento para ejecutar el análisis de componentes principales) Tj ET
+BT /F1 10.3 Tf 54 455.8 Td (\(PCA\) en servidores externos sin transmitir directamente la información original.) Tj ET
+BT /F1 10.3 Tf 54 429.6 Td (El aspecto más interesante de la propuesta reside en la utilización de transformaciones) Tj ET
+BT /F1 10.3 Tf 54 413.3 Td (matriciales de Householder, que permiten modificar la representación de los datos conservando) Tj ET
+BT /F1 10.3 Tf 54 397.0 Td (determinadas relaciones matemáticas necesarias para recuperar los resultados del análisis. De) Tj ET
+BT /F1 10.3 Tf 54 380.7 Td (esta manera, el servidor realiza las operaciones más exigentes sobre matrices transformadas,) Tj ET
+BT /F1 10.3 Tf 54 364.5 Td (mientras que el propietario de la información conserva las claves para reconstruir los) Tj ET
+BT /F1 10.3 Tf 54 348.2 Td (componentes principales y verificar la corrección de los cálculos recibidos.) Tj ET
+BT /F1 10.3 Tf 54 321.9 Td (Los resultados experimentales muestran que, para matrices de dimensión 5.000, el procedimiento) Tj ET
+BT /F1 10.3 Tf 54 305.6 Td (reduce un 92,36 % el tiempo de cálculo local del cliente, gracias a que su complejidad) Tj ET
+BT /F1 10.3 Tf 54 289.4 Td (computacional pasa de O\(n^3\) a O\(n^2\). Sin embargo, esta mejora no implica una reducción) Tj ET
+BT /F1 10.3 Tf 54 273.1 Td (equivalente del tiempo total de procesamiento, puesto que las operaciones más costosas) Tj ET
+BT /F1 10.3 Tf 54 256.8 Td (continúan ejecutándose en el servidor.) Tj ET
+BT /F1 10.3 Tf 54 230.5 Td (Desde la perspectiva de la seguridad, el trabajo también invita a una distinción fundamental:) Tj ET
+BT /F1 10.3 Tf 54 214.3 Td (transformar matemáticamente los datos no equivale necesariamente a garantizar su) Tj ET
+BT /F1 10.3 Tf 54 198.0 Td (confidencialidad absoluta, ya que determinadas propiedades estadísticas pueden conservarse y,) Tj ET
+BT /F1 10.3 Tf 54 181.7 Td (por lo tanto, seguir siendo observables. En consecuencia, la eficiencia computacional y las) Tj ET
+BT /F1 10.3 Tf 54 165.4 Td (garantías de privacidad deben evaluarse como dimensiones relacionadas, aunque conceptualmente) Tj ET
+BT /F1 10.3 Tf 54 149.2 Td (diferentes.) Tj ET
+BT /F1 10.3 Tf 54 122.9 Td (Más allá del PCA, esta línea de investigación refleja una transformación en la arquitectura de) Tj ET
+BT /F1 10.3 Tf 54 106.6 Td (los sistemas de inteligencia artificial, en la que el desafío no consiste solamente en) Tj ET
+BT /F1 10.3 Tf 54 90.4 Td (desarrollar algoritmos capaces de procesar cantidades crecientes de información, sino también) Tj ET
+BT /F1 10.3 Tf 54 74.1 Td (en diseñar mecanismos que permitan distribuir las tareas computacionales sin perder el control) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 8 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 634 >>
+stream
+0.1 0.24 0.42 rg 0 808 595 34 re f
+0 0 0 rg
+BT /F2 9 Tf 48 790 Td (CRIPTOGRAFÍA Y BLOCKCHAIN  |  MÓDULO 10) Tj ET
+BT /F1 10.3 Tf 54 747.0 Td (sobre los datos.) Tj ET
+BT /F1 10.3 Tf 54 720.7 Td (En este escenario, la capacidad de combinar eficiencia, verificabilidad y privacidad podría) Tj ET
+BT /F1 10.3 Tf 54 704.5 Td (convertirse en un factor estratégico para la adopción de inteligencia artificial en sectores) Tj ET
+BT /F1 10.3 Tf 54 688.2 Td (donde la sensibilidad de la información condiciona las posibilidades de innovación.) Tj ET
+BT /F1 10.3 Tf 54 661.9 Td (#InteligenciaArtificial #PrivacidadDeDatos #CienciaDeDatos) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000224 00000 n 
+0000000360 00000 n 
+0000004731 00000 n 
+0000004867 00000 n 
+0000005551 00000 n 
+trailer << /Size 9 /Root 1 0 R >>
+startxref
+5653
+%%EOF

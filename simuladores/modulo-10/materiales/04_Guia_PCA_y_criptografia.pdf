@@ -1,0 +1,104 @@
+%PDF-1.4
+%....
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 8 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 3002 >>
+stream
+0.1 0.24 0.42 rg 0 808 595 34 re f
+0 0 0 rg
+BT /F2 9 Tf 48 790 Td (CRIPTOGRAFÍA Y BLOCKCHAIN  |  MÓDULO 10) Tj ET
+BT /F2 18 Tf 54 747.0 Td (Guía de estudio: PCA, criptografía y privacidad) Tj ET
+BT /F2 12.5 Tf 54 689.6 Td (Propósito) Tj ET
+BT /F1 10.3 Tf 54 666.8 Td (Este módulo explora la relación entre PCA, álgebra lineal, procesamiento delegado, protección) Tj ET
+BT /F1 10.3 Tf 54 650.5 Td (de datos y garantías criptográficas. Toma como caso de estudio el trabajo de Yan Ding y Ye Du) Tj ET
+BT /F1 10.3 Tf 54 634.3 Td (publicado en Cybersecurity en 2026.) Tj ET
+BT /F2 12.5 Tf 54 598.0 Td (¿Qué hace PCA?) Tj ET
+BT /F1 10.3 Tf 54 575.2 Td (El análisis de componentes principales identifica direcciones ortogonales de máxima varianza y) Tj ET
+BT /F1 10.3 Tf 54 559.0 Td (representa los datos en menos dimensiones. Requiere calcular matrices de covarianzas y realizar) Tj ET
+BT /F1 10.3 Tf 54 542.7 Td (una descomposición espectral para obtener autovalores y autovectores.) Tj ET
+BT /F2 12.5 Tf 54 506.4 Td (¿Por qué delegar los cálculos?) Tj ET
+BT /F1 10.3 Tf 54 483.7 Td (Las operaciones matriciales densas y la descomposición de autovalores pueden demandar tiempo) Tj ET
+BT /F1 10.3 Tf 54 467.4 Td (cúbico con matrices cuadradas grandes. En el esquema estudiado el cliente delega las) Tj ET
+BT /F1 10.3 Tf 54 451.1 Td (operaciones costosas al servidor, conservando las tareas de preparación, verificación y) Tj ET
+BT /F1 10.3 Tf 54 434.8 Td (recuperación.) Tj ET
+BT /F2 12.5 Tf 54 398.6 Td (Matriz de Householder) Tj ET
+BT /F1 10.3 Tf 54 375.8 Td (Una reflexión de Householder está definida por H = I - 2 v v^T, con v unitario. Es ortogonal y) Tj ET
+BT /F1 10.3 Tf 54 359.5 Td (simétrica: H^T H = I y H^-1 = H. Puede aplicarse mediante H A = A - 2 v\(v^T A\), evitando una) Tj ET
+BT /F1 10.3 Tf 54 343.3 Td (multiplicación matricial densa de costo cúbico.) Tj ET
+BT /F2 12.5 Tf 54 307.0 Td (Transformaciones del artículo) Tj ET
+BT /F1 10.3 Tf 54 284.2 Td (El cliente crea tres reflexiones V1, V2 y V3 y un escalar no nulo alpha. Construye M = alpha V1) Tj ET
+BT /F1 10.3 Tf 54 268.0 Td (A V2, N = V2^T A^T V1^T y L = V1 A V3. El servidor recibe matrices transformadas en lugar de la) Tj ET
+BT /F1 10.3 Tf 54 251.7 Td (matriz original A.) Tj ET
+BT /F2 12.5 Tf 54 215.4 Td (Por qué funciona la descomposición) Tj ET
+BT /F1 10.3 Tf 54 192.7 Td (El servidor calcula G = M N = alpha V1 A A^T V1^T. Por ortogonalidad de V2 se cancela V2 V2^T.) Tj ET
+BT /F1 10.3 Tf 54 176.4 Td (Los autovectores de la matriz original se recuperan con V1^T U' y los autovalores con) Tj ET
+BT /F1 10.3 Tf 54 160.1 Td (Lambda'/alpha; hay que cuidar el signo de alpha y el orden de los autovalores.) Tj ET
+BT /F2 12.5 Tf 54 123.9 Td (Verificación de resultados) Tj ET
+BT /F1 10.3 Tf 54 101.1 Td (El cliente emplea comprobaciones probabilísticas con vectores aleatorios. Comparar Bv y Cv) Tj ET
+BT /F1 10.3 Tf 54 84.8 Td (puede detectar falsificaciones sin reconstruir una matriz grande; superar una sola prueba no) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 8 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 2597 >>
+stream
+0.1 0.24 0.42 rg 0 808 595 34 re f
+0 0 0 rg
+BT /F2 9 Tf 48 790 Td (CRIPTOGRAFÍA Y BLOCKCHAIN  |  MÓDULO 10) Tj ET
+BT /F1 10.3 Tf 54 747.0 Td (constituye demostración absoluta. El paper acota la probabilidad de aceptar un resultado) Tj ET
+BT /F1 10.3 Tf 54 730.7 Td (incorrecto al repetir rondas.) Tj ET
+BT /F2 12.5 Tf 54 694.5 Td (Ahorro de recursos) Tj ET
+BT /F1 10.3 Tf 54 671.7 Td (En el artículo se reporta una reducción del orden O\(n^3\) a O\(n^2\) para el trabajo del cliente.) Tj ET
+BT /F1 10.3 Tf 54 655.4 Td (Con matrices de dimensión 5000 la tabla 2 informa 32,0 segundos de cálculo local frente a 2,444) Tj ET
+BT /F1 10.3 Tf 54 639.2 Td (segundos de trabajo del cliente delegado, una disminución local del 92,36 por ciento.) Tj ET
+BT /F2 12.5 Tf 54 602.9 Td (El servidor sigue trabajando) Tj ET
+BT /F1 10.3 Tf 54 580.1 Td (La nube invierte unos 30,205 segundos adicionales en el caso n = 5000. La optimización no es) Tj ET
+BT /F1 10.3 Tf 54 563.9 Td (una aceleración garantizada del tiempo completo de respuesta: transferencias, latencia y carga) Tj ET
+BT /F1 10.3 Tf 54 547.6 Td (del servidor deben computarse por separado.) Tj ET
+BT /F2 12.5 Tf 54 511.3 Td (Privacidad: límite fundamental) Tj ET
+BT /F1 10.3 Tf 54 488.6 Td (Una transformación ortogonal de la forma L = V1 A V3 conserva la norma de Frobenius y los) Tj ET
+BT /F1 10.3 Tf 54 472.3 Td (valores singulares de A. Por eso las matrices publicadas pueden ocultar posiciones o valores) Tj ET
+BT /F1 10.3 Tf 54 456.0 Td (concretos y a la vez filtrar información espectral. No conviene equiparar perturbación) Tj ET
+BT /F1 10.3 Tf 54 439.7 Td (algebraica con cifrado semánticamente seguro.) Tj ET
+BT /F2 12.5 Tf 54 403.5 Td (Distinción con otras técnicas) Tj ET
+BT /F1 10.3 Tf 54 380.7 Td (El cifrado homomórfico permite ciertas operaciones directamente sobre cifrados; MPC distribuye) Tj ET
+BT /F1 10.3 Tf 54 364.4 Td (un cálculo entre varias partes; privacidad diferencial limita filtraciones en salidas agregadas) Tj ET
+BT /F1 10.3 Tf 54 348.2 Td (bajo supuestos concretos. No son equivalentes al método de perturbación matricial del estudio.) Tj ET
+BT /F2 12.5 Tf 54 311.9 Td (Lectura del trabajo y atribución) Tj ET
+BT /F1 10.3 Tf 54 289.1 Td (Yan Ding y Ye Du, Privacy-preserving and efficient outsourcing computation scheme for principal) Tj ET
+BT /F1 10.3 Tf 54 272.9 Td (component analysis, Cybersecurity, volumen 9, artículo 127 \(2026\), DOI) Tj ET
+BT /F1 10.3 Tf 54 256.6 Td (10.1186/s42400-026-00554-x. El artículo se publica con licencia Creative Commons Attribution) Tj ET
+BT /F1 10.3 Tf 54 240.3 Td (4.0.) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000224 00000 n 
+0000000360 00000 n 
+0000003413 00000 n 
+0000003549 00000 n 
+0000006197 00000 n 
+trailer << /Size 9 /Root 1 0 R >>
+startxref
+6299
+%%EOF
